@@ -1,0 +1,152 @@
+================================================================================
+
+                                 DESIGN DOCUMENT
+
+================================================================================
+
+I. CORE GAMEPLAY
+
+Each player begins in a friendly port with a small ship, a single crew, and a set amount of resources. The players must navigate from island to island, fighting NPC enemies, searching for treasure, and gathering resources, in order to upgrade ship and crew. As the stock of resources grows, the player must grow a fleet and manage several crews. As time goes on, the world will spawn tougher and tougher enemies. Depending on the game mode, either the last player to survive in the world, or the one with the highest score, wins the game.
+
+The fun in the gameplay will come from players' development of their fleet to suit a chosen battle strategy. Gameplay elements such as ship weapons and types will provide enough differentiation that the game will not simply be about gathering the most resources, but rather about their efficient allocation.
+
+
+RESOURCES
++ Raw / for crafting
+  - Steel
+  - Wood
+  - Cloth
++ Refined / for sale
+  - Sugar
+  - Rum
++ Consumable
+  - Firearms
+  - Swords
+  - Gunpowder
+  - Cannonballs
++ Treasure / for sale
+  - Coins
+  - Gems
+
+SHIPS
++ Name
++ Captain
++ Level
+  - Affected by hull damage threshold / weapon damage
++ Hull
+  - Number of sections
+  - Damage threshold (min required to penetrate)
+  - Current damage
+  - Crippled?
+  - Speed of repairs
+  - Cost of repairs
+  - Defense against rams/grapeshot/fireshot/chains...
++ Weapons
+  - Damage output
+  - Ammo cost per use
+  - Rate of fire / reload speed
+  - Distance
+  - Shot spread
+  - Ammo capacity
+  - Amount/placement of cannons
++ Movement
+  - Max speed
+  - Acceleration
+  - Turn capability
++ Sails
+  - Efficiency (response to the wind)
+  - Max deployable amount
+  - Speed of deploy
+  - Speed of take down
+  - Damage (tears, burning ...)
++ Boarding
+  - Swivel cannons
+    - Number
+    - Rate of fire
+    - Accuracy
+  - Grappling lines
+    - Damage resistance
+    - Number
+    - Speed of crossing
+  - Retreat chance
++ Resource capacity
++ Resource placement (gunpowder in weak section == explosion?)
++ Crew capacity
+
+CREW MEMBERS
++ Name
++ Level
+  - Affected by damage threshold / weapon quality
++ Health
+  - Experience level
+  - Max health
+  - Damage threshold / armor
+  - Wounded?
+  - Fed / watered?
++ Morale
+  - Max morale
+  - Rate of morale loss
+  - Paid recently
+  - Won a battle recently
+  - Enough food/water
++ Combat Effectiveness
+  - Weapon quality
+  - Weapon match with specialization?
++ Special Abilities
+  - Weapon specialization?
+  - Can always retreat
+  - Morale won't drop as fast
+  - Fast at sail deploy
+  - Fast at boarding
+  - Doesn't need as much food
+  ...etc
+
+ACTIONS AT SEA
++ Out-of-combat orders
+  - Broadside at target ship
+  - Ram target ship
+  - Move to valid location
+  - Dock at port
+  - Board crippled ship
+  - Trade with friendly ship
++ In-combat orders
+  - Broadside/swivel guns
+  - Brace
+  - Retreat
+  - Focus fire on target enemy
+  - Ram target ship
+  - Move to valid location
+  - Circle clockwise/counter-clockwise
+
+BOARDING
++ Battle meter
+  - Represents the state of the contest
+  - Reduce the other side to zero to win
++ Crew combat
+  - Move to valid location
+  - Engage target with ranged
+  - Engage target with melee
+  - Retreat to friendly ship
+  - Grapple over to enemy ship
+
+ACTIONS ON LAND
++ Friendly/neutral ports
+  - Order supplies from shops
+  - Direct crew to investigate cave
+  - Direct crew to dig up treasure
++ Hostile ports
+  - Order crew in battle
+  - Direct cannonfire
+
+
+II. GAMEPLAY SYSTEMS
+
+
+WORLD
++ N x N grid of cells
++ Each cell is a M x M grid of materials (rock, sand, building, shallow
+  water, deep water, etc...)
++ Unique entities -- Monster spawns, shops, in-place turrets, etc...
++ Clients will handle rendering and game logic for a local cell and pass
+  info back to the server at regular intervals. Server will process and
+  pass back world snapshot.
