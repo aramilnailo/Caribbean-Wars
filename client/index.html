@@ -1,18 +1,16 @@
-Hello world
+<canvas id="canvas" width="500" height="500" style="border:1px solid black;"></canvas>
 
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 <script>
+	var canvas = document.getElementById("canvas").getContext("2d");
+	canvas.font = "30px Arial";
+
 	var socket = io();
 	
-	var sendMsg = function() {
-		socket.emit("message", {
-			message:"it's my birthday"
-		});
-	}
-	
-	socket.on("message", function(data) {
-		console.log("Server message: " + data.message);
+	socket.on("newPositions", function(data) {
+		canvas.clearRect(0, 0, 500, 500);
+		for(var i = 0; i < data.length; i++) {
+			canvas.fillText(data[i].number, data[i].x, data[i].y);
+		}
 	});
 </script>
-
-<button onclick="sendMsg()">It's my birthday!</button>
