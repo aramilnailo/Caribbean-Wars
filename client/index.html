@@ -4,26 +4,28 @@
     <title>SR_5_CaribbeanWars</title>
   </head>
   <body>
-    
+    <h1>SR_5_Caribbean Wars</h1>
     <div id="login-screen">
       Username: <input id="login-username" type="text"></input><br>
       Password: <input id="login-password" type="password"></input>
       <button id="login-btn">Log in</button>
       <button id="signup-btn">Sign up</button>
+      <p>Default username: 'admin'<br>
+	Default password: 'password'</p>
     </div>
     
     <div id="game-screen" style="display:none">
-      
+
       <canvas id="canvas" width="500" height="500"
 	      style="border:1px solid black;"></canvas>
+      <button id="logout-btn">Log out</button>
 
       <div id="chat-text" style="width:500px; height=400px; overflow-y:scroll">
 	Chat
+	<form id="chat-form">
+	  <input id="chat-input" type="text" style="width:500px"></input>
+	</form>
       </div>
-
-      <form id="chat-form">
-	<input id="chat-input" type="text" style="width:500px"></input>
-      </form>
       
     </div>
     

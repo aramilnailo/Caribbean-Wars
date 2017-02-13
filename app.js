@@ -66,8 +66,8 @@ var login = function(username, password, cb) {
 	}
 	var i;
 	for(i = 0; i < rows.length; i++) {
-	    console.log(rows[i].username + "==" + username +
-		       rows[i].password + "==" + password);
+	    console.log(rows[i].username + " : " +
+			rows[i].password);
 	    if(rows[i].username == username &&
 	       rows[i].password == password) {
 		cb(true);
@@ -75,6 +75,19 @@ var login = function(username, password, cb) {
 	}
 	cb(false);
     });
+}
+
+var signup = function(username, password, cb) {
+    db.query("INSERT INTO user_info SET ?;",
+        {username:username, password:password},
+	function(err) {
+	    if(err) {
+		console.log(err.message);
+		cb(false);
+	    } else {
+		cb(true);
+	    }
+	});
 }
 
 io.sockets.on("connection", function(socket) {
@@ -92,6 +105,23 @@ io.sockets.on("connection", function(socket) {
 		socket.emit("loginResponse", {success:false});
 	    }
 	});
+    });
+
+    socket.on("signup", function(data) {
+	signup(data.username, data.password, function(data) {
+	    if(data) {
+		player = Player(socket.id);
+		PLAYER_LIST[socket.id] = player;
+		socket.emit("loginResponse", {success:true});
+	    } else {
+		socket.emit("loginResponse", {success:false});
+	    }
+	});
+    });
+
+    socket.on("logout", function() {
+	delete PLAYER_LIST[socket.id];
+	socket.emit("logoutResponse");
     });
     
     socket.on("disconnect", function() {

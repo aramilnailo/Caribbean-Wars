@@ -1,31 +1,46 @@
 var socket = io();
 
-/* Login variables */
+/* User */
 var loginScreen = document.getElementById("login-screen");
-var gameScreen = document.getElementById("game-screen");
 var loginUsername = document.getElementById("login-username");
 var loginPassword = document.getElementById("login-password");
 var loginButton = document.getElementById("login-btn");
-var signUpButton = document.getElementById("signup-btn");
+var logoutButton = document.getElementById("logout-btn");
+var signupButton = document.getElementById("signup-btn");
+
+/* Chat */
+var chatText = document.getElementById("chat-text");
+var chatInput = document.getElementById("chat-input");
+var chatForm = document.getElementById("chat-form");
+
+/* Game */
+var gameScreen = document.getElementById("game-screen");
 
 loginButton.onclick = function() {
     socket.emit("login", {username:loginUsername.value,
 			  password:loginPassword.value});
 }
 
+logoutButton.onclick = function() {
+    socket.emit("logout");
+}
+
+signupButton.onclick = function() {
+    socket.emit("signup", {username:loginUsername.value,
+			   password:loginPassword.value});
+}
+
 socket.on("loginResponse", function(data) {
     if(data.success === true) {
 	loginScreen.style.display = "none";
 	gameScreen.style.display = "inline-block";
-    } else {
-	alert("Login unsuccessful");
     }
 });
 
-/* Game variables */
-var chatText = document.getElementById("chat-text");
-var chatInput = document.getElementById("chat-input");
-var chatForm = document.getElementById("chat-form");
+socket.on("logoutResponse", function() {
+    loginScreen.style.display = "inline-block";
+    gameScreen.style.display = "none";
+});
 
 var canvas = document.getElementById("canvas").getContext("2d");
 canvas.font = "30px Arial";
