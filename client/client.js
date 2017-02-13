@@ -1,11 +1,34 @@
+var socket = io();
+
+/* Login variables */
+var loginScreen = document.getElementById("login-screen");
+var gameScreen = document.getElementById("game-screen");
+var loginUsername = document.getElementById("login-username");
+var loginPassword = document.getElementById("login-password");
+var loginButton = document.getElementById("login-btn");
+var signUpButton = document.getElementById("signup-btn");
+
+loginButton.onclick = function() {
+    socket.emit("login", {username:loginUsername.value,
+			  password:loginPassword.value});
+}
+
+socket.on("loginResponse", function(data) {
+    if(data.success) {
+	loginScreen.style.display = "none";
+	gameScreen.style.display = "inline-block";
+    } else {
+	alert("Login unsuccessful");
+    }
+});
+
+/* Game variables */
 var chatText = document.getElementById("chat-text");
 var chatInput = document.getElementById("chat-input");
 var chatForm = document.getElementById("chat-form");
 
 var canvas = document.getElementById("canvas").getContext("2d");
 canvas.font = "30px Arial";
-
-var socket = io();
 
 socket.on("newPositions", function(data) {
     canvas.clearRect(0, 0, 500, 500);

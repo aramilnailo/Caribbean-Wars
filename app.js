@@ -41,12 +41,22 @@ var Player = function(id) {
 }
 
 var io = require("socket.io")(serv, {});
+
 io.sockets.on("connection", function(socket) {
     socket.id = Math.random();
     SOCKET_LIST[socket.id] = socket;
-    
-    var player = Player(socket.id);
-    PLAYER_LIST[socket.id] = player;
+    var player = {};
+
+    socket.on("login", function(data) {
+	if(data.username === "admin" &&
+	   data.password === "password") {
+	    player = Player(socket.id);
+	    PLAYER_LIST[socket.id] = player;
+	    socket.emit("loginResponse", {success:true});
+	} else {
+	    socket.emit("loginResponse", {success:false});
+	}
+    });
     
     socket.on("disconnect", function() {
 	delete SOCKET_LIST[socket.id];
