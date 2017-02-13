@@ -14,7 +14,7 @@ loginButton.onclick = function() {
 }
 
 socket.on("loginResponse", function(data) {
-    if(data.success) {
+    if(data.success === true) {
 	loginScreen.style.display = "none";
 	gameScreen.style.display = "inline-block";
     } else {

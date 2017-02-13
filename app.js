@@ -56,17 +56,26 @@ db.connect(function(err) {
     }	   
 });
 
-var sql = "SELECT * FROM user_info;";
-
-db.query(sql, function(err, rows) {
-    if(err) {
-	console.log(err.stack);
-    } else {
-	console.log(rows);
-    }
-});
-
 var io = require("socket.io")(serv, {});
+
+var login = function(username, password, cb) {
+    db.query("SELECT * FROM user_info", function(err, rows) {
+	if(err) {
+	    console.log(err.stack);
+	    cb(false);
+	}
+	var i;
+	for(i = 0; i < rows.length; i++) {
+	    console.log(rows[i].username + "==" + username +
+		       rows[i].password + "==" + password);
+	    if(rows[i].username == username &&
+	       rows[i].password == password) {
+		cb(true);
+	    }
+	}
+	cb(false);
+    });
+}
 
 io.sockets.on("connection", function(socket) {
     socket.id = Math.random();
@@ -74,14 +83,15 @@ io.sockets.on("connection", function(socket) {
     var player = {};
 
     socket.on("login", function(data) {
-	if(data.username === "admin" &&
-	   data.password === "password") {
-	    player = Player(socket.id);
-	    PLAYER_LIST[socket.id] = player;
-	    socket.emit("loginResponse", {success:true});
-	} else {
-	    socket.emit("loginResponse", {success:false});
-	}
+	login(data.username, data.password, function(data) {
+	    if(data) {
+		player = Player(socket.id);
+		PLAYER_LIST[socket.id] = player;
+		socket.emit("loginResponse", {success:true});
+	    } else {
+		socket.emit("loginResponse", {success:false});
+	    }
+	});
     });
     
     socket.on("disconnect", function() {
@@ -131,5 +141,3 @@ setInterval(function() {
 	socket.emit("newPositions", pack);
     }
 }, 1000/25);
-
-db.end();
