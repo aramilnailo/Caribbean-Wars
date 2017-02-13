@@ -52,7 +52,7 @@ db.connect(function(err) {
     if(err) {
 	console.log(err.stack);
     } else {
-	console.log("Connected to database as " + db.threadId);
+	console.log("Connected to database.");
     }	   
 });
 
