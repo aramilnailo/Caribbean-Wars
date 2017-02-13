@@ -1,5 +1,6 @@
 var DEBUG = true;
 
+var mysql = require("mysql");
 var express = require("express");
 var app = express();
 var serv = require("http").Server(app);
@@ -39,6 +40,31 @@ var Player = function(id) {
     }
     return player;
 }
+
+var db = mysql.createConnection({
+    host:"mysql.cs.iastate.edu",
+    user:"dbu309sr5",
+    password:"NWI5ZTY0MzQw",
+    database:"db309sr5"
+});
+
+db.connect(function(err) {
+    if(err) {
+	console.log(err.stack);
+    } else {
+	console.log("Connected to database as " + db.threadId);
+    }	   
+});
+
+var sql = "SELECT * FROM user_info;";
+
+db.query(sql, function(err, rows) {
+    if(err) {
+	console.log(err.stack);
+    } else {
+	console.log(rows);
+    }
+});
 
 var io = require("socket.io")(serv, {});
 
@@ -106,5 +132,4 @@ setInterval(function() {
     }
 }, 1000/25);
 
-
-
+db.end();
