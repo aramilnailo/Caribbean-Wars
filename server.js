@@ -1,14 +1,17 @@
 var DEBUG = true;
 
-var mysql = require("mysql");
 var express = require("express");
 var app = express();
 var serv = require("http").Server(app);
+
+var dbi = require('./dbi.js');
 
 app.get("/", function(req, res) {
     res.sendFile(__dirname + "/client/index.html");
 });
 app.use("/client", express.static(__dirname + "/client"));
+
+dbi.connect();
 
 serv.listen(2000);
 console.log("Server started");
@@ -16,37 +19,8 @@ console.log("Server started");
 var SOCKET_LIST = {};
 var PLAYER_LIST = {};
 
-var Player = function(id) {
-    var player = {
-	x:250,
-	y:250,
-	id:id,
-	number:"" + Math.floor(10 * Math.random()),
-	pressingRight:false,
-	pressingLeft:false,
-	pressingUp:false,
-	pressingDown:false,
-	maxSpeed:10
-    }
-    player.updatePosition = function() {
-	if(player.pressingRight)
-	    player.x += player.maxSpeed;
-	if(player.pressingLeft)
-	    player.x -= player.maxSpeed;
-	if(player.pressingUp)
-	    player.y -= player.maxSpeed;
-	if(player.pressingDown)
-	    player.y += player.maxSpeed;
-    }
-    return player;
-}
+require('./player.js');
 
-var db = mysql.createConnection({
-    host:"mysql.cs.iastate.edu",
-    user:"dbu309sr5",
-    password:"NWI5ZTY0MzQw",
-    database:"db309sr5"
-});
 
 db.connect(function(err) {
     if(err) {
@@ -58,37 +32,9 @@ db.connect(function(err) {
 
 var io = require("socket.io")(serv, {});
 
-var login = function(username, password, cb) {
-    db.query("SELECT * FROM user_info", function(err, rows) {
-	if(err) {
-	    console.log(err.stack);
-	    cb(false);
-	}
-	var i;
-	for(i = 0; i < rows.length; i++) {
-	    console.log(rows[i].username + " : " +
-			rows[i].password);
-	    if(rows[i].username == username &&
-	       rows[i].password == password) {
-		cb(true);
-	    }
-	}
-	cb(false);
-    });
-}
+var login = dbi.login();
+var signup = dbi.signup();
 
-var signup = function(username, password, cb) {
-    db.query("INSERT INTO user_info SET ?;",
-        {username:username, password:password},
-	function(err) {
-	    if(err) {
-		console.log(err.message);
-		cb(false);
-	    } else {
-		cb(true);
-	    }
-	});
-}
 
 io.sockets.on("connection", function(socket) {
     socket.id = Math.random();
