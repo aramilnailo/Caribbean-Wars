@@ -29,11 +29,12 @@ io.sockets.on("connection", function(socket) {
     var player = {};
 
     socket.on("login", function(data) {
-	dbi.login(data.username, data.password, function(data) {
-	    if(data) {
-		player = players.Player(socket.id);
+	dbi.login(data.username, data.password, function(resp) {
+	    if(resp) {
+		player = players.Player(data.username);
 		PLAYER_LIST[socket.id] = player;
-		socket.emit("loginResponse", {success:true});
+		socket.emit("loginResponse", {success:true,
+					      username:data.username});
 	    } else {
 		socket.emit("loginResponse", {success:false});
 	    }
@@ -41,11 +42,12 @@ io.sockets.on("connection", function(socket) {
     });
 
     socket.on("signup", function(data) {
-	dbi.signup(data.username, data.password, function(data) {
-	    if(data) {
-		player = players.Player(socket.id);
+	dbi.signup(data.username, data.password, function(resp) {
+	    if(resp) {
+		player = players.Player(data.username);
 		PLAYER_LIST[socket.id] = player;
-		socket.emit("loginResponse", {success:true});
+		socket.emit("loginResponse", {success:true,
+					      username:data.username});
 	    } else {
 		socket.emit("loginResponse", {success:false});
 	    }

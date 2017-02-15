@@ -7,6 +7,7 @@ var loginPassword = document.getElementById("login-password");
 var loginButton = document.getElementById("login-btn");
 var logoutButton = document.getElementById("logout-btn");
 var signupButton = document.getElementById("signup-btn");
+var usernameLabel = document.getElementById("username-label");
 
 /* Chat */
 var chatText = document.getElementById("chat-text");
@@ -34,12 +35,14 @@ socket.on("loginResponse", function(data) {
     if(data.success === true) {
 	loginScreen.style.display = "none";
 	gameScreen.style.display = "inline-block";
+	usernameLabel.innerHTML = data.username;
     }
 });
 
 socket.on("logoutResponse", function() {
     loginScreen.style.display = "inline-block";
     gameScreen.style.display = "none";
+    usernameLabel.innerHTML = "";
 });
 
 var canvas = document.getElementById("canvas").getContext("2d");

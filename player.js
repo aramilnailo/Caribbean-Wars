@@ -3,7 +3,7 @@ var Player = function(id) {
     var player = {
 	x:250,
 	y:250,
-	id:id,
+	username:id,
 	number:"" + Math.floor(10 * Math.random()),
 	pressingRight:false,
 	pressingLeft:false,
