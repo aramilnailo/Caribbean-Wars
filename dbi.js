@@ -14,7 +14,7 @@ dbi.prototype.connect = function() {
     });
     db.connect(function(err) {
         if(err) {
-	    console.log(err.stack);
+	    console.log(err.message);
 	} else {
 	    console.log("Connected to database.");
 	}
@@ -22,11 +22,11 @@ dbi.prototype.connect = function() {
 }
 
 dbi.prototype.login = function(username, password, cb) {
-    var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?";
+    var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
     var inserts = ["user_info", "username", username, "password", password];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
-	    console.log(err.stack);
+	    console.log(err.message);
 	    cb(false);
 	}
 	if(rows.length > 0) cb(true);
@@ -45,6 +45,17 @@ dbi.prototype.signup = function(username, password, cb) {
 		cb(true);
 	    }
 	});
+}
+
+dbi.prototype.getAllUserInfo = function(cb) {
+    db.query("SELECT * FROM user_info;", function(err, rows) {
+	if(err) {
+	    console.log(err.message);
+	    cb(null);
+	} else {
+	    cb(rows);
+	}
+    });
 }
 
 module.exports = new dbi();

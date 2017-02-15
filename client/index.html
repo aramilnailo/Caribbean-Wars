@@ -10,18 +10,21 @@
       Password: <input id="login-password" type="password"></input>
       <button id="login-btn">Log in</button>
       <button id="signup-btn">Sign up</button>
-      <p>Default username: 'admin'<br>
-	Default password: 'password'</p>
+      <br>
+      <button id="user-list-btn">List Users</button>
+      <br>
+      <div id="user-list" style="display:none;">
+      </div>
     </div>
     
-    <div id="game-screen" style="display:none">
+    <div id="game-screen" style="display:none;">
 
       <canvas id="canvas" width="500" height="500"
 	      style="border:1px solid black;"></canvas>
       <button id="logout-btn">Log out</button>
       <span id="username-label"></span>
 
-      <div id="chat-text" style="width:500px; height=400px; overflow-y:scroll">
+      <div id="chat-text" style="width:500px; height=400px; overflow-y:scroll;">
 	Chat
 	<form id="chat-form">
 	  <input id="chat-input" type="text" style="width:500px"></input>

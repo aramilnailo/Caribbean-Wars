@@ -88,6 +88,12 @@ io.sockets.on("connection", function(socket) {
 	else if(data.inputId === "down")
 	    player.pressingDown = data.state;
     });
+
+    socket.on("userListRequest", function() {
+	dbi.getAllUserInfo(function(data) {
+	    socket.emit("userListResponse", data);
+	});
+    });
 });
 
 setInterval(function() {
