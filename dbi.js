@@ -3,12 +3,21 @@ var dbi = function () {};
 
 var mysql = require("mysql");
 
+var db = {};
+
 dbi.prototype.connect = function() {
-    mysql.createConnection({
-    host:"mysql.cs.iastate.edu",
-    user:"dbu309sr5",
-    password:"NWI5ZTY0MzQw",
-    database:"db309sr5"
+    db = mysql.createConnection({
+	host:"mysql.cs.iastate.edu",
+	user:"dbu309sr5",
+	password:"NWI5ZTY0MzQw",
+	database:"db309sr5"
+    });
+    db.connect(function(err) {
+        if(err) {
+	    console.log(err.stack);
+	} else {
+	    console.log("Connected to database.");
+	}
     });
 }
 
@@ -44,6 +53,4 @@ dbi.prototype.signup = function(username, password, cb) {
 	});
 }
 
-exports.dbi = new dbi();
-
-
+module.exports = new dbi();
