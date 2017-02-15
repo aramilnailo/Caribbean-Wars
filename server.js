@@ -22,7 +22,7 @@ var PLAYER_LIST = {};
 require('./player.js');
 
 
-db.connect(function(err) {
+dbi.connect(function(err) {
     if(err) {
 	console.log(err.stack);
     } else {

@@ -3,8 +3,10 @@ var dbi = function () {};
 
 var mysql = require("mysql");
 
+var db;
+
 dbi.prototype.connect = function() {
-    mysql.createConnection({
+    db = mysql.createConnection({
     host:"mysql.cs.iastate.edu",
     user:"dbu309sr5",
     password:"NWI5ZTY0MzQw",
@@ -44,6 +46,6 @@ dbi.prototype.signup = function(username, password, cb) {
 	});
 }
 
-exports.dbi = new dbi();
+module.exports = new dbi();
 
 
