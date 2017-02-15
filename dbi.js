@@ -22,20 +22,14 @@ dbi.prototype.connect = function() {
 }
 
 dbi.prototype.login = function(username, password, cb) {
-    db.query("SELECT * FROM user_info", function(err, rows) {
+    var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?";
+    var inserts = ["user_info", "username", username, "password", password];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
 	    console.log(err.stack);
 	    cb(false);
 	}
-	var i;
-	for(i = 0; i < rows.length; i++) {
-	    console.log(rows[i].username + " : " +
-			rows[i].password);
-	    if(rows[i].username == username &&
-	       rows[i].password == password) {
-		cb(true);
-	    }
-	}
+	if(rows.length > 0) cb(true);
 	cb(false);
     });
 }
