@@ -16,8 +16,8 @@ dbi.connect.call(this);
 serv.listen(2000);
 console.log("Server started");
 
-var SOCKET_LIST = {};
-var PLAYER_LIST = {};
+var SOCKET_LIST = [];
+var PLAYER_LIST = [];
 
 var players = require('./player.js');
 

@@ -35,16 +35,20 @@ signupButton.onclick = function() {
 			   password:loginPassword.value});
 }
 
-userListButton.onclick = function() {
+var toggleList = function() {
     if(listHidden) {
 	socket.emit("userListRequest");
 	userListButton.innerHTML = "Hide users";
 	listHidden = false;
     } else {
-	userList.style = "display:none;"
-	listHidden = true;
+	userList.style.display = "none"	
 	userListButton.innerHTML = "List users";
+	listHidden = true;
     }
+}
+
+userListButton.onclick = function() {
+    toggleList();
 }
 
 socket.on("loginResponse", function(data) {
@@ -52,6 +56,7 @@ socket.on("loginResponse", function(data) {
 	loginScreen.style.display = "none";
 	gameScreen.style.display = "inline-block";
 	usernameLabel.innerHTML = data.username;
+	if(!listHidden) toggleList();
     }
 });
 
@@ -63,13 +68,20 @@ socket.on("logoutResponse", function() {
 
 socket.on("userListResponse", function(data) {
     var i;
-    userList.style.display = "inline-block";
-    userList.innerHTML = "<ul>";
+    userList.style.display = "table";
+    var html = "<table><tr>" +
+	"<th>Username</th>" +
+	"<th>Password</th>" +
+	"<th>Online</th></tr>";
     for(i = 0; i < data.length; i++) {	
-	userList.innerHTML += "<li>" + data[i].username +
-	    " : " + data[i].password + "</li>";
+	html += "<tr>" +
+	    "<td>"+ data[i].username + "</td>" +
+	    "<td>" + data[i].password + "</td>" +
+	    "<td>" + data[i].online + "</td>" +
+	    "</tr>";
     }
-    userList.innerHTML += "</ul>";
+    html += "</table>";
+    userList.innerHTML = html;
 });
 
 var canvas = document.getElementById("canvas").getContext("2d");
