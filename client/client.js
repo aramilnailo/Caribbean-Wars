@@ -10,8 +10,12 @@ var signupButton = document.getElementById("signup-btn");
 var userListButton = document.getElementById("user-list-btn");
 var userList = document.getElementById("user-list");
 var usernameLabel = document.getElementById("username-label");
+var saveGameButton = document.getElementById("saveGame-btn");
+var savedGamesListButton = document.getElementById("savedGamesList-btn");
+
 
 var listHidden = true;
+var savedGamesListHidden = true;
 
 /* Chat */
 var chatText = document.getElementById("chat-text");
@@ -35,6 +39,13 @@ signupButton.onclick = function() {
 			   password:loginPassword.value});
 }
 
+saveGameButton.onclick = function() {
+    socket.emit("saveGame",filename);
+}
+savedGamesListButton.onclick = function() {
+    socket.emit("saveGameRequest",filename);
+}
+
 var toggleList = function() {
     if(listHidden) {
 	socket.emit("userListRequest");
@@ -47,9 +58,43 @@ var toggleList = function() {
     }
 }
 
+var toggleSavedGamesList = function() {
+    if(savedGamesListHidden) {
+	socket.emit("savedGamesListRequest");
+	savedGamesListButton.innerHTML = "Hide game list";
+	savedGamesListHidden = false;
+    } else {
+	savedGamesList.style.display = "none";
+	savedGamesListButton.innerHTML = "Saved games list";
+	savedGamesListHidden = true;
+    }
+}
+
+savedGamesListButton.onclick = function() {
+    toggleSavedGamesList();
+}
+
 userListButton.onclick = function() {
     toggleList();
 }
+
+socket.on("saveGameResponse", function(data) {
+/* To do */
+}); 
+
+socket.on("savedGamesListResponse", function(data) {
+    var i;
+    userList.style.display = "table";
+    var html = "<table><tr>" +
+	"<th>Saved game<th></tr>";
+    for(i = 0; i < data.length; i++) {	
+	html += "<tr>" +
+	    "<td>"+ data[i].filename + "</td></tr>";
+    }
+    html += "</table>";
+    savedGamesList.innerHTML = html;
+}
+	  
 
 socket.on("loginResponse", function(data) {
     if(data.success === true) {

@@ -3,7 +3,6 @@ var DEBUG = true;
 var express = require("express");
 var app = express();
 var serv = require("http").Server(app);
-
 var dbi = require("./dbi.js");
 
 app.get("/", function(req, res) {
@@ -41,6 +40,17 @@ io.sockets.on("connection", function(socket) {
 	});
     });
 
+    socket.on("saveGameRequest", function(data) {
+	dbi.saveGameFilename(data, function(resp) {
+	    if (resp) {
+		socket.emit("saveGameResponse", {success:true,
+						 filename:filename});
+	    } else {
+		socket.emit("saveGameResponse", {success:false});
+	    }
+	});
+    }
+    
     socket.on("signup", function(data) {
 	dbi.signup(data.username, data.password, function(resp) {
 	    if(resp) {
@@ -92,6 +102,12 @@ io.sockets.on("connection", function(socket) {
     socket.on("userListRequest", function() {
 	dbi.getAllUserInfo(function(data) {
 	    socket.emit("userListResponse", data);
+	});
+    });
+
+    socket.on("savedGamesListRequest", function() {
+	dbi.getSavedGamesList(function(data) {
+	    socket.emit("savedGameListResponse",data);
 	});
     });
 });
