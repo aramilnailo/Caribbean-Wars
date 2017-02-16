@@ -1,13 +1,18 @@
-
+// Namespace creation
 var dbi = function () {};
 
+//============== MODULES ==============================
 var mysql = require("mysql");
 
+//============== DATABASE INTERFACE ======================
+
+// MySQL database object
 var db = {};
 
+// Creates initial connection to db
 dbi.prototype.connect = function() {
     db = mysql.createConnection({
-	host:"mysql.cs.iastate.edu",
+	host:"mysql.cs.iastate.edu",	
 	user:"dbu309sr5",
 	password:"NWI5ZTY0MzQw",
 	database:"db309sr5"
@@ -21,6 +26,8 @@ dbi.prototype.connect = function() {
     });
 }
 
+// Compares given username and password string to the user_info table
+// Callback true if the info is valid, false if not or if errors occur
 dbi.prototype.login = function(username, password, cb) {
     var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
     var inserts = ["user_info", "username", username, "password", password];
@@ -34,6 +41,8 @@ dbi.prototype.login = function(username, password, cb) {
     });
 }
 
+// Inserts given username and password set into user_info
+// Callback true if username is not taken, false if it is or if errors occur
 dbi.prototype.signup = function(username, password, cb) {
     db.query("INSERT INTO user_info SET ?;",
         {username:username, password:password},
@@ -47,17 +56,20 @@ dbi.prototype.signup = function(username, password, cb) {
 	});
 }
 
+// Retrieves all the table data, and passes it to the callback as an array of rows
 dbi.prototype.getAllUserInfo = function(cb) {
     db.query("SELECT * FROM user_info;", function(err, rows) {
 	if(err) {
 	    console.log(err.message);
-	    cb(null);
+	    cb({});
 	} else {
 	    cb(rows);
 	}
     });
 }
 
+//============================= TO DO ===================================
+/*
 // may want to add timestamp
 dbi.prototype.saveGameFilename = function(filename, cb) {
     db.query("INSERT INTO storedgames_info SET ?;",
@@ -82,3 +94,5 @@ dbi.prototype.getSavedGamesList = function(cb) {
 	}
     });
 }
+*/
+module.exports = new dbi();
