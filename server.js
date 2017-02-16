@@ -49,7 +49,7 @@ io.sockets.on("connection", function(socket) {
 		socket.emit("saveGameResponse", {success:false});
 	    }
 	});
-    }
+    });
     
     socket.on("signup", function(data) {
 	dbi.signup(data.username, data.password, function(resp) {
