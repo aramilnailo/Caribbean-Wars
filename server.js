@@ -4,21 +4,22 @@ var express = require("express");
 var app = express();
 var serv = require("http").Server(app);
 
-var dbi = require('./dbi.js');
+var dbi = require("./dbi.js");
 
 app.get("/", function(req, res) {
     res.sendFile(__dirname + "/client/index.html");
 });
 app.use("/client", express.static(__dirname + "/client"));
 
-dbi.connect();
+dbi.connect.call(this);
 
 serv.listen(2000);
 console.log("Server started");
 
-var SOCKET_LIST = {};
-var PLAYER_LIST = {};
+var SOCKET_LIST = [];
+var PLAYER_LIST = [];
 
+<<<<<<< HEAD
 require('./player.js');
 
 
@@ -29,12 +30,11 @@ dbi.connect(function(err) {
 	console.log("Connected to database.");
     }	   
 });
+=======
+var players = require('./player.js');
+>>>>>>> 6d46b9a2c0f3ad6a9950163f770597219bff4e43
 
 var io = require("socket.io")(serv, {});
-
-var login = dbi.login();
-var signup = dbi.signup();
-
 
 io.sockets.on("connection", function(socket) {
     socket.id = Math.random();
@@ -42,11 +42,12 @@ io.sockets.on("connection", function(socket) {
     var player = {};
 
     socket.on("login", function(data) {
-	login(data.username, data.password, function(data) {
-	    if(data) {
-		player = Player(socket.id);
+	dbi.login(data.username, data.password, function(resp) {
+	    if(resp) {
+		player = players.Player(data.username);
 		PLAYER_LIST[socket.id] = player;
-		socket.emit("loginResponse", {success:true});
+		socket.emit("loginResponse", {success:true,
+					      username:data.username});
 	    } else {
 		socket.emit("loginResponse", {success:false});
 	    }
@@ -54,11 +55,12 @@ io.sockets.on("connection", function(socket) {
     });
 
     socket.on("signup", function(data) {
-	signup(data.username, data.password, function(data) {
-	    if(data) {
-		player = Player(socket.id);
+	dbi.signup(data.username, data.password, function(resp) {
+	    if(resp) {
+		player = players.Player(data.username);
 		PLAYER_LIST[socket.id] = player;
-		socket.emit("loginResponse", {success:true});
+		socket.emit("loginResponse", {success:true,
+					      username:data.username});
 	    } else {
 		socket.emit("loginResponse", {success:false});
 	    }
@@ -98,6 +100,12 @@ io.sockets.on("connection", function(socket) {
 	    player.pressingUp = data.state;
 	else if(data.inputId === "down")
 	    player.pressingDown = data.state;
+    });
+
+    socket.on("userListRequest", function() {
+	dbi.getAllUserInfo(function(data) {
+	    socket.emit("userListResponse", data);
+	});
     });
 });
 

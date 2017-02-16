@@ -7,6 +7,11 @@ var loginPassword = document.getElementById("login-password");
 var loginButton = document.getElementById("login-btn");
 var logoutButton = document.getElementById("logout-btn");
 var signupButton = document.getElementById("signup-btn");
+var userListButton = document.getElementById("user-list-btn");
+var userList = document.getElementById("user-list");
+var usernameLabel = document.getElementById("username-label");
+
+var listHidden = true;
 
 /* Chat */
 var chatText = document.getElementById("chat-text");
@@ -30,16 +35,53 @@ signupButton.onclick = function() {
 			   password:loginPassword.value});
 }
 
+var toggleList = function() {
+    if(listHidden) {
+	socket.emit("userListRequest");
+	userListButton.innerHTML = "Hide users";
+	listHidden = false;
+    } else {
+	userList.style.display = "none"	
+	userListButton.innerHTML = "List users";
+	listHidden = true;
+    }
+}
+
+userListButton.onclick = function() {
+    toggleList();
+}
+
 socket.on("loginResponse", function(data) {
     if(data.success === true) {
 	loginScreen.style.display = "none";
 	gameScreen.style.display = "inline-block";
+	usernameLabel.innerHTML = data.username;
+	if(!listHidden) toggleList();
     }
 });
 
 socket.on("logoutResponse", function() {
     loginScreen.style.display = "inline-block";
     gameScreen.style.display = "none";
+    usernameLabel.innerHTML = "";
+});
+
+socket.on("userListResponse", function(data) {
+    var i;
+    userList.style.display = "table";
+    var html = "<table><tr>" +
+	"<th>Username</th>" +
+	"<th>Password</th>" +
+	"<th>Online</th></tr>";
+    for(i = 0; i < data.length; i++) {	
+	html += "<tr>" +
+	    "<td>"+ data[i].username + "</td>" +
+	    "<td>" + data[i].password + "</td>" +
+	    "<td>" + data[i].online + "</td>" +
+	    "</tr>";
+    }
+    html += "</table>";
+    userList.innerHTML = html;
 });
 
 var canvas = document.getElementById("canvas").getContext("2d");
