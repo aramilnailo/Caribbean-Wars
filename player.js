@@ -1,9 +1,11 @@
 
-var Player = function(id) {
+//========= PLAYER OBJECT ==================
+
+var Player = function(username) {
     var player = {
 	x:250,
 	y:250,
-	username:id,
+	username:username,
 	number:"" + Math.floor(10 * Math.random()),
 	pressingRight:false,
 	pressingLeft:false,
