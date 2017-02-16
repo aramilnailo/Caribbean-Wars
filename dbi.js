@@ -18,7 +18,6 @@ dbi.prototype.connect = function() {
 	} else {
 	    console.log("Connected to database.");
 	}
->>>>>>> 6d46b9a2c0f3ad6a9950163f770597219bff4e43
     });
 }
 

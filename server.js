@@ -19,20 +19,7 @@ console.log("Server started");
 var SOCKET_LIST = [];
 var PLAYER_LIST = [];
 
-<<<<<<< HEAD
-require('./player.js');
-
-
-dbi.connect(function(err) {
-    if(err) {
-	console.log(err.stack);
-    } else {
-	console.log("Connected to database.");
-    }	   
-});
-=======
 var players = require('./player.js');
->>>>>>> 6d46b9a2c0f3ad6a9950163f770597219bff4e43
 
 var io = require("socket.io")(serv, {});
 
