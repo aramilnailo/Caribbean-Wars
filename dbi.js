@@ -58,4 +58,27 @@ dbi.prototype.getAllUserInfo = function(cb) {
     });
 }
 
-module.exports = new dbi();
+// may want to add timestamp
+dbi.prototype.saveGameFilename = function(filename, cb) {
+    db.query("INSERT INTO storedgames_info SET ?;",
+	     {filename:filename},
+	     function(err) {
+		 if(err) {
+		     console.log(err.message);
+		     cb(false);
+		 } else {
+		     cb(true);
+		 }
+		});
+}
+
+dbi.prototype.getSavedGamesList = function(cb) {
+    db.query("SELECT * FROM storedgames_info;", function(err, rows) {
+	if(err) {
+	    console.log(err.message);
+	    cb(null);
+	} else {
+	    cb(rows);
+	}
+    });
+}

@@ -52,6 +52,17 @@ io.sockets.on("connection", function(socket) {
 	});
     });
 
+    socket.on("saveGameRequest", function(data) {
+	dbi.saveGameFilename(data, function(resp) {
+	    if (resp) {
+		socket.emit("saveGameResponse", {success:true,
+						 filename:filename});
+	    } else {
+		socket.emit("saveGameResponse", {success:false});
+	    }
+	});
+    }
+
     // Clicked signup button on login screen
     socket.on("signup", function(data) {
 	//Create new record in database
@@ -116,6 +127,12 @@ io.sockets.on("connection", function(socket) {
 	//Send back the whole table from the database
 	dbi.getAllUserInfo(function(data) {
 	    socket.emit("userListResponse", data);
+	});
+    });
+
+    socket.on("savedGamesListRequest", function() {
+	dbi.getSavedGamesList(function(data) {
+	    socket.emit("savedGameListResponse",data);
 	});
     });
 });
