@@ -57,5 +57,3 @@ dbi.prototype.getAllUserInfo = function(cb) {
 	}
     });
 }
-
-module.exports = new dbi();
