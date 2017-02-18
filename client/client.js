@@ -54,13 +54,19 @@ var toggleList = function() {
 
 // Login button is clicked on login screen
 loginButton.onclick = function() {
-    socket.emit("login", {username:loginUsername.value,
+    // Don't submit empty forms
+    if(loginUsername.value.length > 0 &&
+       loginPassword.value.length > 0)
+	socket.emit("login", {username:loginUsername.value,
 			  password:loginPassword.value});
 }
 
 // Sign up button is clicked on login screen
 signupButton.onclick = function() {
-    socket.emit("signup", {username:loginUsername.value,
+    // Don't submit empty forms
+    if(loginUsername.value.length > 0 &&
+       loginPassword.value.length > 0)
+	socket.emit("signup", {username:loginUsername.value,
 			   password:loginPassword.value});
 }
 
