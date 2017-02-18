@@ -56,6 +56,16 @@ dbi.prototype.signup = function(username, password, cb) {
 	});
 }
 
+// Sets the online status of the given username to the given boolean value
+dbi.prototype.setUserOnlineStatus = function(username, val) {
+    var boolStr = "" + (val ? 1 : 0);
+    var sql = "UPDATE user_info SET online=? WHERE username=?";
+    var inserts = [boolStr, username];
+    db.query(mysql.format(sql, inserts), function(err) {
+	if(err) console.log(err.message);
+    });
+}
+
 // Retrieves all the table data, and passes it to the callback as an array of rows
 dbi.prototype.getAllUserInfo = function(cb) {
     db.query("SELECT * FROM user_info;", function(err, rows) {

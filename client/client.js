@@ -217,4 +217,3 @@ var toggleSavedGamesList = function() {
 	savedGamesListHidden = true;
     }
 }
-*/
