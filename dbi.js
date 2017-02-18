@@ -80,7 +80,8 @@ dbi.prototype.getAllUserInfo = function(cb) {
 
 //============================= TO DO ===================================
 /**/
-dbi.prototype.saveGameFilename = function(filename, cb) {
+dbi.prototype.saveGameFilename = function(filename,cb) {
+    /*
     var ngames = 0;
     db.query("SELECT COUNT(*) AS numstoredgames FROM storedgames_info",
 	     function(err,numstoredgames) {
@@ -91,10 +92,11 @@ dbi.prototype.saveGameFilename = function(filename, cb) {
 		     ngames = numstoredgames;
 		 }
 	     });
+	     var id = ngames + 1;	     */
     
-    var id = ngames + 1;	     
+    var id = 1;
     db.query("INSERT INTO storedgames_info SET ?;",
-	     {id:id, filename:filename},
+	     {id:id,filename:filename},
 	     function(err) {
 		 if(err) {
 		     console.log(err.message);

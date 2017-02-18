@@ -180,7 +180,9 @@ socket.on("evalAnswer", function(data) {
 
 
 saveGameButton.onclick = function() {
+    var filename = window.prompt("Save as: ","filename");
     socket.emit("saveGameRequest",filename);
+    window.alert("Saved "+filename);
 }
 
 savedGamesListButton.onclick = function() {
@@ -215,7 +217,7 @@ var toggleSavedGamesList = function() {
 	savedGamesListHidden = false;
     } else {
 	savedGamesList.style.display = "none";
-	savedGamesListButton.innerHTML = "Saved games list";
+	savedGamesListButton.innerHTML = "Saved games";
 	savedGamesListHidden = true;
     }
 }
