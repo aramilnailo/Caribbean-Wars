@@ -96,7 +96,7 @@ dbi.prototype.saveGameFilename = function(filename,cb) {
     
     var id = 1;
     db.query("INSERT INTO storedgames_info SET ?;",
-	     {id:id,filename:filename},
+	     {id:id,FileName:filename},
 	     function(err) {
 		 if(err) {
 		     console.log(err.message);

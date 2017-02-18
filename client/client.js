@@ -198,13 +198,15 @@ socket.on("saveGameResponse", function(data) {
 socket.on("savedGamesListResponse", function(data) {
     var i;
     savedGamesList.style.display = "table";
-    var html = "<table><tr>" +
-	"<th>saved game<th></tr>";
+    var html = "<style> table#sgtable, th, td { border : 1px solid black; } </style>";
+    html += "<table id=\"sgtable\">" +
+	"<tr><th>Saved game</th></tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
-	    "<td>"+ data[i].filename + "</td></tr>";
+	    "<td>"+ data[i].FileName + "</td></tr>";
     }
     html += "</table>";
+
     savedGamesList.innerHTML = html;
 });
 
