@@ -50,6 +50,7 @@ io.sockets.on("connection", function(socket) {
 	if(client.player !== null) {
 	    dbi.setUserOnlineStatus(client.player.username, false);
 	}
+	socket.emit("collapseMenus");
 	// Remove from client list
 	var index = CLIENT_LIST.indexOf(client);
 	if(index > -1) CLIENT_LIST.splice(index, 1);
@@ -69,13 +70,13 @@ io.sockets.on("connection", function(socket) {
 			  dbi.setUserOnlineStatus(client.player.username, true);
 			  socket.emit("loginResponse", {success:true,
 							username:data.username});
+			  socket.emit("collapseMenus");
 		      } else {
 			  // If login info is denied
 			  socket.emit("loginResponse", {success:false});
 		      }
 		  });
     });
-
 
     socket.on("signup", function(data) {
 	// Create new record in database
@@ -86,6 +87,7 @@ io.sockets.on("connection", function(socket) {
 		dbi.setUserOnlineStatus(client.player.username, true);
 		socket.emit("loginResponse", {success:true,
 					      username:data.username});
+		socket.emit("collapseMenus");
 	    } else {
 		// If duplicate username, etc.
 		socket.emit("loginResponse", {success:false});
@@ -110,21 +112,7 @@ io.sockets.on("connection", function(socket) {
 	// Remove the client's player, but don't remove the client
 	client.player = null;
 	socket.emit("logoutResponse");
-    });
-
-    // Recieved a chat post
-    socket.on("sendMsgToServer", function(data) {
-	// Notify all clients to add post
-	for(var i in CLIENT_LIST) {
-	    CLIENT_LIST[i].socket.emit("addToChat",
-				       client.player.username + ": " + data);
-	}
-    });
-
-    // Debug command sent through chat
-    socket.on("evalServer", function(data) {
-	var res = eval(data);
-	socket.emit("evalAnswer", res);
+	socket.emit("collapseMenus");
     });
 
     // Recieved game input
@@ -143,9 +131,26 @@ io.sockets.on("connection", function(socket) {
 	}
     });
 
+	//================ CHAT LISTENERS ==============================
+	
+	// Recieved a chat post
+    socket.on("chatPost", function(data) {
+	// Notify all clients to add post
+	if(client.player !== null) {
+		for(var i in CLIENT_LIST) {
+			CLIENT_LIST[i].socket.emit("addToChat",
+						   client.player.username + ": " + data);
+		}
+	}
+    });
 
+    // Debug command sent through chat
+    socket.on("evalExpression", function(data) {
+	var res = eval(data);
+	socket.emit("evalAnswer", res);
+    });
 
-    // ================== 7) TO DO =======================================
+    //================== 7) TO DO =======================================
 
     socket.on("saveGameRequest", 
 	      function(filename) {
@@ -167,7 +172,6 @@ io.sockets.on("connection", function(socket) {
 	      });
     
 });
-
 
 //============== 6) GAME LOGIC ================================================
 
