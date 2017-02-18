@@ -14,6 +14,7 @@ var express = require("express");
 var app = express();
 var serv = require("http").Server(app);
 var dbi = require("./dbi.js");
+var files = require("./files.js");
 var player = require('./player.js');
 var io = require("socket.io")(serv, {});
 
@@ -191,6 +192,3 @@ setInterval(function() {
 	socket.emit("newPositions", pack);
     }
 }, 1000/25);
-
-
-
