@@ -29,6 +29,10 @@ var chatInput = document.getElementById("chat-input");
 var chatForm = document.getElementById("chat-form");
 var usernameLabel = document.getElementById("username-label");
 var logoutButton = document.getElementById("logout-btn");
+var saveGameButton = document.getElementById("saveGame-btn");
+var savedGamesListButton = document.getElementById("savedGamesList-btn");
+var savedGamesList = document.getElementById("savedGamesList");
+
 
 //============== 2) LOGIN SCREEN UI LOGIC ==================================
 
@@ -174,8 +178,6 @@ socket.on("evalAnswer", function(data) {
 
 //================== 8) TO DO ==========================================
 
-var saveGameButton = document.getElementById("saveGame-btn");
-var savedGamesListButton = document.getElementById("savedGamesList-btn");
 
 saveGameButton.onclick = function() {
     socket.emit("saveGameRequest",filename);
@@ -193,9 +195,9 @@ socket.on("saveGameResponse", function(data) {
 
 socket.on("savedGamesListResponse", function(data) {
     var i;
-    userList.style.display = "table";
+    savedGamesList.style.display = "table";
     var html = "<table><tr>" +
-	"<th>Saved game<th></tr>";
+	"<th>saved game<th></tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
 	    "<td>"+ data[i].filename + "</td></tr>";
@@ -217,4 +219,3 @@ var toggleSavedGamesList = function() {
 	savedGamesListHidden = true;
     }
 }
-*/
