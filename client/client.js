@@ -173,21 +173,23 @@ socket.on("evalAnswer", function(data) {
 });
 
 //================== 8) TO DO ==========================================
-/*
+
 var saveGameButton = document.getElementById("saveGame-btn");
 var savedGamesListButton = document.getElementById("savedGamesList-btn");
 
 saveGameButton.onclick = function() {
-    socket.emit("saveGame",filename);
+    socket.emit("saveGameRequest",filename);
 }
 
 savedGamesListButton.onclick = function() {
     toggleSavedGamesList();
 }
 
+/*
 socket.on("saveGameResponse", function(data) {
 	
 });
+*/
 
 socket.on("savedGamesListResponse", function(data) {
     var i;

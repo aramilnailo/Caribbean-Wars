@@ -133,7 +133,32 @@ io.sockets.on("connection", function(socket) {
 	else if(data.inputId === "down")
 	    currentPlayer.pressingDown = data.state;
     });
+
+
+
+// ================== 7) TO DO =======================================
+
+ socket.on("saveGameRequest", 
+	function(filename) {
+	dbi.saveGameFilename(error, function(resp) {
+	    if (error == false) {
+		socket.emit("saveGameResponse", {success:true,
+						 filename:filename});
+	    } else {
+		socket.emit("saveGameResponse", {success:false});
+	    }
+	});
+	});
+	
+ socket.on("savedGamesListRequest",
+	function() {
+	dbi.getSavedGamesList(function(data) {
+	    socket.emit("savedGameListResponse",data);
+	});
+    });
+    
 });
+
 
 //============== 6) GAME LOGIC ================================================
 
@@ -157,24 +182,5 @@ setInterval(function() {
     }
 }, 1000/25);
 
-// ================== 7) TO DO =======================================
-/*
-socket.on("saveGameRequest", 
-	function(data) {
-	dbi.saveGameFilename(data, function(resp) {
-	    if (resp) {
-		socket.emit("saveGameResponse", {success:true,
-						 filename:filename});
-	    } else {
-		socket.emit("saveGameResponse", {success:false});
-	    }
-	});
-	});
-	
-socket.on("savedGamesListRequest",
-	function() {
-	dbi.getSavedGamesList(function(data) {
-	    socket.emit("savedGameListResponse",data);
-	});
-    });
-	*/
+
+

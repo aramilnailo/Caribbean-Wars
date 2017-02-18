@@ -69,11 +69,22 @@ dbi.prototype.getAllUserInfo = function(cb) {
 }
 
 //============================= TO DO ===================================
-/*
-// may want to add timestamp
+/**/
 dbi.prototype.saveGameFilename = function(filename, cb) {
+    var ngames = 0;
+    db.query("SELECT COUNT(*) AS numstoredgames FROM storedgames_info",
+	     function(err,numstoredgames) {
+		 if (err) {
+		     console.log(err.message);
+		     cb(null);
+		 } else {
+		     ngames = numstoredgames;
+		 }
+	     });
+    
+    var id = ngames + 1;	     
     db.query("INSERT INTO storedgames_info SET ?;",
-	     {filename:filename},
+	     {id:id, filename:filename},
 	     function(err) {
 		 if(err) {
 		     console.log(err.message);
@@ -94,5 +105,5 @@ dbi.prototype.getSavedGamesList = function(cb) {
 	}
     });
 }
-*/
+
 module.exports = new dbi();
