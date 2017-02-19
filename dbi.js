@@ -119,31 +119,46 @@ dbi.prototype.getSavedGamesList = function(cb) {
 //============================= STATS ===================================
 
 // Retrieves stored value for provided stat and username
-dbi.prototype.getStat = function(username, stat, cb){
+dbi.prototype.getStat = function(username, stat, returnval){
     var inserts = [stat, "username", username];
 	db.query(mysql.format("SELECT ? FROM userStatistics WHERE ??=?",inserts), function(err, rows) {
 		if(err) {
 			console.log(err.message);
-			cb(null);
+			returnval=null;
 		} else {
-			cb(rows);
+			returnval=rows;
 		}
 	});
 }
 
-// Sets given stat for given user. cb set to true if no errors occured.
+// Sets given stat for given user. cb set to false if no errors occured.
 dbi.prototype.setStat = function(username, stat, newval, cb){
 	var inserts = [stat, newval, username];
 	db.query(mysql.format("UPDATE userStatistics SET ??=? WHERE username=?",inserts),function(err){
 		if(err){
 			console.log(err.message);
-			cb(false);
-		} else {
 			cb(true);
+		} else {
+			cb(false);
 		}
 	});
 }
 
-
+// Updates the given stat by the given amount
+dbi.prototype.updateStat = function(username, stat, increaseval, cb){
+	var temp;
+	getStat(username, stat, temp);
+	if (temp = null){
+		temp = 0;
+	}
+	setStat(username, stat, temp+increaseval, function(err){
+		if(err){
+			console.log("Stat failed to update");
+			cb(true);
+		} else {
+			cb(false);
+		}
+	});
+}
 
 module.exports = new dbi();
