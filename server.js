@@ -14,14 +14,14 @@ var express = require("express");
 var app = express();
 var serv = require("http").Server(app);
 var dbi = require("./dbi.js");
+var files = require("./files.js");
 var player = require('./player.js');
 var io = require("socket.io")(serv, {});
 
 //================= 2) SERVER INITIALIZATION =============================
 
 // Track all current clients
-var SOCKET_LIST = [];
-var PLAYER_LIST = [];
+var CLIENT_LIST = [];
 
 // Server startup
 app.get("/", function(req, res) {
@@ -38,58 +38,64 @@ dbi.connect.call(this);
 
 // When a client connects to the server
 io.sockets.on("connection", function(socket) {
-	
-    // Add attribute 'id' as index for client list
-    socket.id = Math.random();
-    // Add connection to client list
-    SOCKET_LIST[socket.id] = socket;
-    var currentPlayer = {};
-	
-	// Client closed the window, network issue, etc.
+
+    // Create object for this client
+    var client = {socket:socket, player:null};
+    // Add it to client list
+    CLIENT_LIST.push(client);
+    
+    // Client closed the window, network issue, etc.
     socket.on("disconnect", function() {
-	// Remove player and socket
-	delete SOCKET_LIST[socket.id];
-	delete PLAYER_LIST[socket.id];
+	// Set client's player (if any) to offline
+	if(client.player !== null) {
+	    dbi.setUserOnlineStatus(client.player.username, false);
+	}
+	socket.emit("collapseMenus");
+	// Remove from client list
+	var index = CLIENT_LIST.indexOf(client);
+	if(index > -1) CLIENT_LIST.splice(index, 1);
     });
-	
-//===================== 4) LOGIN SCREEN LISTENERS ==============================
+    
+    //===================== 4) LOGIN SCREEN LISTENERS ==============================
 
     // Client clicked login button
     socket.on("login", function(data) {
 	// Check info with the database
-		dbi.login(data.username, data.password, 
-		function(resp) {
-			if(resp) {
-			// If login info is valid, add new player
-				currentPlayer = player.Player(data.username);
-				PLAYER_LIST[socket.id] = currentPlayer;
-				socket.emit("loginResponse", {success:true,
-					      username:data.username});
-			} else {
-			// If login info is denied
-				socket.emit("loginResponse", {success:false});
-			}
-		});
+	dbi.login(data.username, data.password, 
+		  function(resp) {
+		      if(resp) {
+			  // If login info is valid, give the client a player
+			  client.player = player.Player(data.username);
+			  // Make the player online
+			  dbi.setUserOnlineStatus(client.player.username, true);
+			  socket.emit("loginResponse", {success:true,
+							username:data.username});
+			  socket.emit("collapseMenus");
+		      } else {
+			  // If login info is denied
+			  socket.emit("loginResponse", {success:false});
+		      }
+		  });
     });
-
 
     socket.on("signup", function(data) {
 	// Create new record in database
 	dbi.signup(data.username, data.password, function(resp) {
 	    if(resp) {
-		// If info is valid, add new player
-		currentPlayer = player.Player(data.username);
-		PLAYER_LIST[socket.id] = currentPlayer;
+		// If info is valid, give the client a player
+		client.player = player.Player(data.username);
+		dbi.setUserOnlineStatus(client.player.username, true);
 		socket.emit("loginResponse", {success:true,
 					      username:data.username});
+		socket.emit("collapseMenus");
 	    } else {
 		// If duplicate username, etc.
 		socket.emit("loginResponse", {success:false});
 	    }
 	});
     });
-	
-	// Client clicked list users
+    
+    // Client clicked list users
     socket.on("userListRequest", function() {
 	// Send back the whole table from the database
 	dbi.getAllUserInfo(function(data) {
@@ -97,61 +103,70 @@ io.sockets.on("connection", function(socket) {
 	});
     });
 
-//===================== 5) GAME SCREEN LISTENERS ===============================
+    //===================== 5) GAME SCREEN LISTENERS ===============================
 
     // Clicked logout
     socket.on("logout", function() {
-	// Remove from player list but not socket list
-	delete PLAYER_LIST[socket.id];
+	// Set player to offline
+	dbi.setUserOnlineStatus(client.player.username, false);
+	// Remove the client's player, but don't remove the client
+	client.player = null;
 	socket.emit("logoutResponse");
-    });
-
-    // Recieved a chat post
-    socket.on("sendMsgToServer", function(data) {
-	var playerName = ("" + socket.id).slice(2, 7);
-	// Notify all clients to add post
-	for(var i in SOCKET_LIST) {
-	    SOCKET_LIST[i].emit("addToChat", playerName + ": " + data);
-	}
-    });
-
-    // Debug command sent through chat
-    socket.on("evalServer", function(data) {
-	var res = eval(data);
-	socket.emit("evalAnswer", res);
+	socket.emit("collapseMenus");
     });
 
     // Recieved game input
     socket.on("keyPress", function(data) {
-	// Assign booleans for each direction
-	if(data.inputId === "left")
-	    currentPlayer.pressingLeft = data.state;
-	else if(data.inputId === "right")
-	    currentPlayer.pressingRight = data.state;
-	else if(data.inputId === "up")
-	    currentPlayer.pressingUp = data.state;
-	else if(data.inputId === "down")
-	    currentPlayer.pressingDown = data.state;
+	// If the client is in control of a player
+	if(client.player !== null) {
+	    // Assign booleans for each direction
+	    if(data.inputId === "left")
+		client.player.pressingLeft = data.state;
+	    else if(data.inputId === "right")
+		client.player.pressingRight = data.state;
+	    else if(data.inputId === "up")
+		client.player.pressingUp = data.state;
+	    else if(data.inputId === "down")
+		client.player.pressingDown = data.state;
+	}
     });
 
+	//================ CHAT LISTENERS ==============================
+	
+	// Recieved a chat post
+    socket.on("chatPost", function(data) {
+	// Notify all clients to add post
+	if(client.player !== null) {
+		for(var i in CLIENT_LIST) {
+			CLIENT_LIST[i].socket.emit("addToChat",
+						   client.player.username + ": " + data);
+		}
+	}
+    });
 
+    // Debug command sent through chat
+    socket.on("evalExpression", function(data) {
+	var res = eval(data);
+	socket.emit("evalAnswer", res);
+    });
 
- socket.on("saveGameRequest", 
+    //================== 7) TO DO =======================================
+
+    socket.on("saveGameRequest",
 	   function(filename,resp) {
 	       dbi.saveGameFilename(filename, function(resp) {
 	       socket.emit("saveGameResponse", resp);
-	       });
-	});
-	
- socket.on("savedGamesListRequest",
-	function() {
-	dbi.getSavedGamesList(function(data) {
-	    socket.emit("savedGamesListResponse",data);
-	});
-    });
+		  });
+	      });
+    
+    socket.on("savedGamesListRequest",
+	      function() {
+		  dbi.getSavedGamesList(function(data) {
+		      socket.emit("savedGameListResponse",data);
+		  });
+	      });
     
 });
-
 
 //============== 6) GAME LOGIC ================================================
 
@@ -159,21 +174,20 @@ io.sockets.on("connection", function(socket) {
 setInterval(function() {
     var pack = [];
     // Generate object with all player positions
-    for(var i in PLAYER_LIST) {
-	var player = PLAYER_LIST[i];
-	player.updatePosition();
-	pack.push({
-	    x:player.x,
-	    y:player.y,
-	    number:player.number
-	});
+    for(var i in CLIENT_LIST) {
+	var player = CLIENT_LIST[i].player;
+	if(player !== null) {
+	    player.updatePosition();
+	    pack.push({
+		x:player.x,
+		y:player.y,
+		number:player.number
+	    });
+	}
     }
     // Send the packet to each client
-    for(var i in SOCKET_LIST) {
-	var socket = SOCKET_LIST[i];
+    for(var i in CLIENT_LIST) {
+	var socket = CLIENT_LIST[i].socket;
 	socket.emit("newPositions", pack);
     }
 }, 1000/25);
-
-
-

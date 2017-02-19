@@ -45,7 +45,7 @@ dbi.prototype.login = function(username, password, cb) {
 // Callback true if username is not taken, false if it is or if errors occur
 dbi.prototype.signup = function(username, password, cb) {
     db.query("INSERT INTO user_info SET ?;",
-        {username:username, password:password},
+             {username:username, password:password, online:false},
 	function(err) {
 	    if(err) {
 		console.log(err.message);

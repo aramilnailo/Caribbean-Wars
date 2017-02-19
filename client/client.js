@@ -9,7 +9,12 @@
   7) Chat logic
   8) To do																*/
 
-//============== 1) HTML ELEMENTS ============================================
+//=============== 1) MODULES ===============================================
+
+// Server connection
+var socket = io();
+  
+//============== 2) HTML ELEMENTS ============================================
 
 // Login screen
 var loginScreen = document.getElementById("login-screen");
@@ -24,25 +29,26 @@ var userList = document.getElementById("user-list");
 var gameScreen = document.getElementById("game-screen");
 var canvas = document.getElementById("canvas").getContext("2d");
 canvas.font = "30px Arial";
-var chatText = document.getElementById("chat-text");
-var chatInput = document.getElementById("chat-input");
-var chatForm = document.getElementById("chat-form");
 var usernameLabel = document.getElementById("username-label");
 var logoutButton = document.getElementById("logout-btn");
-var saveGameButton = document.getElementById("saveGame-btn");
-var savedGamesListButton = document.getElementById("savedGamesList-btn");
-var savedGamesList = document.getElementById("savedGamesList");
+var saveGameButton = document.getElementById("save-game-btn");
+var savedGamesListButton = document.getElementById("saved-games-list-btn");
+var savedGamesList = document.getElementById("saved-games-list");
 
+// Chat window
+var chatWindow = document.getElementById("chat-window");
+var chatLog = document.getElementById("chat-log");
+var chatInput = document.getElementById("chat-input");
+var chatSubmitButton = document.getElementById("chat-submit-btn");
+var chatToggleButton = document.getElementById("chat-toggle-btn");
 
-//============== 2) LOGIN SCREEN UI LOGIC ==================================
-
-// Socket
-var socket = io();
+//===================== 3) UI LOGIC ==================================
 
 var userListHidden = true;
+var chatWindowHidden = true;
 
-// Shows or hides the user list
-var toggleList = function() {
+// Show and hide the user list
+var toggleUserList = function() {
     if(userListHidden) {
 	socket.emit("userListRequest");
 	userListButton.innerHTML = "Hide users";
@@ -54,23 +60,47 @@ var toggleList = function() {
     }
 }
 
+// Show and hide the chat window
+var toggleChatWindow = function() {
+	if(chatWindowHidden) {
+		chatWindow.style.display = "inline-block";
+		chatToggleButton.innerHTML = "Hide chat";
+		chatWindowHidden = false;
+    } else {
+		chatWindow.style.display = "none";
+		chatToggleButton.innerHTML = "Show chat";
+		chatWindowHidden = true;
+    }
+}
+
+socket.on("collapseMenus", function() {
+	if(!userListHidden) toggleUserList();
+	if(!chatWindowHidden) toggleChatWindow();
+});
+
 //================ 3) LOGIN SCREEN EVENTS ==============================
 
 // Login button is clicked on login screen
 loginButton.onclick = function() {
-    socket.emit("login", {username:loginUsername.value,
+    // Don't submit empty forms
+    if(loginUsername.value.length > 0 &&
+       loginPassword.value.length > 0)
+	socket.emit("login", {username:loginUsername.value,
 			  password:loginPassword.value});
 }
 
 // Sign up button is clicked on login screen
 signupButton.onclick = function() {
-    socket.emit("signup", {username:loginUsername.value,
+    // Don't submit empty forms
+    if(loginUsername.value.length > 0 &&
+       loginPassword.value.length > 0)
+	socket.emit("signup", {username:loginUsername.value,
 			   password:loginPassword.value});
 }
 
 // List users button is clicked on login screen
 userListButton.onclick = function() {
-    toggleList();
+    toggleUserList();
 }
 
 //================= 4) LOGIN SCREEN SOCKET LISTENERS =======================
@@ -81,7 +111,6 @@ socket.on("loginResponse", function(data) {
 	loginScreen.style.display = "none";
 	gameScreen.style.display = "inline-block";
 	usernameLabel.innerHTML = data.username;
-	if(!userListHidden) toggleList();
     }
 });
 
@@ -113,26 +142,36 @@ logoutButton.onclick = function() {
 
 // If input is pressed, emit object with the key and the new state
 document.onkeydown = function(event) {
-    if(event.keyCode === 68)
-	socket.emit("keyPress", { inputId:"right", state:true});	
-    else if(event.keyCode === 83)
-	socket.emit("keyPress", { inputId:"down", state:true});
-    else if(event.keyCode === 65)
-	socket.emit("keyPress", { inputId:"left", state:true});
-    else if(event.keyCode === 87)
-	socket.emit("keyPress", { inputId:"up", state:true});
+	// If the chat bar is not in focus
+	if(chatInput !== document.activeElement) {
+		if(event.keyCode === 68)
+		socket.emit("keyPress", { inputId:"right", state:true});	
+		else if(event.keyCode === 83)
+		socket.emit("keyPress", { inputId:"down", state:true});
+		else if(event.keyCode === 65)
+		socket.emit("keyPress", { inputId:"left", state:true});
+		else if(event.keyCode === 87)
+		socket.emit("keyPress", { inputId:"up", state:true});
+	}
 }
 
 // If input is released, emit object with the key and the new state
 document.onkeyup = function(event) {
-    if(event.keyCode === 68)
-	socket.emit("keyPress", { inputId:"right", state:false});	
-    else if(event.keyCode === 83)
-	socket.emit("keyPress", { inputId:"down", state:false});
-    else if(event.keyCode === 65)
-	socket.emit("keyPress", { inputId:"left", state:false});
-    else if(event.keyCode === 87)
-	socket.emit("keyPress", { inputId:"up", state:false});
+	if(chatInput !== document.activeElement) {
+		if(event.keyCode === 68)
+		socket.emit("keyPress", { inputId:"right", state:false});	
+		else if(event.keyCode === 83)
+		socket.emit("keyPress", { inputId:"down", state:false});
+		else if(event.keyCode === 65)
+		socket.emit("keyPress", { inputId:"left", state:false});
+		else if(event.keyCode === 87)
+		socket.emit("keyPress", { inputId:"up", state:false});
+	}
+}
+
+// Show and hide the chat window
+chatToggleButton.onclick = function() {
+	toggleChatWindow();
 }
 
 //============= 6) GAME SCREEN SOCKET LISTENERS ===========================
@@ -141,7 +180,6 @@ document.onkeyup = function(event) {
 socket.on("logoutResponse", function() {
     loginScreen.style.display = "inline-block";
     gameScreen.style.display = "none";
-    usernameLabel.innerHTML = "";
 });
 
 // Main rendering function--redraws canvas after recieving world state
@@ -155,20 +193,18 @@ socket.on("newPositions", function(data) {
 //=============== 7) CHAT LOGIC ===========================================
 
 // Either queue submission for display or evaluate the expression
-chatForm.onsubmit = function(e) {
-    e.preventDefault();
-	// If input begins with a forward slash, treat as eval
-    if(chatInput.value[0] === "/")
-	socket.emit("evalServer", chatInput.value.slice(1));
-    else
-	socket.emit("sendMsgToServer", chatInput.value);
-	// Clear the chat bar
-    chatInput.value = "";
+chatSubmitButton.onclick = function() {
+	if(chatInput.value[0] === "/") {
+		socket.emit("evalExpression", chatInput.value.slice(1));
+	} else {
+		socket.emit("chatPost", chatInput.value);
+	}
+	chatInput.value = "";
 }
 
 // Display the formatted chat post recieved from the server
 socket.on("addToChat", function(data) {
-    chatText.innerHTML += "<div>" + data + "<\div>";
+    chatLog.innerHTML += "<div>" + data + "<\div>";
 });
 
 // Log the eval answer recieved from the server to the console
