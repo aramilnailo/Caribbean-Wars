@@ -136,12 +136,10 @@ io.sockets.on("connection", function(socket) {
 
 
 
-// ================== 7) TO DO =======================================
-
  socket.on("saveGameRequest", 
-	   function(filename) {
+	   function(filename,resp) {
 	       dbi.saveGameFilename(filename, function(resp) {
-		       socket.emit("saveGameResponse", resp);		   
+	       socket.emit("saveGameResponse", resp);
 	       });
 	});
 	

@@ -182,8 +182,15 @@ socket.on("evalAnswer", function(data) {
 saveGameButton.onclick = function() {
     var filename = window.prompt("Save as: ","filename");
     socket.emit("saveGameRequest",filename);
-    window.alert("Saved "+filename);
 }
+
+socket.on("saveGameResponse", function(resp) {
+    if (resp.value == true) {
+	window.alert("Saved "+resp.filename);
+    } else {
+	window.alert("File not saved");
+    }
+})
 
 savedGamesListButton.onclick = function() {
     toggleSavedGamesList();
@@ -203,7 +210,7 @@ socket.on("savedGamesListResponse", function(data) {
 	"<tr><th>Saved game</th></tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
-	    "<td>"+ data[i].FileName + "</td></tr>";
+	    "<td>"+ data[i].gamefilename + "</td></tr>";
     }
     html += "</table>";
 

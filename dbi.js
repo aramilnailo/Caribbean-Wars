@@ -78,33 +78,27 @@ dbi.prototype.getAllUserInfo = function(cb) {
     });
 }
 
-//============================= TO DO ===================================
-/**/
 dbi.prototype.saveGameFilename = function(filename,cb) {
-    /*
-    var ngames = 0;
-    db.query("SELECT COUNT(*) AS numstoredgames FROM storedgames_info",
-	     function(err,numstoredgames) {
-		 if (err) {
-		     console.log(err.message);
-		     cb(null);
-		 } else {
-		     ngames = numstoredgames;
-		 }
-	     });
-	     var id = ngames + 1;	     */
-    
-    var id = 1;
-    db.query("INSERT INTO storedgames_info SET ?;",
-	     {id:id,FileName:filename},
-	     function(err) {
-		 if(err) {
-		     console.log(err.message);
-		     cb(false);
-		 } else {
-		     cb(true);
-		 }
-		});
+
+    if (filename) {
+	db.query("INSERT INTO storedgames_info SET ?;",
+		 {gamefilename: filename},
+		 function(err,cb) {
+		     if(err) {
+			 console.log(err.message);
+			 cb({value:false});
+		     } else {
+			 return {value:true, filename:filename};
+			 cb({value:true, filename:filename});
+			 //cb(true);
+		     }
+		 });
+	//return cb;
+    } else {
+	//return {value:false};
+	cb({value:false});
+    }
+
 }
 
 dbi.prototype.getSavedGamesList = function(cb) {
