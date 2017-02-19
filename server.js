@@ -146,7 +146,14 @@ io.sockets.on("connection", function(socket) {
 
     // Debug command sent through chat
     socket.on("evalExpression", function(data) {
-	var res = eval(data);
+	var res;
+	try {
+		res = eval(data);
+	} catch (error) {
+		console.log("Error: " + error.name);
+		client.socket.emit("addToChat", "Command Syntax Error." )
+	}
+	 
 	socket.emit("evalAnswer", res);
     });
 
