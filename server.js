@@ -214,9 +214,13 @@ setInterval(function(){
 	var oldTime;
 	for(var i in CLIENT_LIST){
 		player = CLIENT_LIST[i];
-		if(player !== null) {
-			dbi.getStat(player.username, "minutesPlayed", oldTime);
-			dbi.setStat(player.username, "minutesPlayed", oldTime + 1);
+		if(player.username !== null) {
+			dbi.updateStat(player.username, "minutesPlayed", 1, function(err){
+				if(err){
+					console.log(err.message);
+					console.log("Failed to update minutesPlayed");
+				}
+			});
 		}
 	}
 } ,60000);

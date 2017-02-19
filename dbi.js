@@ -127,6 +127,8 @@ dbi.prototype.getStat = function(username, stat, returnval){
 			returnval=null;
 		} else {
 			returnval=rows;
+			console.log("debug: stat retrieved");
+			console.log(returnval);
 		}
 	});
 }
@@ -134,7 +136,8 @@ dbi.prototype.getStat = function(username, stat, returnval){
 // Sets given stat for given user. cb set to false if no errors occured.
 dbi.prototype.setStat = function(username, stat, newval, cb){
 	var inserts = [stat, newval, username];
-	db.query(mysql.format("UPDATE userStatistics SET ??=? WHERE username=?",inserts),function(err){
+	console.log(newval);
+	db.query(mysql.format("UPDATE userStatistics SET ?=? WHERE username=?",inserts),function(err){
 		if(err){
 			console.log(err.message);
 			cb(true);
@@ -146,12 +149,14 @@ dbi.prototype.setStat = function(username, stat, newval, cb){
 
 // Updates the given stat by the given amount
 dbi.prototype.updateStat = function(username, stat, increaseval, cb){
-	var temp;
-	getStat(username, stat, temp);
-	if (temp = null){
+	var temp = 5;
+	dbi.prototype.getStat(username, stat, temp);
+	console.log(increaseval);
+	if (temp === null){
 		temp = 0;
 	}
-	setStat(username, stat, temp+increaseval, function(err){
+	console.log(temp);
+	dbi.prototype.setStat(username, stat, temp+increaseval, function(err){
 		if(err){
 			console.log("Stat failed to update");
 			cb(true);
