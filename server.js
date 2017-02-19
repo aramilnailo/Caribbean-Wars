@@ -150,7 +150,7 @@ io.sockets.on("connection", function(socket) {
 	try {
 		res = eval(data);
 	} catch (error) {
-		console.log("Error: " + error.name);
+		console.log("Error: " + error.message);
 		client.socket.emit("addToChat", "Command Syntax Error." )
 	}
 	 

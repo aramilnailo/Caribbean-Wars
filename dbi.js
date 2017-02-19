@@ -116,4 +116,31 @@ dbi.prototype.getSavedGamesList = function(cb) {
     });
 }
 
+//============================= STATS ===================================
+
+// Retrieves stored value for provided stat and username
+dbi.prototype.getStat = function(username, stat){
+    var inserts = [stat, "username", username];
+	db.query(mysql.format("SELECT ? FROM userStatistics WHERE ??=?",inserts), function(err) {
+		if(err) {
+			console.log(err.message);
+		}
+	});
+}
+
+// Sets given stat for given user. cb set to true if no errors occured.
+dbi.prototype.setStat = function(username, stat, newval, cb){
+	var inserts = [stat, newval, username];
+	db.query(mysql.format("UPDATE userStatistics SET ??=? WHERE username=?",inserts),function(err){
+		if(err){
+			console.log(err.message);
+			cb(false);
+		} else {
+			cb(true);
+		}
+	});
+}
+
+
+
 module.exports = new dbi();
