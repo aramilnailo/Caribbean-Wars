@@ -247,7 +247,7 @@ socket.on("savedGamesListResponse", function(data) {
 	"<tr><th>Saved game</th></tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
-	    "<td>"+ data[i].gamefilename + "</td></tr>";
+	    "<td>"+ data[i].file_name + "</td></tr>";
     }
     html += "</table>";
 
