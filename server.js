@@ -115,6 +115,16 @@ io.sockets.on("connection", function(socket) {
 	socket.emit("collapseMenus");
     });
 
+	// Clicked delete account
+	socket.on("deleteAccount", function() {
+		dbi.removeUser(client.player.username, function(resp) {
+			if(!resp) console.log("Could not delete account.")
+		});
+		client.player = null;
+		socket.emit("logoutResponse");
+		socket.emit("collapseMenus");
+	});
+	
     // Recieved game input
     socket.on("keyPress", function(data) {
 	// If the client is in control of a player
