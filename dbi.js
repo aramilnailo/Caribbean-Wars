@@ -79,7 +79,6 @@ dbi.prototype.getAllUserInfo = function(cb) {
 }
 
 dbi.prototype.saveGameFilename = function(filename,cb) {
-
     if (filename) {
 	db.query("INSERT INTO storedgames_info SET ?;",
 		 {gamefilename: filename},

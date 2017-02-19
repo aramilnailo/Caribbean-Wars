@@ -31,6 +31,7 @@ var canvas = document.getElementById("canvas").getContext("2d");
 canvas.font = "30px Arial";
 var usernameLabel = document.getElementById("username-label");
 var logoutButton = document.getElementById("logout-btn");
+
 var saveGameButton = document.getElementById("save-game-btn");
 var savedGamesListButton = document.getElementById("saved-games-list-btn");
 var savedGamesList = document.getElementById("saved-games-list");
