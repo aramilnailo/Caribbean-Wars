@@ -16,28 +16,28 @@ var Player = function(username) {
     player.updatePosition = function() {
 	if(player.pressingRight)
 	    player.x += player.maxSpeed;
-		dbi.updateStat(username, distanceSailed, 1, function(err){
+		dbi.updateStat(username, "distanceSailed", 1, function(err){
 			if (err){
 				console.log("Could not update distance moved");
 			}
 		});
 	if(player.pressingLeft)
 	    player.x -= player.maxSpeed;
-		dbi.updateStat(username, distanceSailed, 1, function(err){
+		dbi.updateStat(username, "distanceSailed", 1, function(err){
 			if (err){
 				console.log("Could not update distance moved");
 			}
 		});
 	if(player.pressingUp)
 	    player.y -= player.maxSpeed;
-		dbi.updateStat(username, distanceSailed, 1, function(err){
+		dbi.updateStat(username, "distanceSailed", 1, function(err){
 			if (err){
 				console.log("Could not update distance moved");
 			}
 		});
 	if(player.pressingDown)
 	    player.y += player.maxSpeed;
-		dbi.updateStat(username, distanceSailed, 1, function(err){
+		dbi.updateStat(username, "distanceSailed", 1, function(err){
 			if (err){
 				console.log("Could not update distance moved");
 			}
