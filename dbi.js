@@ -119,11 +119,14 @@ dbi.prototype.getSavedGamesList = function(cb) {
 //============================= STATS ===================================
 
 // Retrieves stored value for provided stat and username
-dbi.prototype.getStat = function(username, stat){
+dbi.prototype.getStat = function(username, stat, cb){
     var inserts = [stat, "username", username];
-	db.query(mysql.format("SELECT ? FROM userStatistics WHERE ??=?",inserts), function(err) {
+	db.query(mysql.format("SELECT ? FROM userStatistics WHERE ??=?",inserts), function(err, rows) {
 		if(err) {
 			console.log(err.message);
+			cb(null);
+		} else {
+			cb(rows);
 		}
 	});
 }

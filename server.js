@@ -6,7 +6,8 @@
   4) Login screen listeners
   5) Game screen listeners
   6) Game logic
-  7) To do													*/
+  7) To do
+  8) Stat Manipulation													*/
 
 //=============== 1) MODULES ================================
 
@@ -202,4 +203,22 @@ setInterval(function() {
 	var socket = CLIENT_LIST[i].socket;
 	socket.emit("newPositions", pack);
     }
-}, 1000/25);
+}, 1000/25); 
+
+
+//============== 8) STAT MANIPULATION 	=======================================
+
+// Updates minutesPlayed database field
+setInterval(function(){
+	var player;
+	var oldTime;
+	for(var i in CLIENT_LIST){
+		player = CLIENT_LIST[i];
+		if(player !== null) {
+			dbi.getStat(player.username, "minutesPlayed", oldTime);
+			dbi.setStat(player.username, "minutesPlayed", oldTime + 1);
+		}
+	}
+} ,60000);
+
+// Insert more Stat manipulation functions when trackable stats are added.
