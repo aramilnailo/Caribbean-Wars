@@ -36,6 +36,8 @@ var saveGameButton = document.getElementById("save-game-btn");
 var savedGamesListButton = document.getElementById("saved-games-list-btn");
 var savedGamesList = document.getElementById("saved-games-list");
 
+var deleteAccountButton = document.getElementById("delete-account-btn");
+
 // Chat window
 var chatWindow = document.getElementById("chat-window");
 var chatLog = document.getElementById("chat-log");
@@ -77,6 +79,7 @@ var toggleChatWindow = function() {
 socket.on("collapseMenus", function() {
 	if(!userListHidden) toggleUserList();
 	if(!chatWindowHidden) toggleChatWindow();
+	if(!savedGamesListHidden) toggleSavedGamesList();
 });
 
 //================ 3) LOGIN SCREEN EVENTS ==============================
@@ -139,6 +142,11 @@ socket.on("userListResponse", function(data) {
 // If logout button is clicked on game screen
 logoutButton.onclick = function() {
     socket.emit("logout");
+}
+
+// Delete account button is clicked on game screen
+deleteAccountButton.onclick = function() {
+	socket.emit("deleteAccount");
 }
 
 // If input is pressed, emit object with the key and the new state
@@ -261,11 +269,11 @@ var savedGamesListHidden = true;
 var toggleSavedGamesList = function() {
     if(savedGamesListHidden) {
 	socket.emit("savedGamesListRequest");
-	savedGamesListButton.innerHTML = "Hide game list";
+	savedGamesListButton.innerHTML = "Hide saved games";
 	savedGamesListHidden = false;
     } else {
 	savedGamesList.style.display = "none";
-	savedGamesListButton.innerHTML = "Saved games";
+	savedGamesListButton.innerHTML = "Show saved games";
 	savedGamesListHidden = true;
     }
 }
