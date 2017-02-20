@@ -72,22 +72,23 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
 }
 
 // Inserts the string 'filename' into the saved games database
-dbi.prototype.saveGameFilename = function(filename,cb) {
+dbi.prototype.saveGameFilename = function(data,cb) {
     if (filename) {
 	db.query("INSERT INTO saved_games SET ?;",
-		 {file_name:filename},
+		 {user_name:data.user_name,data.file_name:data.filename},
 		 function(err) {
 		     if(err) {
 			 console.log(err.message);
 			 cb({value:false});
 		     } else {
-			 cb({value:true, filename:filename});
+			 cb({value:true, username:data.user_name, filename:data.filename});
 		     }
 		 });
     } else {
 		cb({value:false});
 	}
 }
+
 
 //=================== DELETION ===============================================
 
@@ -104,9 +105,9 @@ dbi.prototype.removeUser = function(name, cb) {
 	});
 }
 
-dbi.prototype.removeSavedGame = function(name, cb) {
-	var sql = "DELETE FROM ?? WHERE ??=?";
-	var inserts = ["saved_games", "file_name", name];
+dbi.prototype.removeSavedGame = function(data, cb) {
+	var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR user_name='admin')";
+        var inserts = ["saved_games", "file_name", data.filename, "user_name", data.username];
 	db.query(mysql.format(sql, inserts), function(err) {
 		if(err) {
 			console.log(err.message);

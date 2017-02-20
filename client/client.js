@@ -218,7 +218,10 @@ socket.on("evalAnswer", function(data) {
 
 saveGameButton.onclick = function() {
     var filename = window.prompt("Save as: ","filename");
-    socket.emit("saveGameRequest",filename);
+    var data;
+    data.filename = filename;
+    data.username = loginName.value;
+    socket.emit("saveGameRequest",data);
 }
 
 socket.on("saveGameResponse", function(resp) {
@@ -233,12 +236,6 @@ savedGamesListButton.onclick = function() {
     toggleSavedGamesList();
 }
 
-/*
-socket.on("saveGameResponse", function(data) {
-	
-});
-*/
-
 socket.on("savedGamesListResponse", function(data) {
     var i;
     savedGamesList.style.display = "table";
@@ -247,10 +244,15 @@ socket.on("savedGamesListResponse", function(data) {
 	"<tr><th>Saved game</th></tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
-	    "<td>"+ data[i].file_name + "</td></tr>";
+	    "<td>"+ data[i].user_name+"</td><td><div id=\"savetablefile"+i+"\">"+ data[i].file_name + "</div></td></tr>";
     }
     html += "</table>";
-
+    html += "<button id=\"deleteAllSavedGames-btn\">";
+    html += "<script> document.getElementById(\"deleteAllSavedGames-btn\").onclick= function() { socket.emit(\"deleteAllSavedGamesRequest\"); toggleSavedGamesList(); toggleSavedGamesList(); }</script>";
+    for (i = 0; i < data.length; i++) {
+	html += "<script> document.getElementById(\"savetablefile"+i+"\").onselect = function() { if((" loginName.value " == \"admin\") || (" + loginName.value + " == " + data[i].filename + ")) { var resp = window.confirm(\"Delete " + data[i].file_name "?\"); if (resp == true) { socket.emit(\"removeSavedGame\", {username:" + loginName.value + ", filename:" + data[i].file_name + "}); toggleSavedGamesList(); toggleSavedGamesList(); } } } </script>";
+    }
+    
     savedGamesList.innerHTML = html;
 });
 

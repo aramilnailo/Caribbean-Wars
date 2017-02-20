@@ -152,8 +152,8 @@ io.sockets.on("connection", function(socket) {
 
     //================== 7) TO DO =======================================
 
-    socket.on("saveGameRequest", function(filename,resp) {
-	       dbi.saveGameFilename(filename, function(resp) {
+    socket.on("saveGameRequest", function(data,resp) {
+	       dbi.saveGameFilename(data, function(resp) {
 	       socket.emit("saveGameResponse", resp);
 		  });
 	});
@@ -162,7 +162,14 @@ io.sockets.on("connection", function(socket) {
 		  dbi.getSavedGamesList(function(data) {
 		      socket.emit("savedGamesListResponse", data);
 		  });
+    });
+
+    socket.on("removeSavedGame", function(data) {
+	dbi.removeSavedGame(data, function(resp) {
+	    socket.emit("removeSavedGameResponse",resp);
 	});
+    });
+	
     
 });
 
