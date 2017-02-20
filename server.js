@@ -180,14 +180,27 @@ io.sockets.on("connection", function(socket) {
 	});
     });
 
-    socket.on("getMapData", function(filename) {
-	files.readFile(filename, function(data) {
+    socket.on("getMapDataFromPath", function(path) {
+	files.readFile(path, function(data) {
 	    if(data) {
-		socket.emit("mapData", data);
+		socket.emit("mapData", {data:data, path:path});
+	    } else {
+		socket.emit("mapDataFailed");
 	    }
 	});
     });
-    
+
+    socket.on("getMapDataFromFilename", function(filename) {
+	dbi.getMapFilePath(filename, function(path) {
+	    if(path) {
+		files.readFile(path, function(data) {
+		    if(data) socket.emit("mapData", {data:data, path:path});
+		});
+	    } else {
+		socket.emit("mapDataFailed");
+	    }
+	});
+    });
 });
 
 //============== 6) GAME LOGIC ================================================

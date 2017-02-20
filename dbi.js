@@ -73,15 +73,19 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
 
 // Inserts the string 'filename' into the saved games database
 dbi.prototype.saveGameFilename = function(data,cb) {
-    if (filename) {
-	db.query("INSERT INTO saved_games SET ?;",
-		 {user_name:data.user_name,file_name:data.filename},
+    if (data.file_name) {
+	db.query("INSERT INTO saved_games set ?;",
+		 {user_name:data.user_name,
+		  file_name:data.file_name,
+		  map_file_path:data.map_file_path},
 		 function(err) {
 		     if(err) {
 			 console.log(err.message);
 			 cb({value:false});
 		     } else {
-			 cb({value:true, username:data.user_name, filename:data.filename});
+			 cb({value:true,
+			     username:data.user_name,
+			     filename:data.file_name});
 		     }
 		 });
     } else {
@@ -132,7 +136,7 @@ dbi.prototype.getAllUserInfo = function(cb) {
     });
 }
 
-// Retrieves the saved games database
+// Retrieves the saved games table
 dbi.prototype.getSavedGamesList = function(cb) {
     db.query("SELECT * FROM saved_games;", function(err, rows) {
 	if(err) {
@@ -140,6 +144,22 @@ dbi.prototype.getSavedGamesList = function(cb) {
 	    cb(null);
 	} else {
 	    cb(rows);
+	}
+    });
+}
+
+// Retrieves the map file path from the saved games table
+dbi.prototype.getMapFilePath = function(file_name, cb) {
+    var sql = "SELECT * FROM ?? WHERE ??=?";
+    var inserts = ["saved_games", "file_name", file_name];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+	if(err) {
+	    console.log(err.message);
+	    cb(null);
+	} else if(rows.length > 0) {
+	    cb(rows[0].map_file_path);
+	} else {
+	    cb(null);
 	}
     });
 }

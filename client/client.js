@@ -32,6 +32,7 @@ canvas.font = "30px Arial";
 var usernameLabel = document.getElementById("username-label");
 var logoutButton = document.getElementById("logout-btn");
 
+var loadGameButton = document.getElementById("load-game-btn");
 var saveGameButton = document.getElementById("save-game-btn");
 var savedGamesListButton = document.getElementById("saved-games-list-btn");
 var savedGamesList = document.getElementById("saved-games-list");
@@ -51,7 +52,7 @@ var userListHidden = true;
 var chatWindowHidden = true;
 
 var username = "";
-var mapData = "";
+var mapData = {data:"", path:""};
 
 // Show and hide the user list
 var toggleUserList = function() {
@@ -119,8 +120,8 @@ socket.on("loginResponse", function(data) {
 	gameScreen.style.display = "inline-block";
 	usernameLabel.innerHTML = data.username;
 	username = data.username;
-	// Request the map data
-	socket.emit("getMapData", "./assets/map");
+	// Request the map data for f1
+	socket.emit("getMapDataFromPath", "./assets/map");
     }
 });
 
@@ -215,6 +216,10 @@ socket.on("mapData", function(data) {
     mapData = data;
 });
 
+socket.on("mapDataFailed", function() {
+    alert("Could not open map file.");
+});
+
 //=============== RENDERING =============================================
 
 var drawMap = function() {
@@ -222,7 +227,7 @@ var drawMap = function() {
     for(i = 0; i < 10; i++) {
 	for(j = 0; j < 10; j++) {
 	    // 0 = blue, 1 = tan, 2 = green
-	    var ch = mapData[11 * i + j]; // Current cell
+	    var ch = mapData.data[11 * i + j]; // Current cell
 	    canvas.fillStyle = (ch == "0") ? "#42C5F4" :
 		(ch == "1") ? "#C19E70" : "#2A8C23";
 	    canvas.fillRect(j * 50, i * 50, 50, 50);
@@ -257,10 +262,10 @@ socket.on("evalAnswer", function(data) {
 
 saveGameButton.onclick = function() {
     var filename = window.prompt("Save as: ","filename");
-    var data;
-    data.filename = filename;
-    data.username = loginUsername.value;
-    socket.emit("saveGameRequest", data);
+    socket.emit("saveGameRequest",
+		{file_name:filename,
+		 user_name:username,
+		 map_file_path:mapData.path});
 }
 
 socket.on("saveGameResponse", function(resp) {
@@ -281,12 +286,13 @@ socket.on("savedGamesListResponse", function(data) {
     var html = "<style> table#sgtable, th, td" +
 	"{ border : 1px solid black; } </style>";
     html += "<table id=\"sgtable\">" +
-	"<tr><th>Author</th><th>File Name</th></tr>";
+	"<tr><th>Host</th><th>File Name</th><th>Map</th></tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
 	    "<td>"+ data[i].user_name+"</td>" +
 	    "<td><div id=\"savetablefile" + i + "\">"+
-	    data[i].file_name + "</div></td></tr>";
+	    data[i].file_name + "</div></td>" +
+	    "<td>" + data[i].map_file_path + "</td></tr>";
     }
     html += "</table>";
     html += "<button id=\"deleteAllSavedGames-btn\">Delete All</button>";
@@ -322,4 +328,9 @@ var toggleSavedGamesList = function() {
 	savedGamesListButton.innerHTML = "Show saved games";
 	savedGamesListHidden = true;
     }
+}
+
+loadGameButton.onclick = function() {
+    var filename = window.prompt("Load game:", "filename");
+    socket.emit("getMapDataFromFilename", filename);
 }
