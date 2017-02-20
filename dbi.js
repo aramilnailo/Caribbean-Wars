@@ -75,7 +75,7 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
 dbi.prototype.saveGameFilename = function(data,cb) {
     if (filename) {
 	db.query("INSERT INTO saved_games SET ?;",
-		 {user_name:data.user_name,data.file_name:data.filename},
+		 {user_name:data.user_name,file_name:data.filename},
 		 function(err) {
 		     if(err) {
 			 console.log(err.message);
