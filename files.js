@@ -9,7 +9,7 @@ var fs = require("fs");
 
 // Load text from file
 files.prototype.readFile = function(filename, cb) {
-    fs.open("fileName", "r", function(err, data) {
+    fs.readFile(filename, "utf-8", function(err, data) {
 	if(err) {
 	    console.log(err.message);
 	    cb(null);
@@ -17,7 +17,6 @@ files.prototype.readFile = function(filename, cb) {
 	    cb(data);
 	}
     });
-    fs.close();
 }
 
 // Export module

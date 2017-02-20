@@ -179,7 +179,14 @@ io.sockets.on("connection", function(socket) {
 	    socket.emit("removeSavedGameResponse",resp);
 	});
     });
-	
+
+    socket.on("getMapData", function(filename) {
+	files.readFile(filename, function(data) {
+	    if(data) {
+		socket.emit("mapData", data);
+	    }
+	});
+    });
     
 });
 

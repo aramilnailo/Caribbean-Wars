@@ -51,6 +51,7 @@ var userListHidden = true;
 var chatWindowHidden = true;
 
 var username = "";
+var mapData = "";
 
 // Show and hide the user list
 var toggleUserList = function() {
@@ -118,6 +119,8 @@ socket.on("loginResponse", function(data) {
 	gameScreen.style.display = "inline-block";
 	usernameLabel.innerHTML = data.username;
 	username = data.username;
+	// Request the map data
+	socket.emit("getMapData", "./assets/map");
     }
 });
 
@@ -196,11 +199,36 @@ socket.on("logoutResponse", function() {
 
 // Main rendering function--redraws canvas after recieving world state
 socket.on("newPositions", function(data) {
+    // Clear screen
     canvas.clearRect(0, 0, 500, 500);
+    // Draw the map
+    drawMap();
+    // Draw the players in black
+    canvas.fillStyle = "#000000";
     for(var i = 0; i < data.length; i++) {
 	canvas.fillText(data[i].number, data[i].x, data[i].y);
     }
 });
+
+// Recieve the map data after request
+socket.on("mapData", function(data) {
+    mapData = data;
+});
+
+//=============== RENDERING =============================================
+
+var drawMap = function() {
+    var i, j;
+    for(i = 0; i < 10; i++) {
+	for(j = 0; j < 10; j++) {
+	    // 0 = blue, 1 = tan, 2 = green
+	    var ch = mapData[11 * i + j]; // Current cell
+	    canvas.fillStyle = (ch == "0") ? "#42C5F4" :
+		(ch == "1") ? "#C19E70" : "#2A8C23";
+	    canvas.fillRect(j * 50, i * 50, 50, 50);
+	}
+    }
+}
 
 //=============== 7) CHAT LOGIC ===========================================
 
