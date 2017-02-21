@@ -42,6 +42,7 @@ var deleteAccountButton = document.getElementById("delete-account-btn");
 // Chat window
 var chatWindow = document.getElementById("chat-window");
 var chatLog = document.getElementById("chat-log");
+var chatForm = document.getElementById("chat-form");
 var chatInput = document.getElementById("chat-input");
 var chatSubmitButton = document.getElementById("chat-submit-btn");
 var chatToggleButton = document.getElementById("chat-toggle-btn");
@@ -237,14 +238,15 @@ var drawMap = function() {
 
 //=============== 7) CHAT LOGIC ===========================================
 
-// Either queue submission for display or evaluate the expression
-chatSubmitButton.onclick = function() {
-	if(chatInput.value[0] === "/") {
-		socket.emit("evalExpression", chatInput.value.slice(1));
-	} else {
-		socket.emit("chatPost", chatInput.value);
-	}
-	chatInput.value = "";
+// Send chat input to be displayed or evaluated
+chatForm.onsubmit = function(e) {
+    e.preventDefault();
+    if(chatInput.value[0] === "/") {
+	socket.emit("evalExpression", chatInput.value.slice(1));
+    } else {
+	socket.emit("chatPost", chatInput.value);
+    }
+    chatInput.value = "";
 }
 
 // Display the formatted chat post recieved from the server

@@ -46,8 +46,10 @@
 		<div id="chat-log" style="border:1px solid black;width:500px;height:100px;overflow-y:scroll">
 		</div>
 		<br>
-		<input id="chat-input" type="text" style="width:500px">
-		<button id="chat-submit-btn">Submit</button>
+		<form id="chat-form">
+		  <input id="chat-input" type="text" style="width:500px">
+		  <input id="chat-submit-btn" type="submit">
+		</form>
 	</div>
 
     <script src="/socket.io/socket.io.js"></script>
