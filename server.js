@@ -164,6 +164,26 @@ io.sockets.on("connection", function(socket) {
 	}
     });
 
+    socket.on("privateMessage", function(data) {
+	// Notify the target client to add the post
+	if(client.player !== null) {
+	    var current;
+	    for(var i in CLIENT_LIST) {
+		current = CLIENT_LIST[i];
+		if(current.player !== null &&
+		   current.player.username == data.user) {
+		    current.socket.emit("addToChat", "From " +
+					client.player.username +
+					": " + data.message);
+		    client.socket.emit("addToChat", "To " +
+				       current.player.username +
+				       ": " + data.message);
+		}
+	    }
+	}
+    });
+					
+
     // Debug command sent through chat
     socket.on("evalExpression", function(data) {
 	var res = eval(data);

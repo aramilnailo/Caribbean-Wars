@@ -243,8 +243,17 @@ var drawMap = function() {
 // Send chat input to be displayed or evaluated
 chatForm.onsubmit = function(e) {
     e.preventDefault();
-    if(chatInput.value[0] === "/") {
-	socket.emit("evalExpression", chatInput.value.slice(1));
+    var input = chatInput.value;
+    if(input[0] === "/") {
+	socket.emit("evalExpression", input.slice(1));
+    } else if(input[0] === "@") {
+	// Extract the username from the string
+	var user = input.split(" ")[0].slice(1);
+	// Extract the message from the string
+	var message = input.slice(user.length + 2); // @ + username + space
+	socket.emit("privateMessage", {user:user, message:message});
+	console.log("Send private message \"" + message +
+		    "\" to " + user);
     } else {
 	socket.emit("chatPost", chatInput.value);
     }
