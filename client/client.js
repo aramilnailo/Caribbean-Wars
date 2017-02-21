@@ -34,7 +34,9 @@ var logoutButton = document.getElementById("logout-btn");
 
 var loadGameButton = document.getElementById("load-game-btn");
 var saveGameButton = document.getElementById("save-game-btn");
-var savedGamesListButton = document.getElementById("saved-games-list-btn");
+var deleteGameButton = document.getElementById("delete-game-btn");
+var savedGamesMenuButton = document.getElementById("saved-games-menu-btn");
+var savedGamesMenu = document.getElementById("saved-games-menu");
 var savedGamesList = document.getElementById("saved-games-list");
 
 var deleteAccountButton = document.getElementById("delete-account-btn");
@@ -84,7 +86,7 @@ var toggleChatWindow = function() {
 socket.on("collapseMenus", function() {
 	if(!userListHidden) toggleUserList();
 	if(!chatWindowHidden) toggleChatWindow();
-	if(!savedGamesListHidden) toggleSavedGamesList();
+	if(!savedGamesMenuHidden) toggleSavedGamesMenu();
 });
 
 //================ 3) LOGIN SCREEN EVENTS ==============================
@@ -278,13 +280,13 @@ socket.on("saveGameResponse", function(resp) {
     }
 })
 
-savedGamesListButton.onclick = function() {
-    toggleSavedGamesList();
+savedGamesMenuButton.onclick = function() {
+    toggleSavedGamesMenu();
 }
 
 socket.on("savedGamesListResponse", function(data) {
+    // Format the saved_games table into HTML
     var i;
-    savedGamesList.style.display = "table";
     var html = "<style> table#sgtable, th, td" +
 	"{ border : 1px solid black; } </style>";
     html += "<table id=\"sgtable\">" +
@@ -292,43 +294,26 @@ socket.on("savedGamesListResponse", function(data) {
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
 	    "<td>"+ data[i].user_name+"</td>" +
-	    "<td><div id=\"savetablefile" + i + "\">"+
-	    data[i].file_name + "</div></td>" +
+	    "<td>" + data[i].file_name + "</td>" +
 	    "<td>" + data[i].map_file_path + "</td></tr>";
     }
     html += "</table>";
-    html += "<button id=\"deleteAllSavedGames-btn\">Delete All</button>";
-    html += "<script>document.getElementById(" +
-	"\"deleteAllSavedGames-btn\").onclick= function() {" +
-	"socket.emit(\"deleteAllSavedGamesRequest\");" +
-	"toggleSavedGamesList(); toggleSavedGamesList();" +
-	"}</script>";
-    for (i = 0; i < data.length; i++) {
-	html += "<script>document.getElementById(" +
-	    "\"savetablefile" + i + "\").onselect = function() {" +
-	    "if((" + username + " == \"admin\") || (" +
-	    username + " == " + data[i].filename + ")) {" +
-	    "var resp = window.confirm(\"Delete " + data[i].file_name +
-	    "?\"); if (resp == true) { socket.emit(\"removeSavedGame\"," +
-	    "{username:" + username + "," +
-	    "filename:" + data[i].file_name + "});" +
-	    "toggleSavedGamesList(); toggleSavedGamesList();" +
-	    "}}}</script>";
-    }
     savedGamesList.innerHTML = html;
+    // Make the saved games screen visible
+    savedGamesMenu.style.display = "inline-block";
 });
 
-var savedGamesListHidden = true;
+var savedGamesMenuHidden = true;
 
-var toggleSavedGamesList = function() {
-    if(savedGamesListHidden) {
+var toggleSavedGamesMenu = function() {
+    if(savedGamesMenuHidden) {
 	socket.emit("savedGamesListRequest");
-	savedGamesListButton.innerHTML = "Hide saved games";
-	savedGamesListHidden = false;
+	savedGamesMenuButton.innerHTML = "Hide saved games";
+	savedGamesMenuHidden = false;
     } else {
-	savedGamesList.style.display = "none";
-	savedGamesListButton.innerHTML = "Show saved games";
-	savedGamesListHidden = true;
+	savedGamesMenu.style.display = "none";
+	savedGamesMenuButton.innerHTML = "Show saved games";
+	savedGamesMenuHidden = true;
     }
 }
 
@@ -336,3 +321,17 @@ loadGameButton.onclick = function() {
     var filename = window.prompt("Load game:", "filename");
     socket.emit("getMapDataFromFilename", filename);
 }
+
+deleteGameButton.onclick = function() {
+    var filename = window.prompt("Delete game:", "filename");
+    socket.emit("deleteSavedGame", filename);
+}
+
+socket.on("deleteSavedGameResponse", function(data) {
+    console.log(data);
+    if(data) {
+	alert("File deleted");
+    } else {
+	alert("File not deleted");
+    }
+});

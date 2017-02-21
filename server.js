@@ -103,7 +103,7 @@ io.sockets.on("connection", function(socket) {
 	});
     });
 
-    //===================== 5) GAME SCREEN LISTENERS ===============================
+    //===================== 5) GAME SCREEN LISTENERS =========================
 
     // Clicked logout
     socket.on("logout", function() {
@@ -115,16 +115,25 @@ io.sockets.on("connection", function(socket) {
 	socket.emit("collapseMenus");
     });
 
-	// Clicked delete account
-	socket.on("deleteAccount", function() {
-		dbi.removeUser(client.player.username, function(resp) {
-			if(!resp) console.log("Could not delete account.")
-		});
-		client.player = null;
-		socket.emit("logoutResponse");
-		socket.emit("collapseMenus");
+    // Clicked delete account
+    socket.on("deleteAccount", function() {
+	dbi.removeUser(client.player.username, function(resp) {
+	    if(!resp) console.log("Could not delete account.")
 	});
-	
+	client.player = null;
+	socket.emit("logoutResponse");
+	socket.emit("collapseMenus");
+    });
+
+    // Clicked delete saved game
+    socket.on("deleteSavedGame", function(data) {
+	dbi.removeSavedGame({file_name:data,
+			     user_name:client.player.username},
+			    function(resp) {
+				socket.emit("deleteSavedGameResponse", resp);
+			    });
+    });
+    
     // Recieved game input
     socket.on("keyPress", function(data) {
 	// If the client is in control of a player
@@ -141,16 +150,17 @@ io.sockets.on("connection", function(socket) {
 	}
     });
 
-	//================ CHAT LISTENERS ==============================
-	
-	// Recieved a chat post
+    //================ CHAT LISTENERS ==============================
+    
+    // Recieved a chat post
     socket.on("chatPost", function(data) {
 	// Notify all clients to add post
 	if(client.player !== null) {
-		for(var i in CLIENT_LIST) {
-			CLIENT_LIST[i].socket.emit("addToChat",
-						   client.player.username + ": " + data);
-		}
+	    for(var i in CLIENT_LIST) {
+		CLIENT_LIST[i].socket.emit("addToChat",
+					   client.player.username +
+					   ": " + data);
+	    }
 	}
     });
 
@@ -163,20 +173,14 @@ io.sockets.on("connection", function(socket) {
     //================== 7) TO DO =======================================
 
     socket.on("saveGameRequest", function(data,resp) {
-	       dbi.saveGameFilename(data, function(resp) {
-	       socket.emit("saveGameResponse", resp);
-		  });
+	dbi.saveGameFilename(data, function(resp) {
+	    socket.emit("saveGameResponse", resp);
 	});
+    });
     
     socket.on("savedGamesListRequest", function() {
-		  dbi.getSavedGamesList(function(data) {
-		      socket.emit("savedGamesListResponse", data);
-		  });
-    });
-
-    socket.on("removeSavedGame", function(data) {
-	dbi.removeSavedGame(data, function(resp) {
-	    socket.emit("removeSavedGameResponse",resp);
+	dbi.getSavedGamesList(function(data) {
+	    socket.emit("savedGamesListResponse", data);
 	});
     });
 
@@ -201,6 +205,7 @@ io.sockets.on("connection", function(socket) {
 	    }
 	});
     });
+    
 });
 
 //============== 6) GAME LOGIC ================================================

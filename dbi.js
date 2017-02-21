@@ -110,14 +110,17 @@ dbi.prototype.removeUser = function(name, cb) {
 }
 
 dbi.prototype.removeSavedGame = function(data, cb) {
-	var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR user_name='admin')";
-        var inserts = ["saved_games", "file_name", data.filename, "user_name", data.username];
-	db.query(mysql.format(sql, inserts), function(err) {
+    var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
+    var inserts = ["saved_games", "file_name", data.file_name,
+		   "user_name", data.user_name, data.user_name, "admin"];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
-			console.log(err.message);
-			cb(false);
+		    console.log(err.message);
+		    cb(false);
+		} else if(rows.affectedRows > 0) {
+		    cb(true); // If a successful deletion occurred
 		} else {
-			cb(true);
+		    cb(false);
 		}
 	});
 }
