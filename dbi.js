@@ -1,3 +1,4 @@
+
 // Namespace creation
 var dbi = function () {};
 
@@ -102,7 +103,7 @@ dbi.prototype.saveGameFilename = function(filename, cb) {
 		 } else {
 		     cb(true);
 		 }
-		});
+	     });
 }
 
 dbi.prototype.getSavedGamesList = function(cb) {
@@ -119,51 +120,49 @@ dbi.prototype.getSavedGamesList = function(cb) {
 //============================= STATS ===================================
 
 // Retrieves stored value for provided stat and username
-dbi.prototype.getStat = function(username, stat, returnval){
-    var inserts = [stat, "username", username];
-	db.query(mysql.format("SELECT ? FROM userStatistics WHERE ??=?",inserts), function(err, rows) {
-		if(err) {
-			console.log(err.message);
-			returnval=null;
-		} else {
-			returnval=rows;
-			console.log("debug: stat retrieved");
-			console.log(returnval);
-		}
-	});
+dbi.prototype.getStat = function(username, stat, cb) {
+    var sql = "SELECT ?? FROM ?? WHERE ??=?";
+    var inserts = [stat, "user_stats", "username", username];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+	if(err) {
+	    console.log(err.message);
+	    cb(null);
+	} else {
+	    console.log("debug: stat retrieved:" + rows);
+	    cb(rows);
+	}
+    });
 }
 
 // Sets given stat for given user. cb set to false if no errors occured.
 dbi.prototype.setStat = function(username, stat, newval, cb){
-	var inserts = [stat, newval, username];
-	console.log(newval);
-	db.query(mysql.format("UPDATE userStatistics SET ?=? WHERE username=?",inserts),function(err){
-		if(err){
-			console.log(err.message);
-			cb(true);
-		} else {
-			cb(false);
-		}
-	});
+    var sql = "UPDATE ?? SET ??=? WHERE username=?";
+    var inserts = ["user_stats" ,stat, newval, username];
+    db.query(mysql.format(sql, inserts), function(err) {
+	if(err){
+	    console.log(err.message);
+	    cb(false);
+	} else {
+	    console.log("Changed " + username + " " +
+			stat + " to " + newval);
+	    cb(true);
+	}
+    });
 }
 
 // Updates the given stat by the given amount
-dbi.prototype.updateStat = function(username, stat, increaseval, cb){
-	var temp = 5;
-	dbi.prototype.getStat(username, stat, temp);
-	console.log(increaseval);
-	if (temp === null){
-		temp = 0;
+dbi.prototype.updateStat = function(username, stat, diff, cb) {
+    var sql = "UPDATE ?? SET ??=??+? WHERE ??=?;";
+    var inserts = ["user_stats", stat, stat, diff, "username", username];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+	if(err) {
+	    console.log(err.message);
+	    cb(false);
+	} else {
+	    cb(true);
 	}
-	console.log(temp);
-	dbi.prototype.setStat(username, stat, temp+increaseval, function(err){
-		if(err){
-			console.log("Stat failed to update");
-			cb(true);
-		} else {
-			cb(false);
-		}
-	});
+    });
 }
+
 
 module.exports = new dbi();
