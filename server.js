@@ -24,6 +24,9 @@ var io = require("socket.io")(serv, {});
 // Track all current clients
 var CLIENT_LIST = [];
 
+// Track the current map
+var MAP = "";
+
 // Server startup
 app.get("/", function(req, res) {
     res.sendFile(__dirname + "/client/index.html");
@@ -216,21 +219,29 @@ io.sockets.on("connection", function(socket) {
 	});
     });
 
-    socket.on("getMapDataFromPath", function(path) {
-	files.readFile(path, function(data) {
+    socket.on("getMap", function() {
+	if(MAP === "") MAP = "./assets/map";
+	files.readFile(MAP, function(data) {
 	    if(data) {
-		socket.emit("mapData", {data:data, path:path});
+		socket.emit("mapData", {data:data, path:MAP});
 	    } else {
 		socket.emit("mapDataFailed");
 	    }
 	});
     });
 
-    socket.on("getMapDataFromFilename", function(filename) {
+    socket.on("loadNewMap", function(filename) {
+	var i;
 	dbi.getMapFilePath(filename, function(path) {
 	    if(path) {
 		files.readFile(path, function(data) {
-		    if(data) socket.emit("mapData", {data:data, path:path});
+		    if(data) {
+			MAP = path;
+			for(i in CLIENT_LIST) {
+			    CLIENT_LIST[i].socket.emit("mapData",
+				{data:data, path:path});
+			}
+		    }
 		});
 	    } else {
 		socket.emit("mapDataFailed");

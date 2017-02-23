@@ -170,8 +170,8 @@ socket.on("loginResponse", function(data) {
 	gameScreen.style.display = "inline-block";
 	usernameLabel.innerHTML = data.username;
 	username = data.username;
-	// Request the map data for f1
-	socket.emit("getMapDataFromPath", "./assets/map");
+	// Request the map data
+	socket.emit("getMap");
     }
 });
 
@@ -376,7 +376,7 @@ var toggleSavedGamesMenu = function() {
 
 loadGameButton.onclick = function() {
     var filename = window.prompt("Load game:", "filename");
-    socket.emit("getMapDataFromFilename", filename);
+    socket.emit("loadNewMap", filename);
 }
 
 deleteGameButton.onclick = function() {
