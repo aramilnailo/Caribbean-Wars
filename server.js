@@ -86,6 +86,7 @@ io.sockets.on("connection", function(socket) {
 		// If info is valid, give the client a player
 		client.player = player.Player(data.username);
 		dbi.setUserOnlineStatus(client.player.username, true);
+		dbi.addUserStats(client.player.username, function(resp) {});
 		socket.emit("loginResponse", {success:true,
 					      username:data.username});
 		socket.emit("collapseMenus");
@@ -118,8 +119,11 @@ io.sockets.on("connection", function(socket) {
 
     // Clicked delete account
     socket.on("deleteAccount", function() {
+	dbi.removeUserStats(client.player.username, function(val) {});
 	dbi.removeUser(client.player.username, function(resp) {
-	    if(!resp) console.log("Could not delete account.")
+	    if(!resp) {
+		console.log("Could not delete account.");
+	    }
 	});
 	client.player = null;
 	socket.emit("logoutResponse");
@@ -233,6 +237,14 @@ io.sockets.on("connection", function(socket) {
 	    }
 	});
     });
+
+    socket.on("statsMenuRequest", function() {
+	dbi.getAllStats(function(data) {
+	    if(data) {
+		socket.emit("statsMenuResponse", data);
+	    }
+	});
+    });
     
 });
 
@@ -268,9 +280,10 @@ setInterval(function(){
     for(var i in CLIENT_LIST){
 	player = CLIENT_LIST[i].player;
 	if(player) {
-	    dbi.updateStat(player.username, "minutesPlayed", 1, function(err) {
+	    dbi.updateStat(player.username, "seconds_played", 1,
+			   function(err) {
 		if(!err){
-		    console.log("Failed to update minutesPlayed");
+		    console.log("Failed to update seconds played");
 		}
 	    });
 	}

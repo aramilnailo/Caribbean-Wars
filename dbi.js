@@ -75,7 +75,7 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
 // Inserts the string 'filename' into the saved games database
 dbi.prototype.saveGameFilename = function(data,cb) {
     if (data.file_name) {
-	db.query("INSERT INTO saved_games set ?;",
+	db.query("INSERT INTO saved_games SET ?;",
 		 {user_name:data.user_name,
 		  file_name:data.file_name,
 		  map_file_path:data.map_file_path},
@@ -170,6 +170,35 @@ dbi.prototype.getMapFilePath = function(file_name, cb) {
 
 //============================= STATS ===================================
 
+dbi.prototype.addUserStats = function(username, cb) {
+    var newUser = {username:username, seconds_played:0,
+		   shots_fired:0, distance_sailed:0,
+		   ships_sunk:0, ships_lost:0}
+    var sql = "INSERT INTO ?? SET ?;";
+    var inserts = ["user_stats", newUser];
+    db.query(mysql.format(sql, inserts), function(err) {
+	if(err) {
+	    console.log(err.message);
+	    cb(false);
+	} else {
+	    cb(true);
+	}
+    });
+}
+
+dbi.prototype.removeUserStats = function(username, cb) {
+    var sql = "DELETE FROM ?? WHERE ??=?";
+    var inserts = ["user_stats", "username", username];
+    db.query(mysql.format(sql, inserts), function(err) {
+	if(err) {
+	    console.log(err.message);
+	    cb(false);
+	} else {
+	    cb(true);
+	}
+    });
+}
+
 // Retrieves stored value for provided stat and username
 dbi.prototype.getStat = function(username, stat, cb) {
     var sql = "SELECT ?? FROM ?? WHERE ??=?";
@@ -211,6 +240,19 @@ dbi.prototype.updateStat = function(username, stat, diff, cb) {
 	    cb(false);
 	} else {
 	    cb(true);
+	}
+    });
+}
+
+dbi.prototype.getAllStats = function(cb) {
+    var sql = "SELECT * FROM ??";
+    var inserts = ["user_stats"];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+	if(err) {
+	    console.log(err.message);
+	    cb(null);
+	} else {
+	    cb(rows);
 	}
     });
 }

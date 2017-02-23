@@ -6,6 +6,8 @@
   </head>
   <body>
     <h1>SR_5_Caribbean Wars</h1>
+
+    <style> th, td { border : 1px solid black; } </style>
     
     <div id="login-screen">
       Username: <input id="login-username" type="text"></input><br>
@@ -26,6 +28,7 @@
 	  <button id="logout-btn">Log out</button>
 	  <button id="delete-account-btn">Delete Account</button>
 	  <button id="saved-games-menu-btn">Show saved games</button>
+	  <button id="stats-menu-btn">Show stats</button>
 	</div>
       </div>
       <div id="saved-games-menu" style="display:none;">
@@ -36,6 +39,7 @@
 	  <button id="delete-game-btn">Delete</button>
 	</div>
       </div>
+      <div id="stats-menu" style="display:none;"></div>
       <div id="game-window">
 	<canvas id="canvas" width="500" height="500"
 		style="border:1px solid black;"></canvas>

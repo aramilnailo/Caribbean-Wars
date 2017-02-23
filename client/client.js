@@ -41,6 +41,9 @@ var savedGamesList = document.getElementById("saved-games-list");
 
 var deleteAccountButton = document.getElementById("delete-account-btn");
 
+var statsMenu = document.getElementById("stats-menu");
+var statsMenuButton = document.getElementById("stats-menu-btn");
+
 // Chat window
 var chatWindow = document.getElementById("chat-window");
 var chatLog = document.getElementById("chat-log");
@@ -72,16 +75,56 @@ var toggleUserList = function() {
 
 // Show and hide the chat window
 var toggleChatWindow = function() {
-	if(chatWindowHidden) {
-		chatWindow.style.display = "inline-block";
-		chatToggleButton.innerHTML = "Hide chat";
-		chatWindowHidden = false;
+    if(chatWindowHidden) {
+	chatWindow.style.display = "inline-block";
+	chatToggleButton.innerHTML = "Hide chat";
+	chatWindowHidden = false;
     } else {
-		chatWindow.style.display = "none";
-		chatToggleButton.innerHTML = "Show chat";
-		chatWindowHidden = true;
+	chatWindow.style.display = "none";
+	chatToggleButton.innerHTML = "Show chat";
+	chatWindowHidden = true;
     }
 }
+
+var statsMenuHidden = true;
+
+var toggleStatsMenu = function() {
+    if(statsMenuHidden) {
+	socket.emit("statsMenuRequest");
+	statsMenu.style.display = "inline-block";
+	statsMenuButton.innerHTML = "Hide stats";
+	statsMenuHidden = false;
+    } else {
+	statsMenu.style.display = "none";
+	statsMenuButton.innerHTML = "Show stats";
+	statsMenuHidden = true;
+    }
+}
+
+socket.on("statsMenuResponse", function(data) {
+    var i;
+    statsMenu.style.display = "table";
+    var html = "<table><tr>" +
+	"<th>Username</th>" +
+	"<th>Seconds Played</th>" +
+	"<th>Shots Fired</th>" +
+	"<th>Distance Sailed</th>" +	
+	"<th>Ships Sunk</th>" +
+	"<th>Ships Lost</th>" +
+	"</tr>";
+    for(i = 0; i < data.length; i++) {	
+	html += "<tr>" +
+	    "<td>"+ data[i].username + "</td>" +
+	    "<td>" + data[i].seconds_played + "</td>" +
+	    "<td>" + data[i].shots_fired + "</td>" +
+	    "<td>" + data[i].distance_sailed + "</td>" +
+	    "<td>" + data[i].ships_sunk + "</td>" +
+	    "<td>" + data[i].ships_lost + "</td>" +
+	    "</tr>";
+    }
+    html += "</table>";
+    statsMenu.innerHTML = html;
+});
 
 socket.on("collapseMenus", function() {
 	if(!userListHidden) toggleUserList();
@@ -112,6 +155,10 @@ signupButton.onclick = function() {
 // List users button is clicked on login screen
 userListButton.onclick = function() {
     toggleUserList();
+}
+
+statsMenuButton.onclick = function() {
+    toggleStatsMenu();
 }
 
 //================= 4) LOGIN SCREEN SOCKET LISTENERS =======================
@@ -156,7 +203,9 @@ logoutButton.onclick = function() {
 
 // Delete account button is clicked on game screen
 deleteAccountButton.onclick = function() {
+    if(confirm("Are you sure you want to delete this account?")) {
 	socket.emit("deleteAccount");
+    }
 }
 
 // If input is pressed, emit object with the key and the new state
@@ -252,8 +301,6 @@ chatForm.onsubmit = function(e) {
 	// Extract the message from the string
 	var message = input.slice(user.length + 2); // @ + username + space
 	socket.emit("privateMessage", {user:user, message:message});
-	console.log("Send private message \"" + message +
-		    "\" to " + user);
     } else {
 	socket.emit("chatPost", chatInput.value);
     }
@@ -296,10 +343,11 @@ savedGamesMenuButton.onclick = function() {
 socket.on("savedGamesListResponse", function(data) {
     // Format the saved_games table into HTML
     var i;
-    var html = "<style> table#sgtable, th, td" +
-	"{ border : 1px solid black; } </style>";
-    html += "<table id=\"sgtable\">" +
-	"<tr><th>Host</th><th>File Name</th><th>Map</th></tr>";
+    var html = "<table><tr>" +
+	"<th>Host</th>" +
+	"<th>File Name</th>" +
+	"<th>Map</th>" +
+	"</tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
 	    "<td>"+ data[i].user_name+"</td>" +
