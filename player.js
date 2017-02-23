@@ -1,4 +1,4 @@
-
+var dbi = require("./dbi.js");
 //========= PLAYER OBJECT ==================
 
 var Player = function(username) {
@@ -14,14 +14,28 @@ var Player = function(username) {
 	maxSpeed:10
     }
     player.updatePosition = function() {
-	if(player.pressingRight)
+	if(player.pressingRight){
 	    player.x += player.maxSpeed;
-	if(player.pressingLeft)
+	    dbi.updateStat(username, "distanceSailed", 0.1, function(err) {
+		if(!err) {
+		    console.log("Could not update distance sailed");
+		}
+	    });
+	}
+	if(player.pressingLeft){
 	    player.x -= player.maxSpeed;
-	if(player.pressingUp)
+	    dbi.updateStat(username, "distanceSailed", 0.1, function(err) {
+		if(!err) {
+		    console.log("Could not update distance sailed");
+		}
+	    });
+	}
+	if(player.pressingUp){
 	    player.y -= player.maxSpeed;
-	if(player.pressingDown)
+	}
+	if(player.pressingDown){
 	    player.y += player.maxSpeed;
+	}
     }
     return player;
 }

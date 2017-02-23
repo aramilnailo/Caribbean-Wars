@@ -6,7 +6,8 @@
   4) Login screen listeners
   5) Game screen listeners
   6) Game logic
-  7) To do													*/
+  7) To do
+  8) Stat Manipulation													*/
 
 //=============== 1) MODULES ================================
 
@@ -186,7 +187,14 @@ io.sockets.on("connection", function(socket) {
 
     // Debug command sent through chat
     socket.on("evalExpression", function(data) {
-	var res = eval(data);
+	var res;
+	try {
+		res = eval(data);
+	} catch (error) {
+		console.log("Error: " + error.message);
+		client.socket.emit("addToChat", "Command Syntax Error." )
+	}
+	 
 	socket.emit("evalAnswer", res);
     });
 
