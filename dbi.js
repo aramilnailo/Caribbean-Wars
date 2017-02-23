@@ -167,4 +167,51 @@ dbi.prototype.getMapFilePath = function(file_name, cb) {
     });
 }
 
+//============================= STATS ===================================
+
+// Retrieves stored value for provided stat and username
+dbi.prototype.getStat = function(username, stat, cb) {
+    var sql = "SELECT ?? FROM ?? WHERE ??=?";
+    var inserts = [stat, "user_stats", "username", username];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+	if(err) {
+	    console.log(err.message);
+	    cb(null);
+	} else {
+	    console.log("debug: stat retrieved:" + rows);
+	    cb(rows);
+	}
+    });
+}
+
+// Sets given stat for given user. cb set to false if no errors occured.
+dbi.prototype.setStat = function(username, stat, newval, cb){
+    var sql = "UPDATE ?? SET ??=? WHERE username=?";
+    var inserts = ["user_stats" ,stat, newval, username];
+    db.query(mysql.format(sql, inserts), function(err) {
+	if(err){
+	    console.log(err.message);
+	    cb(false);
+	} else {
+	    console.log("Changed " + username + " " +
+			stat + " to " + newval);
+	    cb(true);
+	}
+    });
+}
+
+// Updates the given stat by the given amount
+dbi.prototype.updateStat = function(username, stat, diff, cb) {
+    var sql = "UPDATE ?? SET ??=??+? WHERE ??=?;";
+    var inserts = ["user_stats", stat, stat, diff, "username", username];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+	if(err) {
+	    console.log(err.message);
+	    cb(false);
+	} else {
+	    cb(true);
+	}
+    });
+}
+
 module.exports = new dbi();

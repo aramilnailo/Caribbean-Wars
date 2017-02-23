@@ -250,4 +250,23 @@ setInterval(function() {
 	var socket = CLIENT_LIST[i].socket;
 	socket.emit("newPositions", pack);
     }
-}, 1000/25);
+}, 1000/40);
+
+//============== 8) STAT MANIPULATION 	=======================================
+
+// Updates minutesPlayed database field
+setInterval(function(){
+    var player;
+    for(var i in CLIENT_LIST){
+	player = CLIENT_LIST[i].player;
+	if(player) {
+	    dbi.updateStat(player.username, "minutesPlayed", 1, function(err) {
+		if(!err){
+		    console.log("Failed to update minutesPlayed");
+		}
+	    });
+	}
+    }
+}, 1000);
+
+// Insert more Stat manipulation functions when trackable stats are added.
