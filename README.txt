@@ -1,2 +1,0 @@
-Seth Wilson
-Nick Parsons
