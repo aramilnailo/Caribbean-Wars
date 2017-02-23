@@ -132,6 +132,10 @@ socket.on("collapseMenus", function() {
 	if(!savedGamesMenuHidden) toggleSavedGamesMenu();
 });
 
+socket.on("endGameSession", function() {
+
+});
+
 //================ 3) LOGIN SCREEN EVENTS ==============================
 
 // Login button is clicked on login screen

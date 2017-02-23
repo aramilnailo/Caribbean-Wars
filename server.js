@@ -24,8 +24,8 @@ var io = require("socket.io")(serv, {});
 // Track all current clients
 var CLIENT_LIST = [];
 
-// Track the current map
-var MAP = "";
+// Track the current game session
+var GAME_SESSION = {host:null, map:"", players:[]};
 
 // Server startup
 app.get("/", function(req, res) {
@@ -37,6 +37,47 @@ console.log("Server started");
 
 // Connect to database
 dbi.connect.call(this);
+
+//=================== GAME SESSION ====================================
+
+var endGameSession = function() {
+    // Reset the object
+    GAME_SESSION.host = null;
+    GAME_SESSION.map = "";
+    // Set everyone offline
+    for(i in GAME_SESSION.players) {
+	dbi.setUserOnlineStatus(GAME_SESSION.players[i].username, false);
+    }
+    // Null out the player list
+    GAME_SESSION.players = [];
+    // Log everyone out
+    for(i in CLIENT_LIST) {
+	CLIENT_LIST[i].player = null;
+	CLIENT_LIST[i].socket.emit("logoutResponse");
+	CLIENT_LIST[i].socket.emit("collapseMenus");
+    }
+}
+
+var exitGameSession = function(data) {
+    // Remove the player from the game session list
+    index = GAME_SESSION.players.indexOf(data);
+    if(index > -1) GAME_SESSION.players.splice(index, 1);
+    // Turn the player offline in the database
+    dbi.setUserOnlineStatus(data.username, false);
+    // If the host leaves, it's game over for everyone
+    if(data === GAME_SESSION.host) endGameSession();
+}
+
+var enterGameSession = function(data) {
+    // If no one is online, the player becomes host
+    if(GAME_SESSION.players.length == 0) {
+	GAME_SESSION.host = data;
+    }
+    // Add player to game session list
+    GAME_SESSION.players.push(data);
+    // Turn the player online in the database
+    dbi.setUserOnlineStatus(data.username, true);
+}
 
 //==================== 3) SOCKET LISTENERS =====================================
 
@@ -50,9 +91,9 @@ io.sockets.on("connection", function(socket) {
     
     // Client closed the window, network issue, etc.
     socket.on("disconnect", function() {
-	// Set client's player (if any) to offline
+	// If in a game, remove the player
 	if(client.player !== null) {
-	    dbi.setUserOnlineStatus(client.player.username, false);
+	    exitGameSession(client.player);
 	}
 	socket.emit("collapseMenus");
 	// Remove from client list
@@ -65,21 +106,20 @@ io.sockets.on("connection", function(socket) {
     // Client clicked login button
     socket.on("login", function(data) {
 	// Check info with the database
-	dbi.login(data.username, data.password, 
-		  function(resp) {
-		      if(resp) {
-			  // If login info is valid, give the client a player
-			  client.player = player.Player(data.username);
-			  // Make the player online
-			  dbi.setUserOnlineStatus(client.player.username, true);
-			  socket.emit("loginResponse", {success:true,
-							username:data.username});
-			  socket.emit("collapseMenus");
-		      } else {
-			  // If login info is denied
-			  socket.emit("loginResponse", {success:false});
-		      }
-		  });
+	dbi.login(data.username, data.password, function(resp) {
+	    if(resp) {
+		// If login info is valid, give the client a player
+		client.player = player.Player(data.username);
+		// The player joins the game
+		enterGameSession(client.player);
+		socket.emit("loginResponse", {success:true,
+					      username:data.username});
+		socket.emit("collapseMenus");
+	    } else {
+		// If login info is denied
+		socket.emit("loginResponse", {success:false});
+	    }
+	});
     });
 
     socket.on("signup", function(data) {
@@ -88,7 +128,7 @@ io.sockets.on("connection", function(socket) {
 	    if(resp) {
 		// If info is valid, give the client a player
 		client.player = player.Player(data.username);
-		dbi.setUserOnlineStatus(client.player.username, true);
+		enterGameSession(client.player);
 		dbi.addUserStats(client.player.username, function(resp) {});
 		socket.emit("loginResponse", {success:true,
 					      username:data.username});
@@ -112,23 +152,27 @@ io.sockets.on("connection", function(socket) {
 
     // Clicked logout
     socket.on("logout", function() {
-	// Set player to offline
-	dbi.setUserOnlineStatus(client.player.username, false);
-	// Remove the client's player, but don't remove the client
-	client.player = null;
+	// Remove from the game session, but don't remove the client
+	if(client.player) {
+	    exitGameSession(client.player);
+	    client.player = null;
+	}
 	socket.emit("logoutResponse");
 	socket.emit("collapseMenus");
     });
 
     // Clicked delete account
     socket.on("deleteAccount", function() {
-	dbi.removeUserStats(client.player.username, function(val) {});
-	dbi.removeUser(client.player.username, function(resp) {
-	    if(!resp) {
-		console.log("Could not delete account.");
-	    }
-	});
-	client.player = null;
+	if(client.player) {
+	    dbi.removeUserStats(client.player.username, function(val) {});
+	    dbi.removeUser(client.player.username, function(resp) {
+		if(!resp) {
+		    console.log("Could not delete account.");
+		}
+	    });
+	    exitGameSession(client.player);
+	    client.player = null;
+	}
 	socket.emit("logoutResponse");
 	socket.emit("collapseMenus");
     });
@@ -220,10 +264,10 @@ io.sockets.on("connection", function(socket) {
     });
 
     socket.on("getMap", function() {
-	if(MAP === "") MAP = "./assets/map";
-	files.readFile(MAP, function(data) {
+	if(GAME_SESSION.map === "") GAME_SESSION.map = "./assets/map";
+	files.readFile(GAME_SESSION.map, function(data) {
 	    if(data) {
-		socket.emit("mapData", {data:data, path:MAP});
+		socket.emit("mapData", {data:data, path:GAME_SESSION.map});
 	    } else {
 		socket.emit("mapDataFailed");
 	    }
@@ -236,7 +280,7 @@ io.sockets.on("connection", function(socket) {
 	    if(path) {
 		files.readFile(path, function(data) {
 		    if(data) {
-			MAP = path;
+			GAME_SESSION.map = path;
 			for(i in CLIENT_LIST) {
 			    CLIENT_LIST[i].socket.emit("mapData",
 				{data:data, path:path});
@@ -263,22 +307,18 @@ io.sockets.on("connection", function(socket) {
 
 // Main game loop runs at 40 fps
 setInterval(function() {
-    var pack = [];
+    var pack = [], p, i, socket;
     // Generate object with all player positions
-    for(var i in CLIENT_LIST) {
-	var player = CLIENT_LIST[i].player;
-	if(player !== null) {
-	    player.updatePosition();
-	    pack.push({
-		x:player.x,
-		y:player.y,
-		number:player.number
-	    });
+    for(i in GAME_SESSION.players) {
+	p = GAME_SESSION.players[i];
+	if(p !== null) {
+	    p.updatePosition();
+	    pack.push({x:p.x, y:p.y, number:p.number});
 	}
     }
     // Send the packet to each client
-    for(var i in CLIENT_LIST) {
-	var socket = CLIENT_LIST[i].socket;
+    for(i in CLIENT_LIST) {
+	socket = CLIENT_LIST[i].socket;
 	socket.emit("newPositions", pack);
     }
 }, 1000/40);
@@ -286,18 +326,15 @@ setInterval(function() {
 //============== 8) STAT MANIPULATION 	=======================================
 
 // Updates minutesPlayed database field
-setInterval(function(){
-    var player;
-    for(var i in CLIENT_LIST){
-	player = CLIENT_LIST[i].player;
-	if(player) {
-	    dbi.updateStat(player.username, "seconds_played", 1,
-			   function(err) {
-		if(!err){
-		    console.log("Failed to update seconds played");
-		}
-	    });
-	}
+setInterval(function() {
+    var i, p;
+    for(i in GAME_SESSION.players){
+	p = GAME_SESSION.players[i];
+	dbi.updateStat(p.username, "seconds_played", 1, function(err) {
+	    if(!err) {
+		console.log("Failed to update seconds played");
+	    }
+	});
     }
 }, 1000);
 
