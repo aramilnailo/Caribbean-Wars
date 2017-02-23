@@ -180,7 +180,7 @@ io.sockets.on("connection", function(socket) {
     // Clicked delete saved game
     socket.on("deleteSavedGame", function(data) {
 	dbi.removeSavedGame({file_name:data,
-			     user_name:client.player.username},
+			     author:client.player.username},
 			    function(resp) {
 				socket.emit("deleteSavedGameResponse", resp);
 			    });
@@ -234,24 +234,22 @@ io.sockets.on("connection", function(socket) {
 	    }
 	}
     });
-					
-
+    
     // Debug command sent through chat
     socket.on("evalExpression", function(data) {
-	var res;
+	var resp;
 	try {
-		res = eval(data);
+	    resp = eval(data);
 	} catch (error) {
-		console.log("Error: " + error.message);
-		client.socket.emit("addToChat", "Command Syntax Error." )
+	    console.log("Error: " + error.message);
+	    client.socket.emit("addToChat", "Command Syntax Error." )
 	}
-	 
-	socket.emit("evalAnswer", res);
+	socket.emit("evalResponse", resp);
     });
 
     //================== 7) TO DO =======================================
 
-    socket.on("saveGameRequest", function(data,resp) {
+    socket.on("saveGameRequest", function(data) {
 	dbi.saveGameFilename(data, function(resp) {
 	    socket.emit("saveGameResponse", resp);
 	});
@@ -283,7 +281,7 @@ io.sockets.on("connection", function(socket) {
 			GAME_SESSION.map = path;
 			for(i in CLIENT_LIST) {
 			    CLIENT_LIST[i].socket.emit("mapData",
-				{data:data, path:path});
+						       {data:data, path:path});
 			}
 		    }
 		});
@@ -309,7 +307,7 @@ io.sockets.on("connection", function(socket) {
 
 //============== 6) GAME LOGIC ================================================
 
-// Main game loop runs at 40 fps
+// Main game op runs at 40 fps
 setInterval(function() {
     var pack = [], p, i, socket;
     // Generate object with all player positions

@@ -76,22 +76,20 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
 dbi.prototype.saveGameFilename = function(data,cb) {
     if (data.file_name) {
 	db.query("INSERT INTO saved_games SET ?;",
-		 {user_name:data.user_name,
+		 {author:data.author,
 		  file_name:data.file_name,
 		  map_file_path:data.map_file_path},
 		 function(err) {
 		     if(err) {
 			 console.log(err.message);
-			 cb({value:false});
+			 cb(false);
 		     } else {
-			 cb({value:true,
-			     username:data.user_name,
-			     filename:data.file_name});
+			 cb(true);
 		     }
 		 });
     } else {
-		cb({value:false});
-	}
+	cb(false);
+    }
 }
 
 
@@ -113,7 +111,7 @@ dbi.prototype.removeUser = function(name, cb) {
 dbi.prototype.removeSavedGame = function(data, cb) {
     var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
     var inserts = ["saved_games", "file_name", data.file_name,
-		   "user_name", data.user_name, data.user_name, "admin"];
+		   "author", data.author, data.author, "admin"];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
 		    console.log(err.message);
