@@ -379,8 +379,14 @@ var toggleSavedGamesMenu = function() {
 }
 
 loadGameButton.onclick = function() {
-    var filename = window.prompt("Load game:", "filename");
-    socket.emit("loadNewMap", filename);
+    socket.emit("isHost", function(resp) {
+	if(resp) {
+	    var filename = window.prompt("Load game:", "filename");
+	    socket.emit("loadNewMap", filename);
+	} else {
+	    alert("Only host may load saved games.");
+	}
+    });
 }
 
 deleteGameButton.onclick = function() {

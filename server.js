@@ -300,7 +300,11 @@ io.sockets.on("connection", function(socket) {
 	    }
 	});
     });
-    
+
+    socket.on("isHost", function(cb) {
+	cb(GAME_SESSION.host !== null &&
+	   GAME_SESSION.host === client.player);
+    });
 });
 
 //============== 6) GAME LOGIC ================================================
