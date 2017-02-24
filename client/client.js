@@ -1,9 +1,4 @@
 
-//=============== MODULES ===============================================
-
-// Server connection
-var socket = io();
-
 //============== HTML ELEMENTS ============================================
 
 // Login page
@@ -60,10 +55,10 @@ var username = "";
 var mapData = {data:"", path:""};
 
 function setMap(data) {
-    if(data) {
-	mapData = data;
+    if(data.err) {
+	   alert(data.err);
     } else {
-	alert("Could not open map file.");
+        mapData = data;
     }
 }
 
@@ -249,19 +244,25 @@ deleteAccountButton.onclick = function() {
 
 saveGameButton.onclick = function() {
     var filename = window.prompt("Save as: ","filename");
-    emit("saveGameRequest",
-		{file_name:filename, author:username,
-		 map_file_path:mapData.path});
+    if(filename) {
+        emit("saveGameRequest",
+            {file_name:filename, author:username,
+             map_file_path:mapData.path});
+    }
 }
 
 loadGameButton.onclick = function() {
     var filename = window.prompt("Load game:", "filename");
-    emit("loadNewMap", {filename:filename, username:username});
+    if(filename) {
+        emit("loadNewMap", {filename:filename, username:username});
+    }
 }
 
 deleteGameButton.onclick = function() {
     var filename = window.prompt("Delete game:", "filename");
-    emit("deleteSavedGame", filename);
+    if(filename) {
+        emit("deleteSavedGame", filename);
+    }
 }
 
 // Show users button is clicked
@@ -368,33 +369,23 @@ function logToConsole(data) {
 
 //================== ALERTS =======================================
 
-function pushSaveAlert(data) {
-    if (data) {
-	alert("Saved file");
-    } else {
-	alert("File not saved");
-    }
-}
-
-function pushDeleteAlert(data) {
-    if(data) {
-	alert("File deleted");
-    } else {
-	alert("File not deleted");
-    }
+function pushAlert(data) {
+    alert(data);
 }
 
 
 //==================== SERVER INTERFACE =================================
 
+// Server connection
+var socket = io();
 
-
+// Emit anything to the server
 function emit(message, data) {
     console.log("emitting" + message);
     socket.emit("message", {name:message, data:data});
 }
 
-
+//========== LISTENERS =========
 
 // Display the user list, formatting the row data into HTML table
 socket.on("userListResponse", function(data) {
@@ -421,11 +412,7 @@ socket.on("logoutResponse", function() {
 });
 // Recieve the map data after request
 socket.on("mapData", function(data) {
-    if(data.err) {
-        alert(data.err);
-    } else {
-        setMap(data);
-    }
+    setMap(data);
 });
 // Main rendering function--redraws canvas after recieving world state
 socket.on("newPositions", function(data) {
@@ -438,9 +425,6 @@ socket.on("addToChat", function(data) {
 socket.on("evalResponse", function(data) {
     logToConsole(data);
 });
-socket.on("saveGameResponse", function(data) {
-    pushSaveAlert(data);
-});
-socket.on("deleteSavedGameResponse", function(data) {
-    pushDeleteAlert(data);
+socket.on("alert", function(data) {
+    pushAlert(data);
 });

@@ -83,28 +83,28 @@ io.sockets.on("connection", function(socket) {
         console.log("About to call " + message.name + "(" + client + ", " + 
                     message.data + ")");
         var data = {client:client, call:message.name, pass:message.data};
-        console.log(data.call);
         callFunction(data);
     });
 });
 
 var functions = [ 
-                  {name:"disconnect",           ref:disconnect},
-                  {name:"login",                ref:login},
-                  {name:"signup",               ref:signup},
-                  {name:"userListRequest",      ref:userListRequest},
-                  {name:"logout",               ref:logout},
-                  {name:"deleteAccount",        ref:deleteAccount},
-                  {name:"deleteSavedGame",      ref:deleteSavedGame},
-                  {name:"keyPress",             ref:keyPress},
-                  {name:"chatPost",             ref:chatPost},
-                  {name:"privateMessage",       ref:privateMessage},
-                  {name:"evalExpression",       ref:evalExpression},
-                  {name:"savedGamesListRequest",ref:savedGamesListRequest},
-                  {name:"getMap",               ref:getMap},
-                  {name:"loadNewMap",           ref:loadNewMap},
-                  {name:"statsMenuRequest",     ref:statsMenuRequest}
-                ];
+     {name:"disconnect",           ref:disconnect},
+     {name:"login",                ref:login},
+     {name:"signup",               ref:signup},
+     {name:"userListRequest",      ref:userListRequest},
+     {name:"logout",               ref:logout},
+     {name:"deleteAccount",        ref:deleteAccount},
+     {name:"deleteSavedGame",      ref:deleteSavedGame},
+     {name:"keyPress",             ref:keyPress},
+     {name:"chatPost",             ref:chatPost},
+     {name:"privateMessage",       ref:privateMessage},
+     {name:"evalExpression",       ref:evalExpression},
+     {name:"savedGamesListRequest",ref:savedGamesListRequest},
+     {name:"saveGameRequest",      ref:saveGameRequest},
+     {name:"getMap",               ref:getMap},
+     {name:"loadNewMap",           ref:loadNewMap},
+     {name:"statsMenuRequest",     ref:statsMenuRequest}
+    ];
               
 
 // Call the function paired with the event "name"
@@ -203,9 +203,7 @@ function deleteAccount(param) {
 	if(client.player) {
 	    dbi.removeUserStats(client.player.username, function(val) {});
 	    dbi.removeUser(client.player.username, function(resp) {
-		if(!resp) {
-		    console.log("Could not delete account.");
-		}
+            
 	    });
 	    exitGameSession(client.player);
 	    client.player = null;
@@ -219,7 +217,9 @@ function deleteSavedGame(param) {
     var client = param.client;
     var data = param.data;
 	dbi.removeSavedGame({file_name:data, author:client.player.username}, function(resp) {
-        client.socket.emit("deleteSavedGameResponse", resp);
+        var msg = resp ? "Deleted \"" + data + "\"." : 
+                    "Could not delete \"" + data + "\".";
+        client.socket.emit("alert", msg);
     });
 }
     
@@ -294,8 +294,10 @@ function saveGameRequest(param) {
     var client = param.client;
     var data = param.data;
 	dbi.saveGameFilename(data, function(resp) {
-	    client.socket.emit("saveGameResponse", resp);
-	});
+        var msg = resp ? "Saved \"" + data.file_name + "\"." :
+                        "Could not save \"" + data.file_name + "\".";
+	       client.socket.emit("alert", msg);
+    });
 }
     
 function savedGamesListRequest(param) {
@@ -314,7 +316,7 @@ function getMap(param) {
 	    if(data) {
 		  client.socket.emit("mapData", {data:data, path:GAME_SESSION.map});
 	    } else {
-		  client.socket.emit("mapData", {err:"Could not read from map file"});
+		  client.socket.emit("alert", "Could not read from map file");
 	    }
 	});
 }
@@ -324,7 +326,7 @@ function loadNewMap(param) {
     var filename = param.data.filename;
     var username = param.data.username;
     if(!GAME_SESSION.host || username != GAME_SESSION.host.username) {
-        client.socket.emit("mapData", {err:"Only host can load maps."});
+        client.socket.emit("alert", "Only host can load maps.");
     } else {
 	var i;
 	dbi.getMapFilePath(filename, function(path) {
@@ -338,7 +340,7 @@ function loadNewMap(param) {
                 }
             });
 	    } else {
-            client.socket.emit("mapData", {err:"Could not read from map file."});
+            client.socket.emit("alert", "Could not read from map file.");
 	    }
 	});
     }
@@ -348,7 +350,7 @@ function statsMenuRequest(param) {
     var client = param.client;
 	dbi.getAllStats(function(data) {
 	    if(data) {
-		client.socket.emit("statsMenuResponse", data);
+		  client.socket.emit("statsMenuResponse", data);
 	    }
 	});
 }
