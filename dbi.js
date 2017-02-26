@@ -1,4 +1,7 @@
 
+var debug = require("./debug.js").dbi;
+var log = require("./debug.js").log;
+
 // Namespace creation
 var dbi = function () {};
 
@@ -20,9 +23,9 @@ dbi.prototype.connect = function() {
     });
     db.connect(function(err) {
         if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	} else {
-	    console.log("Connected to database.");
+	    if (debug) log("Connected to database.");
 	}
     });
 }
@@ -37,7 +40,7 @@ dbi.prototype.login = function(username, password, cb) {
     var inserts = ["user_info", "username", username, "password", password];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(false);
 	}
 	if(rows.length > 0) cb(true);
@@ -54,7 +57,7 @@ dbi.prototype.signup = function(username, password, cb) {
              {username:username, password:password, online:false},
 	function(err) {
 	    if(err) {
-		console.log(err.message);
+		if (debug) log(err.message);
 		cb(false);
 	    } else {
 		cb(true);
@@ -68,7 +71,7 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
     var sql = "UPDATE ?? SET ??=? WHERE ??=?";
     var inserts = ["user_info", "online", boolStr, "username", username];
     db.query(mysql.format(sql, inserts), function(err) {
-	if(err) console.log(err.message);
+	if(err && debug) log(err.message);
     });
 }
 
@@ -81,7 +84,7 @@ dbi.prototype.saveGameFilename = function(data,cb) {
 		  map_file_path:data.map_file_path},
 		 function(err) {
 		     if(err) {
-			 console.log(err.message);
+			 if (debug) log(err.message);
 			 cb(false);
 		     } else {
 			 cb(true);
@@ -100,7 +103,7 @@ dbi.prototype.removeUser = function(name, cb) {
 	var inserts = ["user_info", "username", name];
 	db.query(mysql.format(sql, inserts), function(err) {
 		if(err) {
-			console.log(err.message);
+		    if (debug) log(err.message);
 			cb(false);
 		} else {
 			cb(true);
@@ -114,7 +117,7 @@ dbi.prototype.removeSavedGame = function(data, cb) {
 		   "author", data.author, data.author, "admin"];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
-		    console.log(err.message);
+		    if (debug) log(err.message);
 		    cb(false);
 		} else if(rows.affectedRows > 0) {
 		    cb(true); // If a successful deletion occurred
@@ -130,7 +133,7 @@ dbi.prototype.removeSavedGame = function(data, cb) {
 dbi.prototype.getAllUserInfo = function(cb) {
     db.query("SELECT * FROM user_info;", function(err, rows) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb({});
 	} else {
 	    cb(rows);
@@ -142,7 +145,7 @@ dbi.prototype.getAllUserInfo = function(cb) {
 dbi.prototype.getSavedGamesList = function(cb) {
     db.query("SELECT * FROM saved_games;", function(err, rows) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(null);
 	} else {
 	    cb(rows);
@@ -156,7 +159,7 @@ dbi.prototype.getMapFilePath = function(file_name, cb) {
     var inserts = ["saved_games", "file_name", file_name];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(null);
 	} else if(rows.length > 0) {
 	    cb(rows[0].map_file_path);
@@ -176,7 +179,7 @@ dbi.prototype.addUserStats = function(username, cb) {
     var inserts = ["user_stats", newUser];
     db.query(mysql.format(sql, inserts), function(err) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(false);
 	} else {
 	    cb(true);
@@ -189,7 +192,7 @@ dbi.prototype.removeUserStats = function(username, cb) {
     var inserts = ["user_stats", "username", username];
     db.query(mysql.format(sql, inserts), function(err) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(false);
 	} else {
 	    cb(true);
@@ -203,10 +206,10 @@ dbi.prototype.getStat = function(username, stat, cb) {
     var inserts = [stat, "user_stats", "username", username];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(null);
 	} else {
-	    console.log("debug: stat retrieved:" + rows);
+	    if (debug) log("debug: stat retrieved:" + rows);
 	    cb(rows);
 	}
     });
@@ -218,10 +221,10 @@ dbi.prototype.setStat = function(username, stat, newval, cb){
     var inserts = ["user_stats" ,stat, newval, username];
     db.query(mysql.format(sql, inserts), function(err) {
 	if(err){
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(false);
 	} else {
-	    console.log("Changed " + username + " " +
+	    if (debug) log("Changed " + username + " " +
 			stat + " to " + newval);
 	    cb(true);
 	}
@@ -234,7 +237,7 @@ dbi.prototype.updateStat = function(username, stat, diff, cb) {
     var inserts = ["user_stats", stat, stat, diff, "username", username];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(false);
 	} else {
 	    cb(true);
@@ -247,7 +250,7 @@ dbi.prototype.getAllStats = function(cb) {
     var inserts = ["user_stats"];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
-	    console.log(err.message);
+	    if (debug) log(err.message);
 	    cb(null);
 	} else {
 	    cb(rows);

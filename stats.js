@@ -1,4 +1,9 @@
 
+var debug = require("./debug.js").stats;
+var log = require("./debug.js").log;
+
+var dbi = require("./dbi.js");
+
 var Stats = function () {};
 
 Stats.prototype.listen = function(sox) {
@@ -13,3 +18,5 @@ Stats.prototype.statsMenuRequest = function(param) {
 	    }
 	});
 }
+
+module.exports = new Stats();

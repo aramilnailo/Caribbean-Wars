@@ -1,4 +1,9 @@
 
+var debug = require("./debug.js").gamesessions;
+var log = require("./debug.js").log;
+
+var dbi = require("./dbi.js");
+
 var GameSessions = function() {};
 
 GameSessions.prototype.listen = function(sox) {
@@ -35,7 +40,7 @@ GameSessions.prototype.exitGameSession = function (data) {
     // Turn the player offline in the database
     dbi.setUserOnlineStatus(data.username, false);
     // If the host leaves, it's game over for everyone
-    if(data === GAME_SESSION.host) endGameSession();
+    if(data === GAME_SESSION.host) this.endGameSession(data);
 }
 
 GameSessions.prototype.enterGameSession = function(data) {

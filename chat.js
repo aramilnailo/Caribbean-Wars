@@ -1,4 +1,7 @@
 
+var debug = require("./debug.js").chat;
+var log = require("./debug.js").log;
+
 var Chat = function() {};
               
 Chat.prototype.listen = function(sox) {
@@ -10,6 +13,7 @@ Chat.prototype.listen = function(sox) {
     // Recieved a chat post
 Chat.prototype.chatPost = function(param) {
     var client = param.client;
+    var CLIENT_LIST = param.clients;
     var data = param.data;
 	// Notify all clients to add post
 	if(client.player !== null) {
@@ -23,6 +27,7 @@ Chat.prototype.chatPost = function(param) {
 
 Chat.prototype.privateMessage = function(param) {
     var client = param.client;
+    var CLIENT_LIST = param.clients;
     var data = param.data;
 	// Notify the target client to add the post
 	if(client.player !== null) {
@@ -50,7 +55,7 @@ Chat.prototype.evalExpression = function(param) {
 	try {
 	    resp = eval(data);
 	} catch (error) {
-	    console.log("Error: " + error.message);
+	    log("Error: " + error.message);
 	    client.socket.emit("addToChat", "Command Syntax Error." )
 	}
 	client.socket.emit("evalResponse", resp);

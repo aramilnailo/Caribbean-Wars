@@ -1,4 +1,10 @@
 
+var debug = require("./debug.js").maps;
+var log = require("./debug.js").log;
+
+var files = require("./files.js");
+var GAME_SESSION = require("./gamesessions.js").GAME_SESSION;
+
 var Maps = function() {};
 
 Maps.prototype.listen = function(sox) {

@@ -1,4 +1,9 @@
+
+
 var dbi = require("./dbi.js");
+var debug = require("./debug.js").player;
+var log = require("./debug.js").log;
+
 //========= PLAYER OBJECT ==================
 
 var Player = function(username) {
@@ -34,7 +39,7 @@ var Player = function(username) {
 	if(moved) {
 	    dbi.updateStat(username, "distance_sailed", 0.1, function(err) {
 		if(!err) {
-		    console.log("Could not update distance sailed");
+		    log("Could not update distance sailed");
 		}
 	    });
 	}

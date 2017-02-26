@@ -1,3 +1,7 @@
+
+var debug = require("./debug.js").files;
+var log = require("./debug.js").log;
+
 // Namespace
 var files = function() {}
 
@@ -11,7 +15,7 @@ var fs = require("fs");
 files.prototype.readFile = function(filename, cb) {
     fs.readFile(filename, "utf-8", function(err, data) {
 	if(err) {
-	    console.log(err.message);
+	    log(err.message);
 	    cb(null);
 	} else {
 	    cb(data);

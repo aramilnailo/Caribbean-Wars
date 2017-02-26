@@ -1,6 +1,11 @@
 
-var CLIENT_LIST = require("./accountmanager.js").CLIENT_LIST;
+var debug = require("./debug.js").game;
+var log = require("./debug.js").log;
+
+
+var CLIENT_LIST = require("./sox.js").client_list;
 var GAME_SESSION = (require("./gamesessions.js")).GAME_SESSION;
+var dbi = require("./dbi.js");
 
 
 //============== GAME LOGIC =========================================
@@ -13,7 +18,7 @@ Game.prototype.listen = function(sox) {
 
 // Recieved game input
 Game.prototype.keyPress = function (param) {
-    console.log("call to game.keyPress()");
+    if (debug) log("call to game.keyPress()");
     var client = param.client;
     var data = param.data;
 	// If the client is in control of a player
@@ -32,7 +37,7 @@ Game.prototype.keyPress = function (param) {
 
 Game.prototype.run = function() {
 
-    console.log("running...");
+    if (debug) log("running...");
     // Main game op runs at 40 fps
     setInterval(function() {
 	var pack = [], p, i, socket;
@@ -60,7 +65,7 @@ Game.prototype.run = function() {
 	    p = GAME_SESSION.players[i];
 	    dbi.updateStat(p.username, "seconds_played", 1, function(err) {
 		if(!err) {
-		    console.log("Failed to update seconds played");
+		    if (debug) log("Failed to update seconds played");
 		}
 	    });
 	}
