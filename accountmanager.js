@@ -1,4 +1,6 @@
 
+var dbi = require("./dbi.js");
+
 var Accountmanager = function() {};
  
 Accountmanager.prototype.listen = function(sox) {
@@ -50,9 +52,15 @@ Accountmanager.prototype.login = function login(param) {
 
 Accountmanager.prototype.signup = function signup(param) {
     console.log("call to signup");
+    if (param) console.log("dbi.signup: param def'd");
+    if (param.data) console.log("dbi.signup: param.data def'd");
     var client = param.client;
     var data = param.data;
     // Create new record in database
+    if (data) console.log("dbi.signup: data def'd");
+    if (data.username) console.log("dbi.signup: data.username = "+data.username);
+    if (data.password) console.log("dbi.signup: data.password = "+data.password);
+	
     dbi.signup(data.username, data.password, function(resp) {
         if(resp) {
             // If info is valid, give the client a player

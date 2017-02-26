@@ -31,22 +31,23 @@ Sox.prototype.unlisten = function(msg,action) {
 // msg.data
 Sox.prototype.route = function(msg) {
     
-    console.log("Routing " + msg.name);
+    console.log("sox: Routing " + msg.name);
     
     var socket = msg.socket;
     var client = client_list.find(function(c) {
 	return c.socket == socket;
     });
     if (client === undefined) {
+	console.log("sox: pushing new client");
 	client = {socket:socket, player:null};
 	client_list.push(client);
     }
-    
-    var data = {client:client, call:msg.name, pass:msg.data};
+    console.log("sox: client_list.length = "+ client_list.length);    
+    var param = {client:client, call:msg.name, data:msg.data};
     for (var i in listeners) {
 	if (listeners[i].name === msg.name) {
 	    console.log("Calling " + msg.name);
-	    listeners[i].func(data);
+	    listeners[i].func(param);
 	}
     }
 }

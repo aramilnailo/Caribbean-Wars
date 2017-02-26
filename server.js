@@ -32,6 +32,7 @@ var gamesessions = require("./gamesessions.js");
 var maps = require("./maps.js");
 var stats = require("./stats.js");
 var accountmanager = require("./accountmanager.js");
+accountmanager.listen(sox);
 
 var game = require("./game.js");
 
@@ -44,7 +45,7 @@ io.sockets.on("connection", function(socket) {
 	var data = {socket:socket, name:message.name, pass:message.data};
 	sox.route(data);
     });
-}
+});
 	     
 
 game.run();
