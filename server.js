@@ -6,7 +6,7 @@ var app = express();
 var serv = require("http").Server(app);
 var io = require("socket.io")(serv, {});
 var sox = require("./sox.js");
-sox.initialize(io.sockets);
+//sox.initialize(io.sockets);
 
 
 
@@ -37,6 +37,15 @@ var game = require("./game.js");
 
 // Connect to database
 dbi.connect.call(this);
+
+io.sockets.on("connection", function(socket) {
+    socket.on("message", function(message) {
+	console.log("server.js: Routing " + message.name);
+	var data = {socket:socket, name:message.name, pass:message.data};
+	sox.route(data);
+    });
+}
+	     
 
 game.run();
 

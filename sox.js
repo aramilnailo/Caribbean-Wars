@@ -3,22 +3,52 @@
 var Sox = function () { };
 
 var client_list = [];
-
-Sox.prototype.initialize = function(s) {
-    this.socs = s;
-}
+var listeners = [];
 
 Sox.prototype.listen = function(msg,action) {
-    this.socs.on("connection", function(socket) {
-	var client = {"socket":socket, "player":null};
-	client_list.push(client);
-	socket.on(msg, function (data) {
-	    data.socket = socket;
-	    data.client_list = this.client_list;
-	    data.client = client;
-	    action(data);
-	});
+    console.log("sox: listening for "+msg);
+    listeners.push({name:msg,func:action});
+}
+
+// ... will remove all matching calls
+// if any are identical
+Sox.prototype.unlisten = function(msg,action) {
+    console.log("sox: unlistening to "+msg);
+    var i = listeners.length-1;
+    var L = {name:msg, func:action};
+    // ele's with indices lt i do not change
+    // after splice when we move backwards
+    while (i >= 0) {
+	if (listeners[i] === L)
+	    listeners.splice(i,1);
+	i--;
+    }
+}
+
+// assumes
+// msg.socket
+// msg.name
+// msg.data
+Sox.prototype.route = function(msg) {
+    
+    console.log("Routing " + msg.name);
+    
+    var socket = msg.socket;
+    var client = client_list.find(function(c) {
+	return c.socket == socket;
     });
+    if (client === undefined) {
+	client = {socket:socket, player:null};
+	client_list.push(client);
+    }
+    
+    var data = {client:client, call:msg.name, pass:msg.data};
+    for (var i in listeners) {
+	if (listeners[i].name === msg.name) {
+	    console.log("Calling " + msg.name);
+	    listeners[i].func(data);
+	}
+    }
 }
 
 
