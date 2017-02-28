@@ -5,6 +5,8 @@ var log = require("./debug.js").log;
 var files = require("./files.js");
 var GAME_SESSION = require("./gamesessions.js").GAME_SESSION;
 
+var dbi = require("./dbi.js");
+
 var Maps = function() {};
 
 Maps.prototype.listen = function(sox) {
@@ -13,13 +15,24 @@ Maps.prototype.listen = function(sox) {
 }
     
 Maps.prototype.getMap = function(param) {
+    if (debug) {
+	log("server: getMap: call to getMap");
+	if (param.client) log("getMap: param.client !null");
+	if(param.data) log("getMap: param.data !null")
+	log ("GAME_SESSION="+GAME_SESSION);
+	log ("GAME_SESSION.map="+GAME_SESSION.map);
+    }
     var client = param.client;
     var data = param.data;
 	if(GAME_SESSION.map === "") GAME_SESSION.map = "./assets/map";
 	files.readFile(GAME_SESSION.map, function(data) {
 	    if(data) {
+		if (debug) log("server: emit mapData");
+		if (debug) log("GAME_SESSION.map="+GAME_SESSION.map);
+		if (client.socket) log ("client.socket !null");
 		  client.socket.emit("mapData", {data:data, path:GAME_SESSION.map});
 	    } else {
+		if (debug) log("emit alert");
 		  client.socket.emit("alert", "Could not read from map file");
 	    }
 	});
