@@ -46,7 +46,7 @@ Game.prototype.run = function() {
 	    p = GAME_SESSION.players[i];
 	    if(p !== null) {
 		p.updatePosition();
-x		pack.push({x:p.x, y:p.y, number:p.number});
+		pack.push({x:p.x, y:p.y, number:p.number});
 	    }
 	}
 	// Send the packet to each client
