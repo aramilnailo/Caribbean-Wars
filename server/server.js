@@ -35,8 +35,8 @@ Server.prototype.init = function() {
 	saves.listen(router);
 }
 
-// Begin handling connections
 Server.prototype.run = function(io) {
+	// Begin handling connections
 	io.sockets.on("connection", function(socket) {
 	    socket.on("message", function(message) {
 		if (debug) log("server.js: Routing " + message.name);
@@ -44,7 +44,9 @@ Server.prototype.run = function(io) {
 		router.route(param);
 	    });
 	});
-	game.run();
+	// Update the game at 30 fps, update stats once per second
+	setInterval(game.update, 1000/30);
+	setInterval(game.updateStats, 1000);
 }
 
 module.exports = new Server();
