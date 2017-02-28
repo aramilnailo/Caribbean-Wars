@@ -5,13 +5,13 @@ var log = require("./debug.js").log;
 var dbi = require("./dbi.js");
 var files = require("./files.js");
 
-var GAME_SESSION = require("./gamesessions.js").GAME_SESSION;
+var GAME_SESSION = require("./session.js").GAME_SESSION;
 
 var Maps = function() {};
 
-Maps.prototype.listen = function(sox) {
-    sox.listen("getMap", this.getMap);
-    sox.listen("loadNewMap",this.loadNewMap);
+Maps.prototype.listen = function(router) {
+    router.listen("getMap", this.getMap);
+    router.listen("loadNewMap",this.loadNewMap);
 }
     
 Maps.prototype.getMap = function(param) {

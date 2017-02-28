@@ -1,32 +1,32 @@
 
-var debug = require("./debug.js").accountmanager;
+var debug = require("./debug.js").accounts;
 var log = require("./debug.js").log;
 
 var dbi = require("./dbi.js");
 var player = require("./player.js");
-var gameSessions = require("./gamesessions.js");
+var session = require("./session.js");
 
-var Accountmanager = function() {};
+var Accounts = function() {};
  
-Accountmanager.prototype.listen = function(sox) {
-    sox.listen("disconnect", this.disconnect);
-    sox.listen("login", this.login);
-    sox.listen("signup", this.signup);
-    sox.listen("userListRequest", this.userListRequest);
-    sox.listen("logout",this.logout);
-    sox.listen("deleteAccount",this.deleteAccount);
+Accounts.prototype.listen = function(router) {
+    router.listen("disconnect", this.disconnect);
+    router.listen("login", this.login);
+    router.listen("signup", this.signup);
+    router.listen("userListRequest", this.userListRequest);
+    router.listen("logout",this.logout);
+    router.listen("deleteAccount",this.deleteAccount);
 }
     
 //================== FUNCTIONS ========================================
     
     
 // Client closed the window, network issue, etc.
-Accountmanager.prototype.disconnect = function disconnect(param) {
+Accounts.prototype.disconnect = function disconnect(param) {
     var client = param.client;
     var clients = param.clients;
    // If in a game, remove the player
     if(client.player !== null) {
-        exitGameSession(client.player);
+        session.exitGameSession(client.player);
     }
     client.socket.emit("collapseMenus");
     // Remove from client list
@@ -35,7 +35,7 @@ Accountmanager.prototype.disconnect = function disconnect(param) {
 }
     
 // Client clicked login button
-Accountmanager.prototype.login = function login(param) {
+Accounts.prototype.login = function login(param) {
     if (debug) log("call to login");
     var client = param.client;
     var data = param.data;
@@ -45,7 +45,7 @@ Accountmanager.prototype.login = function login(param) {
             // If login info is valid, give the client a player
             client.player = player.Player(data.username);
             // The player joins the game
-            gameSessions.enterGameSession(client.player);
+            session.enterGameSession(client.player);
             client.socket.emit("loginResponse", {success:true,
                               username:data.username});
             client.socket.emit("collapseMenus");
@@ -56,8 +56,8 @@ Accountmanager.prototype.login = function login(param) {
     });
 }
 
-Accountmanager.prototype.signup = function signup(param) {
-    if (debug) log("accountmanager: call to signup; user = "+param.data.username + "; password = "+param.data.password);
+Accounts.prototype.signup = function signup(param) {
+    if (debug) log("Accounts: call to signup; user = "+param.data.username + "; password = "+param.data.password);
     var client = param.client;
     var data = param.data;
     // Create new record in database
@@ -65,7 +65,7 @@ Accountmanager.prototype.signup = function signup(param) {
         if(resp) {
             // If info is valid, give the client a player
             client.player = player.Player(data.username);
-            gameSessions.enterGameSession(client.player);
+            session.enterGameSession(client.player);
             dbi.addUserStats(client.player.username, function(resp) {});
             client.socket.emit("loginResponse", {success:true,
                               username:data.username});
@@ -77,7 +77,7 @@ Accountmanager.prototype.signup = function signup(param) {
     });
 }
     
-Accountmanager.prototype.userListRequest = function userListRequest(param) {
+Accounts.prototype.userListRequest = function userListRequest(param) {
     var client = param.client;
 	// Send back the whole table from the database
 	dbi.getAllUserInfo(function(data) {
@@ -86,11 +86,11 @@ Accountmanager.prototype.userListRequest = function userListRequest(param) {
 }
 
 // Clicked logout
-Accountmanager.prototype.logout = function logout(param) {
+Accounts.prototype.logout = function logout(param) {
     var client = param.client;
 	// Remove from the game session, but don't remove the client
 	if(client.player) {
-	    gameSessions.exitGameSession(client.player);
+	    session.exitGameSession(client.player);
 	    client.player = null;
 	}
 	client.socket.emit("logoutResponse");
@@ -98,18 +98,18 @@ Accountmanager.prototype.logout = function logout(param) {
 }
 
     // Clicked delete account
-Accountmanager.prototype.deleteAccount = function deleteAccount(param) {
+Accounts.prototype.deleteAccount = function deleteAccount(param) {
     var client = param.client;
 	if(client.player) {
 	    dbi.removeUserStats(client.player.username, function(val) {});
 	    dbi.removeUser(client.player.username, function(resp) {
             
 	    });
-	    gameSessions.exitGameSession(client.player);
+	    session.exitGameSession(client.player);
 	    client.player = null;
 	}
 	client.socket.emit("logoutResponse");
 	client.socket.emit("collapseMenus");
 }
 
-module.exports = new Accountmanager();
+module.exports = new Accounts();

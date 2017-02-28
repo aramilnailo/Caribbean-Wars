@@ -5,10 +5,10 @@ var dbi = require("./dbi.js");
 	
 var Saves = function() {}
 
-Saves.prototype.listen = function(sox) {
-	sox.listen("deleteSavedGame", this.deleteSavedGame);
-	sox.listen("saveGameRequest", this.saveGameRequest);
-	sox.listen("savedGamesListRequest", this.savedGamesListRequest);
+Saves.prototype.listen = function(router) {
+	router.listen("deleteSavedGame", this.deleteSavedGame);
+	router.listen("saveGameRequest", this.saveGameRequest);
+	router.listen("savedGamesListRequest", this.savedGamesListRequest);
 }
 
 Saves.prototype.deleteSavedGame = function(param) {
