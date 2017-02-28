@@ -8,7 +8,18 @@ var express = require("express");
 var app = express();
 var serv = require("http").Server(app);
 var io = require("socket.io")(serv, {});
+
 var sox = require("./sox.js");
+var dbi = require("./dbi.js");
+var files = require("./files.js");
+var player = require('./player.js');
+var gamesessions = require("./gamesessions.js");
+var maps = require("./maps.js");
+var stats = require("./stats.js");
+var accountmanager = require("./accountmanager.js");
+var game = require("./game.js");
+var chat = require("./chat.js");
+var saves = require("./saves.js");
 
 //================= SERVER INITIALIZATION =============================
 
@@ -24,24 +35,16 @@ app.use("/client", express.static(__dirname + "/client"));
 serv.listen(2000);
 if (debug) log("Server started");
 
-
-var dbi = require("./dbi.js");
-var files = require("./files.js");
-var player = require('./player.js');
-var gamesessions = require("./gamesessions.js");
-gamesessions.listen(sox);
-var maps = require("./maps.js");
-maps.listen(sox);
-var stats = require("./stats.js");
-stats.listen(sox);
-var accountmanager = require("./accountmanager.js");
-accountmanager.listen(sox);
-
-var game = require("./game.js");
-game.listen(sox);
-
 // Connect to database
 dbi.connect.call(this);
+
+gamesessions.listen(sox);
+maps.listen(sox);
+stats.listen(sox);
+accountmanager.listen(sox);
+game.listen(sox);
+chat.listen(sox);
+saves.listen(sox);
 
 io.sockets.on("connection", function(socket) {
     socket.on("message", function(message) {
