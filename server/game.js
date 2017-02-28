@@ -3,8 +3,8 @@ var debug = require("./debug.js").game;
 var log = require("./debug.js").log;
 
 
-var CLIENT_LIST = require("./sox.js").client_list;
-var GAME_SESSION = (require("./gamesessions.js")).GAME_SESSION;
+var CLIENT_LIST = require("./router.js").client_list;
+var GAME_SESSION = require("./session.js").GAME_SESSION;
 var dbi = require("./dbi.js");
 
 
@@ -12,8 +12,8 @@ var dbi = require("./dbi.js");
 
 var Game = function () {};
 
-Game.prototype.listen = function(sox) {
-    sox.listen("keyPress",this.keyPress);
+Game.prototype.listen = function(router) {
+    router.listen("keyPress",this.keyPress);
 }
 
 // Recieved game input

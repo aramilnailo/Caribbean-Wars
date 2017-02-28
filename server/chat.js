@@ -4,10 +4,10 @@ var log = require("./debug.js").log;
 
 var Chat = function() {};
               
-Chat.prototype.listen = function(sox) {
-    sox.listen("chatPost",this.chatPost);
-    sox.listen("privateMessage",this.privateMessage);
-    sox.listen("evalExpression",this.evalExpression);
+Chat.prototype.listen = function(router) {
+    router.listen("chatPost",this.chatPost);
+    router.listen("privateMessage",this.privateMessage);
+    router.listen("evalExpression",this.evalExpression);
 }
 
     // Recieved a chat post

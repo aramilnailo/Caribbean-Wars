@@ -6,8 +6,8 @@ var dbi = require("./dbi.js");
 
 var Stats = function () {};
 
-Stats.prototype.listen = function(sox) {
-    sox.listen("statsMenuRequest",this.statsMenuRequest);
+Stats.prototype.listen = function(router) {
+    router.listen("statsMenuRequest",this.statsMenuRequest);
 }
 
 Stats.prototype.statsMenuRequest = function(param) {

@@ -1,12 +1,12 @@
 
-var debug = require("./debug.js").gamesessions;
+var debug = require("./debug.js").session;
 var log = require("./debug.js").log;
 
 var dbi = require("./dbi.js");
 
-var GameSessions = function() {};
+var Session = function() {};
 
-GameSessions.prototype.listen = function(sox) {
+Session.prototype.listen = function(sox) {
     sox.listen("endGameSession", this.endGameSession);
     sox.listen("exitGameSession", this.exitGameSession);
     sox.listen("enterGameSession", this.enterGameSession);
@@ -14,7 +14,7 @@ GameSessions.prototype.listen = function(sox) {
 
 var GAME_SESSION = {host:null, map:"", players:[]};
 
-GameSessions.prototype.endGameSession = function(data) {
+Session.prototype.endGameSession = function(data) {
     // Reset the object
     GAME_SESSION.host = null;
     GAME_SESSION.map = "";
@@ -33,7 +33,7 @@ GameSessions.prototype.endGameSession = function(data) {
     }
 }
 
-GameSessions.prototype.exitGameSession = function (data) {
+Session.prototype.exitGameSession = function (data) {
     // Remove the player from the game session list
     index = GAME_SESSION.players.indexOf(data);
     if(index > -1) GAME_SESSION.players.splice(index, 1);
@@ -43,7 +43,7 @@ GameSessions.prototype.exitGameSession = function (data) {
     if(data === GAME_SESSION.host) this.endGameSession(data);
 }
 
-GameSessions.prototype.enterGameSession = function(data) {
+Session.prototype.enterGameSession = function(data) {
     // If no one is online, the player becomes host
     if(GAME_SESSION.players.length == 0) {
 	GAME_SESSION.host = data;
@@ -54,5 +54,5 @@ GameSessions.prototype.enterGameSession = function(data) {
     dbi.setUserOnlineStatus(data.username, true);
 }
 
-module.exports = new GameSessions();
+module.exports = new Session();
 module.exports.GAME_SESSION = GAME_SESSION;
