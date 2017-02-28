@@ -8,12 +8,11 @@ var dbi = require("./dbi.js");
 var files = require("./files.js");
 var player = require('./player.js');
 var io = require("socket.io")(serv, {});
-sox.initialize(io.sockets);
 
 //================= SERVER INITIALIZATION =============================
 
 // Server variables
-//var CLIENT_LIST = [];
+var CLIENT_LIST = [];
 var GAME_SESSION = {host:null, map:"", players:[]};
 
 // Server startup

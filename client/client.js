@@ -54,7 +54,9 @@ var savedGamesMenuHidden = true;
 var username = "";
 var mapData = {data:"", path:""};
 
-function setMap(data) {
+// function setMap()
+var setMap = function (data) {
+    console.log("setMap: data.path="+data.path);
     if(data.err) {
 	   alert(data.err);
     } else {
@@ -377,11 +379,16 @@ function pushAlert(data) {
 //==================== SERVER INTERFACE =================================
 
 // Server connection
+//var express = require("express");
+//var app = express();
+//var serv = require("http").Server(app);
+//var socket = (require("socket.io")(serv,{}))();
+
 var socket = io();
 
 // Emit anything to the server
 function emit(message, data) {
-    console.log("emitting" + message);
+    console.log("client: emitting" + message);
     socket.emit("message", {name:message, data:data});
 }
 
@@ -400,18 +407,22 @@ socket.on("savedGamesListResponse", function(data) {
 });
 // Hide all menus during a screen transition
 socket.on("collapseMenus", function() {
+    console.log("client: collapseMenus call");
     hideAllMenus();
 });
 // On successful login or signup, transition to game screen
 socket.on("loginResponse", function(data) {
+    console.log("client: loginResponse call");
     loginToGameScreen(data);
 });
 // On successful logout, return to the login screen
 socket.on("logoutResponse", function() {
+    console.log("client: logoutResponse call");
     gameScreenToLogin();
 });
 // Recieve the map data after request
 socket.on("mapData", function(data) {
+    console.log("client mapData="+data);
     setMap(data);
 });
 // Main rendering function--redraws canvas after recieving world state

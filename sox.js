@@ -36,14 +36,15 @@ Sox.prototype.route = function(msg) {
     if (debug) log("sox: Routing " + msg.name);
     
     var socket = msg.socket;
+
     var client = client_list.find(function(c) {
-	return c.socket == socket;
+	return (c.socket === socket);
     });
-    if (client === undefined) {
+    if (client === undefined) { 
 	if(debug) log("sox: pushing new client");
 	client = {socket:socket, player:null};
 	client_list.push(client);
-    }
+    } 
     if (debug) log("sox: client_list.length = "+ client_list.length);    
     var param = {client:client, clients:client_list, call:msg.name, data:msg.data};
     for (var i in listeners) {

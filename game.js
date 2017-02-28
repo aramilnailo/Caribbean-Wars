@@ -42,15 +42,15 @@ Game.prototype.run = function() {
     setInterval(function() {
 	var pack = [], p, i, socket;
 	// Generate object with all player positions
-	for(i in GAME_SESSION.players) {
+	for(var i in GAME_SESSION.players) {
 	    p = GAME_SESSION.players[i];
 	    if(p !== null) {
 		p.updatePosition();
-		pack.push({x:p.x, y:p.y, number:p.number});
+x		pack.push({x:p.x, y:p.y, number:p.number});
 	    }
 	}
 	// Send the packet to each client
-	for(i in CLIENT_LIST) {
+	for(var i in CLIENT_LIST) {
 	    socket = CLIENT_LIST[i].socket;
 	    socket.emit("newPositions", pack);
 	}
@@ -60,9 +60,9 @@ Game.prototype.run = function() {
     
     // Updates secondsPlayed database field
     setInterval(function() {
-	var i, p;
-	for(i in GAME_SESSION.players){
-	    p = GAME_SESSION.players[i];
+	//var i, p;
+	for(var i in GAME_SESSION.players){
+	    var p = GAME_SESSION.players[i];
 	    dbi.updateStat(p.username, "seconds_played", 1, function(err) {
 		if(!err) {
 		    if (debug) log("Failed to update seconds played");
