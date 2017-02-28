@@ -27,6 +27,7 @@ Maps.prototype.getMap = function(param) {
 
 Maps.prototype.loadNewMap = function(param) {
     var client = param.client;
+    var CLIENT_LIST = param.clients;
     var filename = param.data.filename;
     var username = param.data.username;
     if(!GAME_SESSION.host || username != GAME_SESSION.host.username) {
@@ -38,7 +39,7 @@ Maps.prototype.loadNewMap = function(param) {
             files.readFile(path, function(data) {
                 if(data) {
                     GAME_SESSION.map = path;
-                    for(i in CLIENT_LIST) {
+                    for(var i in CLIENT_LIST) {
                         CLIENT_LIST[i].socket.emit("mapData", {data:data, path:path});
                     }
                 }
