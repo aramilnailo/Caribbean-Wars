@@ -5,7 +5,6 @@ var log = require("./debug.js").log;
 var dbi = require("./dbi.js");
 var files = require("./files.js");
 
-var CLIENT_LIST = require("./sox.js").client_list;
 var GAME_SESSION = require("./gamesessions.js").GAME_SESSION;
 
 var Maps = function() {};
