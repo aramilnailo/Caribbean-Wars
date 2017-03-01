@@ -35,11 +35,7 @@ Game.prototype.keyPress = function (param) {
 	}
 }
 
-Game.prototype.run = function() {
-
-    if (debug) log("running...");
-    // Main game op runs at 40 fps
-    setInterval(function() {
+Game.prototype.update = function() {
 	var pack = [], p, i, socket;
 	// Generate object with all player positions
 	for(var i in GAME_SESSION.players) {
@@ -54,12 +50,10 @@ Game.prototype.run = function() {
 	    socket = CLIENT_LIST[i].socket;
 	    socket.emit("newPositions", pack);
 	}
-    }, 1000/40);
-    
-    //============== UPDATE STATS =======================================
-    
-    // Updates secondsPlayed database field
-    setInterval(function() {
+}
+
+// Updates secondsPlayed database field
+Game.prototype.updateStats = function() {
 	//var i, p;
 	for(var i in GAME_SESSION.players){
 	    var p = GAME_SESSION.players[i];
@@ -69,8 +63,6 @@ Game.prototype.run = function() {
 		}
 	    });
 	}
-    }, 1000);
-
 }
 
 module.exports = new Game();
