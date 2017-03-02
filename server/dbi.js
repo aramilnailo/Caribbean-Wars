@@ -174,7 +174,7 @@ dbi.prototype.getMapFilePath = function(file_name, cb) {
 dbi.prototype.addUserStats = function(username, cb) {
     var newUser = {username:username, seconds_played:0,
 		   shots_fired:0, distance_sailed:0,
-		   ships_sunk:0, ships_lost:0}
+		ships_sunk:0, ships_lost:0};
     var sql = "INSERT INTO ?? SET ?;";
     var inserts = ["user_stats", newUser];
     db.query(mysql.format(sql, inserts), function(err) {

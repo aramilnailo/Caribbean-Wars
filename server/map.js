@@ -8,7 +8,6 @@ var Map = function () {};
 
 //================ MAP OBJECT =================
 
-
 Maps.prototype.listen = function(router) {
     router.listen("getMap", this.getMap);
     router.listen("loadNewMap",this.loadNewMap);

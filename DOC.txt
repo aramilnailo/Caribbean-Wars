@@ -73,6 +73,23 @@ SHIPS
 + Resource placement (gunpowder in weak section == explosion?)
 + Crew capacity
 
++ METHODS
+  - Construct(id)
+  - Move(x, y)
+  - FirePort()
+  - FireStarboard()
+  - AddToPath(x, y)
+  - ClearPath()
+  - IncreaseSails()
+  - DecreaseSails()
+  - TargetForBoard(Ship s)
+  - TargetForBroadside(Ship s)
+  - TargetForRam(Ship s)
+  - TargetForSwivels(Ship s)
+  - TargetForPort(Port p)
+  - LeavePort(Port p)
+
+
 CREW MEMBERS
 + Name
 + Level

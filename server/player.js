@@ -18,7 +18,8 @@ var Player = function(username) {
 	pressingDown:false,
 	maxSpeed:10
     }
-    player.updatePosition = function() {
+    
+	player.updatePosition = function() {
 	var moved = false;
 	if(player.pressingRight) {
 	    moved = true;

@@ -5,6 +5,7 @@ var Stats = function() {}
 Stats.prototype.listen = function(router) {
 	router.listen("statsMenuResponse", this.displayStatsMenu);
 	router.listen("toggleStatsMenu", this.toggleStatsMenu);	
+	router.listen("clearStatsClick", this.clearStatsClick);
 }
 
 // Show and hide the stats menu
@@ -45,6 +46,11 @@ Stats.prototype.displayStatsMenu = function(data) {
     }
     html += "</table>";
     dom.statsMenu.innerHTML = html;
+}
+
+Stats.prototype.clearStatsClick = function() {
+	if(debug.client) debug.log(client.username);
+	client.emit("clearStats", client.username);
 }
 
 return new Stats();

@@ -5,6 +5,7 @@ var Router = function() {}
 var listeners = [];
 
 Router.prototype.listen = function(msg, action) {
+	if(debug.router) debug.log("[Client] Listening for \"" + msg + "\"");
 	listeners.push({name:msg, func:action});
 }
 

@@ -35,6 +35,7 @@ var dom = {
 	// Stats menu
 	statsMenu:document.getElementById("stats-menu"),
 	statsMenuButton:document.getElementById("stats-menu-btn"),
+	clearStatsButton:document.getElementById("clear-stats-btn"),
 
 	// Chat window
 	chatWindow:document.getElementById("chat-window"),
@@ -70,6 +71,8 @@ dom.savedGamesMenuButton.onclick = function() { router.route({name:"toggleSavedG
 dom.saveGameButton.onclick = function() { router.route({name:"saveGameClick", data:null}); }
 dom.loadGameButton.onclick = function() { router.route({name:"loadGameClick", data:null}); }
 dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick", data:null}); }
+
+dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick", data:null}); }
 
 return dom;
 

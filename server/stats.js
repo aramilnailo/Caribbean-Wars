@@ -9,6 +9,7 @@ var Stats = function () {};
 
 Stats.prototype.listen = function(router) {
     router.listen("statsMenuRequest",this.statsMenuRequest);
+	router.listen("clearStats", this.clearStats);
 }
 
 Stats.prototype.statsMenuRequest = function(param) {
@@ -18,6 +19,17 @@ Stats.prototype.statsMenuRequest = function(param) {
 		  server.emit(client.socket, "statsMenuResponse", data);
 	    }
 	});
+}
+
+Stats.prototype.clearStats = function(param) {
+	var username = param.data;
+	if(debug) log(username);
+	dbi.removeUserStats(username, function(resp) {
+		if(!resp && debug) log("Error in clearStats");
+	});
+	dbi.addUserStats(username, function(resp) {
+		if(!resp && debug) log("Error in clearStats");
+	});	
 }
 
 module.exports = new Stats();
