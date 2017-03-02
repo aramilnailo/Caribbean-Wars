@@ -1,30 +1,25 @@
-
-var debug = require("./debug.js").saves;
-var log = require("./debug.js").log;
-
-var DOM = require("./dom.js");
-var client = require("./client.js");
+define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var Saves = function() {};
 
 Saves.prototype.listen = function(router) {
-	router.listen("savedGamesListResponse", displaySavedGamesMenu);
-	router.listen("toggleSavedGamesMenu", toggleSavedGamesMenu);
-	router.listen("saveGameClick", saveGameClick);
-	router.listen("loadGameClick", loadGameClick);
-	router.listen("deleteGameClick", deleteGameClick);
+	router.listen("savedGamesListResponse", this.displaySavedGamesMenu);
+	router.listen("toggleSavedGamesMenu", this.toggleSavedGamesMenu);
+	router.listen("saveGameClick", this.saveGameClick);
+	router.listen("loadGameClick", this.loadGameClick);
+	router.listen("deleteGameClick", this.deleteGameClick);
 }
 
 // Show and hide the saved game menu
 Saves.prototype.toggleSavedGamesMenu = function() {
-    if(DOM.savedGamesMenuHidden) {
+    if(dom.savedGamesMenuHidden) {
 		client.emit("savedGamesListRequest", null);
-		DOM.savedGamesMenuButton.innerHTML = "Hide saved games";
-		DOM.savedGamesMenuHidden = false;
+		dom.savedGamesMenuButton.innerHTML = "Hide saved games";
+		dom.savedGamesMenuHidden = false;
     } else {
-		DOM.savedGamesMenu.style.display = "none";
-		DOM.savedGamesMenuButton.innerHTML = "Show saved games";
-		DOM.savedGamesMenuHidden = true;
+		dom.savedGamesMenu.style.display = "none";
+		dom.savedGamesMenuButton.innerHTML = "Show saved games";
+		dom.savedGamesMenuHidden = true;
     }
 }
 
@@ -45,9 +40,9 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
 	    "</tr>";
     }
     html += "</table>";
-    DOM.savedGamesList.innerHTML = html;
+    dom.savedGamesList.innerHTML = html;
     // Make the saved games screen visible
-    DOM.savedGamesMenu.style.display = "inline-block";
+    dom.savedGamesMenu.style.display = "inline-block";
 }
 
 Saves.prototype.saveGameClick = function() {
@@ -73,4 +68,6 @@ Saves.prototype.deleteGameClick = function() {
     }
 }
 
-module.exports = new Saves();
+return new Saves();
+
+});

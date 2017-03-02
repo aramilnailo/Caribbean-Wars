@@ -2,6 +2,8 @@
 var debug = require("./debug.js").map;
 var log = require("./debug.js").log;
 
+var server = require("./server.js");
+
 var Map = function () {};
 
 //================ MAP OBJECT =================
@@ -43,9 +45,9 @@ Map.prototype.getMap = function(param) {
 	if(GAME_SESSION.map === "") GAME_SESSION.map = "./assets/map";
 	files.readFile(GAME_SESSION.map, function(data) {
 	    if(data) {
-		client.socket.emit("mapData", {data:data, path:GAME_SESSION.map});
+			server.emit(client.socket, "mapData", {data:data, path:GAME_SESSION.map});
 	    } else {
-		  client.socket.emit("alert", "Could not read from map file");
+		  	server.emit(client.socket, "alert", "Could not read from map file");
 	    }
 	});
 }
@@ -56,7 +58,7 @@ Maps.prototype.loadNewMap = function(param) {
     var filename = param.data.filename;
     var username = param.data.username;
     if(!GAME_SESSION.host || username != GAME_SESSION.host.username) {
-        client.socket.emit("alert", "Only host can load maps.");
+        server.emit(client.socket, "alert", "Only host can load maps.");
     } else {
 	var i;
 	dbi.getMapFilePath(filename, function(path) {
@@ -70,21 +72,11 @@ Maps.prototype.loadNewMap = function(param) {
                 }
             });
 	    } else {
-		client.socket.emit("alert", "Could not read from map file.");
+			server.emit(client.socket, "alert", "Could not read from map file.");
 	    }
 	});
     }
 }
-
- 
-    
-
-
-
-
-
-
-
 
 module.exports = Map;
 

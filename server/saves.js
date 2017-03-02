@@ -2,6 +2,7 @@ var debug = require("./debug.js").saves;
 var log = require("./debug.js").log;
 
 var dbi = require("./dbi.js");
+var server = require("./server.js");
 	
 var Saves = function() {}
 
@@ -18,7 +19,7 @@ Saves.prototype.deleteSavedGame = function(param) {
 		function(resp) {
         var msg = resp ? "Deleted \"" + data + "\"." : 
                     "Could not delete \"" + data + "\".";
-        client.socket.emit("alert", msg);
+        server.emit(client.socket, "alert", msg);
     });
 }
 
@@ -28,7 +29,7 @@ Saves.prototype.saveGameRequest = function(param) {
 	dbi.saveGameFilename(data, function(resp) {
         var msg = resp ? "Saved \"" + data.file_name + "\"." :
                         "Could not save \"" + data.file_name + "\".";
-	       client.socket.emit("alert", msg);
+		server.emit(client.socket, "alert", msg);
     });
 }
 
@@ -36,7 +37,7 @@ Saves.prototype.savedGamesListRequest = function(param) {
     var client = param.client;
     var data = param.data;
 	dbi.getSavedGamesList(function(data) {
-	    client.socket.emit("savedGamesListResponse", data);
+	    server.emit(client.socket, "savedGamesListResponse", data);
 	});
 }
 

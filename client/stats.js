@@ -1,34 +1,29 @@
-
-var debug = require("./debug.js").stats;
-var log = require("./debug.js").log;
-
-var DOM = require("./dom.js");
-var client = require("./client.js");
+define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var Stats = function() {}
 
 Stats.prototype.listen = function(router) {
-	router.listen("statsMenuResponse", displayStatsMenu);
-	router.listen("toggleStatsMenu", toggleStatsMenu);	
+	router.listen("statsMenuResponse", this.displayStatsMenu);
+	router.listen("toggleStatsMenu", this.toggleStatsMenu);	
 }
 
 // Show and hide the stats menu
 Stats.prototype.toggleStatsMenu = function() {
-    if(DOM.statsMenuHidden) {
+    if(dom.statsMenuHidden) {
 		client.emit("statsMenuRequest", null);
-		DOM.statsMenu.style.display = "inline-block";
-		DOM.statsMenuButton.innerHTML = "Hide stats";
-		DOM.statsMenuHidden = false;
+		dom.statsMenu.style.display = "inline-block";
+		dom.statsMenuButton.innerHTML = "Hide stats";
+		dom.statsMenuHidden = false;
     } else {
-		DOM.statsMenu.style.display = "none";
-		DOM.statsMenuButton.innerHTML = "Show stats";
-		DOM.statsMenuHidden = true;
+		dom.statsMenu.style.display = "none";
+		dom.statsMenuButton.innerHTML = "Show stats";
+		dom.statsMenuHidden = true;
     }
 }
 
 Stats.prototype.displayStatsMenu = function(data) {
     var i;
-    DOM.statsMenu.style.display = "table";
+    dom.statsMenu.style.display = "table";
     var html = "<table>" +
 	"<tr>" +
 	"<th>Username</th>" +
@@ -49,7 +44,9 @@ Stats.prototype.displayStatsMenu = function(data) {
 	    "</tr>";
     }
     html += "</table>";
-    DOM.statsMenu.innerHTML = html;
+    dom.statsMenu.innerHTML = html;
 }
 
-module.exports = new Stats();
+return new Stats();
+
+});

@@ -1,39 +1,34 @@
+define(["debug", "dom", "client"], function(debug, dom, client) {
 
-var debug = require("./debug.js").chat;
-var log = require("./debug.js").log;
-
-var DOM = require("./dom.js");
-var client = require("./client.js");
-
-var Chat = new function() {};
+var Chat = function() {};
 
 // Display the formatted chat post recieved from the server
 Chat.prototype.listen = function(router) {
-    router.listen("addToChat", logToChat);
-	router.listen("toggleChatWindow", toggleChatWindow);
-	router.listen("chatFormSubmit", chatFormSubmit);
+    router.listen("addToChat", this.logToChat);
+	router.listen("toggleChatWindow", this.toggleChatWindow);
+	router.listen("chatFormSubmit", this.chatFormSubmit);
 }
 
 Chat.prototype.logToChat = function(data) {
-    DOM.chatLog.innerHTML += "<div>" + data + "<\div>";
+    dom.chatLog.innerHTML += "<div>" + data + "<\div>";
 }
 
 // Show and hide the chat window
 Chat.prototype.toggleChatWindow = function() {
-    if(DOM.chatWindowHidden) {
-		DOM.chatWindow.style.display = "inline-block";
-		DOM.chatToggleButton.innerHTML = "Hide chat";
-		DOM.chatWindowHidden = false;
+    if(dom.chatWindowHidden) {
+		dom.chatWindow.style.display = "inline-block";
+		dom.chatToggleButton.innerHTML = "Hide chat";
+		dom.chatWindowHidden = false;
     } else {
-		DOM.chatWindow.style.display = "none";
-		DOM.chatToggleButton.innerHTML = "Show chat";
-		DOM.chatWindowHidden = true;
+		dom.chatWindow.style.display = "none";
+		dom.chatToggleButton.innerHTML = "Show chat";
+		dom.chatWindowHidden = true;
     }
 }
 
 Chat.prototype.chatFormSubmit = function(event) {
     event.preventDefault();
-    var input = DOM.chatInput.value;
+    var input = dom.chatInput.value;
     if(input[0] === "/") {
 		client.emit("evalExpression", input.slice(1));
     } else if(input[0] === "@") {
@@ -45,7 +40,9 @@ Chat.prototype.chatFormSubmit = function(event) {
     } else {
 		client.emit("chatPost", input);
     }
-    DOM.chatInput.value = "";
+    dom.chatInput.value = "";
 }
 
-module.exports = new Chat();
+return new Chat();
+
+});

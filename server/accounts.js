@@ -2,6 +2,7 @@
 var debug = require("./debug.js").accounts;
 var log = require("./debug.js").log;
 
+var server = require("./server.js");
 var dbi = require("./dbi.js");
 var player = require("./player.js");
 var session = require("./session.js");
@@ -28,7 +29,7 @@ Accounts.prototype.disconnect = function disconnect(param) {
     if(client.player !== null) {
         session.exitGameSession(client.player);
     }
-    client.socket.emit("collapseMenus");
+    server.emit(client.socket, "collapseMenus", null);
     // Remove from client list
     var index = clients.indexOf(client);
     if(index > -1) clients.splice(index, 1);
@@ -46,12 +47,12 @@ Accounts.prototype.login = function login(param) {
             client.player = player.Player(data.username);
             // The player joins the game
             session.enterGameSession(client.player);
-            client.socket.emit("loginResponse", {success:true,
+            server.emit(client.socket, "loginResponse", {success:true,
                               username:data.username});
-            client.socket.emit("collapseMenus");
+            server.emit(client.socket, "collapseMenus", null);
         } else {
             // If login info is denied
-            client.socket.emit("loginResponse", {success:false});
+            server.emit(client.socket, "loginResponse", {success:false});
         }
     });
 }
@@ -67,12 +68,12 @@ Accounts.prototype.signup = function signup(param) {
             client.player = player.Player(data.username);
             session.enterGameSession(client.player);
             dbi.addUserStats(client.player.username, function(resp) {});
-            client.socket.emit("loginResponse", {success:true,
+            server.emit(client.socket, "loginResponse", {success:true,
                               username:data.username});
-            client.socket.emit("collapseMenus");
+            server.emit(client.socket, "collapseMenus", null);
         } else {
             // If duplicate username, etc.
-            client.socket.emit("loginResponse", {success:false});
+            server.emit(client.socket, "loginResponse", {success:false});
         }
     });
 }
@@ -81,7 +82,7 @@ Accounts.prototype.userListRequest = function userListRequest(param) {
     var client = param.client;
 	// Send back the whole table from the database
 	dbi.getAllUserInfo(function(data) {
-	    client.socket.emit("userListResponse", data);
+	    server.emit(client.socket, "userListResponse", data);
 	});
 }
 
@@ -93,8 +94,8 @@ Accounts.prototype.logout = function logout(param) {
 	    session.exitGameSession(client.player);
 	    client.player = null;
 	}
-	client.socket.emit("logoutResponse");
-	client.socket.emit("collapseMenus");
+	server.emit(client.socket, "logoutResponse", null);
+	server.emit(client.socket, "collapseMenus", null);
 }
 
     // Clicked delete account
@@ -108,8 +109,8 @@ Accounts.prototype.deleteAccount = function deleteAccount(param) {
 	    session.exitGameSession(client.player);
 	    client.player = null;
 	}
-	client.socket.emit("logoutResponse");
-	client.socket.emit("collapseMenus");
+	server.emit(client.socket, "logoutResponse", null);
+	server.emit(client.socket, "collapseMenus", null);
 }
 
 module.exports = new Accounts();

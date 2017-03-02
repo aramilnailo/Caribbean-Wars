@@ -1,7 +1,8 @@
+define(["router"], function(router) {
 
-var router = "./router.js";
-
-var DOM = {
+var dom = {
+	// Document
+	document:document,
 
 	// Login page
 	loginScreen:document.getElementById("login-screen"),
@@ -51,23 +52,25 @@ var DOM = {
 
 }
 
-DOM.document.onkeydown = function(event) { router.route({"keyPressed", event}); }
-DOM.document.onkeyup = function(event) { router.route({"keyReleased", event}); }
+dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
+dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:event}); }
 
-DOM.chatForm.onsubmit = function(event) { router.route({"chatFormSubmit", event}); }
-DOM.chatToggleButton.onclick = function() { router.route({"toggleChatWindow", null}); }
+dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", data:event}); }
+dom.chatToggleButton.onclick = function() { router.route({name:"toggleChatWindow", data:null}); }
 
-DOM.statsMenuButton.onclick = function() { router.route({"toggleStatsMenu", null}); }
+dom.statsMenuButton.onclick = function() { router.route({name:"toggleStatsMenu", data:null}); }
 
-DOM.userListButton.onclick = function() { router.route({"toggleUserList", null}); }
-DOM.loginButton.onclick = function() { router.route({"loginClick", null}); }
-DOM.signupButton.onclick = function() { router.route({"signupClick", null}); }
-DOM.logoutButton.onclick = function() { router.route({"logoutClick", null}); }
-DOM.deleteAccountButton.onclick = function() { router.route({"deleteAccountClick", null}); }
+dom.userListButton.onclick = function() { router.route({name:"toggleUserList", data:null}); }
+dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
+dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }
+dom.logoutButton.onclick = function() { router.route({name:"logoutClick", data:null}); }
+dom.deleteAccountButton.onclick = function() { router.route({name:"deleteAccountClick", data:null}); }
 
-DOM.savedGamesMenuButton.onclick = function() { router.route({"toggleSavedGamesMenu", null}); }
-DOM.saveGameButton.onclick = function() { router.route({"saveGameClick", null}); }
-DOM.loadGameButton.onclick = function() { router.route({"loadGameClick", null}); }
-DOM.deleteGameButton.onclick = function() { router.route({"deleteGameClick", null}); }
+dom.savedGamesMenuButton.onclick = function() { router.route({name:"toggleSavedGamesMenu", data:null}); }
+dom.saveGameButton.onclick = function() { router.route({name:"saveGameClick", data:null}); }
+dom.loadGameButton.onclick = function() { router.route({name:"loadGameClick", data:null}); }
+dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick", data:null}); }
 
-module.exports = DOM;
+return dom;
+
+});

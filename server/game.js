@@ -2,6 +2,7 @@
 var debug = require("./debug.js").game;
 var log = require("./debug.js").log;
 
+var server = require("./server.js");
 
 var CLIENT_LIST = require("./router.js").client_list;
 var GAME_SESSION = require("./session.js").GAME_SESSION;
@@ -48,7 +49,7 @@ Game.prototype.update = function() {
 	// Send the packet to each client
 	for(var i in CLIENT_LIST) {
 	    socket = CLIENT_LIST[i].socket;
-	    socket.emit("newPositions", pack);
+	    server.emit(socket, "newPositions", pack);
 	}
 }
 

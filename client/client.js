@@ -1,37 +1,23 @@
-
-var debug = require("./debug.js").client;
-var log = require("./debug.js").log;
-
-//=============== MODULES =============================
-
-var DOM = require("./dom.js");
-var router = require("./router.js");
-var chat = require("./chat.js");
-var stats = require("./stats.js");
-var login = require("./login.js");
-var render = require("./render.js");
-var saves = require("./saves.js");
-var view = require("./view.js");
-
-//=====================================================
+define(["debug", "dom", "router"], function(debug, dom, router) {
 
 var Client = function() {}
 
-var username = "";
-var mapData = {data:"", path:""};
+Client.prototype.username = "";
+Client.prototype.mapData = {data:"", path:""};
+Client.prototype.socket = null;
 
 Client.prototype.listen = function(router) {
-	router.listen("collapseMenus", hideAllMenus);
-	router.listen("mapData", setMap);
-	router.listen("evalResponse", logToConsole);
-	router.listen("alert", pushAlert);
+	router.listen("collapseMenus", this.hideAllMenus);
+	router.listen("mapData", this.setMap);
+	router.listen("evalResponse", this.logToConsole);
+	router.listen("alert", this.pushAlert);
 }
 
 Client.prototype.setMap = function(data) {
     if(data.err) {
 	   alert(data.err);
     } else {
-        mapData = data;
+       this.mapData = data;
     }
 }
 
@@ -44,37 +30,17 @@ Client.prototype.logToConsole = function(data) {
 }
 
 Client.prototype.hideAllMenus = function(data) {
-	if(!DOM.chatWindowHidden) router.route("toggleChatWindow", null);
-	if(!DOM.statsMenuHidden) router.route("toggleStatsMenu", null);
-	if(!DOM.savedGamesMenuHidden) router.route("toggleSavedGamesMenu", null);
-	if(!DOM.userListHidden) router.route("toggleUserList", null);
+	if(!dom.chatWindowHidden) router.route("toggleChatWindow", null);
+	if(!dom.statsMenuHidden) router.route("toggleStatsMenu", null);
+	if(!dom.savedGamesMenuHidden) router.route("toggleSavedGamesMenu", null);
+	if(!dom.userListHidden) router.route("toggleUserList", null);
 }
 
 Client.prototype.emit = function(message, data) {
-    console.log("[Client] Emitting \"" + message + "\".");
-    socket.emit("message", {name:message, data:data});
+    if(debug.client) debug.log("[Client] Emitting \"" + message + "\".");
+    this.socket.emit("message", {name:message, data:data});
 }
 
-//=========== SERVER INTERFACE ==============================
+return new Client();
 
-var socket = io();
-
-var current = new Client();
-
-socket.on("connection", function() {
-	// Set up listeners
-	current.listen(router);
-	chat.listen(router);
-	stats.listen(router);
-	login.listen(router);
-	render.listen(router);
-	saves.listen(router);
-	view.listen(router);
 });
-
-socket.on("message", function(message) {
-	router.route(message);
-});
-
-
-module.exports.client = current;

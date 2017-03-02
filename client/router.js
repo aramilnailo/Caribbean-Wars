@@ -1,12 +1,14 @@
-
-var debug = require("./debug.js").router;
-var log = require("./debug.js").log;
+define(["debug"], function(debug) {
 
 var Router = function() {}
 
 var listeners = [];
 
-Router.prototype.listen(msg, action) {
+Router.prototype.listen = function(msg, action) {
+	listeners.push({name:msg, func:action});
+}
+
+Router.prototype.unlisten = function(msg, action) {
     var listener = {name:msg, func:action};
     // listeners with indices at i do not change
     // after splice when we move backwards
@@ -16,14 +18,17 @@ Router.prototype.listen(msg, action) {
 		    listeners.splice(i, 1);
 		}
 		i--;
-	}
+	}	
 }
 
-Router.prototype.route(msg) {
+Router.prototype.route = function(msg) {
     for (var i in listeners) {
-	if (listeners[i].name === msg.name) {
-	    listeners[i].func(msg.data);
+		if (listeners[i].name === msg.name) {
+		    listeners[i].func(msg.data);
+		}
 	}
 }
 
-module.exports = new Router();
+return new Router();
+
+});

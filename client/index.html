@@ -42,7 +42,7 @@
       <div id="stats-menu" style="display:none;"></div>
       <div id="game-window">
 	<canvas id="canvas" width="500" height="500"
-		style="border:1px solid black;"></canvas>
+		style="border:1px solid black;font:30px Arial;"></canvas>
       </div>
       <div id="options-menu">
 	<div id="options-menu-btns">
@@ -62,7 +62,7 @@
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
-<script type="text/javascript" src="client/bundle.js"></script>
+<script data-main="./client/main.js" src="./client/require.js"></script>
 </body>
 </html>
 <noscript src="https://cdn.socket.io/socket.io-1.4.5.js"></noscript>

@@ -1,24 +1,20 @@
-
-var debug = require("./debug.js").view;
-var log = require("./debug.js").log;
-
-var DOM = require("./dom.js");
-var client = require("./client.js");
+define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var View = function() {}
 
 View.prototype.listen = function(router) {
-	router.listen("loginResponse", loginToGameScreen);
-	router.listen("logoutResponse", gameScreenToLogin);
-	router.listen("keyPressed", keyPressed);
-	router.listen("keyReleased", keyReleased);
+	router.listen("loginResponse", this.loginToGameScreen);
+	router.listen("logoutResponse", this.gameScreenToLogin);
+	router.listen("keyPressed", this.keyPressed);
+	router.listen("keyReleased", this.keyReleased);
 }
 
 View.prototype.loginToGameScreen = function(data) {
-    if(data.success === true) {
-		DOM.loginScreen.style.display = "none";
-		DOM.gameScreen.style.display = "inline-block";
-		DOM.usernameLabel.innerHTML = data.username;
+	if(debug.view) debug.log("[View] Moving to game screen");
+    if(data.success) {
+		dom.loginScreen.style.display = "none";
+		dom.gameScreen.style.display = "inline-block";
+		dom.usernameLabel.innerHTML = data.username;
 		client.username = data.username;
 		// Request the map data
 		client.emit("getMap", null);
@@ -26,14 +22,14 @@ View.prototype.loginToGameScreen = function(data) {
 }
 
 View.prototype.gameScreenToLogin = function() {
-    DOM.loginScreen.style.display = "inline-block";
-    DOM.gameScreen.style.display = "none";
+    dom.loginScreen.style.display = "inline-block";
+    dom.gameScreen.style.display = "none";
 }
 
 // If input is pressed, emit object with the key and the new state
 View.prototype.keyPressed = function(event) {
     // If the chat bar is not in focus
-    if(DOM.chatInput !== DOM.document.activeElement) {
+    if(dom.chatInput !== dom.document.activeElement) {
 	if(event.keyCode === 68)
 	    client.emit("keyPress", { inputId:"right", state:true});	
 	else if(event.keyCode === 83)
@@ -47,7 +43,7 @@ View.prototype.keyPressed = function(event) {
 
 // If input is released, emit object with the key and the new state
 View.prototype.keyReleased = function(event) {
-    if(DOM.chatInput !== DOM.document.activeElement) {
+    if(dom.chatInput !== dom.document.activeElement) {
 	if(event.keyCode === 68)
 	    client.emit("keyPress", { inputId:"right", state:false});	
 	else if(event.keyCode === 83)
@@ -59,4 +55,6 @@ View.prototype.keyReleased = function(event) {
     }
 }
 
-module.exports = new View();
+return new View();
+
+});

@@ -2,6 +2,8 @@
 var debug = require("./debug.js").chat;
 var log = require("./debug.js").log;
 
+var server = require("./server.js");
+
 var Chat = function() {};
               
 Chat.prototype.listen = function(router) {
@@ -18,9 +20,8 @@ Chat.prototype.chatPost = function(param) {
 	// Notify all clients to add post
 	if(client.player !== null) {
 	    for(var i in CLIENT_LIST) {
-		  CLIENT_LIST[i].socket.emit("addToChat",
-                                     client.player.username +
-                                     ": " + data);
+		  server.emit(CLIENT_LIST[i].socket, "addToChat",
+			client.player.username + ": " + data);
 	    }
 	}
 }
@@ -36,10 +37,10 @@ Chat.prototype.privateMessage = function(param) {
             current = CLIENT_LIST[i];
             if(current.player !== null &&
                current.player.username == data.user) {
-                current.socket.emit("addToChat", "From " +
+                server.emit(client.socket, "addToChat", "From " +
                         client.player.username +
                         ": " + data.message);
-                client.socket.emit("addToChat", "To " +
+                server.emit(client.socket, "addToChat", "To " +
                            current.player.username +
                            ": " + data.message);
             }
@@ -56,9 +57,9 @@ Chat.prototype.evalExpression = function(param) {
 	    resp = eval(data);
 	} catch (error) {
 	    log("Error: " + error.message);
-	    client.socket.emit("addToChat", "Command Syntax Error." )
+	    server.emit(client.socket, "addToChat", "Command Syntax Error." )
 	}
-	client.socket.emit("evalResponse", resp);
+	server.emit(client.socket, "evalResponse", resp);
 }
 
 module.exports = new Chat();

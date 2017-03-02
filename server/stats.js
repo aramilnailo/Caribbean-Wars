@@ -2,6 +2,7 @@
 var debug = require("./debug.js").stats;
 var log = require("./debug.js").log;
 
+var server = require("./server.js");
 var dbi = require("./dbi.js");
 
 var Stats = function () {};
@@ -14,7 +15,7 @@ Stats.prototype.statsMenuRequest = function(param) {
     var client = param.client;
 	dbi.getAllStats(function(data) {
 	    if(data) {
-		  client.socket.emit("statsMenuResponse", data);
+		  server.emit(client.socket, "statsMenuResponse", data);
 	    }
 	});
 }

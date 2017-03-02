@@ -2,6 +2,7 @@
 var debug = require("./debug.js").session;
 var log = require("./debug.js").log;
 
+var server = require("./server.js");
 var dbi = require("./dbi.js");
 
 var Session = function() {};
@@ -27,9 +28,9 @@ Session.prototype.endGameSession = function(data) {
     // Log everyone out
     var CLIENT_LIST = data.clients;
     for(i in CLIENT_LIST) {
-	CLIENT_LIST[i].player = null;
-	CLIENT_LIST[i].socket.emit("logoutResponse");
-	CLIENT_LIST[i].socket.emit("collapseMenus");
+		CLIENT_LIST[i].player = null;
+		server.emit(CLIENT_LIST[i].socket, "logoutResponse", null);
+		server.emit(CLIENT_LIST[i].socket, "collapseMenus", null);
     }
 }
 

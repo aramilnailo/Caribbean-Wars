@@ -1,37 +1,32 @@
-
-var debug = require("./debug.js").login;
-var log = require("./debug.js").log;
-
-var DOM = require("./dom.js");
-var client = require("./client.js");
+define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var Login = function() {}
 
 Login.prototype.listen = function(router) {
-	router.listen("userListResponse", displayUserList);
-	router.listen("toggleUserList", toggleUserList);
-	router.listen("loginClick", loginClick);
-	router.listen("signupClick", signupClick);
-	router.listen("logoutClick", logoutClick);
-	router.listen("deleteAccountClick", deleteAccountClick);
+	router.listen("userListResponse", this.displayUserList);
+	router.listen("toggleUserList", this.toggleUserList);
+	router.listen("loginClick", this.loginClick);
+	router.listen("signupClick", this.signupClick);
+	router.listen("logoutClick", this.logoutClick);
+	router.listen("deleteAccountClick", this.deleteAccountClick);
 }
 
 // Show and hide the user list
 Login.prototype.toggleUserList = function() {
-    if(DOM.userListHidden) {
+    if(dom.userListHidden) {
 		client.emit("userListRequest", null);
-		DOM.userListButton.innerHTML = "Hide users";
-		DOM.userListHidden = false;
+		dom.userListButton.innerHTML = "Hide users";
+		dom.userListHidden = false;
     } else {
-		DOM.userList.style.display = "none"	
-		DOM.userListButton.innerHTML = "List users";
-		DOM.userListHidden = true;
+		dom.userList.style.display = "none"	
+		dom.userListButton.innerHTML = "List users";
+		dom.userListHidden = true;
     }
 }
 
 Login.prototype.displayUserList = function(data) {
     var i;
-    DOM.userList.style.display = "table";
+    dom.userList.style.display = "table";
     var html = "<table>" +
 	"<tr>" +
 	"<th>Username</th>" +
@@ -46,25 +41,25 @@ Login.prototype.displayUserList = function(data) {
 	    "</tr>";
     }
     html += "</table>";
-    DOM.userList.innerHTML = html;
+    dom.userList.innerHTML = html;
 }
 
 // Login button is clicked on login screen
 Login.prototype.loginClick = function() {
     // Don't submit empty forms
-    if(DOM.loginUsername.value.length > 0 &&
-       DOM.loginPassword.value.length > 0)
-	client.emit("login", {username:DOM.loginUsername.value,
-			  password:DOM.loginPassword.value});
+    if(dom.loginUsername.value.length > 0 &&
+       dom.loginPassword.value.length > 0)
+	client.emit("login", {username:dom.loginUsername.value,
+			  password:dom.loginPassword.value});
 }
 
 // Sign up button is clicked on login screen
 Login.prototype.signupClick = function() {
     // Don't submit empty forms
-    if(DOM.loginUsername.value.length > 0 &&
-       DOM.loginPassword.value.length > 0)
-	client.emit("signup", {username:DOM.loginUsername.value,
-			   password:DOM.loginPassword.value});
+    if(dom.loginUsername.value.length > 0 &&
+       dom.loginPassword.value.length > 0)
+	client.emit("signup", {username:dom.loginUsername.value,
+			   password:dom.loginPassword.value});
 }
 
 // If logout button is clicked on game screen
@@ -79,4 +74,6 @@ Login.prototype.deleteAccountClick = function() {
     }
 }
 
-module.exports = new Login();
+return new Login();
+
+});
