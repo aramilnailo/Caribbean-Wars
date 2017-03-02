@@ -2,9 +2,6 @@
 var debug = require("./debug.js").router;
 var log = require("./debug.js").log;
 
-var DOM = require("./dom.js");
-var client = require("./client.js");
-
 var Router = function() {}
 
 var listeners = [];

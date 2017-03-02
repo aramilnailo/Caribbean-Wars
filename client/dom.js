@@ -1,4 +1,6 @@
 
+var router = "./router.js";
+
 var DOM = {
 
 	// Login page
@@ -48,5 +50,24 @@ var DOM = {
 	savedGamesMenuHidden:true
 
 }
+
+DOM.document.onkeydown = function(event) { router.route({"keyPressed", event}); }
+DOM.document.onkeyup = function(event) { router.route({"keyReleased", event}); }
+
+DOM.chatForm.onsubmit = function(event) { router.route({"chatFormSubmit", event}); }
+DOM.chatToggleButton.onclick = function() { router.route({"toggleChatWindow", null}); }
+
+DOM.statsMenuButton.onclick = function() { router.route({"toggleStatsMenu", null}); }
+
+DOM.userListButton.onclick = function() { router.route({"toggleUserList", null}); }
+DOM.loginButton.onclick = function() { router.route({"loginClick", null}); }
+DOM.signupButton.onclick = function() { router.route({"signupClick", null}); }
+DOM.logoutButton.onclick = function() { router.route({"logoutClick", null}); }
+DOM.deleteAccountButton.onclick = function() { router.route({"deleteAccountClick", null}); }
+
+DOM.savedGamesMenuButton.onclick = function() { router.route({"toggleSavedGamesMenu", null}); }
+DOM.saveGameButton.onclick = function() { router.route({"saveGameClick", null}); }
+DOM.loadGameButton.onclick = function() { router.route({"loadGameClick", null}); }
+DOM.deleteGameButton.onclick = function() { router.route({"deleteGameClick", null}); }
 
 module.exports = DOM;

@@ -8,7 +8,8 @@ var client = require("./client.js");
 var Stats = function() {}
 
 Stats.prototype.listen = function(router) {
-	router.listen("statsMenuResponse", displayStatsMenu);	
+	router.listen("statsMenuResponse", displayStatsMenu);
+	router.listen("toggleStatsMenu", toggleStatsMenu);	
 }
 
 // Show and hide the stats menu
@@ -49,11 +50,6 @@ Stats.prototype.displayStatsMenu = function(data) {
     }
     html += "</table>";
     DOM.statsMenu.innerHTML = html;
-}
-
-// Show stats button is clicked
-DOM.statsMenuButton.onclick = function() {
-    toggleStatsMenu();
 }
 
 module.exports = new Stats();

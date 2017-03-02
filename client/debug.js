@@ -20,3 +20,4 @@ module.exports.saves = true;
 module.exports.login = true;
 module.exports.stats = true;
 module.exports.render = true;
+module.exports.view = true;

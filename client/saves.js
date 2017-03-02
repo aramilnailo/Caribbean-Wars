@@ -9,6 +9,10 @@ var Saves = function() {};
 
 Saves.prototype.listen = function(router) {
 	router.listen("savedGamesListResponse", displaySavedGamesMenu);
+	router.listen("toggleSavedGamesMenu", toggleSavedGamesMenu);
+	router.listen("saveGameClick", saveGameClick);
+	router.listen("loadGameClick", loadGameClick);
+	router.listen("deleteGameClick", deleteGameClick);
 }
 
 // Show and hide the saved game menu
@@ -46,31 +50,26 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
     DOM.savedGamesMenu.style.display = "inline-block";
 }
 
-// Saved games menu button is clicked
-DOM.savedGamesMenuButton.onclick = function() {
-    toggleSavedGamesMenu();
-}
-
-DOM.saveGameButton.onclick = function() {
+Saves.prototype.saveGameClick = function() {
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
-        emit("saveGameRequest",
+        client.emit("saveGameRequest",
             {file_name:filename, author:username,
              map_file_path:mapData.path});
     }
 }
 
-DOM.loadGameButton.onclick = function() {
+Saves.prototype.loadGameClick = function() {
     var filename = window.prompt("Load game:", "filename");
     if(filename) {
-        emit("loadNewMap", {filename:filename, username:username});
+        client.emit("loadNewMap", {filename:filename, username:username});
     }
 }
 
-DOM.deleteGameButton.onclick = function() {
+Saves.prototype.deleteGameClick = function() {
     var filename = window.prompt("Delete game:", "filename");
     if(filename) {
-        emit("deleteSavedGame", filename);
+        client.emit("deleteSavedGame", filename);
     }
 }
 

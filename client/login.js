@@ -9,6 +9,11 @@ var Login = function() {}
 
 Login.prototype.listen = function(router) {
 	router.listen("userListResponse", displayUserList);
+	router.listen("toggleUserList", toggleUserList);
+	router.listen("loginClick", loginClick);
+	router.listen("signupClick", signupClick);
+	router.listen("logoutClick", logoutClick);
+	router.listen("deleteAccountClick", deleteAccountClick);
 }
 
 // Show and hide the user list
@@ -45,38 +50,33 @@ Login.prototype.displayUserList = function(data) {
 }
 
 // Login button is clicked on login screen
-DOM.loginButton.onclick = function() {
+Login.prototype.loginClick = function() {
     // Don't submit empty forms
     if(DOM.loginUsername.value.length > 0 &&
        DOM.loginPassword.value.length > 0)
-	emit("login", {username:DOM.loginUsername.value,
+	client.emit("login", {username:DOM.loginUsername.value,
 			  password:DOM.loginPassword.value});
 }
 
 // Sign up button is clicked on login screen
-DOM.signupButton.onclick = function() {
+Login.prototype.signupClick = function() {
     // Don't submit empty forms
     if(DOM.loginUsername.value.length > 0 &&
        DOM.loginPassword.value.length > 0)
-	emit("signup", {username:DOM.loginUsername.value,
+	client.emit("signup", {username:DOM.loginUsername.value,
 			   password:DOM.loginPassword.value});
 }
 
 // If logout button is clicked on game screen
-DOM.logoutButton.onclick = function() {
-    emit("logout", null);
+Login.prototype.logoutClick = function() {
+    client.emit("logout", null);
 }
 
 // Delete account button is clicked on game screen
-DOM.deleteAccountButton.onclick = function() {
+Login.prototype.deleteAccountClick = function() {
     if(confirm("Are you sure you want to delete this account?")) {
-	   emit("deleteAccount", null);
+	   client.emit("deleteAccount", null);
     }
-}
-
-// Show users button is clicked
-DOM.userListButton.onclick = function() {
-    toggleUserList();
 }
 
 module.exports = new Login();

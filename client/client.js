@@ -44,7 +44,10 @@ Client.prototype.logToConsole = function(data) {
 }
 
 Client.prototype.hideAllMenus = function(data) {
-	
+	if(!DOM.chatWindowHidden) router.route("toggleChatWindow", null);
+	if(!DOM.statsMenuHidden) router.route("toggleStatsMenu", null);
+	if(!DOM.savedGamesMenuHidden) router.route("toggleSavedGamesMenu", null);
+	if(!DOM.userListHidden) router.route("toggleUserList", null);
 }
 
 Client.prototype.emit = function(message, data) {

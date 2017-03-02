@@ -31,33 +31,4 @@ Render.prototype.drawScreen = function(data) {
     }
 }
 
-// If input is pressed, emit object with the key and the new state
-DOM.document.onkeydown = function(event) {
-    // If the chat bar is not in focus
-    if(DOM.chatInput !== DOM.document.activeElement) {
-	if(event.keyCode === 68)
-	    emit("keyPress", { inputId:"right", state:true});	
-	else if(event.keyCode === 83)
-	    emit("keyPress", { inputId:"down", state:true});
-	else if(event.keyCode === 65)
-	    emit("keyPress", { inputId:"left", state:true});
-	else if(event.keyCode === 87)
-	    emit("keyPress", { inputId:"up", state:true});
-    }
-}
-
-// If input is released, emit object with the key and the new state
-DOM.document.onkeyup = function(event) {
-    if(DOM.chatInput !== DOM.document.activeElement) {
-	if(event.keyCode === 68)
-	    emit("keyPress", { inputId:"right", state:false});	
-	else if(event.keyCode === 83)
-	    emit("keyPress", { inputId:"down", state:false});
-	else if(event.keyCode === 65)
-	    emit("keyPress", { inputId:"left", state:false});
-	else if(event.keyCode === 87)
-	    emit("keyPress", { inputId:"up", state:false});
-    }
-}
-
 module.exports = new Render();

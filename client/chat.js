@@ -10,6 +10,8 @@ var Chat = new function() {};
 // Display the formatted chat post recieved from the server
 Chat.prototype.listen = function(router) {
     router.listen("addToChat", logToChat);
+	router.listen("toggleChatWindow", toggleChatWindow);
+	router.listen("chatFormSubmit", chatFormSubmit);
 }
 
 Chat.prototype.logToChat = function(data) {
@@ -29,8 +31,8 @@ Chat.prototype.toggleChatWindow = function() {
     }
 }
 
-DOM.chatForm.onsubmit = function(e) {
-    e.preventDefault();
+Chat.prototype.chatFormSubmit = function(event) {
+    event.preventDefault();
     var input = DOM.chatInput.value;
     if(input[0] === "/") {
 		client.emit("evalExpression", input.slice(1));
@@ -44,10 +46,6 @@ DOM.chatForm.onsubmit = function(e) {
 		client.emit("chatPost", input);
     }
     DOM.chatInput.value = "";
-}
-
-DOM.chatToggleButton.onclick = function() {
-	toggleChatWindow();
 }
 
 module.exports = new Chat();
