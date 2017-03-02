@@ -2,71 +2,52 @@
 var debug = require("./debug.js").chat;
 var log = require("./debug.js").log;
 
-/************************
-* Chat window object
-************************/
+var DOM = require("./dom.js");
+var client = require("./client.js");
 
-var ChatWindow = new function() {};
+var Chat = new function() {};
 
-var chatWindowHidden = true;
-
-//============== HTML ELEMENTS ============================================
-var chatWindow = document.getElementById("chat-window");
-var chatLog = document.getElementById("chat-log");
-var chatForm = document.getElementById("chat-form");
-
-var chatInput = document.getElementById("chat-input");
-var chatSubmitButton = document.getElementById("chat-submit-btn");
-
-var chatToggleButton = document.getElementById("chat-toggle-btn");
-
-chatToggleButton.onclick = function() {
-    toggleChatWindow();
+// Display the formatted chat post recieved from the server
+Chat.prototype.listen = function(router) {
+    router.listen("addToChat", logToChat);
 }
 
-chatForm.onsubmit = function(e) {
+Chat.prototype.logToChat = function(data) {
+    DOM.chatLog.innerHTML += "<div>" + data + "<\div>";
+}
+
+// Show and hide the chat window
+Chat.prototype.toggleChatWindow = function() {
+    if(DOM.chatWindowHidden) {
+		DOM.chatWindow.style.display = "inline-block";
+		DOM.chatToggleButton.innerHTML = "Hide chat";
+		DOM.chatWindowHidden = false;
+    } else {
+		DOM.chatWindow.style.display = "none";
+		DOM.chatToggleButton.innerHTML = "Show chat";
+		DOM.chatWindowHidden = true;
+    }
+}
+
+DOM.chatForm.onsubmit = function(e) {
     e.preventDefault();
-    var input = chatInput.value;
+    var input = DOM.chatInput.value;
     if(input[0] === "/") {
-	emit("evalExpression", input.slice(1));
+		client.emit("evalExpression", input.slice(1));
     } else if(input[0] === "@") {
 	// Extract the username from the string
 	var user = input.split(" ")[0].slice(1);
 	// Extract the message from the string
 	var message = input.slice(user.length + 2); // @ + username + space
-	emit("privateMessage", {user:user, message:message});
+		client.emit("privateMessage", {user:user, message:message});
     } else {
-	emit("chatPost", chatInput.value);
+		client.emit("chatPost", input);
     }
-    chatInput.value = "";
+    DOM.chatInput.value = "";
 }
 
-
-//============== LISTENERS ============================================
-
-// Display the formatted chat post recieved from the server
-ChatWindow.prototype.listen = function(router) {
-    router.listen("addToChat", this.logToChat);
-    //router.listen("evalResponse", this.logToConsole);
+DOM.chatToggleButton.onclick = function() {
+	toggleChatWindow();
 }
 
-// Show and hide the chat window
-ChatWindow.prototype.toggleChatWindow = function() {
-    if(this.chatWindowHidden) {
-	this.chatWindow.style.display = "inline-block";
-	this.chatToggleButton.innerHTML = "Hide chat";
-	this.chatWindowHidden = false;
-    } else {
-	this.chatWindow.style.display = "none";
-	this.chatToggleButton.innerHTML = "Show chat";
-	this.chatWindowHidden = true;
-    }
-}
-
-ChatWindow.prototype.logToChat = function(data) {
-    this.chatLog.innerHTML += "<div>" + data + "<\div>";
-}
-
-
-module.exports = new ChatWindow();
-module.exports.hidden = chatWindowHidden;
+module.exports = new Chat();

@@ -13,9 +13,10 @@ module.exports.log = function(msg) {
 // if (module.exports.<name> == true)
 //       <name>.js will log debug output to console
 
-module.exports.client = true; 
+module.exports.client = true;
+module.exports.router = true;
 module.exports.chat = true; 
-module.exports.router = true; 
-module.exports.map = true;
-module.exports.maps = true;
-
+module.exports.saves = true;
+module.exports.login = true;
+module.exports.stats = true;
+module.exports.render = true;
