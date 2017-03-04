@@ -1,23 +1,38 @@
 
 // ...will need to require crew.js
 define(["debug", "dom", "client"], function(debug, dom, client) {
-
+    
     /**
      *
      */
     var Ship = function() {
-	
 	var ship = {
 
-	    /** @private Ship name */ name:"HMS Anonymous",
-	    /** @private Username */ captain:"?",
-	    /** @private */ autopilot:false,
-	    /** @private Ship position x-coord*/ x:"",
-	    /** @private Ship position y-coord*/ y:"",
-	    /** @private X-component of velocity */ vx:0.0,
-	    /** @private Y-component of velocity */ vy:0.0,
-	    /** @private */ inPort:true,
-	    /** @private Range: [0,1] */ sailsLevel:0,
+	    ////////////////
+	    // Member fields
+	    ////////////////
+	    
+	    /** @private Ship name */
+	    name:"HMS Anonymous",
+	    /** @private Username */
+	    captain:"?",
+    
+	    /** @private */
+	    onAutopilot:false,
+
+	    /** @private Ship position x-coord*/
+	    x:"",
+	    y:"",
+
+	    /** @private X-component of velocity */
+	    vx:0.0,
+	    vy:0.0,
+
+	    /** @private */
+	    inPort:true,
+    
+	    /** @private Range: [0,1] */
+	    sailsLevel:0,
 
 	    /** 
 	     * @private Angle to indicate ship heading 
@@ -26,18 +41,24 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	     */
 	    dir:0,
 
-	    /** @private Reference to any targetted ship*/ targetShip:null,
-	    /** @private Flag */ targetAction:"",
-	    /** @private */ targetPort:null,
-	    
-	    crew:Crew(),
-	    rsc:Resources()
+	    /** @private ptr to any targetted ship*/
+	    targetShip:null,
+    
+	    /** @private Flag */
+	    targetAction:"",
+	    targetPort:null,
+    
+	    crew:[],
+	    resources:""
 	};
 
-	
 	return ship;
-    };
+    }
 
+    //////////////////////
+    // Member functions
+    //////////////////////
+    
     /**
      * Perform deep copy of ship s2
      */
@@ -53,7 +74,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      *
      */
     Ship.prototype.targetForBoard = function(Ship s2) {};
-
+    
     /**
      *
      */
@@ -83,17 +104,29 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      *
      */
     Ship.prototype.leavePort(Port p) {};
-
+    
     /**
      *
      */
     Ship.prototype.fireStarboard();
+
+    /**
+     *
+     */
     Ship.prototype.firePort();
+
+    /**
+     *
+     */
     Ship.prototype.increaseSails();
+
+    /**
+     *
+     */
     Ship.prototype.decreaseSails();
     
 
-    
+    return new Ship();    
     
 });
 

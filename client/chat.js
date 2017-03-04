@@ -1,5 +1,8 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
+/**
+*
+*/
 var Chat = function() {};
 
 // Display the formatted chat post recieved from the server
@@ -9,10 +12,16 @@ Chat.prototype.listen = function(router) {
 	router.listen("chatFormSubmit", this.chatFormSubmit);
 }
 
+/**
+*
+*/
 Chat.prototype.logToChat = function(data) {
     dom.chatLog.innerHTML += "<div>" + data + "<\div>";
 }
 
+/**
+*
+*/
 // Show and hide the chat window
 Chat.prototype.toggleChatWindow = function() {
     if(dom.chatWindowHidden) {
@@ -26,6 +35,9 @@ Chat.prototype.toggleChatWindow = function() {
     }
 }
 
+/**
+*
+*/
 Chat.prototype.chatFormSubmit = function(event) {
     event.preventDefault();
     var input = dom.chatInput.value;

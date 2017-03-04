@@ -1,7 +1,13 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
+/**
+*
+*/
 var View = function() {}
 
+/**
+*
+*/
 View.prototype.listen = function(router) {
 	router.listen("loginResponse", this.loginToGameScreen);
 	router.listen("logoutResponse", this.gameScreenToLogin);
@@ -9,6 +15,9 @@ View.prototype.listen = function(router) {
 	router.listen("keyReleased", this.keyReleased);
 }
 
+/**
+*
+*/
 View.prototype.loginToGameScreen = function(data) {
 	if(debug.view) debug.log("[View] Moving to game screen");
     if(data.success) {
@@ -21,12 +30,18 @@ View.prototype.loginToGameScreen = function(data) {
     }
 }
 
+/**
+*
+*/
 View.prototype.gameScreenToLogin = function() {
     dom.loginScreen.style.display = "inline-block";
     dom.gameScreen.style.display = "none";
 }
 
 // If input is pressed, emit object with the key and the new state
+/**
+*
+*/
 View.prototype.keyPressed = function(event) {
     // If the chat bar is not in focus
     if(dom.chatInput !== dom.document.activeElement) {
@@ -42,6 +57,9 @@ View.prototype.keyPressed = function(event) {
 }
 
 // If input is released, emit object with the key and the new state
+/**
+*
+*/
 View.prototype.keyReleased = function(event) {
     if(dom.chatInput !== dom.document.activeElement) {
 	if(event.keyCode === 68)

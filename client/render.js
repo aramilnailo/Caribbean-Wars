@@ -1,11 +1,20 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
-	
+
+/**
+*
+*/
 var Render = function() {}
 
+/**
+*
+*/
 Render.prototype.listen = function(router) {
 	router.listen("newPositions", this.drawScreen);
 }
 
+/**
+*
+*/
 Render.prototype.drawScreen = function(data) {
     var i, j, ch;
     // Clear screen

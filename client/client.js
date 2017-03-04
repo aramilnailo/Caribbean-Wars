@@ -1,20 +1,27 @@
 define(["debug", "dom", "router"], function(debug, dom, router) {
 
 //srw: This class is basically session data class.
-    
+
+/**
+*
+*/
 var Client = function() {};
 
-Client.prototype.username = "";
+/** */ Client.prototype.username = "";
 
-Client.prototype.mapData = {data:"", path:""};
-Client.prototype.socket = null;
+/** */ Client.prototype.mapData = {data:"", path:""};
+/** */ Client.prototype.socket = null;
 
 // srw: needed for rendering.
-Client.prototype.players = [];    
-    // srw: recommend inserting additional client info here
-    // e.g. zoom level
+/** */ Client.prototype.players = [];    
+// srw: recommend inserting additional client info here
+// e.g. zoom level
     
+
     
+/**
+*
+*/
 Client.prototype.listen = function(router) {
 	router.listen("collapseMenus", this.hideAllMenus);
 	router.listen("mapData", this.setMap);
@@ -22,6 +29,9 @@ Client.prototype.listen = function(router) {
 	router.listen("alert", this.pushAlert);
 }
 
+/**
+*
+*/
 Client.prototype.setMap = function(data) {
     if(data.err) {
 	   alert(data.err);
@@ -30,14 +40,23 @@ Client.prototype.setMap = function(data) {
     }
 }
 
+/**
+*
+*/
 Client.prototype.pushAlert = function(data) {
     alert(data);
 }
 
+/**
+*
+*/
 Client.prototype.logToConsole = function(data) {
 	console.log(data);
 }
 
+/**
+*
+*/
 Client.prototype.hideAllMenus = function(data) {
 	if(!dom.chatWindowHidden) router.route("toggleChatWindow", null);
 	if(!dom.statsMenuHidden) router.route("toggleStatsMenu", null);
@@ -45,6 +64,9 @@ Client.prototype.hideAllMenus = function(data) {
 	if(!dom.userListHidden) router.route("toggleUserList", null);
 }
 
+/**
+*
+*/
 Client.prototype.emit = function(message, data) {
     if(debug.client) debug.log("[Client] Emitting \"" + message + "\".");
     this.socket.emit("message", {name:message, data:data});

@@ -1,7 +1,14 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
+
+/**
+*
+*/
 var Saves = function() {};
 
+/**
+*
+*/
 Saves.prototype.listen = function(router) {
 	router.listen("savedGamesListResponse", this.displaySavedGamesMenu);
 	router.listen("toggleSavedGamesMenu", this.toggleSavedGamesMenu);
@@ -11,6 +18,9 @@ Saves.prototype.listen = function(router) {
 }
 
 // Show and hide the saved game menu
+/**
+*
+*/
 Saves.prototype.toggleSavedGamesMenu = function() {
     if(dom.savedGamesMenuHidden) {
 		client.emit("savedGamesListRequest", null);
@@ -23,6 +33,9 @@ Saves.prototype.toggleSavedGamesMenu = function() {
     }
 }
 
+/**
+*
+*/
 Saves.prototype.displaySavedGamesMenu = function(data) {
 // Format the saved_games table into HTML
     var i;
@@ -45,6 +58,9 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
     dom.savedGamesMenu.style.display = "inline-block";
 }
 
+/**
+*
+*/
 Saves.prototype.saveGameClick = function() {
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
@@ -54,6 +70,9 @@ Saves.prototype.saveGameClick = function() {
     }
 }
 
+/**
+*
+*/
 Saves.prototype.loadGameClick = function() {
     var filename = window.prompt("Load game:", "filename");
     if(filename) {
@@ -61,6 +80,9 @@ Saves.prototype.loadGameClick = function() {
     }
 }
 
+/**
+*
+*/
 Saves.prototype.deleteGameClick = function() {
     var filename = window.prompt("Delete game:", "filename");
     if(filename) {

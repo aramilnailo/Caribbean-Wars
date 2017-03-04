@@ -1,14 +1,26 @@
 define(["debug"], function(debug) {
 
+/**
+*
+*/
 var Router = function() {}
 
+/**
+*
+*/
 var listeners = [];
 
+/**
+*
+*/
 Router.prototype.listen = function(msg, action) {
 	if(debug.router) debug.log("[Client] Listening for \"" + msg + "\"");
 	listeners.push({name:msg, func:action});
 }
 
+/**
+*
+*/
 Router.prototype.unlisten = function(msg, action) {
     var listener = {name:msg, func:action};
     // listeners with indices at i do not change
@@ -21,7 +33,10 @@ Router.prototype.unlisten = function(msg, action) {
 		i--;
 	}	
 }
-
+    
+/**
+*
+*/
 Router.prototype.route = function(msg) {
     for (var i in listeners) {
 		if (listeners[i].name === msg.name) {

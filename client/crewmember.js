@@ -15,7 +15,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     };
     
 
-    module.exports.CrewMember = CrewMember;
+    return new CrewMember();
     
     
 });

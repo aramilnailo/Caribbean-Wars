@@ -39,14 +39,14 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     var ViewMapEditor = function () {};
 
     /** Current map */
-    ViewMapEditor.currentMap = null;
+    ViewMapEditor.prototype.currentMap = null;
     /** Stack that stores map objects for cntl-Z reversion */
-    VieMapEditor.mapEditHistory = [];
+    VieMapEditor.prototype.editHistory = [];
 
     /** 
      * Revert to previous map version in stack
      */ 
-    ViewMapEditor.backtrack = function (event) {
+    ViewMapEditor.prototype.backtrack = function (event) {
 	if (event.ctrlKey) {};
     }
 
@@ -99,7 +99,10 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     };
     
     
-    var mousePainting = "off";
+    /**
+     *
+     */
+    ViewMapEditor.mousePainting = "off";
     
 /*
   CANVAS EVENT HANDLERS
@@ -111,12 +114,20 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	var y = event.clientY;
 	var win = event.view;
     };
+
+    /**
+     *
+     */
     mapCanvas.onmouseup = function(event) {
 	var x = event.clientX;
 	var y = event.clientY;
 	var win = event.view;
 
     };
+    
+    /**
+     *
+     */
     mapCanvas.onmousemove = function(event) {
 	var x = event.clientX;
 	var y = event.clientY;
@@ -131,6 +142,9 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
+    /**
+     *
+     */
     paintLandIcon.onclick = function() {
 	var x = event.clientX;
 	var y = event.clientY;
@@ -138,22 +152,34 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
+    /**
+     *
+     */
     paintWaterIcon.onclick = function() {
     };
     
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
+    /**
+     *
+     */
     paintPortIcon.onclick = function() {
 
     };
     
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
+    /**
+     *
+     */
     paintRotateIcon.onclick = function() {
     };
     
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
+    /**
+     *
+     */
     paintTranslateIcon.onclick = function() {};
     
     /**

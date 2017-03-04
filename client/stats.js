@@ -1,7 +1,14 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
+/**
+*
+*/
 var Stats = function() {}
 
+
+/**
+*
+*/
 Stats.prototype.listen = function(router) {
 	router.listen("statsMenuResponse", this.displayStatsMenu);
 	router.listen("toggleStatsMenu", this.toggleStatsMenu);	
@@ -9,6 +16,10 @@ Stats.prototype.listen = function(router) {
 }
 
 // Show and hide the stats menu
+/**
+*
+*/
+
 Stats.prototype.toggleStatsMenu = function() {
     if(dom.statsMenuHidden) {
 		client.emit("statsMenuRequest", null);
@@ -22,6 +33,9 @@ Stats.prototype.toggleStatsMenu = function() {
     }
 }
 
+/**
+*
+*/
 Stats.prototype.displayStatsMenu = function(data) {
     var i;
     dom.statsMenu.style.display = "table";
@@ -48,6 +62,9 @@ Stats.prototype.displayStatsMenu = function(data) {
     dom.statsMenu.innerHTML = html;
 }
 
+/**
+*
+*/
 Stats.prototype.clearStatsClick = function() {
 	if(debug.client) debug.log(client.username);
 	client.emit("clearStats", client.username);

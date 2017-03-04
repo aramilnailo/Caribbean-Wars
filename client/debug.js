@@ -1,5 +1,8 @@
 define([], function() {
 
+/**
+*
+*/
 var debug = {
 	client:true,
 	router:true,
@@ -11,6 +14,9 @@ var debug = {
 	view:true
 }
 
+/**
+*
+*/
 debug.log = function(msg) {
     console.log(msg);
 }
