@@ -1,11 +1,20 @@
 define(["debug", "dom", "router"], function(debug, dom, router) {
 
-var Client = function() {}
+//srw: This class is basically session data class.
+    
+var Client = function() {};
 
 Client.prototype.username = "";
+
 Client.prototype.mapData = {data:"", path:""};
 Client.prototype.socket = null;
 
+// srw: needed for rendering.
+Client.prototype.players = [];    
+    // srw: recommend inserting additional client info here
+    // e.g. zoom level
+    
+    
 Client.prototype.listen = function(router) {
 	router.listen("collapseMenus", this.hideAllMenus);
 	router.listen("mapData", this.setMap);

@@ -1,8 +1,8 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
-var Login = function() {}
+var ViewLogin = function() {}
 
-Login.prototype.listen = function(router) {
+ViewLogin.prototype.listen = function(router) {
 	router.listen("userListResponse", this.displayUserList);
 	router.listen("toggleUserList", this.toggleUserList);
 	router.listen("loginClick", this.loginClick);
@@ -12,7 +12,7 @@ Login.prototype.listen = function(router) {
 }
 
 // Show and hide the user list
-Login.prototype.toggleUserList = function() {
+ViewLogin.prototype.toggleUserList = function() {
     if(dom.userListHidden) {
 		client.emit("userListRequest", null);
 		dom.userListButton.innerHTML = "Hide users";
@@ -24,7 +24,7 @@ Login.prototype.toggleUserList = function() {
     }
 }
 
-Login.prototype.displayUserList = function(data) {
+ViewLogin.prototype.displayUserList = function(data) {
     var i;
     dom.userList.style.display = "table";
     var html = "<table>" +
@@ -44,8 +44,8 @@ Login.prototype.displayUserList = function(data) {
     dom.userList.innerHTML = html;
 }
 
-// Login button is clicked on login screen
-Login.prototype.loginClick = function() {
+// ViewLogin button is clicked on login screen
+ViewLogin.prototype.loginClick = function() {
     // Don't submit empty forms
     if(dom.loginUsername.value.length > 0 &&
        dom.loginPassword.value.length > 0)
@@ -54,7 +54,7 @@ Login.prototype.loginClick = function() {
 }
 
 // Sign up button is clicked on login screen
-Login.prototype.signupClick = function() {
+ViewLogin.prototype.signupClick = function() {
     // Don't submit empty forms
     if(dom.loginUsername.value.length > 0 &&
        dom.loginPassword.value.length > 0)
@@ -63,17 +63,17 @@ Login.prototype.signupClick = function() {
 }
 
 // If logout button is clicked on game screen
-Login.prototype.logoutClick = function() {
+ViewLogin.prototype.logoutClick = function() {
     client.emit("logout", null);
 }
 
 // Delete account button is clicked on game screen
-Login.prototype.deleteAccountClick = function() {
+ViewLogin.prototype.deleteAccountClick = function() {
     if(confirm("Are you sure you want to delete this account?")) {
 	   client.emit("deleteAccount", null);
     }
 }
 
-return new Login();
+return new ViewLogin();
 
 });
