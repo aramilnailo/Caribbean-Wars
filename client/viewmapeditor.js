@@ -106,9 +106,23 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 */
 
     // action depends on selected tool
-    mapCanvas.onmousedown = function(event) {};
-    mapCanvas.onmouseup = function(event) {};
-    mapCanvas.onmousemove = function(event) {};
+    mapCanvas.onmousedown = function(event) {
+	var x = event.clientX;
+	var y = event.clientY;
+	var win = event.view;
+    };
+    mapCanvas.onmouseup = function(event) {
+	var x = event.clientX;
+	var y = event.clientY;
+	var win = event.view;
+
+    };
+    mapCanvas.onmousemove = function(event) {
+	var x = event.clientX;
+	var y = event.clientY;
+	var win = event.view;
+
+    };
     
 
     /*
@@ -117,19 +131,26 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
-    paintLandIcon.onclick = function() {};
+    paintLandIcon.onclick = function() {
+	var x = event.clientX;
+	var y = event.clientY;
+    };
     
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
-    paintWaterIcon.onclick = function() {};
+    paintWaterIcon.onclick = function() {
+    };
     
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
-    paintPortIcon.onclick = function() {};
+    paintPortIcon.onclick = function() {
+
+    };
     
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image
-    paintRotateIcon.onclick = function() {};
+    paintRotateIcon.onclick = function() {
+    };
     
     // set all icon images to unpressed version
     // if tooltip = land, set pressed land icon image

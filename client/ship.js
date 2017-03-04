@@ -9,32 +9,29 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 	var ship = {
 
-	    /** @private */ this.name = "New ship";
-	    /** @private */ this.captain = "?";
-	    /** @private */ this.controlledBy = "autopilot";
-	    /** @private */ this.x = "";
-	    /** @private */ this.y = "";
-	    /** @private */ this.vx = 0.0;
-	    /** @private */ this.vy = 0.0;
-	    
-	    /** @private */ this.inPort = true;
-	    /** @private */ this.sailsLevel = 0;
+	    /** @private Ship name */ name:"HMS Anonymous",
+	    /** @private Username */ captain:"?",
+	    /** @private */ autopilot:false,
+	    /** @private Ship position x-coord*/ x:"",
+	    /** @private Ship position y-coord*/ y:"",
+	    /** @private X-component of velocity */ vx:0.0,
+	    /** @private Y-component of velocity */ vy:0.0,
+	    /** @private */ inPort:true,
+	    /** @private Range: [0,1] */ sailsLevel:0,
 
-	    /** @private */
-	    
 	    /** 
-	     * @private angle to indicate ship heading 
+	     * @private Angle to indicate ship heading 
 	     * with respect to map rotation
 	     * [0 - 2pi), where 0 is North
 	     */
-	    this.dir = 0;
+	    dir:0,
 
-	    /** @private */ this.targetShip = null;
-	    /** @private */ this.targetAction = "";
-	    /** @private */ this.targetPort= null;
+	    /** @private Reference to any targetted ship*/ targetShip:null,
+	    /** @private Flag */ targetAction:"",
+	    /** @private */ targetPort:null,
 	    
-	    this.crew = Crew();
-	    this.resources = Resources();
+	    crew:Crew(),
+	    rsc:Resources()
 	};
 
 	
