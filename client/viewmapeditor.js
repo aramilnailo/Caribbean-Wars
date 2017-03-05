@@ -95,7 +95,15 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      * Default map: All water.
      */
     ViewMapEditor.prototype.load = function () {
-	dom.canvas.clearRect(0,0,500,500);
+	this.clear();
+    };
+    
+    /**
+     * Undisplays all map editor html elements.
+     * Unlistens to all associated router listeners.
+     */
+    ViewMapEditor.prototype.clear = function () {
+		dom.canvas.clearRect(0,0,500,500);
 	this.mapEditHistory.length = 0;
 	this.zoomLevel = 1.0;
 	var newMap = {data:[]};
@@ -109,12 +117,6 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	    }
 	}
     };
-    
-    /**
-     * Undisplays all map editor html elements.
-     * Unlistens to all associated router listeners.
-     */
-    ViewMapEditor.prototype.clear = function () {};
     
     /**
      * 
