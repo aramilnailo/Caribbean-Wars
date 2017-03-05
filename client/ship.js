@@ -3,7 +3,9 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
     /**
+     * Ship class constructor.
      *
+     * @constructor
      */
     var Ship = function() {
 	
@@ -40,56 +42,115 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
     /**
      * Perform deep copy of ship s2
+     *
+     * @param ship2 The current ship and ship2 will share
+     * identical values for all member fields. 
      */
-    Ship.prototype.copy = function(Ship s2) {};
+    Ship.prototype.copy = function(ship2) {};
     
     /**
+     * Move current ship to position (x,y) without rendering.
      *
+     * @param x
+     * @param y move() places the ship at position x,y
+     *          where x,y are measured in units used by the current world map.
+     * 
      */
     Ship.prototype.move = function(x,y) {};
     
     
     /**
+     * Sets ship2 as a target to consider when
+     * determining current ship update,
+     * and target action to board ship2.
      *
+     * @param ship2 Reference to target ship.
      */
-    Ship.prototype.targetForBoard = function(Ship s2) {};
+    Ship.prototype.targetForBoard = function(ship2) {};
 
     /**
+     * Sets ship2 as a target to consider when
+     * determining current ship update,
+     * and target action to broadside ship2.
      *
+     * @param ship2 Reference to target ship.
      */
-    Ship.prototype.targetForBroadside = function(Ship s2) {};
+    Ship.prototype.targetForBroadside = function(ship2) {};
     
     /**
+     * Sets ship2 as a target to consider when
+     * determining current ship update,
+     * and target action to follow ship2.
      *
+     * @param ship2 Reference to target ship.
+     * @param dx, dy Position relative to ship2
      */
-    Ship.prototype.targetToFollow = function(Ship s2) {};
+    Ship.prototype.targetToFollow = function(ship2, dx, dy) {
+    };
     
     /**
+     * Sets ship2 as a target to consider when
+     * determining current ship update,
+     * and target action to ram ship2.
      *
+     * @param ship2 Reference to target ship.
      */
-    Ship.prototype.targetForRam(Ship s2) {};
-    
-    /**
-     *
-     */
-    Ship.prototype.targetForSwivel(Ship s) {};
-    
-    /**
-     *
-     */
-    Ship.prototype.targetForPort(Port p) {};
-    
-    /**
-     *
-     */
-    Ship.prototype.leavePort(Port p) {};
+    Ship.prototype.targetForRam(ship2) {};
 
     /**
-     *
+     * Sets ship2 as a target to consider when
+     * determining current ship update,
+     * and target action to swivel around ship2.
+     * 
+     * @param ship2 Reference to target ship.
      */
-    Ship.prototype.fireStarboard();
-    Ship.prototype.firePort();
+    Ship.prototype.targetForSwivel(ship2) {};
+    
+    /**
+     * Current ship will target docking 
+     * at the specified port.
+     *
+     * @param port1 Reference to target port
+     */
+    Ship.prototype.targetForPort(port1) {};
+    
+    /**
+     * Request by currently docked ship
+     * to leave port.
+     *
+     * @return true if successful
+     *         false otherwise
+     *           
+     */
+    Ship.prototype.leavePort() {};
+
+    /**
+     * Fire cannons.
+     * 
+     * @param side "starboard" or "port"
+     * @return false if no cannonballs available
+     *         true otherwise
+     */
+    Ship.prototype.fireCannons(side);
+
+    /**
+     * Augments sailLevel (e.g. responsiveness to 
+     * prevailing wind).
+     *
+     * @return false if sails are currently at max height
+     *               or if sails are too damaged to adjust
+     *         true otherwise
+     */
     Ship.prototype.increaseSails();
+
+    /**
+     * Decrements sailLevel (e.g. responsiveness to 
+     * prevailing wind).
+     *
+     * @return false if sails are currently at min height
+     *               or if sails are too damaged to adjust
+     *         true otherwise
+     */
     Ship.prototype.decreaseSails();
     
 
