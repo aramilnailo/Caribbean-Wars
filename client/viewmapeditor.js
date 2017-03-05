@@ -1,3 +1,4 @@
+
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
     /*
@@ -36,54 +37,90 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      * Provides html logic to edit/create maps.
      * 
      */
-    var ViewMapEditor = function () {};
-
-    /** Current map */
-    ViewMapEditor.currentMap = null;
-    /** Stack that stores map objects for cntl-Z reversion */
-    VieMapEditor.mapEditHistory = [];
-
-    /** 
-     * Revert to previous map version in stack
-     */ 
-    ViewMapEditor.backtrack = function (event) {
-	if (event.ctrlKey) {};
-    }
-
-    /** 
-     * Variable set by clicking the icon array
-     * "none", "paintland", "paintwater", "paintport", "rotatemap", "translatemap"
-     */
-    ViewMapEditor.paintTool = "none";
-
     // HTML elements. Move to dom.js
     var savedMapListButton = document.getElementById("saved-maps-btn");
     var savedMapList = document.getElementById("saved-maps-list");
     var mapCanvas = document.getElementById("map-canvas");
-
     var paintLandIcon = document.getElementById("paint-land-img");
     var paintWaterIcon = document.getElementById("paint-water-img");
     var paintPortIcon = document.getElementById("paint-port-img");
     var logoutButton = document.getElementById("logout-btn");
-    
     var mapFileDropDownList = document.getElementById("file-menu");
-    
     var saveMapButton = document.getElementById("save-map-btn");
 
+    
+    
+    
+    var ViewMapEditor = function () {
+	var viewmapeditor = {
+	    /** Current map */ currentMap:null,
 
+	    /** Stack that stores map objects for cntl-Z reversion */
+	    mapEditHistory:[],
+
+	    mousePainting:false,
+	    
+	    /** @private Variable set by clicking the icon array
+	     * "none", "paintland", "paintwater", "paintport", "rotatemap", "translatemap"
+	     */
+	    currentPaintTool:"none",
+	    zoomLevel:1.0
+	}
+
+	return viewmapeditor;
+    };
+
+/*
+    ViewMapEditor.prototype.listen = function(router) {
+	router.listen("",this.f);
+    }
+  */  
+    
+    /** 
+     * Revert to previous map version in stack
+     */ 
+    ViewMapEditor.prototype.backtrack = function (event) {
+	if (event.ctrlKey) {
+	    
+	};
+    };
+
+    ViewMapEditor.prototype.zoom = function () {
+	
+    };
+    
     /**
      * Loads initial map editor view into index.html.
      *
      * Default map: All water.
      */
-    ViewMapEditor.prototype.load = function () {};
+    ViewMapEditor.prototype.load = function () {
+	dom.canvas.clearRect(0,0,500,500);
+	this.mapEditHistory.length = 0;
+	this.zoomLevel = 1.0;
+	var newMap = {data:[]};
+	newMap.data.length = 10*10;
+	mapEditHistory.push(newMap);
+	var i,j;
+	for (i = 0; i < 10; i++) {
+	    for (j = 0; j < 10; j++) {
+		newMap.data[10*i + j] = 0;
+		dom.canvas.fillRect(j * 50, i * 50, 50, 50);
+	    }
+	}
+    };
     
     /**
-     * Clears index.html of all map editor elements.
-     *
-     * Unlistens all associated router listeners.
+     * Undisplays all map editor html elements.
+     * Unlistens to all associated router listeners.
      */
     ViewMapEditor.prototype.clear = function () {};
+    
+    /**
+     * 
+     */
+    ViewMapEditor.prototype.toggleMapFileMenu = function() {};
+    
     
     /**
      *
@@ -95,15 +132,11 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      */
     logoutButton.onclick = function () {
 	this.clear();
-	
-    };
-    
-    
-    var mousePainting = "off";
-    
-/*
-  CANVAS EVENT HANDLERS
-*/
+    }
+       
+    /*
+      CANVAS EVENT HANDLERS
+    */
 
     // action depends on selected tool
     mapCanvas.onmousedown = function(event) {
@@ -170,10 +203,6 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      */
     mapFileMenuIcon.onclick = function() {};
     
-    /**
-     * 
-     */
-    var toggleMapFileMenu = function() {};
     
     /**
      * 
