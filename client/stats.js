@@ -1,13 +1,18 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
 /**
-*
+* Namespace to govern usage statistics
+* acquisition, display, and management
 */
-var Stats = function() {}
+var Stats = function() {};
 
 
 /**
+* Register all gui actions associated
+* with usage statistics and provided by
+* this class
 *
+* @param router The class that manages listen requests
 */
 Stats.prototype.listen = function(router) {
 	router.listen("statsMenuResponse", this.displayStatsMenu);
@@ -15,11 +20,9 @@ Stats.prototype.listen = function(router) {
 	router.listen("clearStatsClick", this.clearStatsClick);
 }
 
-// Show and hide the stats menu
 /**
-*
+* Show and hide the stats menu
 */
-
 Stats.prototype.toggleStatsMenu = function() {
     if(dom.statsMenuHidden) {
 		client.emit("statsMenuRequest", null);
@@ -34,7 +37,19 @@ Stats.prototype.toggleStatsMenu = function() {
 }
 
 /**
+* Formats statistics data into html and inserts 
+* into the current window
 *
+* @param data List of statistics to be displayed;
+*             each element is currently assumed to be
+*             of the form:
+*             {username:<string>,
+*              seconds_played:<int>,
+*              shots_fired:<int>,
+*              distance_sailed:<float>,
+*              ships_sunk:<int>,
+*              ships_lot:<int>}
+*              
 */
 Stats.prototype.displayStatsMenu = function(data) {
     var i;
@@ -63,7 +78,8 @@ Stats.prototype.displayStatsMenu = function(data) {
 }
 
 /**
-*
+* Deletes all statistics for the current user from 
+* the database.
 */
 Stats.prototype.clearStatsClick = function() {
 	if(debug.client) debug.log(client.username);
