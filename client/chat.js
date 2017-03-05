@@ -1,11 +1,18 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
 /**
-*
+* Chat namespace responsible for all client-side functionality
+* associated with multiplayer chat messaging during gameplay
 */
 var Chat = function() {};
 
-// Display the formatted chat post recieved from the server
+/**
+* Register all gui events whose action is
+* impleneted within the chat namespace
+*
+* @param router Instance of router class
+*        responsible for message handling
+*/
 Chat.prototype.listen = function(router) {
     router.listen("addToChat", this.logToChat);
 	router.listen("toggleChatWindow", this.toggleChatWindow);
@@ -13,16 +20,17 @@ Chat.prototype.listen = function(router) {
 }
 
 /**
+* Display a message on the user's chat board
 *
+* @param data The string to insert into the chat board
 */
 Chat.prototype.logToChat = function(data) {
     dom.chatLog.innerHTML += "<div>" + data + "<\div>";
 }
 
 /**
-*
+* Show or hide the chat window.
 */
-// Show and hide the chat window
 Chat.prototype.toggleChatWindow = function() {
     if(dom.chatWindowHidden) {
 		dom.chatWindow.style.display = "inline-block";
@@ -36,7 +44,11 @@ Chat.prototype.toggleChatWindow = function() {
 }
 
 /**
-*
+* Relay any chat message (public or private) to the server.
+* Message control is determined by parsing the input message
+* from the gui
+* 
+* @param event Form submit event associated with chat input
 */
 Chat.prototype.chatFormSubmit = function(event) {
     event.preventDefault();
