@@ -3,24 +3,30 @@ define(["debug", "dom", "router"], function(debug, dom, router) {
 //srw: This class is basically session data class.
 
 /**
-*
+* Client class. Holds game data and user data.
 */
 var Client = function() {};
 
-/** */ Client.prototype.username = "";
+/** @public Username associated with current login */ Client.prototype.username = "";
 
-/** */ Client.prototype.mapData = {data:"", path:""};
-/** */ Client.prototype.socket = null;
+/** @public Map object associated with current game */ Client.prototype.mapData = {data:"", path:""};
+/** @public Server socket reference */ Client.prototype.socket = null;
 
-// srw: needed for rendering.
-/** */ Client.prototype.players = [];    
+    //      ... The Client class contains nearly all of the data that I associated with
+    //          what we called "gamedata" and I had called the "client state".
+    //      We could either add this data + any additional needed data to implement
+    //     this class, or we could extract data currently held by this class to
+    //     create an alternate gamedata class. 
+    //     
+/** List of players participating in the current game */ Client.prototype.players = [];    
 // srw: recommend inserting additional client info here
 // e.g. zoom level
     
 
     
 /**
-*
+* Registers all gui event messages associated with client state
+* transistions.
 */
 Client.prototype.listen = function(router) {
 	router.listen("collapseMenus", this.hideAllMenus);
@@ -30,7 +36,11 @@ Client.prototype.listen = function(router) {
 }
 
 /**
-*
+* Sets the current game map.
+* 
+* @param data Contains the current map as data.mapData.
+* @throws alert error message if an error occurred
+*         when attempting to set data.mapData.
 */
 Client.prototype.setMap = function(data) {
     if(data.err) {
@@ -41,21 +51,27 @@ Client.prototype.setMap = function(data) {
 }
 
 /**
+* Wrapper function: calls alert(data)
 *
+* @param data Alert message
 */
 Client.prototype.pushAlert = function(data) {
     alert(data);
 }
 
 /**
+* Wrapper function: calls console.log(data)
 *
+* @param data String to output to console
 */
 Client.prototype.logToConsole = function(data) {
 	console.log(data);
 }
 
 /**
+* Hides all currently active menus.
 *
+* @param data Currently unused
 */
 Client.prototype.hideAllMenus = function(data) {
 	if(!dom.chatWindowHidden) router.route("toggleChatWindow", null);
@@ -65,7 +81,10 @@ Client.prototype.hideAllMenus = function(data) {
 }
 
 /**
-*
+* Wrapper function: Broadcast (message,data) to the server 
+* 
+* @param message String to name message type
+* @param data Data to be sent to the server 
 */
 Client.prototype.emit = function(message, data) {
     if(debug.client) debug.log("[Client] Emitting \"" + message + "\".");
