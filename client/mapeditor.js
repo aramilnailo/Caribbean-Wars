@@ -30,92 +30,129 @@
 
 
 define(["debug", "dom", "client", "mapeditoricon"], function(debug, dom, client,mapeditoricon) {
-
-    
-    // MapEditor window elements in dom.js
-    /*
-    mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
-    mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
-    mapEditorCanvas:document.getElementById("map-editor-canvas"),
-    mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
-    mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
-    mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
-    mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
-    mapEditorFileDropDownList:document.getElementById("map-editor-file-menu"),
-    mapEditorSaveMapButton:document.getElementById("save-map-btn");
-    mapEditorFileMenuHidden:true,
-*/
-    
+       
     /**
-     * Map editor view class
+     * Map editor class
      * 
-     * Provides html logic to edit/create maps.
+     * Provides html event handling logic to edit/create maps.
      * 
      */
     var MapEditor = function () {
 	var mapeditor = {
-	    /** Current map */ currentMap:null,
 
 	    /** Stack that stores map objects for cntl-Z reversion */
 	    mapEditHistory:[],
-
+	    /** Current map index */
+	    currentMap:-1,
+	    
 	    // editor states
 	    paintingLand:false,
 	    paintingWater:false,
 	    paintingPort:false,
 
-	    /** @private Variable set by clicking the icon array
-	     * "none", "paintland", "paintwater", "paintport", "rotatemap", "translatemap"
-	     */
-	    currentPaintTool:"none",
 	    zoomLevel:1.0
 	}
-
-	mapeditor.watericon.upimg = "assets/mapeditorwatericonup.png";
-	mapeditor.watericon.downimg = "assets/mapeditorwatericondown.png";
-	mapeditor.porticon.upimg = "assets/mapeditorporticonup.png";
-	mapeditor.porticon.downimg = "assets/mapeditorporticondown.png";
 	
 	return mapeditor;
     };
 
-    MapEditor.prototype.landicon = new MapEditorIcon("land");
-    MapEditor.prototype.landicon.upimg = "assets/mapeditorlandiconup.png";
-    MapEditor.prototype.landicon.downimg = "assets/mapeditorlandicondown.png";
-
-    MapEditor.prototype.watericon = new MapEditorIcon("water");
-    MapEditor.prototype.watericon.upimg = "assets/mapeditorwatericonup.png";
-    MapEditor.prototype.watericon.downimg = "assets/mapeditorwatericondown.png";
-
-    MapEditor.prototype.porticon = new MapEditorIcon("port");
-    MapEditor.prototype.portcon.upimg = "assets/mapeditorporticonup.png";
-    MapEditor.prototype.porticon.downimg = "assets/mapeditorporticondown.png";
-
+    
 
     MapEditor.prototype.listen = function(router) {
 	
-	router.listen("mapEditorPaintLandIconClick",this.landicon.down);
-	router.listen("mapEditorPaintLandIconClick",this.watericon.up);
-	router.listen("mapEditorPaintLandIconClick",this.porticon.up);
+	router.listen("mapEditorPaintLandIconClick",this.lowerLandIcon);
+	router.listen("mapEditorPaintLandIconClick",this.raiseWaterIcon);
+	router.listen("mapEditorPaintLandIconClick",this.raisePortIcon);
 	
-	router.listen("mapEditorPaintWaterIconClick",this.landicon.up);
-	router.listen("mapEditorPaintWaterIconClick",this.watericon.down);
-	router.listen("mapEditorPaintWaterIconClick",this.porticon.up);
+	router.listen("mapEditorPaintWaterIconClick",this.raiseLandIcon);
+	router.listen("mapEditorPaintWaterIconClick",this.lowerWaterIcon);
+	router.listen("mapEditorPaintWaterIconClick",this.raisePortIcon);
 
-	router.listen("mapEditorPaintPortIconClick",this.landicon.up);
-	router.listen("mapEditorPaintPortIconClick",this.watericon.up);
-	router.listen("mapEditorPaintPortIconClick",this.porticon.down);
+	router.listen("mapEditorPaintPortIconClick",this.raiseLandIcon);
+	router.listen("mapEditorPaintPortIconClick",this.raiseWaterIcon);
+	router.listen("mapEditorPaintPortIconClick",this.lowerPortIcon);
+
+	router.listen("keyPress",this.onKeyPress);
 	
     }
 
+    ////////////////////
+    // Land icon functionality
+    ////////////////////
+    MapEditor.prototype.landicondownimg = "assets/mapeditorlandicondown.png";
+    MapEditor.prototype.landiconupimg = "assets/mapeditorlandiconup.png";
+    /**
+     *
+     */
+    MapEditor.prototype.lowerLandIcon = function() {
+	dom.mapEditorPaintLandIcon.img = this.landicondownimg;
+	this.paintingLand = true;
+    }
+    /**
+     *
+     */
+    MapEditor.prototype.raiseLandIcon = function() {
+	dom.mapEditorPaintLandIcon.img = this.landiconupimg;
+	this.paintingLand = false;
+    }
+
+    ////////////////////
+    // Water icon functionality
+    ////////////////////
+    MapEditor.prototype.watericondownimg = "assets/mapeditorwatericondown.png";
+    MapEditor.prototype.watericonupimg = "assets/mapeditorwatericonup.png";
+    /**
+     *
+     */
+    MapEditor.prototype.lowerWaterIcon = function() {
+	dom.mapEditorPaintWaterIcon.img = this.watericondownimg;
+	this.paintingWater = true;
+    }
+    /**
+     *
+     */
+    MapEditor.prototype.raiseWaterIcon = function() {
+	dom.mapEditorPaintWaterIcon.img = this.watericonupimg;
+	this.paintingWater = false;
+    }
+
+    
+    ////////////////////
+    // Port icon functionality
+    ////////////////////
+    MapEditor.prototype.porticondownimg = "assets/mapeditorporticondown.png";
+    MapEditor.prototype.porticonupimg = "assets/mapeditorporticonup.png";
+    /**
+     *
+     */
+    MapEditor.prototype.lowerPortIcon = function() {
+	dom.mapEditorPaintPortIcon.img = this.porticondownimg;
+	this.paintingPort = true;
+    }
+    /**
+     *
+     */
+    MapEditor.prototype.raisePortIcon = function() {
+	dom.mapEditorPaintPortIcon.img = this.porticonupimg;
+	this.paintingPort = false;
+    }
+
+
+    
+    /**
+     *
+     */
+    MapEditor.prototype.onKeyPress = function (event) {
+	if (event.ctrlKey) {
+	    this.backtrack();
+	};	
+    }
     
     /** 
      * Revert to previous map version in stack
      */ 
-    MapEditor.prototype.backtrack = function (event) {
-	if (event.ctrlKey) {
-	    
-	};
+    MapEditor.prototype.backtrack = function () {
+	this.currentMap--;
     };
 
     MapEditor.prototype.zoom = function () {
@@ -190,25 +227,24 @@ define(["debug", "dom", "client", "mapeditoricon"], function(debug, dom, client,
       CANVAS EVENT HANDLERS
     */
 
-    // action depends on selected tool
-    mapCanvas.onmousedown = function(event) {
+    MapEditor.prototype.onCanvasMouseDown = function (event) {
 	var x = event.clientX;
 	var y = event.clientY;
 	var win = event.view;
     };
-    mapCanvas.onmouseup = function(event) {
-	var x = event.clientX;
-	var y = event.clientY;
-	var win = event.view;
 
-    };
-    mapCanvas.onmousemove = function(event) {
+    MapEditor.prototype.onCanvasMouseUp = function (event) {
 	var x = event.clientX;
 	var y = event.clientY;
 	var win = event.view;
-
     };
-   
+
+    MapEditor.prototype.onCanvasMouseMove = function (event) {
+	var x = event.clientX;
+	var y = event.clientY;
+	var win = event.view;
+    };
+    
            
     /**
      * 
