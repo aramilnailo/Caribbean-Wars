@@ -5,7 +5,8 @@ define(["debug", "dom", "router"], function(debug, dom, router) {
 var Client = function() {};
 
 Client.prototype.username = "";
-
+Client.prototype.usertype = "";
+    
 Client.prototype.mapData = {data:"", path:""};
 Client.prototype.socket = null;
 

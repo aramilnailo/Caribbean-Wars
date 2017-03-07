@@ -62,6 +62,20 @@
   </form>
 </div>
 
+<div id="map-editor-window" style="display:none;">
+  <button id="map-editor-saved-maps-btn">Map list</button>
+  <div id="map-editor-saved-maps-list"></div>
+  <canvas id="map-editor-canvas"></canvas>
+  <div id="map-editor-icon-panel">
+    <img id="map-editor-paint-land-img"></img>
+    <img id="map-editor-paint-water-img"></img>
+    <img id="map-editor-paint-port-img"></img>
+  </div>
+  <button id="map-editor-logout-btn">Exit</button>
+  <div id="map-editor-file-menu"></div>
+  <button id="map-editor-save-map-btn"></button>
+</div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script data-main="./client/main.js" src="./client/require.js"></script>
 </body>

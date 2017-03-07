@@ -46,6 +46,7 @@ var dom = {
         chatToggleButton:document.getElementById("chat-toggle-btn"),
 
     // MapEditor window
+    mapEditorScreen:document.getElementById("map-editor-screen");
     mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
     mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
     mapEditorCanvas:document.getElementById("map-editor-canvas"),
