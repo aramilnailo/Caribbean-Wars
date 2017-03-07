@@ -43,14 +43,31 @@ var dom = {
 	chatForm:document.getElementById("chat-form"),
 	chatInput:document.getElementById("chat-input"),
 	chatSubmitButton:document.getElementById("chat-submit-btn"),
-	chatToggleButton:document.getElementById("chat-toggle-btn"),
-	
+        chatToggleButton:document.getElementById("chat-toggle-btn"),
+
+    // MapEditor window
+    mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
+    mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
+    mapEditorCanvas:document.getElementById("map-editor-canvas"),
+    mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
+    mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
+    mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
+    mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
+    mapEditorFileDropDownList:document.getElementById("map-editor-file-menu"),
+    mapEditorSaveMapButton:document.getElementById("map-editor-save-map-btn");
+    mapEditorFileMenuHidden:true,
+    
+    
 	// UI flags
 	userListHidden:true,
 	chatWindowHidden:true,
 	statsMenuHidden:true,
-	savedGamesMenuHidden:true
+    savedGamesMenuHidden:true,
+    
 
+
+    
+    
 }
 
 dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
@@ -74,6 +91,44 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
 
 dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick", data:null}); }
 
+    // map editor event handling
+    dom.mapEditorSavedMapListButton.onclick =
+	function() { router.route({name:"mapEditorSavedMapListButtonClick", data:null}); }
+    dom.mapEditorSaveMapButton.onclick =
+	function() { router.route({name:"mapEditorSaveMapButtonClick", data:null}); }
+    //canvas
+    dom.mapEditorCanvas.onmousedown =
+	function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
+    dom.mapEditorCanvas.onmouseup =
+	function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
+    dom.mapEditorCanvas.onmousemove =
+	function(event) { router.route({name:"mapEditorCanvasMouseMove", data:event}); }
+    //land icon
+    dom.mapEditorPaintLandIcon.onclick =
+	function() { router.route({name:"mapEditorPaintLandIconClick", data:null}); }
+    dom.mapEditorPaintLandIcon.title = "land";
+    //water icon
+    dom.mapEditorPaintWaterIcon.onclick =
+	function() { router.route({name:"mapEditorPaintWaterIconClick", data:null}); }
+    dom.mapEditorPaintWaterIcon.title = "water";
+    //port icon
+    dom.mapEditorPaintPortIcon.onclick =
+	function() { router.route({name:"mapEditorPaintPortIconClick", data:null}); }
+    dom.mapEditorPaintPortIcon.title = "port";
+    //zoom icon
+    
+    mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
+    mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
+    mapEditorCanvas:document.getElementById("map-editor-canvas"),
+    mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
+    mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
+    mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
+    mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
+    mapEditorFileDropDownList:document.getElementById("map-editor-file-menu"),
+    mapEditorSaveMapButton:document.getElementById("save-map-btn");
+    mapEditorFileMenuHidden:true,
+    
+    
 return dom;
 
 });
