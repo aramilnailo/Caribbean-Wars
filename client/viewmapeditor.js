@@ -1,6 +1,3 @@
-
-define(["debug", "dom", "client"], function(debug, dom, client) {
-
     /*
       users: map editor
       
@@ -30,13 +27,11 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
       button: save map / save as
       
     */
+
+
+define(["debug", "dom", "client"], function(debug, dom, client) {
+
     
-    /**
-     * Map editor view class
-     * 
-     * Provides html logic to edit/create maps.
-     * 
-     */
     // HTML elements. Move to dom.js
     var savedMapListButton = document.getElementById("saved-maps-btn");
     var savedMapList = document.getElementById("saved-maps-list");
@@ -50,7 +45,12 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
     
     
-    
+    /**
+     * Map editor view class
+     * 
+     * Provides html logic to edit/create maps.
+     * 
+     */
     var ViewMapEditor = function () {
 	var viewmapeditor = {
 	    /** Current map */ currentMap:null,
@@ -121,7 +121,18 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     /**
      * 
      */
-    ViewMapEditor.prototype.toggleMapFileMenu = function() {};
+    ViewMapEditor.prototype.toggleMapFileMenu = function() {
+	if (dom.mapEditorFileMenuHidden) {
+	    client.emit("mapEditorFileMenuRequest",null);
+	    dom.mapEditorFileMenu.style.display = "...";
+	    //dom.mapEditorMenuButton.innerHTML = "";
+	    dom.mapEditorFileMenuHidden = false;
+	} else {
+	    //dom.mapEditorMenuButton.innerHTML = "";
+	    dom.mapEditorFileMenu.style.display = "none";
+	    dom.mapEditorFileMenuHidden = true;
+	}
+    };
     
     
     /**
