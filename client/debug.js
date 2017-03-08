@@ -1,7 +1,7 @@
 define([], function() {
 
 /**
-* Namespace used to control debug output.
+* Flags used to control debug output.
 */
 var debug = {
 	client:true,

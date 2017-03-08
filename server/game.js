@@ -11,13 +11,29 @@ var dbi = require("./dbi.js");
 
 //============== GAME LOGIC =========================================
 
+/**
+* The game namespace contains the functions related to the
+* game engine--processing input, updating the simulation,
+* and emitting the game state.
+*/
 var Game = function () {};
 
+/**
+* Registers functions in the namespace with the given
+* message router.
+* @param router - the message router
+*/
 Game.prototype.listen = function(router) {
     router.listen("keyPress",this.keyPress);
 }
 
-// Recieved game input
+/**
+* Updates the client's player according to which
+* keys the client is pressing.
+* @param param - data passed by the router
+* @param param.client - the client pressing keys
+* @param param.data - the keys being pressed
+*/
 Game.prototype.keyPress = function (param) {
     if (debug) log("call to game.keyPress()");
     var client = param.client;
@@ -36,6 +52,10 @@ Game.prototype.keyPress = function (param) {
 	}
 }
 
+/**
+* The core game loop. Updates the player positions
+* and emits them to all clients.
+*/
 Game.prototype.update = function() {
 	var pack = [], p, i, socket;
 	// Generate object with all player positions
@@ -53,7 +73,10 @@ Game.prototype.update = function() {
 	}
 }
 
-// Updates secondsPlayed database field
+/**
+* Updates the "seconds played" stat for every player
+* currently in the game.
+*/
 Game.prototype.updateStats = function() {
 	//var i, p;
 	for(var i in GAME_SESSION.players){

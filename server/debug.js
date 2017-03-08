@@ -1,13 +1,17 @@
 
-
+/**
+* Handles debugging messages.
+* @param msg - message to be handled
+*/
 module.exports.log = function(msg) {
     //output msg to console
     console.log(msg);
     // todo: output msg to log file
 }
 
-// if (module.exports.<name> == true)
-//       <name>.js will log debug output to console
+/**
+* Flags for debugging.
+*/
 module.exports.accounts = true; 
 module.exports.chat = true; 
 module.exports.dbi = true; 

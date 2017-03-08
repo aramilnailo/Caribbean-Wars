@@ -1,7 +1,17 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
+/**
+* Login view namespace with functions related to clicking
+* buttons associated with user account operations.
+*/
 var ViewLogin = function() {}
 
+
+/**
+* Registers all functions in the viewLogin namespace
+* with the given message router.
+* @param router - the message router
+**/
 ViewLogin.prototype.listen = function(router) {
 	router.listen("userListResponse", this.displayUserList);
 	router.listen("toggleUserList", this.toggleUserList);
@@ -11,7 +21,10 @@ ViewLogin.prototype.listen = function(router) {
 	router.listen("deleteAccountClick", this.deleteAccountClick);
 }
 
-// Show and hide the user list
+/**
+* Shows and hides the userList HTML. Requests the
+* user list from the server when toggled on.
+*/
 ViewLogin.prototype.toggleUserList = function() {
     if(dom.userListHidden) {
 		client.emit("userListRequest", null);
@@ -24,6 +37,12 @@ ViewLogin.prototype.toggleUserList = function() {
     }
 }
 
+/**
+* Upon recieving the user list from the server, this
+* function formats the data into an HTML table and
+* appends it to the inner HTML of the userList.
+* @param data - the user list in form of SQL rows
+*/
 ViewLogin.prototype.displayUserList = function(data) {
     var i;
     dom.userList.style.display = "table";
@@ -44,7 +63,11 @@ ViewLogin.prototype.displayUserList = function(data) {
     dom.userList.innerHTML = html;
 }
 
-// ViewLogin button is clicked on login screen
+/**
+* Emits the data from the username and password
+* forms on the login screen. Checks that they are
+* not empty before sumbitting.
+*/
 ViewLogin.prototype.loginClick = function() {
     // Don't submit empty forms
     if(dom.loginUsername.value.length > 0 &&
@@ -53,7 +76,11 @@ ViewLogin.prototype.loginClick = function() {
 			  password:dom.loginPassword.value});
 }
 
-// Sign up button is clicked on login screen
+/**
+* Emits the data from the username and password
+* forms to sign up a new user. Checks that they are
+* not empty before submitting.
+*/
 ViewLogin.prototype.signupClick = function() {
     // Don't submit empty forms
     if(dom.loginUsername.value.length > 0 &&
@@ -62,12 +89,16 @@ ViewLogin.prototype.signupClick = function() {
 			   password:dom.loginPassword.value});
 }
 
-// If logout button is clicked on game screen
+/**
+* Emits the logout signal.
+*/
 ViewLogin.prototype.logoutClick = function() {
     client.emit("logout", null);
 }
 
-// Delete account button is clicked on game screen
+/**
+* After confirming with the user, emits the delete account signal.
+*/
 ViewLogin.prototype.deleteAccountClick = function() {
     if(confirm("Are you sure you want to delete this account?")) {
 	   client.emit("deleteAccount", null);

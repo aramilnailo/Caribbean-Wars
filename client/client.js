@@ -7,18 +7,24 @@ define(["debug", "dom", "router"], function(debug, dom, router) {
 */
 var Client = function() {};
 
-/** @public Username associated with current login */ Client.prototype.username = "";
+/** @public Username associated with current login */
+Client.prototype.username = "";
 
-/** @public Map object associated with current game */ Client.prototype.mapData = {data:"", path:""};
-/** @public Server socket reference */ Client.prototype.socket = null;
+/** @public Map object associated with current game */
+Client.prototype.mapData = {data:"", path:""};
 
-    //      ... The Client class contains nearly all of the data that I associated with
-    //          what we called "gamedata" and I had called the "client state".
-    //      We could either add this data + any additional needed data to implement
-    //     this class, or we could extract data currently held by this class to
-    //     create an alternate gamedata class. 
-    //     
-/** List of players participating in the current game */ Client.prototype.players = [];    
+/** @public Server socket reference */ 
+Client.prototype.socket = null;
+
+/** @public List of players participating in the current game */ 
+Client.prototype.players = [];
+
+//     The Client class contains nearly all of the data that I associated with
+//     what we called "gamedata" and I had called the "client state".
+//     We could either add this data + any additional needed data to implement
+//     this class, or we could extract data currently held by this class to
+//     create an alternate gamedata class.
+    
 // srw: recommend inserting additional client info here
 // e.g. zoom level
     

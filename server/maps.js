@@ -1,10 +1,4 @@
 
-/*******************
-
-This functionality should be merged into the Map class (underway)
-
-*******************/
-
 var debug = require("./debug.js").maps;
 var log = require("./debug.js").log;
 
@@ -14,15 +8,30 @@ var files = require("./files.js");
 
 var GAME_SESSION = require("./session.js").GAME_SESSION;
 
-var dbi = require("./dbi.js");
-
+/**
+* The Maps namespace contains functions relating to loading
+* map data from the file system and emitting it to clients.
+*/
 var Maps = function() {};
 
+/**
+* Registers the functions in this namespace with the given
+* message router.
+* @param router - the message router
+*/
 Maps.prototype.listen = function(router) {
     router.listen("getMap", this.getMap);
     router.listen("loadNewMap",this.loadNewMap);
 }
 
+/**
+* Emits the map data associated with the game session
+* to the client requesting it. If there is no map data,
+* the data read from "./assets/map" is associated with 
+* the game session before emitting.
+* @param param - data passed by the router
+* @param param.client - the client requesting the information
+*/
 Maps.prototype.getMap = function(param) {
     if (debug) {
 	log("server: inside getMap()");
@@ -39,6 +48,14 @@ Maps.prototype.getMap = function(param) {
 	});
 }
 
+/**
+* Loads the map data from a given filepath, associates it 
+* with the game session, and emits it to all clients.
+* @param param - data passed by the router
+* @param param.client - client attempting the load
+* @param param.data - the username and filename
+* @param param.clients - the client list
+*/
 Maps.prototype.loadNewMap = function(param) {
     var client = param.client;
     var CLIENT_LIST = param.clients;

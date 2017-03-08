@@ -2,18 +2,31 @@
 var debug = require("./debug.js").router;
 var log = require("./debug.js").log;
 
-var Router = function () { };
+/**
+* The router namespace contains functions for routing
+* messages from the client and calling the appropriate
+* functions.
+*/
+var Router = function() {};
 
 var client_list = [];
 var listeners = [];
 
+/**
+* Binds the given message with the given function.
+* @param msg - the string containing the message name
+* @param action - the function to be called when message is recieved
+*/
 Router.prototype.listen = function(msg,action) {
     if (debug) log("Router: listening for "+msg);
     listeners.push({name:msg,func:action});
 }
 
-// ... will remove all matching calls
-// if any are identical
+/**
+* Unbinds the given message and the given function.
+* @param msg -- string with the message name
+* @param action -- the function associated with that message
+*/
 Router.prototype.unlisten = function(msg,action) {
     if (debug) log("Router: unlistening to "+msg);
     var i = listeners.length-1;
@@ -27,10 +40,11 @@ Router.prototype.unlisten = function(msg,action) {
     }
 }
 
-// assumes: 
-//   msg.socket
-//   msg.name
-//   msg.data
+/**
+* Calls the function bound to the given message, if
+* one exists.
+* @param msg - the message name
+*/
 Router.prototype.route = function(msg) {
     
     if (debug) log("Router: Routing " + msg.name);

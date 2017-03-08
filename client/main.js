@@ -7,7 +7,7 @@ client.socket = socket;
 client.listen(router);
 chat.listen(router);
 stats.listen(router);
-login.listen(router);
+login.listen(router); // TO DO
 render.listen(router);
 saves.listen(router);
 view.listen(router);

@@ -6,6 +6,10 @@ var log = require("./debug.js").log;
 
 //========= PLAYER OBJECT ==================
 
+/**
+* Object containing all information about a
+* single player's state.
+*/
 var Player = function(username) {
     var player = {
 	x:250,

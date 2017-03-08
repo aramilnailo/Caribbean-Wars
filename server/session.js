@@ -5,16 +5,35 @@ var log = require("./debug.js").log;
 var server = require("./server.js");
 var dbi = require("./dbi.js");
 
+/**
+* The session namespace controls the current game session
+* -- the list of players, the current map, and the current
+* host player.
+*/
 var Session = function() {};
 
-Session.prototype.listen = function(sox) {
-    sox.listen("endGameSession", this.endGameSession);
-    sox.listen("exitGameSession", this.exitGameSession);
-    sox.listen("enterGameSession", this.enterGameSession);
+/**
+* Registers functions in this namespace with the given
+* message router.
+* @param router - the message router
+*/
+Session.prototype.listen = function(router) {
+    router.listen("endGameSession", this.endGameSession);
+    router.listen("exitGameSession", this.exitGameSession);
+    router.listen("enterGameSession", this.enterGameSession);
 }
 
+/**
+* Game session object: host, map file path, and list of players.
+*/
 var GAME_SESSION = {host:null, map:"", players:[]};
 
+/**
+* Resets the game session object and ejects all players
+* to their login screen.
+* @param data - the data passed by the caller
+* @param data.clients - client list
+*/
 Session.prototype.endGameSession = function(data) {
     // Reset the object
     GAME_SESSION.host = null;
@@ -34,6 +53,11 @@ Session.prototype.endGameSession = function(data) {
     }
 }
 
+/**
+* Removes a given player from the game session. Ends
+* the game session if the player is host.
+* @param data - the player to remove
+*/
 Session.prototype.exitGameSession = function (data) {
     // Remove the player from the game session list
     index = GAME_SESSION.players.indexOf(data);
@@ -44,6 +68,11 @@ Session.prototype.exitGameSession = function (data) {
     if(data === GAME_SESSION.host) this.endGameSession(data);
 }
 
+/**
+* Adds a given player to the game session. Player is
+* made host if they are the first to be added.
+* @param data - the player to be added
+*/
 Session.prototype.enterGameSession = function(data) {
     // If no one is online, the player becomes host
     if(GAME_SESSION.players.length == 0) {
