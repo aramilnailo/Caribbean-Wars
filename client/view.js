@@ -40,7 +40,8 @@ View.prototype.mapEditorScreenToLogin = function() {
     client.usertype = "";
 }
 
-// If input is pressed, emit object with the key and the new state
+    // If input is pressed, emit object with the key and the new state
+    //srw: This does not belong in view.js
 View.prototype.keyPressed = function(event) {
     // If the chat bar is not in focus
     if(dom.chatInput !== dom.document.activeElement) {

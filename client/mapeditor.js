@@ -29,7 +29,7 @@
     */
 
 
-define(["debug", "dom", "client", "mapeditoricon"], function(debug, dom, client,mapeditoricon) {
+define(["debug", "dom", "client"], function(debug, dom, client) {
        
     /**
      * Map editor class
@@ -40,37 +40,48 @@ define(["debug", "dom", "client", "mapeditoricon"], function(debug, dom, client,
     var MapEditor = function () {
 	var mapeditor = {
 
-	    /** Stack that stores map objects for cntl-Z reversion */
+	    /** Stack that stores map objects for Ctrl-Z reversion */
 	    mapEditHistory:[],
+	    
 	    /** Current map index */
-	    currentMap:-1,
+	    currentMap:0,
 	    
 	    // editor states
 	    paintingLand:false,
 	    paintingWater:false,
 	    paintingPort:false,
+	    paintingWoods:false,
 
 	    zoomLevel:1.0
 	}
-	
+	// need to test mapData here, and load default.
+	mapEditHistory.push(client.mapData.data);
 	return mapeditor;
     };
 
-    
 
     MapEditor.prototype.listen = function(router) {
 	
-	router.listen("mapEditorPaintLandIconClick",this.lowerLandIcon);
-	router.listen("mapEditorPaintLandIconClick",this.raiseWaterIcon);
-	router.listen("mapEditorPaintLandIconClick",this.raisePortIcon);
+	router.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
+	router.listen("mapEditorPaintSandIconClick",this.raiseWaterIcon);
+	router.listen("mapEditorPaintSandIconClick",this.raisePortIcon);
+	router.listen("mapEditorPaintSandIconClick",this.raiseWoodsIcon);
 	
-	router.listen("mapEditorPaintWaterIconClick",this.raiseLandIcon);
+	router.listen("mapEditorPaintWaterIconClick",this.raiseSandIcon);
 	router.listen("mapEditorPaintWaterIconClick",this.lowerWaterIcon);
 	router.listen("mapEditorPaintWaterIconClick",this.raisePortIcon);
+	router.listen("mapEditorPaintWaterIconClick",this.raiseWoodsIcon);
 
-	router.listen("mapEditorPaintPortIconClick",this.raiseLandIcon);
+	router.listen("mapEditorPaintPortIconClick",this.raiseSandIcon);
 	router.listen("mapEditorPaintPortIconClick",this.raiseWaterIcon);
 	router.listen("mapEditorPaintPortIconClick",this.lowerPortIcon);
+	router.listen("mapEditorPaintPortIconClick",this.raiseWoodsIcon);
+
+	router.listen("mapEditorPaintWoodsIconClick",this.raiseSandIcon);
+	router.listen("mapEditorPaintWoodsIconClick",this.raiseWaterIcon);
+	router.listen("mapEditorPaintWoodsIconClick",this.raisePortIcon);
+	router.listen("mapEditorPaintWoodsIconClick",this.lowerWoodsIcon);
+
 
 	router.listen("keyPress",this.onKeyPress);
 	
@@ -116,6 +127,26 @@ define(["debug", "dom", "client", "mapeditoricon"], function(debug, dom, client,
 	this.paintingWater = false;
     }
 
+    ////////////////////
+    // Woods icon functionality
+    ////////////////////
+    MapEditor.prototype.woodsicondownimg = "assets/mapeditorwoodsicondown.png";
+    MapEditor.prototype.woodsiconupimg = "assets/mapeditorwoodsiconup.png";
+    /**
+     *
+     */
+    MapEditor.prototype.lowerWoodsIcon = function() {
+	dom.mapEditorPaintWoodsIcon.img = this.woodsicondownimg;
+	this.paintingWoods = true;
+    }
+    /**
+     *
+     */
+    MapEditor.prototype.raiseWoodsIcon = function() {
+	dom.mapEditorPaintWoodsIcon.img = this.woodsiconupimg;
+	this.paintingWoods = false;
+    }
+
     
     ////////////////////
     // Port icon functionality
@@ -143,16 +174,17 @@ define(["debug", "dom", "client", "mapeditoricon"], function(debug, dom, client,
      *
      */
     MapEditor.prototype.onKeyPress = function (event) {
-	if (event.ctrlKey) {
-	    this.backtrack();
-	};	
+	
     }
     
     /** 
      * Revert to previous map version in stack
      */ 
     MapEditor.prototype.backtrack = function () {
-	this.currentMap--;
+	if (this.currentMap > 0) {
+	    this.currentMap--;
+	    client.mapData = mapEditHistory[currentMap];
+	}
     };
 
     MapEditor.prototype.zoom = function () {

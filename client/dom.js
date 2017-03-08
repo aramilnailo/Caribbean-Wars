@@ -51,6 +51,7 @@ var dom = {
     mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
     mapEditorCanvas:document.getElementById("map-editor-canvas"),
     mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
+    mapEditorPaintWoodsIcon:document.getElementById("map-editor-paint-woods-img"),
     mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
     mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
     mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
@@ -108,6 +109,10 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
     dom.mapEditorPaintLandIcon.onclick =
 	function() { router.route({name:"mapEditorPaintLandIconClick", data:null}); }
     dom.mapEditorPaintLandIcon.title = "land";
+    //woods icon
+    dom.mapEditorPaintWoodsIcon.onclick =
+	function() { router.route({name:"mapEditorPaintWoodsIconClick", data:null}); }
+    dom.mapEditorPaintWoodsIcon.title = "woods";
     //water icon
     dom.mapEditorPaintWaterIcon.onclick =
 	function() { router.route({name:"mapEditorPaintWaterIconClick", data:null}); }
@@ -122,6 +127,7 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
     mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
     mapEditorCanvas:document.getElementById("map-editor-canvas"),
     mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
+    mapEditorPaintWoodsIcon:document.getElementById("map-editor-paint-woods-img"),
     mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
     mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
     mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
