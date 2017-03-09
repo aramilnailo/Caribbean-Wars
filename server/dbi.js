@@ -1,12 +1,10 @@
-/**
- * @module server/dbi
- */
 var debug = require("./debug.js").dbi;
 var log = require("./debug.js").log;
 
 /**
  * The dbi namespace contains the functions related
  * to interacting with the database
+ * @module server/dbi
  */
 var dbi = function () {};
 

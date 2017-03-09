@@ -1,6 +1,3 @@
-/**
- * @module server/accounts
- */
 var debug = require("./debug.js").accounts;
 var log = require("./debug.js").log;
 
@@ -12,6 +9,7 @@ var session = require("./session.js");
 /**
  * The accounts namespace contains the functions relating to
  * creating and using accounts
+ * @module server/accounts
  */
 var Accounts = function() {};
  

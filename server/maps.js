@@ -11,6 +11,7 @@ var GAME_SESSION = require("./session.js").GAME_SESSION;
 /**
 * The Maps namespace contains functions relating to loading
 * map data from the file system and emitting it to clients.
+* @module server/Maps
 */
 var Maps = function() {};
 
@@ -18,6 +19,7 @@ var Maps = function() {};
 * Registers the functions in this namespace with the given
 * message router.
 * @param router - the message router
+* @memberof module:server/Maps
 */
 Maps.prototype.listen = function(router) {
     router.listen("getMap", this.getMap);
@@ -31,6 +33,7 @@ Maps.prototype.listen = function(router) {
 * the game session before emitting.
 * @param param - data passed by the router
 * @param param.client - the client requesting the information
+* @memberof module:server/Maps
 */
 Maps.prototype.getMap = function(param) {
     if (debug) {
@@ -55,6 +58,7 @@ Maps.prototype.getMap = function(param) {
 * @param param.client - client attempting the load
 * @param param.data - the username and filename
 * @param param.clients - the client list
+* @memberof module:server/Maps
 */
 Maps.prototype.loadNewMap = function(param) {
     var client = param.client;

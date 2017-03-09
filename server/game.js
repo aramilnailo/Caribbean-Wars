@@ -15,6 +15,7 @@ var dbi = require("./dbi.js");
 * The game namespace contains the functions related to the
 * game engine--processing input, updating the simulation,
 * and emitting the game state.
+* @module server/Game
 */
 var Game = function () {};
 
@@ -22,6 +23,7 @@ var Game = function () {};
 * Registers functions in the namespace with the given
 * message router.
 * @param router - the message router
+* @memberof module:server/Game
 */
 Game.prototype.listen = function(router) {
     router.listen("keyPress",this.keyPress);
@@ -33,6 +35,7 @@ Game.prototype.listen = function(router) {
 * @param param - data passed by the router
 * @param param.client - the client pressing keys
 * @param param.data - the keys being pressed
+* @memberof module:server/Game
 */
 Game.prototype.keyPress = function (param) {
     if (debug) log("call to game.keyPress()");
@@ -55,6 +58,7 @@ Game.prototype.keyPress = function (param) {
 /**
 * The core game loop. Updates the player positions
 * and emits them to all clients.
+* @memberof module:server/Game
 */
 Game.prototype.update = function() {
 	var pack = [], p, i, socket;
@@ -76,6 +80,7 @@ Game.prototype.update = function() {
 /**
 * Updates the "seconds played" stat for every player
 * currently in the game.
+* @memberof module:server/Game
 */
 Game.prototype.updateStats = function() {
 	//var i, p;

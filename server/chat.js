@@ -8,6 +8,7 @@ var server = require("./server.js");
 * The chat namespace contains functions for parsing
 * chat bar input from the clients and emitting the
 * appropriate responses.
+* @module server/Chat
 */
 var Chat = function() {};
 
@@ -15,6 +16,7 @@ var Chat = function() {};
 * Registers the functions in this namespace with the
 * given message router.
 * @param router - the message router
+* @memberof module:server/Chat
 */
 Chat.prototype.listen = function(router) {
     router.listen("chatPost",this.chatPost);
@@ -28,6 +30,7 @@ Chat.prototype.listen = function(router) {
 * @param param.client - the client who submitted the post
 * @param param.data - string containing the chat post
 * @param param.clients - the client list
+* @memberof module:server/Chat
 */
 Chat.prototype.chatPost = function(param) {
     var client = param.client;
@@ -48,6 +51,7 @@ Chat.prototype.chatPost = function(param) {
 * @param param.data.user - the recipient of the message
 * @param param.data.message - the private message
 * @param param.clients - the client list
+* @memberof module:server/Chat
 */
 Chat.prototype.privateMessage = function(param) {
     var client = param.client;
@@ -78,6 +82,7 @@ Chat.prototype.privateMessage = function(param) {
 * @param param - data passed by the router
 * @param param.client - the client submitting the command
 * @param param.data - the expression
+* @memberof module:server/Chat
 */
 Chat.prototype.evalExpression = function(param) {
     var client = param.client;

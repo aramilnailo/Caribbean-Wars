@@ -9,8 +9,13 @@ var log = require("./debug.js").log;
 /**
 * Object containing all information about a
 * single player's state.
+* @module server/Player
 */
 var Player = function(username) {
+	/**
+	* Player object
+	* @memberof module:server/Player
+	*/
     var player = {
 	x:250,
 	y:250,

@@ -1,7 +1,3 @@
-/**
- * @module server/saves
- */
-
 var debug = require("./debug.js").saves;
 var log = require("./debug.js").log;
 
@@ -11,6 +7,7 @@ var server = require("./server.js");
 /**
 * The saves namespace contains functions relating to
 * modifying the saved games database.
+* @module server/saves
 */
 var Saves = function() {}
 

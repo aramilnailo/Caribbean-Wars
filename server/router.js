@@ -6,6 +6,7 @@ var log = require("./debug.js").log;
 * The router namespace contains functions for routing
 * messages from the client and calling the appropriate
 * functions.
+* @module server/Router
 */
 var Router = function() {};
 
@@ -16,6 +17,7 @@ var listeners = [];
 * Binds the given message with the given function.
 * @param msg - the string containing the message name
 * @param action - the function to be called when message is recieved
+* @memberof module:server/Router
 */
 Router.prototype.listen = function(msg,action) {
     if (debug) log("Router: listening for "+msg);
@@ -26,6 +28,7 @@ Router.prototype.listen = function(msg,action) {
 * Unbinds the given message and the given function.
 * @param msg -- string with the message name
 * @param action -- the function associated with that message
+* @memberof module:server/Router
 */
 Router.prototype.unlisten = function(msg,action) {
     if (debug) log("Router: unlistening to "+msg);
@@ -44,6 +47,7 @@ Router.prototype.unlisten = function(msg,action) {
 * Calls the function bound to the given message, if
 * one exists.
 * @param msg - the message name
+* @memberof module:server/Router
 */
 Router.prototype.route = function(msg) {
     

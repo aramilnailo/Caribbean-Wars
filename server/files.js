@@ -5,8 +5,9 @@ var log = require("./debug.js").log;
 /**
 * The files namespace contains functions for interfacing
 * with the file system.
+* @module server/Files
 */
-var files = function() {};
+var Files = function() {};
 
 //=============== MODULES ==========================
 
@@ -18,6 +19,7 @@ var fs = require("fs");
 * Reads from the given filename and calls back with the data.
 * @param filename - path of the file to be read
 * @param cb - callback function
+* @memberof module:server/Files
 */
 files.prototype.readFile = function(filename, cb) {
     if (debug) log ("readFile "+filename);
@@ -34,4 +36,4 @@ files.prototype.readFile = function(filename, cb) {
 }
 
 // Export module
-module.exports = new files();
+module.exports = new Files();

@@ -6,13 +6,15 @@ var server = require("./server.js");
 
 /**
 * The map object containing the terrain data in the game.
+* @module server/Map
 */
-var Map = function () {};
+var Map = function() {};
 
 /**
 * Constructs a map object with the given dimensions.
 * @param LX - length in the x-direction
 * @param LY - length in the y-direction
+* @memberof module:server/Map
 */
 var Map = function(LX,LY) {
     var map = {

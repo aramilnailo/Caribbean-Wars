@@ -1,6 +1,3 @@
-/**
- * @module server/stats
- */
 var debug = require("./debug.js").stats;
 var log = require("./debug.js").log;
 
@@ -10,6 +7,7 @@ var dbi = require("./dbi.js");
 /**
 * The stats namespace contains functions that modify the user
 * stats database table.
+* @module server/stats
 */
 var Stats = function () {};
 
