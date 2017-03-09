@@ -19,18 +19,19 @@ var Map = function() {
 	path:"",
 	author:"nobody",
 	name:"newmapfile",
-	data:[]
+	data:[],
+	ports:[]
     };
 
-    map.charAt = function (i,j) {
-	return map.data.[map.ly*i + j];
+    map.at = function (i,j) {
+	return map.data[map.ly*i + j];
     };
 
     map.data.length = LX*LY;
-    var i,j,ch;
+    var i,j;
     for (i = 0; i < LX; i++)
 	for (j = 0; j < LY; j++) 
-	    (map.charAt(i,j)) = "0";
+	    (map.at(i,j)) = this.waterMapCode;
     
     return map;
 };
@@ -46,6 +47,10 @@ Map.prototype.destroy = function(router) {
     router.unlisten("loadNewMap",this.loadNewMap);
     router.unlisten("loadMapCopy",this.loadMapCopy);
 }
+
+Map.prototype.waterMapCode = 0;
+Map.prototype.landMapCode = 1;
+Map.prototype.woodsMapCode = 2;
 
 Map.prototype.getGameMap = function(param) {
     if (debug) {
