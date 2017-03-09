@@ -154,7 +154,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     Ship.prototype.decreaseSails();
     
 
-    
+    return new Ship();
     
 });
 

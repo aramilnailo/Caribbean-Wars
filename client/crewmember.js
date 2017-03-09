@@ -3,7 +3,9 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
     /**
+     * CrewMember class constructor.
      *
+     * @constructor
      */
     var CrewMember = function() { };
     
@@ -15,7 +17,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     };
     
 
-    module.exports.CrewMember = CrewMember;
+    return new CrewMember();
     
     
 });
