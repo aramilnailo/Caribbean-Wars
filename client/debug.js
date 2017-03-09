@@ -1,7 +1,7 @@
 /**
 * Flags used to control debug output.
 *
-* @module debug
+* @module client/debug
 */
 define([], function() {
 
@@ -19,7 +19,7 @@ var debug = {
 /**
 * Wrapper to determine processing of debug message.
 *
-* @memberof module:debug
+* @memberof module:client/debug
 * @param msg String to log as debug output
 */
 debug.log = function(msg) {

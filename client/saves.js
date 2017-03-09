@@ -1,7 +1,7 @@
 /**
 * Save menu class namespace.
 *
-* @module Saves
+* @module client/Saves
 */
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
@@ -12,7 +12,7 @@ var Saves = function() {};
 * Registers all gui event messages associated with 
 * save game menu functionality. 
 *
-* @memberof module:Saves
+* @memberof module:client/Saves
 */
 Saves.prototype.listen = function(router) {
 	router.listen("savedGamesListResponse", this.displaySavedGamesMenu);
@@ -27,7 +27,7 @@ Saves.prototype.listen = function(router) {
 * is requested from the server and displayed. If it is currently displayed,
 * the list is hidden.
 *
-* @memberof module:Saves
+* @memberof module:client/Saves
 */
 Saves.prototype.toggleSavedGamesMenu = function() {
     if(dom.savedGamesMenuHidden) {
@@ -48,7 +48,7 @@ Saves.prototype.toggleSavedGamesMenu = function() {
 * @param data A list of currently saved games. Elements of
 *             this list are of the form 
 *                 {author:a,file_name:f,map_file_path:p}.
-* @memberof module:Saves
+* @memberof module:client/Saves
 */
 Saves.prototype.displaySavedGamesMenu = function(data) {
 // Format the saved_games table into HTML
@@ -78,7 +78,7 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
 * game object) under this file name on the server, with 
 * the requesting user listed as its author.
 *
-* @memberof module:Saves
+* @memberof module:client/Saves
 */
 Saves.prototype.saveGameClick = function() {
     var filename = window.prompt("Save as: ","filename");
@@ -107,7 +107,7 @@ Saves.prototype.loadGameClick = function() {
 * Prompts the user for a file name and attempts to
 * delete this file from the server.
 *
-* @memberof module:Saves
+* @memberof module:client/Saves
 */
 Saves.prototype.deleteGameClick = function() {
     var filename = window.prompt("Delete game:", "filename");

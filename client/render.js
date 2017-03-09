@@ -2,7 +2,7 @@
 * Class responsible for rendering the gamestate 
 * on client system.
 *
-* @module Render
+* @module client/Render
 */
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
@@ -12,7 +12,7 @@ var Render = function() {};
 * Register gui events implemented by this
 * class.
 *
-* @memberof module:Render
+* @memberof module:client/Render
 * @param router Class that routes gui messages
 *               to listeners
 */
@@ -23,7 +23,7 @@ Render.prototype.listen = function(router) {
 /**
 * Test function that paints the GUI canvas element
 * 
-* @memberof module:Render
+* @memberof module:client/Render
 * @param data Currently just a stub that contains
 *             info on all players (number, x, y)
 */

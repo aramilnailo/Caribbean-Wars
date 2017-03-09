@@ -1,15 +1,18 @@
-define(["debug"], function(debug) {
-
 /**
 * Router class. Maintains list of message/function pairs. When
 * a message arrives over the socket, all functions listening for
 * that message will be called, in the order in which they were
 * added to the list.
+*
+* @module client/Router
 */
+define(["debug"], function(debug) {
+
 var Router = function() {}
 
 /**
 * @private Queue of (message, function) pairs.
+* @memberof client/Router
 */
 var listeners = [];
 
@@ -19,6 +22,7 @@ var listeners = [];
 *
 * @param msg The message (string) arriving from the server
 * @param action Reference to a function of the form f(data) 
+* @memberof client/Router
 */
 Router.prototype.listen = function(msg, action) {
 	if(debug.router) debug.log("[Client] Listening for \"" + msg + "\"");
@@ -31,6 +35,7 @@ Router.prototype.listen = function(msg, action) {
 * 
 * @param msg The message (string) 
 * @param action Reference to a function of the form f(data) 
+* @memberof client/Router
 */
 Router.prototype.unlisten = function(msg, action) {
     var listener = {name:msg, func:action};
@@ -53,6 +58,7 @@ Router.prototype.unlisten = function(msg, action) {
 *
 * @param msg String describing the message sent by the
 *            server.
+* @memberof client/Router
 */
 Router.prototype.route = function(msg) {
     for (var i in listeners) {

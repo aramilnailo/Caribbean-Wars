@@ -1,7 +1,7 @@
 /**
 * View controller namespace. Provides the logic to transition between gui views.
 *
-* @module View
+* @module client/View
 */
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
@@ -11,7 +11,7 @@ var View = function() {};
 * Registers all gui messages whose actions are
 * implemented by the view controller
 *
-* @memberof module:View
+* @memberof module:client/View
 * @param router The class responsible for routing
 *               gui messages
 */
@@ -29,7 +29,7 @@ View.prototype.listen = function(router) {
 *
 * TO BE REPLACED by loginViewToLobbyView
 *
-* @memberof module:View
+* @memberof module:client/View
 * @param data Login data. Members:
 *                data.success True on successful login
 *                data.username
@@ -49,7 +49,7 @@ View.prototype.loginToGameScreen = function(data) {
 /**
 * Transition from the game screen to login screen
 *
-* @memberof module:View
+* @memberof module:client/View
 */
 View.prototype.gameScreenToLogin = function() {
     dom.loginScreen.style.display = "inline-block";
@@ -59,7 +59,7 @@ View.prototype.gameScreenToLogin = function() {
 /**
 * Sets the current game map.
 * 
-* @memberof module:View
+* @memberof module:client/View
 * @param data Contains the current map as data.mapData.
 * @throws alert error message if an error occurred
 *         when attempting to set data.mapData.
@@ -77,7 +77,7 @@ View.prototype.setMap = function(data) {
 /**
 * Relays keypress to server. 
 *
-* @memberof module:View
+* @memberof module:client/View
 * @param event GUI event to process as a key press.
 */
 View.prototype.keyPressed = function(event) {
@@ -99,7 +99,7 @@ View.prototype.keyPressed = function(event) {
 /**
 * Relays keyrelease to server. 
 *
-* @memberof module:View
+* @memberof module:client/View
 * @param event GUI event to process as a key release.
 */
 View.prototype.keyReleased = function(event) {
