@@ -1,9 +1,11 @@
-define(["debug", "dom", "client"], function(debug, dom, client) {
-
 /**
 * Namespace to govern usage statistics
 * acquisition, display, and management
+*
+* @module Stats
 */
+define(["debug", "dom", "client"], function(debug, dom, client) {
+
 var Stats = function() {};
 
 
@@ -12,6 +14,7 @@ var Stats = function() {};
 * with usage statistics and provided by
 * this class
 *
+* @memberof module:Stats
 * @param router The class that manages listen requests
 */
 Stats.prototype.listen = function(router) {
@@ -22,6 +25,8 @@ Stats.prototype.listen = function(router) {
 
 /**
 * Show and hide the stats menu
+*
+* @memberof module:Stats
 */
 Stats.prototype.toggleStatsMenu = function() {
     if(dom.statsMenuHidden) {
@@ -40,6 +45,7 @@ Stats.prototype.toggleStatsMenu = function() {
 * Formats statistics data into html and inserts 
 * into the current window
 *
+* @memberof module:Stats
 * @param data List of statistics to be displayed;
 *             each element is currently assumed to be
 *             of the form:
@@ -80,6 +86,7 @@ Stats.prototype.displayStatsMenu = function(data) {
 /**
 * Deletes all statistics for the current user from 
 * the database.
+* @memberof module:Stats
 */
 Stats.prototype.clearStatsClick = function() {
 	if(debug.client) debug.log(client.username);

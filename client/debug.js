@@ -1,8 +1,10 @@
-define([], function() {
-
 /**
 * Flags used to control debug output.
+*
+* @module debug
 */
+define([], function() {
+
 var debug = {
 	client:true,
 	router:true,
@@ -17,6 +19,7 @@ var debug = {
 /**
 * Wrapper to determine processing of debug message.
 *
+* @memberof module:debug
 * @param msg String to log as debug output
 */
 debug.log = function(msg) {

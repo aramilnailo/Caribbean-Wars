@@ -1,9 +1,11 @@
-define(["debug", "dom", "client"], function(debug, dom, client) {
-
 /**
 * Chat namespace responsible for all client-side functionality
 * associated with multiplayer chat messaging during gameplay
+*
+* @module Chat
 */
+define(["debug", "dom", "client"], function(debug, dom, client) {
+
 var Chat = function() {};
 
 /**
@@ -22,6 +24,7 @@ Chat.prototype.listen = function(router) {
 /**
 * Display a message on the user's chat board
 *
+* @memberof module:Chat
 * @param data The string to insert into the chat board
 */
 Chat.prototype.logToChat = function(data) {
@@ -30,6 +33,8 @@ Chat.prototype.logToChat = function(data) {
 
 /**
 * Show or hide the chat window.
+*
+* @memberof module:Chat
 */
 Chat.prototype.toggleChatWindow = function() {
     if(dom.chatWindowHidden) {
@@ -48,6 +53,7 @@ Chat.prototype.toggleChatWindow = function() {
 * Message control is determined by parsing the input message
 * from the gui
 * 
+* @memberof module:Chat
 * @param event Form submit event associated with chat input
 */
 Chat.prototype.chatFormSubmit = function(event) {
