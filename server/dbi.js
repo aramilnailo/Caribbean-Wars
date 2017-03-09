@@ -2,7 +2,10 @@
 var debug = require("./debug.js").dbi;
 var log = require("./debug.js").log;
 
-// Namespace creation
+/**
+ * The dbi namespace contains the functions related
+ * to interacting with the database
+ */
 var dbi = function () {};
 
 //============== MODULES ==============================
@@ -13,7 +16,9 @@ var mysql = require("mysql");
 // MySQL database object
 var db = {};
 
-// Creates initial connection to db
+/**
+ * Establishes connection with the database.
+ */
 dbi.prototype.connect = function() {
     db = mysql.createConnection({
 	host:"mysql.cs.iastate.edu",	
@@ -32,9 +37,13 @@ dbi.prototype.connect = function() {
 
 //==================== VALIDATION ============================================
 
-
-// Compares given username and password string to the user_info table
-// Callback true if the info is valid, false if not or if errors occur
+/**
+ * Checks whether the input username and password match the data stored
+ * in the user_info table in the database
+ * @param username - the username to be checked
+ * @param password - the password to be checked
+ * @param cb - callback function. Returns true if info is valid and no errors, false otherwise
+ */
 dbi.prototype.login = function(username, password, cb) {
     var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
     var inserts = ["user_info", "username", username, "password", password];
@@ -50,8 +59,14 @@ dbi.prototype.login = function(username, password, cb) {
 
 //==================== INSERTION ============================================
 
-// Inserts given username and password set into user_info
-// Callback true if username is not taken, false if it is or if errors occur
+
+/**
+ * Attempts to add a row to the user_info table in the database with the given
+ * username and password
+ * @param username - the username to be added
+ * @param password - the password to be added
+ * @param cb - callback function. Returns true if username not taken and no errors, false otherwise
+ */
 dbi.prototype.signup = function(username, password, cb) {
     db.query("INSERT INTO user_info SET ?",
              {username:username, password:password, online:false},
@@ -65,7 +80,12 @@ dbi.prototype.signup = function(username, password, cb) {
 	});
 }
 
-// Sets the online status of the given username to the given boolean value
+
+/**
+ * Sets the online status for the given username to the given boolean value
+ * @param username - the username to check against
+ * @param val - the new value for online status
+ */
 dbi.prototype.setUserOnlineStatus = function(username, val) {
     var boolStr = "" + (val ? 1 : 0);
     var sql = "UPDATE ?? SET ??=? WHERE ??=?";
@@ -76,6 +96,15 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
 }
 
 // Inserts the string 'filename' into the saved games database
+
+/**
+ * Inserts a new row into the saved_games table in the database containing a new map file
+ * @param data - the packet containing the needed data
+ * @param data.file_name - the name of the file to be added
+ * @param data.author - the username of the user who is adding the map
+ * @param data.map_file_path - the location of the map file
+ * @param cb - callback function. returns true if successful with no errors, false otherwise
+ */
 dbi.prototype.saveGameFilename = function(data,cb) {
     if (data.file_name) {
 	db.query("INSERT INTO saved_games SET ?;",
@@ -98,6 +127,11 @@ dbi.prototype.saveGameFilename = function(data,cb) {
 
 //=================== DELETION ===============================================
 
+/**
+ * Removes the given user from the user_info table in the database
+ * @param name - the username to be removed
+ * @param cb - callback function. returns true if succeeded with no errors, false if otherwise
+ */
 dbi.prototype.removeUser = function(name, cb) {
 	var sql = "DELETE FROM ?? WHERE ??=?";
 	var inserts = ["user_info", "username", name];
@@ -111,6 +145,13 @@ dbi.prototype.removeUser = function(name, cb) {
 	});
 }
 
+/**
+ * Removes the given map from the saved_games table in the database
+ * @param data - packet containing needed data
+ * @param data.file_name - name of the file to be deleted
+ * @param data.author - name of user who's file is to be deleted
+ * @param cb - callback function. returns true if succeeded with no errors, false if otherwise 
+ */
 dbi.prototype.removeSavedGame = function(data, cb) {
     var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
     var inserts = ["saved_games", "file_name", data.file_name,
@@ -130,6 +171,11 @@ dbi.prototype.removeSavedGame = function(data, cb) {
 //=================== RETRIEVAL =================================================
 
 // Retrieves all the table data, and passes it to the callback as an array of rows
+
+/**
+ * Retrieves all of the information stored on the user_info table on the database
+ * @param cb - callback function. returns an array of the rows if succeeded with no errors, empty array otherwise
+ */
 dbi.prototype.getAllUserInfo = function(cb) {
     db.query("SELECT * FROM user_info;", function(err, rows) {
 	if(err) {
@@ -141,7 +187,11 @@ dbi.prototype.getAllUserInfo = function(cb) {
     });
 }
 
-// Retrieves the saved games table
+
+/**
+ * Retrieves all of the information stored on the saved_games table on the database
+ * @param cb - callback function. returns an array of the rows if succeeded with no errors, null otherwise
+ */
 dbi.prototype.getSavedGamesList = function(cb) {
     db.query("SELECT * FROM saved_games;", function(err, rows) {
 	if(err) {
@@ -153,7 +203,11 @@ dbi.prototype.getSavedGamesList = function(cb) {
     });
 }
 
-// Retrieves the map file path from the saved games table
+/**
+ * Retrieves the file path for the given map from the saved_games table on the database
+ * @param file_name - the name of the file to be located
+ * @param cb - callback function. returns the file path if succeeded with no errors, null otherwise
+ */
 dbi.prototype.getMapFilePath = function(file_name, cb) {
     var sql = "SELECT * FROM ?? WHERE ??=?";
     var inserts = ["saved_games", "file_name", file_name];
@@ -171,6 +225,11 @@ dbi.prototype.getMapFilePath = function(file_name, cb) {
 
 //============================= STATS ===================================
 
+/**
+ * Adds a new row to the user_stats table on the database
+ * @param username - the username to be added
+ * @param cb - callback function. returns true if succeeded with no errors, false otherwise
+ */
 dbi.prototype.addUserStats = function(username, cb) {
     var newUser = {username:username, seconds_played:0,
 		   shots_fired:0, distance_sailed:0,
@@ -187,6 +246,11 @@ dbi.prototype.addUserStats = function(username, cb) {
     });
 }
 
+/**
+ * Removes a row from the user_stats table on the database
+ * @param username - user to be removed
+ * @param cb - callback function. returns true if succeeded with no errors, false otherwise
+ */
 dbi.prototype.removeUserStats = function(username, cb) {
     var sql = "DELETE FROM ?? WHERE ??=?";
     var inserts = ["user_stats", "username", username];
@@ -200,7 +264,14 @@ dbi.prototype.removeUserStats = function(username, cb) {
     });
 }
 
-// Retrieves stored value for provided stat and username
+
+/**
+ * Retrieves the stored value for the provided stat and username from
+ * the user_stats table on the database
+ * @param username - the user to check
+ * @param stat - the stat to be retrieved
+ * @param cb - callback function. returns the stat as a row object if succeeded with no errors, null otherwise
+ */
 dbi.prototype.getStat = function(username, stat, cb) {
     var sql = "SELECT ?? FROM ?? WHERE ??=?";
     var inserts = [stat, "user_stats", "username", username];
@@ -215,7 +286,14 @@ dbi.prototype.getStat = function(username, stat, cb) {
     });
 }
 
-// Sets given stat for given user. cb set to false if no errors occured.
+/**
+ * Sets the value of the provided stat on the user_stats table
+ * on the database to the given value
+ * @param username - the user to have a stat updated
+ * @param stat - the stat to be updated
+ * @param newval - the new value for the stat
+ * @param cb - callback function. returns true if succeeded with no errors, false otherwise
+ */
 dbi.prototype.setStat = function(username, stat, newval, cb){
     var sql = "UPDATE ?? SET ??=? WHERE username=?";
     var inserts = ["user_stats" ,stat, newval, username];
@@ -232,6 +310,14 @@ dbi.prototype.setStat = function(username, stat, newval, cb){
 }
 
 // Updates the given stat by the given amount
+/**
+ * Adds the given amount to the given stat on the user_stats
+ * table on the database.
+ * @param username - the user to have a stat updated
+ * @param stat - the stat to be updated
+ * @param diff - the amount to modify the stat by, can be negative
+ * @param cb - callback function. returns true if succeeded with no errors, false otherwise
+ */
 dbi.prototype.updateStat = function(username, stat, diff, cb) {
     var sql = "UPDATE ?? SET ??=??+? WHERE ??=?;";
     var inserts = ["user_stats", stat, stat, diff, "username", username];
@@ -245,6 +331,10 @@ dbi.prototype.updateStat = function(username, stat, diff, cb) {
     });
 }
 
+/**
+ * Retrieves all data from the user_stats table on the database
+ * @param cb - callback function. returns an array of the rows if successful with no errors, null otherwise
+ */
 dbi.prototype.getAllStats = function(cb) {
     var sql = "SELECT * FROM ??";
     var inserts = ["user_stats"];

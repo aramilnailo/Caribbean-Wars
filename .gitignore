@@ -282,3 +282,5 @@ typings/
 # dotenv environment variables file
 .env
 
+# vscode settings directory
+.vscode/

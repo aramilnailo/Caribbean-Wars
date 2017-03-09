@@ -7,8 +7,17 @@ var dbi = require("./dbi.js");
 var player = require("./player.js");
 var session = require("./session.js");
 
+/**
+ * The accounts namespace contains the functions relating to
+ * creating and using accounts
+ */
 var Accounts = function() {};
  
+/**
+* Registers functions in this namespace with the given
+* message router.
+* @param router - the message router
+*/
 Accounts.prototype.listen = function(router) {
     router.listen("disconnect", this.disconnect);
     router.listen("login", this.login);
@@ -21,7 +30,12 @@ Accounts.prototype.listen = function(router) {
 //================== FUNCTIONS ========================================
     
     
-// Client closed the window, network issue, etc.
+/**
+ * Disconnects the given client from the given client list
+ * Emits collapseMenus
+ * @param param.client - the client to be removed
+ * @param param.clients - the client list that client is to be removed from
+ */
 Accounts.prototype.disconnect = function disconnect(param) {
     var client = param.client;
     var clients = param.clients;
@@ -36,6 +50,13 @@ Accounts.prototype.disconnect = function disconnect(param) {
 }
     
 // Client clicked login button
+/**
+ * Logs the given client in
+ * Emits loginResponse and collapseMenus
+ * @param param.client - client to be logged in
+ * @param param.data.username - username to attempt to log in with
+ * @param param.data.password - password to attempt to log in with
+ */
 Accounts.prototype.login = function login(param) {
     if (debug) log("call to login");
     var client = param.client;
@@ -56,7 +77,14 @@ Accounts.prototype.login = function login(param) {
         }
     });
 }
-
+/**
+ * Attempts to add a new user
+ * Emits loginResponse and collapseMenus
+ * @param param.client - client to be put into the game upon successful add
+ * @param param.data.username - username to add
+ * @param param.data.password - password to add
+ * 
+ */
 Accounts.prototype.signup = function signup(param) {
     if (debug) log("Accounts: call to signup; user = "+param.data.username + "; password = "+param.data.password);
     var client = param.client;
@@ -77,7 +105,12 @@ Accounts.prototype.signup = function signup(param) {
         }
     });
 }
-    
+
+/**
+ * Respond to request for user list
+ * Emits userListResponse
+ * @param param.client - client sending the request
+ */
 Accounts.prototype.userListRequest = function userListRequest(param) {
     var client = param.client;
 	// Send back the whole table from the database
@@ -87,6 +120,11 @@ Accounts.prototype.userListRequest = function userListRequest(param) {
 }
 
 // Clicked logout
+/**
+ * Logs the player out without removing the client from the connections list
+ * Emits logoutResponse and collapseMenus
+ * @param param.client - client to log out
+ */
 Accounts.prototype.logout = function logout(param) {
     var client = param.client;
 	// Remove from the game session, but don't remove the client
@@ -99,6 +137,11 @@ Accounts.prototype.logout = function logout(param) {
 }
 
     // Clicked delete account
+/**
+ * Deletes the account currently logged into by the client, sends client to log in screen
+ * Emits logoutResponse and collapseMenus
+ * @param param.client - client to remove account
+ */
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
     var client = param.client;
 	if(client.player) {
