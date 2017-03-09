@@ -36,24 +36,8 @@ Client.prototype.players = [];
 */
 Client.prototype.listen = function(router) {
 	router.listen("collapseMenus", this.hideAllMenus);
-	router.listen("mapData", this.setMap);
 	router.listen("evalResponse", this.logToConsole);
 	router.listen("alert", this.pushAlert);
-}
-
-/**
-* Sets the current game map.
-* 
-* @param data Contains the current map as data.mapData.
-* @throws alert error message if an error occurred
-*         when attempting to set data.mapData.
-*/
-Client.prototype.setMap = function(data) {
-    if(data.err) {
-	   alert(data.err);
-    } else {
-       this.mapData = data;
-    }
 }
 
 /**

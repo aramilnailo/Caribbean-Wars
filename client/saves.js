@@ -87,7 +87,8 @@ Saves.prototype.saveGameClick = function() {
 Saves.prototype.loadGameClick = function() {
     var filename = window.prompt("Load game:", "filename");
     if(filename) {
-        client.emit("loadNewMap", {filename:filename, username:username});
+        client.emit("loadNewMap", {filename:filename, 
+			username:client.username});
     }
 }
 

@@ -25,13 +25,14 @@ Render.prototype.listen = function(router) {
 */
 Render.prototype.drawScreen = function(data) {
     var i, j, ch;
+	var map = client.mapData.data;
     // Clear screen
     dom.canvas.clearRect(0, 0, 500, 500);
     // Draw the map
     for(i = 0; i < 10; i++) {
 	for(j = 0; j < 10; j++) {
 	    // 0 = blue, 1 = tan, 2 = green
-	    ch = client.mapData.data[11 * i + j]; // Current cell
+	    ch = map[11 * i + j]; // Current cell
 	    dom.canvas.fillStyle = (ch == "0") ? "#42C5F4" :
 		(ch == "1") ? "#C19E70" : "#2A8C23";
 	    dom.canvas.fillRect(j * 50, i * 50, 50, 50);

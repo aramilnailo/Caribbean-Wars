@@ -74,6 +74,8 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
 
 dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick", data:null}); }
 
+dom.canvas.font = "30px Arial";
+
 return dom;
 
 });

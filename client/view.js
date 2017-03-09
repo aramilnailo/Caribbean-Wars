@@ -18,7 +18,7 @@ View.prototype.listen = function(router) {
 
     router.listen("loginResponse", this.loginToGameScreen);
     router.listen("logoutResponse", this.gameScreenToLogin);
-
+	router.listen("mapData", this.setMap);
     router.listen("keyPressed", this.keyPressed);
     router.listen("keyReleased", this.keyReleased);
 }
@@ -51,6 +51,21 @@ View.prototype.loginToGameScreen = function(data) {
 View.prototype.gameScreenToLogin = function() {
     dom.loginScreen.style.display = "inline-block";
     dom.gameScreen.style.display = "none";
+}
+
+/**
+* Sets the current game map.
+* 
+* @param data Contains the current map as data.mapData.
+* @throws alert error message if an error occurred
+*         when attempting to set data.mapData.
+*/
+View.prototype.setMap = function(data) {
+    if(data.err) {
+	   client.pushAlert(data.err);
+    } else {
+       client.mapData = data;
+    }
 }
 
 // If input is pressed, emit object with the key and the new state
