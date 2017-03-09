@@ -284,3 +284,6 @@ typings/
 
 # vscode settings directory
 .vscode/
+
+# jsdoc folder
+out/

@@ -1,3 +1,8 @@
+/**
+ * @module viewlogin
+ */
+
+
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
 /**
@@ -11,6 +16,7 @@ var ViewLogin = function() {}
 * Registers all functions in the viewLogin namespace
 * with the given message router.
 * @param router - the message router
+* @memberof module:viewlogin
 **/
 ViewLogin.prototype.listen = function(router) {
 	router.listen("userListResponse", this.displayUserList);
@@ -24,6 +30,7 @@ ViewLogin.prototype.listen = function(router) {
 /**
 * Shows and hides the userList HTML. Requests the
 * user list from the server when toggled on.
+* @memberof module:viewlogin
 */
 ViewLogin.prototype.toggleUserList = function() {
     if(dom.userListHidden) {
@@ -42,6 +49,7 @@ ViewLogin.prototype.toggleUserList = function() {
 * function formats the data into an HTML table and
 * appends it to the inner HTML of the userList.
 * @param data - the user list in form of SQL rows
+* @memberof module:viewlogin
 */
 ViewLogin.prototype.displayUserList = function(data) {
     var i;
@@ -67,6 +75,7 @@ ViewLogin.prototype.displayUserList = function(data) {
 * Emits the data from the username and password
 * forms on the login screen. Checks that they are
 * not empty before sumbitting.
+* @memberof module:viewlogin
 */
 ViewLogin.prototype.loginClick = function() {
     // Don't submit empty forms
@@ -80,6 +89,7 @@ ViewLogin.prototype.loginClick = function() {
 * Emits the data from the username and password
 * forms to sign up a new user. Checks that they are
 * not empty before submitting.
+* @memberof module:viewlogin
 */
 ViewLogin.prototype.signupClick = function() {
     // Don't submit empty forms
@@ -91,6 +101,7 @@ ViewLogin.prototype.signupClick = function() {
 
 /**
 * Emits the logout signal.
+* @memberof module:viewlogin
 */
 ViewLogin.prototype.logoutClick = function() {
     client.emit("logout", null);
@@ -98,6 +109,7 @@ ViewLogin.prototype.logoutClick = function() {
 
 /**
 * After confirming with the user, emits the delete account signal.
+* @memberof module:viewlogin
 */
 ViewLogin.prototype.deleteAccountClick = function() {
     if(confirm("Are you sure you want to delete this account?")) {

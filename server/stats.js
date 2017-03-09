@@ -1,4 +1,6 @@
-
+/**
+ * @module stats
+ */
 var debug = require("./debug.js").stats;
 var log = require("./debug.js").log;
 
@@ -15,6 +17,7 @@ var Stats = function () {};
 * Registers functions in this namespace with the given
 * message router.
 * @param router - the message router
+* @memberof module:stats
 */
 Stats.prototype.listen = function(router) {
     router.listen("statsMenuRequest",this.statsMenuRequest);
@@ -26,6 +29,7 @@ Stats.prototype.listen = function(router) {
 * requesting them.
 * @param param - data passed by the router
 * @param param.client - client requesting the stats
+* @memberof module:stats
 */
 Stats.prototype.statsMenuRequest = function(param) {
     var client = param.client;
@@ -40,6 +44,7 @@ Stats.prototype.statsMenuRequest = function(param) {
 * Resets the stats of the given user to zero.
 * @param param - data passed by the router
 * @param param.data - username whose stats are to be reset
+* @memberof module:stats
 */
 Stats.prototype.clearStats = function(param) {
 	var username = param.data;

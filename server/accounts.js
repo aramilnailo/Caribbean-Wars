@@ -1,4 +1,6 @@
-
+/**
+ * @module accounts
+ */
 var debug = require("./debug.js").accounts;
 var log = require("./debug.js").log;
 
@@ -17,6 +19,7 @@ var Accounts = function() {};
 * Registers functions in this namespace with the given
 * message router.
 * @param router - the message router
+* @memberof module:accounts
 */
 Accounts.prototype.listen = function(router) {
     router.listen("disconnect", this.disconnect);
@@ -35,6 +38,7 @@ Accounts.prototype.listen = function(router) {
  * Emits collapseMenus
  * @param param.client - the client to be removed
  * @param param.clients - the client list that client is to be removed from
+ * @memberof module:accounts
  */
 Accounts.prototype.disconnect = function disconnect(param) {
     var client = param.client;
@@ -56,6 +60,7 @@ Accounts.prototype.disconnect = function disconnect(param) {
  * @param param.client - client to be logged in
  * @param param.data.username - username to attempt to log in with
  * @param param.data.password - password to attempt to log in with
+ * @memberof module:accounts
  */
 Accounts.prototype.login = function login(param) {
     if (debug) log("call to login");
@@ -83,7 +88,7 @@ Accounts.prototype.login = function login(param) {
  * @param param.client - client to be put into the game upon successful add
  * @param param.data.username - username to add
  * @param param.data.password - password to add
- * 
+ * @memberof module:accounts
  */
 Accounts.prototype.signup = function signup(param) {
     if (debug) log("Accounts: call to signup; user = "+param.data.username + "; password = "+param.data.password);
@@ -110,6 +115,7 @@ Accounts.prototype.signup = function signup(param) {
  * Respond to request for user list
  * Emits userListResponse
  * @param param.client - client sending the request
+ * @memberof module:accounts
  */
 Accounts.prototype.userListRequest = function userListRequest(param) {
     var client = param.client;
@@ -124,6 +130,7 @@ Accounts.prototype.userListRequest = function userListRequest(param) {
  * Logs the player out without removing the client from the connections list
  * Emits logoutResponse and collapseMenus
  * @param param.client - client to log out
+ * @memberof module:accounts
  */
 Accounts.prototype.logout = function logout(param) {
     var client = param.client;
@@ -141,6 +148,7 @@ Accounts.prototype.logout = function logout(param) {
  * Deletes the account currently logged into by the client, sends client to log in screen
  * Emits logoutResponse and collapseMenus
  * @param param.client - client to remove account
+ * @memberof module:accounts
  */
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
     var client = param.client;
