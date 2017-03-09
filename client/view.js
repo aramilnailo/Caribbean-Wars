@@ -17,7 +17,7 @@ View.prototype.exitLoginScreen = function(data) {
 	client.usertype = data.usertype;
 	if (client.usertype == "editor") {
 	    dom.mapEditorScreen.style.display="inline-block";
-	    client.emit("getMap", null);
+	    //client.emit("getMap", null);
 	} else {
 	    dom.gameScreen.style.display = "inline-block";
 	    client.emit("getMap", null);
@@ -55,8 +55,8 @@ View.prototype.keyPressed = function(event) {
 	    client.emit("keyPress", { inputId:"left", state:true});
 	else if(keycode === 87)
 	    client.emit("keyPress", { inputId:"up", state:true});
-	else if((keycode === 90) && event.ctrlKey)
-	    client.emit("keyPress", { inputId:"C-Z", state:true});
+	//else if((keycode === 90) && event.ctrlKey)
+	  //  client.emit("keyPress", { inputId:"C-Z", state:true});
     }
 }
 
@@ -72,8 +72,8 @@ View.prototype.keyReleased = function(event) {
 	    client.emit("keyPress", { inputId:"left", state:false});
 	else if(keycode === 87)
 	    client.emit("keyPress", { inputId:"up", state:false});
-	else if((keycode === 90) && event.ctrlKey)
-	    client.emit("keyPress", { inputId:"C-Z", state:false});
+	//else if((keycode === 90) && event.ctrlKey)
+	  //  client.emit("keyPress", { inputId:"C-Z", state:false});
     }
 }
 

@@ -4,38 +4,50 @@ var log = require("./debug.js").log;
 
 var server = require("./server.js");
 
-var Map = function () {};
+var dbi = require("./dbi.js");
+var files = require("./files.js");
+
+var GAME_SESSION = require("./session.js").GAME_SESSION;
 
 //================ MAP OBJECT =================
 
-Maps.prototype.listen = function(router) {
-    router.listen("getMap", this.getMap);
-    router.listen("loadNewMap",this.loadNewMap);
-}
-
 //map constructor
-var Map = function(LX,LY) {
+var Map = function() {
     var map = {
-	lx:LX,
-	ly:LY,
+	lx:0,
+	ly:0,
+	path:"",
 	author:"nobody",
-	name:"arrr"
-    };
-    map.grid = [];
-    map.charAt = function (i,j) {
-	return map.grid[LY*i + j];
+	name:"newmapfile",
+	data:[]
     };
 
-    grid.length = LX*LY;
+    map.charAt = function (i,j) {
+	return map.data.[map.ly*i + j];
+    };
+
+    map.data.length = LX*LY;
     var i,j,ch;
     for (i = 0; i < LX; i++)
 	for (j = 0; j < LY; j++) 
 	    (map.charAt(i,j)) = "0";
+    
     return map;
 };
 
+Map.prototype.listen = function(router) {
+    router.listen("getMap", this.getMap);
+    router.listen("loadNewMap",this.loadNewMap);
+    router.listen("loadMapCopy",this.loadMapCopy);
+}
 
-Map.prototype.getMap = function(param) {
+Map.prototype.destroy = function(router) {
+    router.unlisten("getMap", this.getMap);
+    router.unlisten("loadNewMap",this.loadNewMap);
+    router.unlisten("loadMapCopy",this.loadMapCopy);
+}
+
+Map.prototype.getGameMap = function(param) {
     if (debug) {
 	log("server: inside getMap()");
     }
@@ -44,14 +56,14 @@ Map.prototype.getMap = function(param) {
 	if(GAME_SESSION.map === "") GAME_SESSION.map = "./assets/map";
 	files.readFile(GAME_SESSION.map, function(data) {
 	    if(data) {
-			server.emit(client.socket, "mapData", {data:data, path:GAME_SESSION.map});
+		server.emit(client.socket, "mapData", {data:data, path:GAME_SESSION.map});
 	    } else {
-		  	server.emit(client.socket, "alert", "Could not read from map file");
+		server.emit(client.socket, "alert", "Could not read from map file");
 	    }
 	});
 }
 
-Maps.prototype.loadNewMap = function(param) {
+Map.prototype.loadNewGameMap = function(param) {
     var client = param.client;
     var CLIENT_LIST = param.clients;
     var filename = param.data.filename;
@@ -66,15 +78,82 @@ Maps.prototype.loadNewMap = function(param) {
                 if(data) {
                     GAME_SESSION.map = path;
                     for(var i in CLIENT_LIST) {
-                        CLIENT_LIST[i].socket.emit("mapData", {data:data, path:path});
+                        CLIENT_LIST[i].socket.emit("newGameMapResponse", {data:data, path:path});
                     }
                 }
             });
 	    } else {
-			server.emit(client.socket, "alert", "Could not read from map file.");
+		server.emit(client.socket, "alert", "Could not read from map file.");
 	    }
 	});
     }
+}
+
+Map.prototype.loadCopy = function(param) {
+    var client = param.client;
+    var filename = param.data.filename;
+    var username = param.data.username;
+    var usertype = param.data.usertype;
+    if(usertype != "editor") {
+        server.emit(client.socket, "alert", "Map write access restricted to map editors.");
+    } else {
+	var i;
+	dbi.getMapFilePath(filename, function(path) {
+	    if(path) {
+            files.readFile(path, function(data) {
+                if(data) {
+		    // Make a copy
+		    var newpath = path + "copy";
+		    var err;
+		    files.saveFile(data,newpath,err);
+		    if (err) {
+			server.emit(client.socket, "alert", "Could not write map copy.");
+		    } else {
+			//Save copy name to database
+			dbi.saveGameFilename({author:username,file_name:filename,map_file_path:newpath},
+					     function(valid) {
+						 if(!valid) {
+						     server.emit(client.socket, "alert", "Could not write map path to database.");
+						 } });
+			//Send copy data to client
+			files.readFile(data,function(copy) {
+			    client.socket.emit("mapEditCopyResponse", copy);
+			});
+		    }
+                }
+            });
+	    } else {
+		server.emit(client.socket, "alert", "Could not read from map file.");
+	    }
+	});
+    }
+}
+
+Map.prototype.save = function(param) {
+    var client = param.client;
+    var filename = param.data.filename;
+    var newpath = param.data.path;
+    var username = param.data.username;
+    var usertype = param.data.usertype;
+    if(usertype != "editor") {
+        server.emit(client.socket, "alert", "Map read/write access restricted to map editors.");
+    } else {
+	dbi.getMapFilePath(filename, function(path) {
+	    if (!path) {
+		dbi.saveGameFilename({author:username,file_name:filename,map_file_path:path},function(err) {
+		    if (err) {
+			server.emit(client.socket, "alert", "Could not save " + filename);
+		    }
+		})
+	    }
+	});
+	var err;
+	files.saveFile(data,newpath,err);
+	if (err) {
+	    //should delete filename from db as well, if stored.
+	    server.emit(client.socket, "alert", "Could not write map copy.");
+	}
+    }	
 }
 
 module.exports = Map;

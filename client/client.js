@@ -1,4 +1,4 @@
-define(["debug", "dom", "router"], function(debug, dom, router) {
+define(["debug", "dom", "router", "map"], function(debug, dom, router, map) {
 
 //srw: This class is basically session data class.
     
@@ -7,7 +7,7 @@ var Client = function() {};
 Client.prototype.username = "";
 Client.prototype.usertype = "";
     
-Client.prototype.mapData = {data:"", path:""};
+Client.prototype.map = {data:"", path:""};
 Client.prototype.socket = null;
 
 // srw: needed for rendering.
@@ -18,16 +18,16 @@ Client.prototype.players = [];
     
 Client.prototype.listen = function(router) {
 	router.listen("collapseMenus", this.hideAllMenus);
-	router.listen("mapData", this.setMap);
+	router.listen("newGameMapResponse", this.setMap);
 	router.listen("evalResponse", this.logToConsole);
 	router.listen("alert", this.pushAlert);
 }
 
-Client.prototype.setMap = function(data) {
+Client.prototype.setMap = function(mapObject) {
     if(data.err) {
 	   alert(data.err);
     } else {
-       this.mapData = data;
+       this.map = mapObject;
     }
 }
 
@@ -39,6 +39,7 @@ Client.prototype.logToConsole = function(data) {
 	console.log(data);
 }
 
+// srw: hideAllMenus should be in view.js
 Client.prototype.hideAllMenus = function(data) {
 	if(!dom.chatWindowHidden) router.route("toggleChatWindow", null);
 	if(!dom.statsMenuHidden) router.route("toggleStatsMenu", null);

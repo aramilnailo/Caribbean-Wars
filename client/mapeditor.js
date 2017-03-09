@@ -55,7 +55,8 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	    zoomLevel:1.0
 	}
 	// need to test mapData here, and load default.
-	mapEditHistory.push(client.mapData.data);
+	
+	mapEditHistory.push(client.map);
 	return mapeditor;
     };
 
@@ -82,9 +83,11 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	router.listen("mapEditorPaintWoodsIconClick",this.raisePortIcon);
 	router.listen("mapEditorPaintWoodsIconClick",this.lowerWoodsIcon);
 
-
-	router.listen("keyPress",this.onKeyPress);
+	router.listen("mapEditorCanvasMouseDown",this.onCanvasMouseDown);
+	router.listen("mapEditorCanvasMouseMove",this.onCanvasMouseMove);
 	
+	router.listen("keyPressed",this.onKeyPress);
+	//router.listen("keyReleased",this.onKeyReleased) ?	
     }
 
     ////////////////////
@@ -174,7 +177,11 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      *
      */
     MapEditor.prototype.onKeyPress = function (event) {
-	
+	var keycode = event.which || event.keyCode;
+	if (keycode === 90 && event.ctrlKey) {
+	    // Ctrl-Z; backtrack
+	    this.backtrack();
+	}
     }
     
     /** 
@@ -241,6 +248,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      *
      */
     MapEditor.prototype.displayMapFileMenu = function () {
+
     }
     
     /**
@@ -263,18 +271,22 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	var x = event.clientX;
 	var y = event.clientY;
 	var win = event.view;
+	var change = false;
+	var ch;
+	if (paintingWater) { ch = 0; change = true; }
+	if (paintingLand) { ch = 1; change = true; }
+	if (paintingWoods) { ch = 2; change = true; }
+	if (paintingPort) { ch = 3; change = true; }
+	if (change) {
+	    var map = mapEditHistory[currentMap].copy();
+	    currentMap++;
+	    mapEditHistory.push(map);
+	    map.charAt(a,b) = ch;
+	}
     };
-
-    MapEditor.prototype.onCanvasMouseUp = function (event) {
-	var x = event.clientX;
-	var y = event.clientY;
-	var win = event.view;
-    };
-
+    
     MapEditor.prototype.onCanvasMouseMove = function (event) {
-	var x = event.clientX;
-	var y = event.clientY;
-	var win = event.view;
+	this.onCanvasMouseDown(event);
     };
     
            

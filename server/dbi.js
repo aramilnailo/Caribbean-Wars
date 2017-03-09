@@ -169,6 +169,7 @@ dbi.prototype.getMapFilePath = function(file_name, cb) {
     });
 }
 
+
 //============================= STATS ===================================
 
 dbi.prototype.addUserStats = function(username, cb) {
