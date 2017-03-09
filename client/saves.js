@@ -93,7 +93,7 @@ Saves.prototype.saveGameClick = function() {
 * Prompts the user for a file name and attempts to load
 * this file from the server.
 *
-* @memberof module:Saves
+* @memberof module:client/Saves
 */
 Saves.prototype.loadGameClick = function() {
     var filename = window.prompt("Load game:", "filename");

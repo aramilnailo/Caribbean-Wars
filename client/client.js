@@ -12,28 +12,28 @@ var Client = function() {};
 /** 
 * Username associated with current login 
 *
-* @memberof client/Client
+* @memberof module:client/Client
 */
 Client.prototype.username = "";
 
 /** 
 * Map object associated with current game 
 *
-* @memberof client/Client
+* @memberof module:client/Client
 */
 Client.prototype.mapData = {data:"", path:""};
 
 /** 
 * Server socket reference 
 *
-* @memberof client/Client
+* @memberof module:client/Client
 */ 
 Client.prototype.socket = null;
 
 /** 
 * List of players participating in the current game 
 *
-* @memberof client/Client
+* @memberof module:client/Client
 */ 
 Client.prototype.players = [];
 
@@ -52,7 +52,7 @@ Client.prototype.players = [];
 * Registers all gui event messages associated with client state
 * transistions.
 *
-* @memberof client/Client
+* @memberof module:client/Client
 */
 Client.prototype.listen = function(router) {
 	router.listen("collapseMenus", this.hideAllMenus);
@@ -64,7 +64,7 @@ Client.prototype.listen = function(router) {
 * Wrapper function: calls alert(data)
 *
 * @param data Alert message
-* @memberof client/Client
+* @memberof module:client/Client
 */
 Client.prototype.pushAlert = function(data) {
     alert(data);
@@ -74,7 +74,7 @@ Client.prototype.pushAlert = function(data) {
 * Wrapper function: calls console.log(data)
 *
 * @param data String to output to console
-* @memberof client/Client
+* @memberof module:client/Client
 */
 Client.prototype.logToConsole = function(data) {
 	console.log(data);
@@ -84,7 +84,7 @@ Client.prototype.logToConsole = function(data) {
 * Hides all currently active menus.
 *
 * @param data Currently unused
-* @memberof client/Client
+* @memberof module:client/Client
 */
 Client.prototype.hideAllMenus = function(data) {
 	if(!dom.chatWindowHidden) router.route("toggleChatWindow", null);
@@ -98,7 +98,7 @@ Client.prototype.hideAllMenus = function(data) {
 * 
 * @param message String to name message type
 * @param data Data to be sent to the server 
-* @memberof client/Client
+* @memberof module:client/Client
 */
 Client.prototype.emit = function(message, data) {
     if(debug.client) debug.log("[Client] Emitting \"" + message + "\".");
