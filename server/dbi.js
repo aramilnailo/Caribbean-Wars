@@ -37,7 +37,7 @@ dbi.prototype.connect = function() {
 // Callback true if the info is valid, false if not or if errors occur
 dbi.prototype.login = function(username, password, cb) {
     var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
-    var inserts = ["user_info", "username", username, "password", password];
+    var inserts = ["user_info", "username", username, "usertype", usertype, "password", password];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);
@@ -52,9 +52,9 @@ dbi.prototype.login = function(username, password, cb) {
 
 // Inserts given username and password set into user_info
 // Callback true if username is not taken, false if it is or if errors occur
-dbi.prototype.signup = function(username, password, cb) {
+dbi.prototype.signup = function(username, usertype, password, cb) {
     db.query("INSERT INTO user_info SET ?",
-             {username:username, password:password, online:false},
+             {username:username, usertype:usertype, password:password, online:false},
 	function(err) {
 	    if(err) {
 		if (debug) log(err.message);
@@ -66,10 +66,10 @@ dbi.prototype.signup = function(username, password, cb) {
 }
 
 // Sets the online status of the given username to the given boolean value
-dbi.prototype.setUserOnlineStatus = function(username, val) {
+dbi.prototype.setUserOnlineStatus = function(username, usertype, val) {
     var boolStr = "" + (val ? 1 : 0);
     var sql = "UPDATE ?? SET ??=? WHERE ??=?";
-    var inserts = ["user_info", "online", boolStr, "username", username];
+    var inserts = ["user_info", "online", boolStr, "username", username, "usertype", usertype];
     db.query(mysql.format(sql, inserts), function(err) {
 	if(err && debug) log(err.message);
     });
@@ -98,9 +98,10 @@ dbi.prototype.saveGameFilename = function(data,cb) {
 
 //=================== DELETION ===============================================
 
-dbi.prototype.removeUser = function(name, cb) {
+// check admin status here?
+dbi.prototype.removeUser = function(name, type, cb) {
 	var sql = "DELETE FROM ?? WHERE ??=?";
-	var inserts = ["user_info", "username", name];
+    var inserts = ["user_info", "username", name, "usertype", type];
 	db.query(mysql.format(sql, inserts), function(err) {
 		if(err) {
 		    if (debug) log(err.message);
@@ -111,6 +112,7 @@ dbi.prototype.removeUser = function(name, cb) {
 	});
 }
 
+// check admin status here?
 dbi.prototype.removeSavedGame = function(data, cb) {
     var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
     var inserts = ["saved_games", "file_name", data.file_name,

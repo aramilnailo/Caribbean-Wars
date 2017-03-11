@@ -11,6 +11,7 @@ var Player = function(username) {
 	x:250,
 	y:250,
 	username:username,
+	usertype:"",
 	number:"" + Math.floor(10 * Math.random()),
 	pressingRight:false,
 	pressingLeft:false,

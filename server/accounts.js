@@ -41,14 +41,15 @@ Accounts.prototype.login = function login(param) {
     var client = param.client;
     var data = param.data;
     // Check info with the database
-    dbi.login(data.username, data.password, function(resp) {
+    dbi.login(data.username, data.usertype, data.password, function(resp) {
         if(resp) {
             // If login info is valid, give the client a player
-            client.player = player.Player(data.username);
+            client.player = player.Player(data.username,data.usertype);
             // The player joins the game
             session.enterGameSession(client.player);
             server.emit(client.socket, "loginResponse", {success:true,
-                              username:data.username});
+							 username:data.username,
+							 usertype:data.usertype});
             server.emit(client.socket, "collapseMenus", null);
         } else {
             // If login info is denied
@@ -58,32 +59,43 @@ Accounts.prototype.login = function login(param) {
 }
 
 Accounts.prototype.signup = function signup(param) {
-    if (debug) log("Accounts: call to signup; user = "+param.data.username + "; password = "+param.data.password);
+    if (debug) log("Accounts: call to signup; user = "+param.data.username + "; usertype = "+param.data.usertype+"; password = "+param.data.password);
     var client = param.client;
     var data = param.data;
     // Create new record in database
-    dbi.signup(data.username, data.password, function(resp) {
+    var permission = false;
+    if (data.usertype != "admin" || data.username == "admin") permission = true;
+    if (permission) {
+    dbi.signup(data.username, data.usertype, data.password, function(resp) {
         if(resp) {
             // If info is valid, give the client a player
-            client.player = player.Player(data.username);
+            client.player = player.Player(data.username,data.usertype);
             session.enterGameSession(client.player);
-            dbi.addUserStats(client.player.username, function(resp) {});
+            dbi.addUserStats(client.player.username, client.player.usertype, function(resp) {});
             server.emit(client.socket, "loginResponse", {success:true,
-                              username:data.username});
+							 username:data.username,
+							 usertype:data.usertype});
             server.emit(client.socket, "collapseMenus", null);
         } else {
             // If duplicate username, etc.
             server.emit(client.socket, "loginResponse", {success:false});
         }
     });
+    } else {
+	server.emit(client.socket,"adminAccessRequired",null);
+    }
 }
     
 Accounts.prototype.userListRequest = function userListRequest(param) {
     var client = param.client;
+    if (client.player.usertype == "admin" ) {
 	// Send back the whole table from the database
 	dbi.getAllUserInfo(function(data) {
 	    server.emit(client.socket, "userListResponse", data);
 	});
+    } else {
+	server.emit(client.socket, "adminAccessRequired", null);
+    }
 }
 
 // Clicked logout
@@ -101,14 +113,23 @@ Accounts.prototype.logout = function logout(param) {
     // Clicked delete account
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
     var client = param.client;
+    if (client.player.usertype == "admin" ) {
 	if(client.player) {
-	    dbi.removeUserStats(client.player.username, function(val) {});
-	    dbi.removeUser(client.player.username, function(resp) {});
+	    dbi.removeUserStats(client.player.username,
+				client.player.usertype,
+				function(val) {});
+	    dbi.removeUser(client.player.username,
+			   client.player.usertype,
+			   function(resp) {});
 	    session.exitGameSession(client.player);
 	    client.player = null;
 	}
 	server.emit(client.socket, "logoutResponse", null);
 	server.emit(client.socket, "collapseMenus", null);
+    } else {
+	server.emit(client.socket, "adminAccessRequired", null);
+    }
+    
 }
 
 module.exports = new Accounts();
