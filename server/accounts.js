@@ -73,7 +73,7 @@ Accounts.prototype.signup = function signup(param) {
             // If info is valid, give the client a player
             client.player = player.Player(data.username,data.usertype);
             session.enterGameSession(client.player);
-            dbi.addUserStats(client.player.username, client.player.usertype, function(resp) {});
+            dbi.addUserStats(client.player.username, function(resp) {});
             server.emit(client.socket, "loginResponse", {success:true,
 							 username:data.username,
 							 usertype:data.usertype});
@@ -118,7 +118,6 @@ Accounts.prototype.deleteAccount = function deleteAccount(param) {
     //if (client.player.usertype == "admin" ) {
 	if(client.player) {
 	    dbi.removeUserStats(client.player.username,
-				client.player.usertype,
 				function(val) {});
 	    dbi.removeUser(client.player.username,
 			   client.player.usertype,

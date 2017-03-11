@@ -38,39 +38,67 @@ dbi.prototype.connect = function() {
 dbi.prototype.login = function(username, usertype, password, cb) {
     if (debug) log("dbi.js: login(): username="+username+"; usertype="+usertype);
     var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
-    var inserts = ["user_info", "username", username, "usertype", usertype, "password", password];
+    var inserts = ["user_info", "username", username, "password", password];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);
 	    cb(false);
 	}
-	if(rows.length > 0) cb(true);
-	cb(false);
+	if(rows.length == 0) //cb(true);
+	    cb(false);
     });
+
+    sql = "UPDATE ?? SET ??=? WHERE ??=?;";
+    inserts = ["user_info", "usertype", usertype, "username", username];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+	if(err) {
+	    if (debug) log(err.message);
+	    cb(false);
+	}
+	cb(true);
+	//if(rows.length > 0) cb(true);
+	//cb(false);
+    });
+
+
 }
 
 //==================== INSERTION ============================================
 
 // Inserts given username and password set into user_info
 // Callback true if username is not taken, false if it is or if errors occur
+// ... may want to sign up simultaneously for player, host, and editor accounts simultaneously
 dbi.prototype.signup = function(username, usertype, password, cb) {
-    db.query("INSERT INTO user_info SET ?",
-             {username:username, usertype:usertype, password:password, online:false},
-	function(err) {
-	    if(err) {
-		if (debug) log(err.message);
-		cb(false);
-	    } else {
-		cb(true);
-	    }
-	});
+    
+    if (username != "admin" || (usertype === "admin" && username === "admin") ) {
+
+	if (usertype === "player" || usertype === "host" || usertype === "editor") {
+	
+	    db.query("INSERT INTO user_info SET ?",
+		     {username:username, usertype:usertype, password:password, online:false},
+		     function(err) {
+			 if(err) {
+			     if (debug) log(err.message);
+			     cb(false);
+			 } else {
+			     cb(true);
+			 }
+		     });
+	} else {
+	    if (debug) log ("Usertype limited to host, player, editor, or admin");
+	    cb(false);
+	}
+    } else {
+	if (debug) log ("Currently only admin can have admin usertype");
+	cb(false);
+    }
 }
 
 // Sets the online status of the given username to the given boolean value
-dbi.prototype.setUserOnlineStatus = function(username, usertype, val) {
+dbi.prototype.setUserOnlineStatus = function(username, val) {
     var boolStr = "" + (val ? 1 : 0);
     var sql = "UPDATE ?? SET ??=? WHERE ??=?";
-    var inserts = ["user_info", "online", boolStr, "username", username, "usertype", usertype];
+    var inserts = ["user_info", "online", boolStr, "username", username];
     db.query(mysql.format(sql, inserts), function(err) {
 	if(err && debug) log(err.message);
     });
@@ -99,18 +127,17 @@ dbi.prototype.saveGameFilename = function(data,cb) {
 
 //=================== DELETION ===============================================
 
-// check admin status here?
-dbi.prototype.removeUser = function(name, type, cb) {
-	var sql = "DELETE FROM ?? WHERE ??=?";
-    var inserts = ["user_info", "username", name, "usertype", type];
-	db.query(mysql.format(sql, inserts), function(err) {
-		if(err) {
-		    if (debug) log(err.message);
-			cb(false);
-		} else {
-			cb(true);
-		}
-	});
+dbi.prototype.removeUser = function(name, cb) {
+    var sql = "DELETE FROM ?? WHERE ??=?";
+    var inserts = ["user_info", "username", name];
+    db.query(mysql.format(sql, inserts), function(err) {
+	if(err) {
+	    if (debug) log(err.message);
+	    cb(false);
+	} else {
+	    cb(true);
+	}
+    });
 }
 
 // check admin status here?
@@ -205,7 +232,7 @@ dbi.prototype.removeUserStats = function(username, cb) {
 }
 
 // Retrieves stored value for provided stat and username
-dbi.prototype.getStat = function(username, stat, cb) {
+dbi.prototype.getStat = function(username, usertype, stat, cb) {
     var sql = "SELECT ?? FROM ?? WHERE ??=?";
     var inserts = [stat, "user_stats", "username", username];
     db.query(mysql.format(sql, inserts), function(err, rows) {
@@ -220,7 +247,7 @@ dbi.prototype.getStat = function(username, stat, cb) {
 }
 
 // Sets given stat for given user. cb set to false if no errors occured.
-dbi.prototype.setStat = function(username, stat, newval, cb){
+dbi.prototype.setStat = function(username, usertype, stat, newval, cb){
     var sql = "UPDATE ?? SET ??=? WHERE username=?";
     var inserts = ["user_stats" ,stat, newval, username];
     db.query(mysql.format(sql, inserts), function(err) {
