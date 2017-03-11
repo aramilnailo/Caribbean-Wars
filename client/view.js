@@ -10,22 +10,26 @@ View.prototype.listen = function(router) {
 }
 
 View.prototype.exitLoginScreen = function(data) {
-    if(debug.view) debug.log("[View] Moving to game screen");
+    if(debug.view) debug.log("[View] exitLoginScreen()");
     if(data.success) {
 	dom.loginScreen.style.display = "none";
 	client.username = data.username;
 	client.usertype = data.usertype;
 	if (client.usertype == "editor") {
+	    if (debug) debug.log("[View] Moving to map editor screen");
 	    dom.mapEditorScreen.style.display="inline-block";
 	    //client.emit("getMap", null);
 	} else {
+	    if (debug) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
 	    dom.gameScreen.style.display = "inline-block";
-	    client.emit("getMap", null);
+	    client.emit("getGameMap", null);
 	}
 	dom.usernameLabel.innerHTML = data.username;
+    } else {
+	if(debug.view) debug.log("[View] data.failure");
     }
 }
-
+    
 View.prototype.gameScreenToLogin = function() {
     dom.loginScreen.style.display = "inline-block";
     dom.gameScreen.style.display = "none";

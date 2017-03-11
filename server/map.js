@@ -42,25 +42,27 @@ var Map = function() {
     return map;
 };
 
+/*
 Map.prototype.listen = function(router) {
     router.listen("getMap", this.getGameMap);
-    router.listen("loadNewMap",this.loadNewMap);
+    router.listen("loadNewMap",this.loadNewGameMap);
     router.listen("loadMapCopy",this.loadMapCopy);
 }
 
 Map.prototype.destroy = function(router) {
     router.unlisten("getMap", this.getGameMap);
-    router.unlisten("loadNewMap",this.loadNewMap);
+    router.unlisten("loadNewMap",this.loadNewGameMap);
     router.unlisten("loadMapCopy",this.loadMapCopy);
 }
-
+*/
 Map.prototype.waterMapCode = 0;
 Map.prototype.landMapCode = 1;
 Map.prototype.woodsMapCode = 2;
 
+/*
 Map.prototype.getGameMap = function(param) {
     if (debug) {
-	log("server: inside getMap()");
+	log("server: getMap()");
     }
     var client = param.client;
     var data = param.data;
@@ -75,6 +77,7 @@ Map.prototype.getGameMap = function(param) {
 }
 
 Map.prototype.loadNewGameMap = function(param) {
+    if (debug) log("server: loadNewGameMap()");
     var client = param.client;
     var CLIENT_LIST = param.clients;
     var filename = param.data.filename;
@@ -140,6 +143,7 @@ Map.prototype.loadCopy = function(param) {
     }
 }
 
+
 Map.prototype.save = function(param) {
     var client = param.client;
     var filename = param.data.filename;
@@ -166,6 +170,7 @@ Map.prototype.save = function(param) {
 	}
     }	
 }
+*/
 
 module.exports = Map;
 

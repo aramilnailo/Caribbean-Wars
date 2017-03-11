@@ -37,7 +37,7 @@ Accounts.prototype.disconnect = function disconnect(param) {
     
 // Client clicked login button
 Accounts.prototype.login = function login(param) {
-    if (debug) log("call to login");
+    if (debug) log("server/accounts.js: login()");
     var client = param.client;
     var data = param.data;
     // Check info with the database
@@ -51,9 +51,11 @@ Accounts.prototype.login = function login(param) {
 							 username:data.username,
 							 usertype:data.usertype});
             server.emit(client.socket, "collapseMenus", null);
+	    if (debug) log("server/accounts.js: login success");
         } else {
             // If login info is denied
             server.emit(client.socket, "loginResponse", {success:false});
+	    if (debug) log("server/accounts.js: login failure");
         }
     });
 }
