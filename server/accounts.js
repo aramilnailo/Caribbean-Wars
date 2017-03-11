@@ -88,7 +88,7 @@ Accounts.prototype.signup = function signup(param) {
     
 Accounts.prototype.userListRequest = function userListRequest(param) {
     var client = param.client;
-    if (client.player.usertype == "admin" ) {
+    if (param.data.usertype == "admin" ) {
 	// Send back the whole table from the database
 	dbi.getAllUserInfo(function(data) {
 	    server.emit(client.socket, "userListResponse", data);
@@ -113,7 +113,7 @@ Accounts.prototype.logout = function logout(param) {
     // Clicked delete account
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
     var client = param.client;
-    if (client.player.usertype == "admin" ) {
+    //if (client.player.usertype == "admin" ) {
 	if(client.player) {
 	    dbi.removeUserStats(client.player.username,
 				client.player.usertype,
@@ -125,10 +125,12 @@ Accounts.prototype.deleteAccount = function deleteAccount(param) {
 	    client.player = null;
 	}
 	server.emit(client.socket, "logoutResponse", null);
-	server.emit(client.socket, "collapseMenus", null);
+    server.emit(client.socket, "collapseMenus", null);
+    /*
     } else {
 	server.emit(client.socket, "adminAccessRequired", null);
     }
+*/
     
 }
 

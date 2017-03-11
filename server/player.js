@@ -6,12 +6,12 @@ var log = require("./debug.js").log;
 
 //========= PLAYER OBJECT ==================
 
-var Player = function(username) {
+var Player = function(username,usertype) {
     var player = {
 	x:250,
 	y:250,
 	username:username,
-	usertype:"",
+	usertype:usertype,
 	number:"" + Math.floor(10 * Math.random()),
 	pressingRight:false,
 	pressingLeft:false,

@@ -24,26 +24,32 @@ var Map = function() {
     };
 
     map.at = function (i,j) {
-	return map.data[map.ly*i + j];
+	return map.data[this.ly*i + j];
     };
+
+    map.set = function (i,j,val) {
+	if (ly*i+j < this.lx*this.ly) {
+	    map.data[this.ly*this.lx] = val;
+	}
+    }
 
     map.data.length = LX*LY;
     var i,j;
     for (i = 0; i < LX; i++)
 	for (j = 0; j < LY; j++) 
-	    (map.at(i,j)) = this.waterMapCode;
+	    this.set(i,j,this.waterMapCode);
     
     return map;
 };
 
 Map.prototype.listen = function(router) {
-    router.listen("getMap", this.getMap);
+    router.listen("getMap", this.getGameMap);
     router.listen("loadNewMap",this.loadNewMap);
     router.listen("loadMapCopy",this.loadMapCopy);
 }
 
 Map.prototype.destroy = function(router) {
-    router.unlisten("getMap", this.getMap);
+    router.unlisten("getMap", this.getGameMap);
     router.unlisten("loadNewMap",this.loadNewMap);
     router.unlisten("loadMapCopy",this.loadMapCopy);
 }

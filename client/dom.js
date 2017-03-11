@@ -6,7 +6,8 @@ var dom = {
 
 	// Login page
 	loginScreen:document.getElementById("login-screen"),
-	loginUsername:document.getElementById("login-username"),
+        loginUsername:document.getElementById("login-username"),
+    	loginUsertype:document.getElementById("login-usertype"),
 	loginPassword:document.getElementById("login-password"),
 	loginButton:document.getElementById("login-btn"),
 	signupButton:document.getElementById("signup-btn"),
@@ -46,7 +47,7 @@ var dom = {
         chatToggleButton:document.getElementById("chat-toggle-btn"),
 
     // MapEditor window
-    mapEditorScreen:document.getElementById("map-editor-screen");
+    mapEditorScreen:document.getElementById("map-editor-screen"),
     mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
     mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
     mapEditorCanvas:document.getElementById("map-editor-canvas"),
@@ -56,8 +57,23 @@ var dom = {
     mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
     mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
     mapEditorFileDropDownList:document.getElementById("map-editor-file-menu"),
-    mapEditorSaveMapButton:document.getElementById("map-editor-save-map-btn");
+    mapEditorSaveMapButton:document.getElementById("map-editor-save-map-btn"),
     mapEditorFileMenuHidden:true,
+
+
+    /*
+    mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
+    mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
+    mapEditorCanvas:document.getElementById("map-editor-canvas"),
+    mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
+    mapEditorPaintWoodsIcon:document.getElementById("map-editor-paint-woods-img"),
+    mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
+    mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
+    mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
+    mapEditorFileDropDownList:document.getElementById("map-editor-file-menu"),
+    mapEditorSaveMapButton:document.getElementById("save-map-btn");
+    mapEditorFileMenuHidden:true,
+*/
     
     
 	// UI flags
@@ -123,17 +139,6 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
     dom.mapEditorPaintPortIcon.title = "port";
     //zoom icon
     
-    mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
-    mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
-    mapEditorCanvas:document.getElementById("map-editor-canvas"),
-    mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
-    mapEditorPaintWoodsIcon:document.getElementById("map-editor-paint-woods-img"),
-    mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
-    mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
-    mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
-    mapEditorFileDropDownList:document.getElementById("map-editor-file-menu"),
-    mapEditorSaveMapButton:document.getElementById("save-map-btn");
-    mapEditorFileMenuHidden:true,
     
     
 return dom;

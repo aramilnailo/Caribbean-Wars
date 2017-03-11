@@ -1,4 +1,4 @@
-define(["debug", "dom", "router", "map"], function(debug, dom, router, map) {
+define(["debug", "dom", "router"], function(debug, dom, router) {
 
 //srw: This class is basically session data class.
     
@@ -20,14 +20,15 @@ Client.prototype.listen = function(router) {
 	router.listen("collapseMenus", this.hideAllMenus);
 	router.listen("newGameMapResponse", this.setMap);
 	router.listen("evalResponse", this.logToConsole);
-	router.listen("alert", this.pushAlert);
+        router.listen("alert", this.pushAlert);
+        router.listen("adminAccessRequired",this.adminAccessRequired);
 }
 
-Client.prototype.setMap = function(mapObject) {
+Client.prototype.setMap = function(data) {
     if(data.err) {
 	   alert(data.err);
     } else {
-       this.map = mapObject;
+       this.map = data;
     }
 }
 
@@ -52,6 +53,10 @@ Client.prototype.emit = function(message, data) {
     this.socket.emit("message", {name:message, data:data});
 }
 
+Client.prototype.adminAccessRequired = function(data) {
+    alert("Admin access required");
+}
+    
 return new Client();
 
 });

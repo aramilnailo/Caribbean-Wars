@@ -1,5 +1,7 @@
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
+var log = debug.log;
+    
 var Login = function() {}
 
 Login.prototype.listen = function(router) {
@@ -14,17 +16,20 @@ Login.prototype.listen = function(router) {
 // Show and hide the user list
 Login.prototype.toggleUserList = function() {
     if(dom.userListHidden) {
-		client.emit("userListRequest", null);
+	        if (debug) log("toggleUserList(): List users");
+         	client.emit("userListRequest", {usertype:dom.loginUsertype.value});
 		dom.userListButton.innerHTML = "Hide users";
 		dom.userListHidden = false;
     } else {
-		dom.userList.style.display = "none"	
+                if (debug) log("toggleUserList(): Hide users");
+         	dom.userList.style.display = "none";	
 		dom.userListButton.innerHTML = "List users";
 		dom.userListHidden = true;
     }
 }
 
 Login.prototype.displayUserList = function(data) {
+    if (debug) log("displayUserList()");
     var i;
     dom.userList.style.display = "table";
     var html = "<table>" +
@@ -48,8 +53,10 @@ Login.prototype.displayUserList = function(data) {
 
 // Login button is clicked on login screen
 Login.prototype.loginClick = function() {
+    if (debug) log("loginClick()");
     // Don't submit empty forms
     if(dom.loginUsername.value.length > 0 &&
+       dom.loginUsertype.value.length > 0 &&
        dom.loginPassword.value.length > 0)
 	client.emit("login", {username:dom.loginUsername.value,
 			      usertype:dom.loginUsertype.value,
@@ -59,7 +66,9 @@ Login.prototype.loginClick = function() {
 // Sign up button is clicked on login screen
 Login.prototype.signupClick = function() {
     // Don't submit empty forms
+    if(debug) log("signupClick()");
     if(dom.loginUsername.value.length > 0 &&
+       dom.loginUsertype.value.length > 0 &&
        dom.loginPassword.value.length > 0)
 	client.emit("signup", {username:dom.loginUsername.value,
 			       usertype:dom.loginUsertype.value,

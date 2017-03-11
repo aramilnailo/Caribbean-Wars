@@ -35,7 +35,7 @@ dbi.prototype.connect = function() {
 
 // Compares given username and password string to the user_info table
 // Callback true if the info is valid, false if not or if errors occur
-dbi.prototype.login = function(username, password, cb) {
+dbi.prototype.login = function(username, usertype, password, cb) {
     var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
     var inserts = ["user_info", "username", username, "usertype", usertype, "password", password];
     db.query(mysql.format(sql, inserts), function(err, rows) {
