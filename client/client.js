@@ -3,6 +3,7 @@ define(["debug", "dom", "router"], function(debug, dom, router) {
 //srw: This class is basically session data class.
     
 var Client = function() {};
+
     /*
     var client = {
 	username:"",
@@ -12,8 +13,7 @@ var Client = function() {};
 
     return client;
     
-};
-    */
+};*/
     
 Client.prototype.username = "";
 Client.prototype.usertype = "";
@@ -40,8 +40,16 @@ Client.prototype.setMap = function(data) {
     if(data.err) {
 	   alert(data.err);
     } else {
-	this.map = data;
-	if (debug.client) debug.log("client/client.js: data.lx,ly=="+this.map.lx+","+this.map.ly);
+	var cl = new Client();
+	cl.map.lx = data.lx;
+	cl.map.ly = data.ly;
+	cl.map.data = data.data;
+	cl.map.path = data.path;
+	cl.map.author = data.author;
+	cl.map.name = data.name;
+	cl.map.ports = data.ports;
+	//new Client().map = data;	
+	if (debug.client) debug.log("client/client.js: data.lx,ly=="+data.lx+","+data.ly);
     }
 }
 
