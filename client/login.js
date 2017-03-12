@@ -54,6 +54,15 @@ Login.prototype.displayUserList = function(data) {
 // Login button is clicked on login screen
 Login.prototype.loginClick = function() {
     if (debug) log("loginClick()");
+    var radios = dom.loginUsertypeForm;
+    if (debug) log("loginClick(): radios.length = "+radios.length);
+    for (var i = 0; i < radios.length; i++) {
+	if (debug) log("loginClick() : radios[i].checked,value = "+radios[i].checked+","+radios[i].value);
+	if (radios[i].type === "radio" && radios[i].checked) {
+	    dom.loginUsertype.value = radios[i].value;
+	}
+    }
+    if (debug) log("client/login.js: loginClick(); usertype = "+dom.loginUsertype.value);
     // Don't submit empty forms
     if(dom.loginUsername.value.length > 0 &&
        dom.loginUsertype.value.length > 0 &&

@@ -120,7 +120,6 @@ Accounts.prototype.deleteAccount = function deleteAccount(param) {
 	    dbi.removeUserStats(client.player.username,
 				function(val) {});
 	    dbi.removeUser(client.player.username,
-			   client.player.usertype,
 			   function(resp) {});
 	    session.exitGameSession(client.player);
 	    client.player = null;

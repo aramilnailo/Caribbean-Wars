@@ -7,7 +7,8 @@ var dom = {
 	// Login page
 	loginScreen:document.getElementById("login-screen"),
         loginUsername:document.getElementById("login-username"),
-    	loginUsertype:document.getElementById("login-usertype"),
+        loginUsertype:{},
+    	loginUsertypeForm:document.getElementById("login-usertype-radiobox"),
 	loginPassword:document.getElementById("login-password"),
 	loginButton:document.getElementById("login-btn"),
 	signupButton:document.getElementById("signup-btn"),
@@ -21,7 +22,8 @@ var dom = {
 	canvas:document.getElementById("canvas").getContext("2d"),
 
 	// Upper game menu
-	usernameLabel:document.getElementById("username-label"),
+        usernameLabel:document.getElementById("username-label"),
+    	usertypeLabel:document.getElementById("usertype-label"),
 	logoutButton:document.getElementById("logout-btn"),
 	deleteAccountButton:document.getElementById("delete-account-btn"),
 
