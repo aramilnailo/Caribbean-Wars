@@ -63,11 +63,11 @@ files.prototype.saveFile = function(obj, filename, cb) {
     fs.writeFile(filename, json, "utf-8", function(err) {
 	if(err) {
 	    log(err.message);
-	    cb = false;
+	    cb(true);
 	    if (debug) log("could not saveFile "+filename);
 	} else {
 	    if (debug) log("saving " +filename);
-	    cb = true;
+	    cb(false);
 	}
     });
 }

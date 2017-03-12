@@ -74,32 +74,40 @@ Maps.prototype.loadMapCopy = function(param) {
     var filename = param.data.filename;
     var username = param.data.username;
     var usertype = param.data.usertype;
+    if (debug) log("server/maps.js, loadMapCopy(): filename="+filename);
+    if (debug) log("server/maps.js, loadMapCopy(): username="+param.data.username);
+    if (debug) log("server/maps.js, loadMapCopy(): usertype="+param.data.usertype);
+    
     if(usertype != "editor") {
 	server.emit(client.socket, "alert", "Map write access restricted to map editors.");
     } else {
 	var i;
 	dbi.getMapFilePath(filename, function(path) {
+	    if(debug) log("maps.js: path="+path);
 	    if(path) {
+		if(debug) log("maps.js: path="+path);
 		files.readFile(path, function(data) {
 		    if(data) {
 			// Make a copy
-			var newpath = path + "copy";
-			var err;
-			files.saveFile(data,newpath,err);
-			if (err) {
-			    server.emit(client.socket, "alert", "Could not write map copy.");
-			} else {
-			    //Save copy name to database
-			    dbi.saveGameFilename({author:username,file_name:filename,map_file_path:newpath},
-						 function(valid) {
-						     if(!valid) {
-							 server.emit(client.socket, "alert", "Could not write map path to database.");
-						     } });
-			    //Send copy data to client
-			    files.readFile(data,function(copy) {
-				client.socket.emit("mapEditCopyResponse", copy);
-			    });
-			}
+			var newpath = "" + path + "copy";
+			if(debug) log("maps.js: copy; newpath="+newpath);
+			
+			files.saveFile(data,newpath,function(err) {
+			    if (err) {
+				server.emit(client.socket, "alert", "Could not write map copy.");
+			    } else {
+				//Save copy name to database
+				dbi.saveGameFilename({author:username,file_name:filename,map_file_path:newpath},
+						     function(valid) {
+							 if(!valid) {
+							     server.emit(client.socket, "alert", "Could not write map path to database.");
+							 } });
+				//Send copy data to client
+				files.readFile(data,function(copy) {
+				    client.socket.emit("mapEditCopyResponse", copy);
+				});
+			    }
+			});
 		    }
 		});
 	    } else {

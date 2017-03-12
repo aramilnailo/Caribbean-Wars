@@ -15,9 +15,9 @@ Render.prototype.drawScreen = function(data) {
     // Draw the map
     //if (debug.render) log("client/render.js: client.username="+client.username);
     //if (debug.render) log("client/render.js: client.usertype="+client.usertype);
-    if(debug.render) log("client/render.js: client.map.lx="+client.map.lx);
-    //var ly = client.map.ly;
-    //var lx = client.map.lx;
+    //if(debug.render) log("client/render.js: client.map.lx="+client.map.lx);
+    var ly = client.map.ly;
+    var lx = client.map.lx;
     //if (debug.render) log("client/render: lx="+lx+"; ly="+ly);  
     for(i = 0; i < 10; i++) {
 	for(j = 0; j < 10; j++) {

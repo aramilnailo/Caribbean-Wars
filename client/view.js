@@ -17,7 +17,7 @@ View.prototype.exitLoginScreen = function(data) {
 	if (client.usertype == "editor") {
 	    if (debug) debug.log("[View] Moving to map editor screen");
 	    dom.mapEditorScreen.style.display="inline-block";
-	    client.emit("getMapCopy", null);
+	    client.emit("loadMapCopy", {filename:"f1",username:client.username,usertype:client.usertype});
 	} else {
 	    if (debug) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
 	    dom.gameScreen.style.display = "inline-block";
