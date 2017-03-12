@@ -27,7 +27,7 @@ Maps.prototype.listen = function(router) {
 
 Maps.prototype.getGameMap = function(param) {
     if (debug) {
-	log("server: getMap()");
+	log("server/maps: getGameMap()");
     }
     var client = param.client;
     var data = param.data;

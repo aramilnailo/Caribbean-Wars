@@ -13,29 +13,25 @@ var fs = require("fs");
 
 // Load text from file
 files.prototype.readFile = function(filename, cb) {
-    if (debug) log ("readFile "+filename);
-    var exists = fs.stat(filename, function(err,stats) {
+    if (debug) log ("server/files.js: readfile("+filename+")");
+    fs.stat(filename, function(err,stats) {
 	if (err) {
 	    //log (err.code);
 	    log(err.message);
-	    return false;
+	    cb(null);
 	}
-	else return true;
     });
-    if (! exists) cb(null);
-    else {
-	fs.readFile(filename, "utf-8", function(err, data) {
-	    if(err) {
-		log(err.message);
-		cb(null);
-		if (debug) log("could not readFile "+filename);
-	    } else {
-		if (debug) log("sending " +filename);
-		var obj = JSON.parse(data);
-		cb(obj);
-	    }
-	});
-    } 
+    fs.readFile(filename, "utf-8", function(err, data) {
+	if(err) {
+	    log(err.message);
+	    if (debug) log("server/files.js: could not readFile "+filename);
+	    cb(null);
+	} else {
+	    if (debug) log("server/files.js: sending " +filename);
+	    var obj = JSON.parse(data);
+	    cb(obj);
+	}
+    });
 }
 
 /**
