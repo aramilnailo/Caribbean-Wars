@@ -30,7 +30,7 @@ Maps.prototype.getGameMap = function(param) {
 	log("server/maps: getGameMap()");
     }
     var client = param.client;
-    var data = param.data;
+    //var data = param.data;
     if(GAME_SESSION.map === "") GAME_SESSION.map = "./assets/map";
     files.readFile(GAME_SESSION.map, function(data) {
 	if(data) {

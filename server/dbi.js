@@ -39,7 +39,7 @@ dbi.prototype.login = function(username, usertype, password, cb) {
     if (debug) log("dbi.js: login(): username="+username+"; usertype="+usertype);
 
     if (username != "admin" || (usertype === "admin" && username === "admin") ) {
-	if (usertype === "player" || usertype === "host" || usertype === "editor" )  {
+	if (usertype === "admin" || usertype === "player" || usertype === "host" || usertype === "editor" )  {
     
 	    var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
 	    var inserts = ["user_info", "username", username, "password", password];

@@ -4,8 +4,6 @@ var View = function() {};
 
     
 View.prototype.listen = function(routr) {
-    //router.listen("keyPressed", this.keyPressed);
-    //router.listen("keyReleased", this.keyReleased);
     routr.listen("loginResponse", this.exitLoginScreen);
     routr.listen("logoutResponse", this.gameScreenToLogin);
 }
@@ -24,8 +22,8 @@ View.prototype.exitLoginScreen = function(data) {
 	    if (debug) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
 	    dom.gameScreen.style.display = "inline-block";
 	    client.emit("getGameMap", null);
-	    router.listen("keyPressed", this.keyPressed);
-	    router.listen("keyReleased", this.keyReleased);
+	    router.listen("keyPressed", function(event) { new View().keyPressed(event); });
+	    router.listen("keyReleased", function(event) { new View().keyReleased(event); });
 	}
 	dom.usernameLabel.innerHTML = data.username;
     } else {
@@ -38,6 +36,8 @@ View.prototype.gameScreenToLogin = function() {
     dom.gameScreen.style.display = "none";
     client.username = "";
     client.usertype = "";
+    router.unlisten("keyPressed", function(event) { new View().keyPressed(event); });
+    router.unlisten("keyReleased", function(event) { new View().keyReleased(event); });
 }
 
 View.prototype.mapEditorScreenToLogin = function() {

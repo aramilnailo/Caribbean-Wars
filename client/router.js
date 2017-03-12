@@ -10,10 +10,11 @@ Router.prototype.listen = function(msg, action) {
 }
 
 Router.prototype.unlisten = function(msg, action) {
+    if (debug.router) debug.log("[Client] Unlistening to \"" + msg + "\"");
     var listener = {name:msg, func:action};
     // listeners with indices at i do not change
     // after splice when we move backwards
-	var i = listeners.length - 1;
+    var i = listeners.length - 1;
     while (i >= 0) {
 		if (listeners[i] === listener) {
 		    listeners.splice(i, 1);
