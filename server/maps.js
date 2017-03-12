@@ -34,7 +34,8 @@ Maps.prototype.getGameMap = function(param) {
     if(GAME_SESSION.map === "") GAME_SESSION.map = "./assets/map";
     files.readFile(GAME_SESSION.map, function(data) {
 	if(data) {
-	    server.emit(client.socket, "mapData", {data:data, path:GAME_SESSION.map});
+	    //server.emit(client.socket, "newGameMapResponse", {data:data, path:GAME_SESSION.map});
+	    server.emit(client.socket, "newGameMapResponse", data);
 	} else {
 	    server.emit(client.socket, "alert", "Could not read from map file");
 	}

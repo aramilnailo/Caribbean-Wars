@@ -3,7 +3,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 var log = debug.log;
     
 var Login = function() {}
-
+    
 Login.prototype.listen = function(router) {
 	router.listen("userListResponse", this.displayUserList);
 	router.listen("toggleUserList", this.toggleUserList);

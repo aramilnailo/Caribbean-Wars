@@ -3,11 +3,22 @@ define(["debug", "dom", "router"], function(debug, dom, router) {
 //srw: This class is basically session data class.
     
 var Client = function() {};
+    /*
+    var client = {
+	username:"",
+	usertype:"",
+	map:{data:"",path:""}
+    };
 
+    return client;
+    
+};
+    */
+    
 Client.prototype.username = "";
 Client.prototype.usertype = "";
-    
 Client.prototype.map = {data:"", path:""};
+
 Client.prototype.socket = null;
 
 // srw: needed for rendering.
@@ -25,10 +36,12 @@ Client.prototype.listen = function(router) {
 }
 
 Client.prototype.setMap = function(data) {
+    if(debug.client) debug.log("client/client.js: setMap()");
     if(data.err) {
 	   alert(data.err);
     } else {
-       this.map = data;
+	this.map = data;
+	if (debug.client) debug.log("client/client.js: data.lx,ly=="+this.map.lx+","+this.map.ly);
     }
 }
 

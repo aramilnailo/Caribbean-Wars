@@ -1,12 +1,13 @@
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "router"], function(debug, dom, client, router) {
 
 var View = function() {};
 
-View.prototype.listen = function(router) {
-    router.listen("loginResponse", this.exitLoginScreen);
-    router.listen("logoutResponse", this.gameScreenToLogin);
-    router.listen("keyPressed", this.keyPressed);
-    router.listen("keyReleased", this.keyReleased);
+    
+View.prototype.listen = function(routr) {
+    //router.listen("keyPressed", this.keyPressed);
+    //router.listen("keyReleased", this.keyReleased);
+    routr.listen("loginResponse", this.exitLoginScreen);
+    routr.listen("logoutResponse", this.gameScreenToLogin);
 }
 
 View.prototype.exitLoginScreen = function(data) {
@@ -18,11 +19,13 @@ View.prototype.exitLoginScreen = function(data) {
 	if (client.usertype == "editor") {
 	    if (debug) debug.log("[View] Moving to map editor screen");
 	    dom.mapEditorScreen.style.display="inline-block";
-	    //client.emit("getMap", null);
+	    client.emit("getMapCopy", null);
 	} else {
 	    if (debug) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
 	    dom.gameScreen.style.display = "inline-block";
 	    client.emit("getGameMap", null);
+	    router.listen("keyPressed", this.keyPressed);
+	    router.listen("keyReleased", this.keyReleased);
 	}
 	dom.usernameLabel.innerHTML = data.username;
     } else {

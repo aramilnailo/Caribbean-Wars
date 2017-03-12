@@ -29,6 +29,7 @@ files.prototype.readFile = function(filename, cb) {
 	} else {
 	    if (debug) log("server/files.js: sending " +filename);
 	    var obj = JSON.parse(data);
+	    if (debug) log(obj);
 	    cb(obj);
 	}
     });

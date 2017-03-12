@@ -37,29 +37,41 @@ dbi.prototype.connect = function() {
 // Callback true if the info is valid, false if not or if errors occur
 dbi.prototype.login = function(username, usertype, password, cb) {
     if (debug) log("dbi.js: login(): username="+username+"; usertype="+usertype);
-    var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
-    var inserts = ["user_info", "username", username, "password", password];
-    db.query(mysql.format(sql, inserts), function(err, rows) {
-	if(err) {
-	    if (debug) log(err.message);
+
+    if (username != "admin" || (usertype === "admin" && username === "admin") ) {
+	if (usertype === "player" || usertype === "host" || usertype === "editor" )  {
+    
+	    var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
+	    var inserts = ["user_info", "username", username, "password", password];
+	    db.query(mysql.format(sql, inserts), function(err, rows) {
+		if(err) {
+		    if (debug) log(err.message);
+		    cb(false);
+		}
+		if(rows.length == 0) //cb(true);
+		    cb(false);
+	    });
+	    
+	    sql = "UPDATE ?? SET ??=? WHERE ??=?;";
+	    inserts = ["user_info", "usertype", usertype, "username", username];
+	    db.query(mysql.format(sql, inserts), function(err, rows) {
+		if(err) {
+		    if (debug) log(err.message);
+		    cb(false);
+		}
+		cb(true);
+		//if(rows.length > 0) cb(true);
+		//cb(false);
+	    });
+	} else {
+	    if (debug) log("dbi.js: login() usertype restrited to player, host, or editor");
 	    cb(false);
 	}
-	if(rows.length == 0) //cb(true);
-	    cb(false);
-    });
-
-    sql = "UPDATE ?? SET ??=? WHERE ??=?;";
-    inserts = ["user_info", "usertype", usertype, "username", username];
-    db.query(mysql.format(sql, inserts), function(err, rows) {
-	if(err) {
-	    if (debug) log(err.message);
-	    cb(false);
-	}
-	cb(true);
-	//if(rows.length > 0) cb(true);
-	//cb(false);
-    });
-
+	
+    } else {
+	if (debug) log ("Currently only admin can have admin usertype");
+	cb(false);
+    }
 
 }
 
