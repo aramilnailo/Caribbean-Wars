@@ -8,11 +8,11 @@ client.socket = socket;
 client.listen(router);
 chat.listen(router);
 stats.listen(router);
-viewlogin.listen(router);
 render.listen(router);
 saves.listen(router);
 view.listen(router);
 mapeditor.listen(router);
+login.listen(router);
 	    
 socket.on("message", function(message) {
 	router.route(message);

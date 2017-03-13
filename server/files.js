@@ -21,7 +21,7 @@ var fs = require("fs");
 * @param cb - callback function
 * @memberof module:server/Files
 */
-files.prototype.readFile = function(filename, cb) {
+Files.prototype.readFile = function(filename, cb) {
     if (debug) log ("server/files.js: readfile("+filename+")");
     fs.stat(filename, function(err,stats) {
 	if (err) {
@@ -51,7 +51,7 @@ files.prototype.readFile = function(filename, cb) {
 * @param data The data to write
 * @param cb
 */
-files.prototype.saveFile = function(obj, filename, cb) {
+Files.prototype.saveFile = function(obj, filename, cb) {
     if (debug) log ("server/files.js: saveFile() "+filename);
     // permet overwrite for now; alert later?
     /*

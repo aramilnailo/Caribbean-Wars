@@ -38,8 +38,6 @@ dbi.prototype.connect = function() {
 
 //==================== VALIDATION ============================================
 
-<<<<<<< HEAD
-
 // Compares given username and password string to the user_info table
 // Callback true if the info is valid, false if not or if errors occur
 /**
