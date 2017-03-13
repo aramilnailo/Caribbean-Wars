@@ -52,7 +52,7 @@ var dom = {
     mapEditorScreen:document.getElementById("map-editor-screen"),
     mapEditorSavedMapsListButton:document.getElementById("map-editor-saved-maps-btn"),
     mapEditorSavedMapsList:document.getElementById("map-editor-saved-maps-list"),
-    mapEditorCanvas:document.getElementById("map-editor-canvas"),
+    mapEditorCanvas:document.getElementById("map-editor-canvas").getContext("2d"),
     mapEditorIconPanel:document.getElementById("map-editor-icon-panel"),
     mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
     mapEditorPaintWoodsIcon:document.getElementById("map-editor-paint-woods-img"),
@@ -145,7 +145,8 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
     
     
 dom.canvas.font = "30px Arial";
-
+dom.mapEditorCanvas.font = "30px Arial";
+    
 return dom;
 
 });

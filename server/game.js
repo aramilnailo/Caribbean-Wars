@@ -79,10 +79,12 @@ Game.prototype.update = function() {
 	socket = CLIENT_LIST[i].socket;
 	//if (debug) log("server/game.js: player?" + CLIENT_LIST[i].player);
 	if (CLIENT_LIST[i].player !== null) {
-	    if (CLIENT_LIST[i].player.usertype === "editor")
-		server.emit(socket, "refressEditScreen");
-	    else  
+	    if (CLIENT_LIST[i].player.usertype === "editor") {
+		//if (debug) log("server/game.js: update(): emitting refreshEditScreen");
+		server.emit(socket, "refreshEditScreen");
+	    } else  {
 		server.emit(socket, "newPositions", pack);
+	    }
 	}
     }
 }
