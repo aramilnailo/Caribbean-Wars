@@ -33,7 +33,7 @@ Router.prototype.unlisten = function(msg,action) {
 //   msg.data
 Router.prototype.route = function(msg) {
     
-    if (debug) log("Router: Routing " + msg.name);
+    if (debug) log("server/router.js: route(msg); msg.name=" + msg.name);
     
     var socket = msg.socket;
 
@@ -42,14 +42,14 @@ Router.prototype.route = function(msg) {
     });
 
     if (client === undefined) {
-	if(debug) log("Router: pushing new client");
+	if(debug) log("server/router.js: pushing new client");
 	client = {socket:socket, player:null};
 	client_list.push(client);
     }  
     var param = {client:client, clients:client_list, call:msg.name, data:msg.data};
     for (var i in listeners) {
 	if (listeners[i].name === msg.name) {
-	    if(debug) log("Calling " + msg.name);
+	    if(debug) log("server/router.js: calling " + msg.name);
 	    listeners[i].func(param);
 	}
     }

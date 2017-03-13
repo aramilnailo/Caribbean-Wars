@@ -14,12 +14,14 @@ var dbi = require("./dbi.js");
 var Game = function () {};
 
 Game.prototype.listen = function(router) {
+    if (debug) log("server/game.js: listen()");
+    router.listen("runGame",this.run);
     router.listen("keyPress",this.keyPress);
 }
 
 // Recieved game input
 Game.prototype.keyPress = function (param) {
-    if (debug) log("call to game.keyPress()");
+    if (debug) log("server/game.js: keyPress()");
     var client = param.client;
     var data = param.data;
 	// If the client is in control of a player
@@ -37,28 +39,32 @@ Game.prototype.keyPress = function (param) {
 }
 
 Game.prototype.update = function() {
-	var pack = [], p, i, socket;
-	// Generate object with all player positions
-	for(var i in GAME_SESSION.players) {
-	    p = GAME_SESSION.players[i];
-	    if(p !== null) {
-		p.updatePosition();
-		pack.push({x:p.x, y:p.y, number:p.number});
-	    }
+    //if (debug) log("server/game.js: update()");
+    var pack = [], p, i, socket;
+    // Generate object with all player positions
+    for(var i in GAME_SESSION.players) {
+	p = GAME_SESSION.players[i];
+	if(p !== null) {
+	    p.updatePosition();
+	    pack.push({x:p.x, y:p.y, number:p.number});
 	}
-	// Send the packet to each client
-	for(var i in CLIENT_LIST) {
+    }
+    //if (debug) log("server/game.js: CLIENT_LIST.length="+CLIENT_LIST.length);
+    // Send the packet to each client    
+    for(var i in CLIENT_LIST) {
 	    socket = CLIENT_LIST[i].socket;
+	//if (debug) log("server/game.js: player?" + CLIENT_LIST[i].player);
+
 	    if (CLIENT_LIST[i].player.usertype === "editor")
 		server.emit(socket, "refressEditScreen");
-	    else 
+	    else  
 		server.emit(socket, "newPositions", pack);
 	}
 }
 
 // Updates secondsPlayed database field
 Game.prototype.updateStats = function() {
-	//var i, p;
+    //if (debug) log("server/game.js: updateStats()");
 	for(var i in GAME_SESSION.players){
 	    var p = GAME_SESSION.players[i];
 	    dbi.updateStat(p.username, "seconds_played", 1, function(err) {

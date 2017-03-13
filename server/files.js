@@ -29,7 +29,7 @@ files.prototype.readFile = function(filename, cb) {
 	} else {
 	    if (debug) log("server/files.js: sending " +filename);
 	    var obj = JSON.parse(data);
-	    if (debug) log(obj);
+	    //if (debug) log(obj);
 	    cb(obj);
 	}
     });
@@ -43,7 +43,7 @@ files.prototype.readFile = function(filename, cb) {
 * @param cb
 */
 files.prototype.saveFile = function(obj, filename, cb) {
-    if (debug) log ("saveFile "+filename);
+    if (debug) log ("server/files.js: saveFile() "+filename);
     // permet overwrite for now; alert later?
     /*
     var extant = fs.stat(filename, function(err,stats) {

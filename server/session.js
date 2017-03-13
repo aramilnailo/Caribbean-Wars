@@ -8,6 +8,7 @@ var dbi = require("./dbi.js");
 var Session = function() {};
 
 Session.prototype.listen = function(sox) {
+    if(debug) log("server/session.js: listen()");
     sox.listen("endGameSession", this.endGameSession);
     sox.listen("exitGameSession", this.exitGameSession);
     sox.listen("enterGameSession", this.enterGameSession);
@@ -16,6 +17,7 @@ Session.prototype.listen = function(sox) {
 var GAME_SESSION = {host:null, map:"", players:[]};
 
 Session.prototype.endGameSession = function(data) {
+    if(debug) log("server/session.js: endGameSession()");
     // Reset the object
     GAME_SESSION.host = null;
     GAME_SESSION.map = "";
@@ -35,6 +37,7 @@ Session.prototype.endGameSession = function(data) {
 }
 
 Session.prototype.exitGameSession = function (data) {
+    if(debug) log("server/session.js: exitGameSession()");
     // Remove the player from the game session list
     index = GAME_SESSION.players.indexOf(data);
     if(index > -1) GAME_SESSION.players.splice(index, 1);
@@ -45,6 +48,7 @@ Session.prototype.exitGameSession = function (data) {
 }
 
 Session.prototype.enterGameSession = function(data) {
+    if(debug) log("server/session.js: enterGameSession()");
     // If no one is online, the player becomes host
     if(GAME_SESSION.players.length == 0) {
 	GAME_SESSION.host = data;

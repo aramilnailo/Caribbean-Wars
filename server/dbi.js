@@ -36,40 +36,46 @@ dbi.prototype.connect = function() {
 // Compares given username and password string to the user_info table
 // Callback true if the info is valid, false if not or if errors occur
 dbi.prototype.login = function(username, usertype, password, cb) {
-    if (debug) log("dbi.js: login(): username="+username+"; usertype="+usertype);
+    if (debug) log("server/dbi.js: login(): username="+username+"; usertype="+usertype); 
 
-    if (username != "admin" || (usertype === "admin" && username === "admin") ) {
+    if (usertype != "admin" || (usertype === "admin" && username === "admin") ) {
 	if (usertype === "admin" || usertype === "player" || usertype === "host" || usertype === "editor" )  {
-    
+
 	    var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
 	    var inserts = ["user_info", "username", username, "password", password];
 	    db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
-		    if (debug) log(err.message);
+		    if (debug) log("server/dbi.js: login(): "+err.message);
 		    cb(false);
 		}
-		if(rows.length == 0) //cb(true);
+		if(rows.length == 0)  { //cb(true);
+		    if (debug) log("server/dbi.js: login(): user does not exist");
 		    cb(false);
+		}
+		if (debug) log("server/dbi.js: rows.length="+rows.length);
 	    });
-	    
+
 	    sql = "UPDATE ?? SET ??=? WHERE ??=?;";
 	    inserts = ["user_info", "usertype", usertype, "username", username];
 	    db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
-		    if (debug) log(err.message);
+		    if (debug) log("server/dbi.js: login(): "+err.message);
 		    cb(false);
+		} else {
+		    if (debug) log("server/dbi.js: login(): good");
+		    cb(true);
 		}
-		cb(true);
 		//if(rows.length > 0) cb(true);
 		//cb(false);
 	    });
+	    cb(true);
 	} else {
-	    if (debug) log("dbi.js: login() usertype restrited to player, host, or editor");
+	    if (debug) log("server/dbi.js: login() usertype restrited to player, host, or editor");	    
 	    cb(false);
 	}
 	
     } else {
-	if (debug) log ("Currently only admin can have admin usertype");
+	if (debug) log ("server/dbi.js: login(): Currently only admin can have admin usertype");
 	cb(false);
     }
 

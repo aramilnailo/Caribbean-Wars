@@ -23,6 +23,7 @@ Accounts.prototype.listen = function(router) {
     
 // Client closed the window, network issue, etc.
 Accounts.prototype.disconnect = function disconnect(param) {
+    if (debug) log("server/accounts.js: disconnect()");
     var client = param.client;
     var clients = param.clients;
    // If in a game, remove the player
@@ -45,8 +46,11 @@ Accounts.prototype.login = function login(param) {
         if(resp) {
             // If login info is valid, give the client a player
             client.player = player.Player(data.username,data.usertype);
+	    if (debug) log("server/accounts.js: login(): success; client.player="+client.player);
+
             // The player joins the game
-            session.enterGameSession(client.player);
+	    if (data.usertype === "player" || data.usertype === "host")
+		session.enterGameSession(client.player);
             server.emit(client.socket, "loginResponse", {success:true,
 							 username:data.username,
 							 usertype:data.usertype});
@@ -54,14 +58,14 @@ Accounts.prototype.login = function login(param) {
 	    if (debug) log("server/accounts.js: login success");
         } else {
             // If login info is denied
-            server.emit(client.socket, "loginResponse", {success:false});
 	    if (debug) log("server/accounts.js: login failure");
+            server.emit(client.socket, "loginResponse", {success:false});
         }
     });
 }
 
 Accounts.prototype.signup = function signup(param) {
-    if (debug) log("Accounts: call to signup; user = "+param.data.username + "; usertype = "+param.data.usertype+"; password = "+param.data.password);
+    if (debug) log("server/accounts.js: signup(); user = "+param.data.username + "; usertype = "+param.data.usertype+"; password = "+param.data.password);
     var client = param.client;
     var data = param.data;
     // Create new record in database
@@ -89,6 +93,7 @@ Accounts.prototype.signup = function signup(param) {
 }
     
 Accounts.prototype.userListRequest = function userListRequest(param) {
+    if (debug) log("server/accounts.js: userListRequest()");
     var client = param.client;
     if (param.data.usertype == "admin" ) {
 	// Send back the whole table from the database
@@ -102,6 +107,7 @@ Accounts.prototype.userListRequest = function userListRequest(param) {
 
 // Clicked logout
 Accounts.prototype.logout = function logout(param) {
+    if (debug) log("server/accounts.js: logout()");
     var client = param.client;
 	// Remove from the game session, but don't remove the client
 	if(client.player) {
@@ -114,6 +120,7 @@ Accounts.prototype.logout = function logout(param) {
 
     // Clicked delete account
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
+    if (debug) log("server/accounts.js: deleteAccount()");
     var client = param.client;
     //if (client.player.usertype == "admin" ) {
 	if(client.player) {
