@@ -52,14 +52,15 @@ Game.prototype.update = function() {
     //if (debug) log("server/game.js: CLIENT_LIST.length="+CLIENT_LIST.length);
     // Send the packet to each client    
     for(var i in CLIENT_LIST) {
-	    socket = CLIENT_LIST[i].socket;
+	socket = CLIENT_LIST[i].socket;
 	//if (debug) log("server/game.js: player?" + CLIENT_LIST[i].player);
-
+	if (CLIENT_LIST[i].player !== null) {
 	    if (CLIENT_LIST[i].player.usertype === "editor")
 		server.emit(socket, "refressEditScreen");
 	    else  
 		server.emit(socket, "newPositions", pack);
 	}
+    }
 }
 
 // Updates secondsPlayed database field
