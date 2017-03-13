@@ -12,6 +12,7 @@ render.listen(router);
 saves.listen(router);
 view.listen(router);
 mapeditor.listen(router);
+mapeditorsavedlist.listen(router);
 login.listen(router);
 	    
 socket.on("message", function(message) {

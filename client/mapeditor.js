@@ -105,9 +105,24 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	router.listen("keyPressed",this.onKeyPress);
 	//router.listen("keyReleased",this.onKeyReleased) ?
 	router.listen("refreshEditScreen",this.drawEditScreen);
+	router.listen("getEditMapResponse",this.loadNewEditMap);
     }
 
 
+    MapEditor.prototype.saveMap = function(event) {
+	var filename = window.prompt("Save as:","filename");
+	if (filename) {
+	    client.emit("saveEditMapRequest",{filename:filename,author:username});
+	}
+    }
+    
+    MapEditor.prototype.loadNewEditMap = function(event) {
+	mapEditHistory.length = 0;
+	this.mapEditHistory.push(client.map);
+	this.drawEditScreen(event);
+	this.currentMap = 0;
+    }
+    
     MapEditor.prototype.drawEditScreen = function(event) {
 	if (debug.mapedditor) debug.log("client/mapeditor.js: drawEditScreen");
 	var i, j, ch;

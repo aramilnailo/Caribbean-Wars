@@ -26,7 +26,8 @@ Maps.prototype.listen = function(router) {
     router.listen("getEditMap", this.getEditMap);
     //router.listen("loadNewGameMap",this.loadNewGameMap);
     //router.listen("loadMapCopy",this.loadMapCopy);
-    //router.listen("saveMap",this.saveMap);
+    router.listen("saveMap",this.saveMap);
+    router.listen("loadSavedMap",this.loadSavedEditMap);
 }
 
 /**

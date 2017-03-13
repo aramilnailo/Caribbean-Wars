@@ -80,6 +80,7 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
 *
 * @memberof module:client/Saves
 */
+//srw: problem -- mapData.path contains filename?
 Saves.prototype.saveGameClick = function() {
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
