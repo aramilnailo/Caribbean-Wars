@@ -1,14 +1,35 @@
+/**
+* Class responsible for rendering the gamestate 
+* on client system.
+*
+* @module client/Render
+*/
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var log = debug.log;
     
-var Render = function() {}
+var Render = function() {};
 
+/**
+* Register gui events implemented by this
+* class.
+*
+* @memberof module:client/Render
+* @param router Class that routes gui messages
+*               to listeners
+*/
 Render.prototype.listen = function(router) {
     if(debug.render) log("client/render.js: listen()");
     router.listen("newPositions", this.drawScreen);
 }
 
+/**
+* Test function that paints the GUI canvas element
+* 
+* @memberof module:client/Render
+* @param data Currently just a stub that contains
+*             info on all players (number, x, y)
+*/
 Render.prototype.drawScreen = function(data) {
     if(debug.render) log("client/render.js: drawScreen()");
     var i, j, ch;

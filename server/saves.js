@@ -3,15 +3,35 @@ var log = require("./debug.js").log;
 
 var dbi = require("./dbi.js");
 var server = require("./server.js");
-	
+
+/**
+* The saves namespace contains functions relating to
+* modifying the saved games database.
+* @module server/saves
+*/
 var Saves = function() {}
 
+/**
+* Registers functions in this namespace with the given
+* message router.
+* @param router - the message router
+* @memberof module:server/saves
+*/
 Saves.prototype.listen = function(router) {
 	router.listen("deleteSavedGame", this.deleteSavedGame);
 	router.listen("saveGameRequest", this.saveGameRequest);
 	router.listen("savedGamesListRequest", this.savedGamesListRequest);
 }
 
+/**
+* Removes the given saved game from the saved games
+* database. Only the author or admins can delete a 
+* saved game.
+* @param param - data passed by the router
+* @param param.client - the client attempting the deletion
+* @param param.data - the filename of the saved game
+* @memberof module:server/saves
+*/
 Saves.prototype.deleteSavedGame = function(param) {
     var client = param.client;
     var data = param.data;
@@ -23,6 +43,13 @@ Saves.prototype.deleteSavedGame = function(param) {
     });
 }
 
+/**
+* Creates a new saved game with the given author.
+* @param param - data passed by the router
+* @param param.client - client attempting to save
+* @param param.data - file name
+* @memberof module:server/saves
+*/
 Saves.prototype.saveGameRequest = function(param) {
     var client = param.client;
     var data = param.data;
@@ -33,6 +60,13 @@ Saves.prototype.saveGameRequest = function(param) {
     });
 }
 
+/**
+* Retrieves the saved games list and emits it to
+* the requesting client.
+* @param param - data passed by the router
+* @param param.client - client requesting the list
+* @memberof module:server/saves
+*/
 Saves.prototype.savedGamesListRequest = function(param) {
     var client = param.client;
     var data = param.data;

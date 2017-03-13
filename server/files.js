@@ -2,8 +2,12 @@
 var debug = require("./debug.js").files;
 var log = require("./debug.js").log;
 
-// Namespace
-var files = function() {};
+/**
+* The files namespace contains functions for interfacing
+* with the file system.
+* @module server/Files
+*/
+var Files = function() {};
 
 //=============== MODULES ==========================
 
@@ -11,7 +15,12 @@ var fs = require("fs");
 
 //=============== FILE SYSTEM INTERFACE ===============
 
-// Load text from file
+/**
+* Reads from the given filename and calls back with the data.
+* @param filename - path of the file to be read
+* @param cb - callback function
+* @memberof module:server/Files
+*/
 files.prototype.readFile = function(filename, cb) {
     if (debug) log ("server/files.js: readfile("+filename+")");
     fs.stat(filename, function(err,stats) {
@@ -74,4 +83,4 @@ files.prototype.saveFile = function(obj, filename, cb) {
 
 
 // Export module
-module.exports = new files();
+module.exports = new Files();

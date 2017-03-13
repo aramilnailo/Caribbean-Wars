@@ -1,4 +1,3 @@
-
 var debug = require("./debug.js").accounts;
 var log = require("./debug.js").log;
 
@@ -7,8 +6,19 @@ var dbi = require("./dbi.js");
 var player = require("./player.js");
 var session = require("./session.js");
 
+/**
+ * The accounts namespace contains the functions relating to
+ * creating and using accounts
+ * @module server/accounts
+ */
 var Accounts = function() {};
  
+/**
+* Registers functions in this namespace with the given
+* message router.
+* @param router - the message router
+* @memberof module:server/accounts
+*/
 Accounts.prototype.listen = function(router) {
     router.listen("disconnect", this.disconnect);
     router.listen("login", this.login);
@@ -21,7 +31,13 @@ Accounts.prototype.listen = function(router) {
 //================== FUNCTIONS ========================================
     
     
-// Client closed the window, network issue, etc.
+/**
+ * Disconnects the given client from the given client list
+ * Emits collapseMenus
+ * @param param.client - the client to be removed
+ * @param param.clients - the client list that client is to be removed from
+ * @memberof module:server/accounts
+ */
 Accounts.prototype.disconnect = function disconnect(param) {
     if (debug) log("server/accounts.js: disconnect()");
     var client = param.client;
@@ -37,6 +53,14 @@ Accounts.prototype.disconnect = function disconnect(param) {
 }
     
 // Client clicked login button
+/**
+ * Logs the given client in
+ * Emits loginResponse and collapseMenus
+ * @param param.client - client to be logged in
+ * @param param.data.username - username to attempt to log in with
+ * @param param.data.password - password to attempt to log in with
+ * @memberof module:server/accounts
+ */
 Accounts.prototype.login = function login(param) {
     if (debug) log("server/accounts.js: login()");
     var client = param.client;
@@ -63,7 +87,14 @@ Accounts.prototype.login = function login(param) {
         }
     });
 }
-
+/**
+ * Attempts to add a new user
+ * Emits loginResponse and collapseMenus
+ * @param param.client - client to be put into the game upon successful add
+ * @param param.data.username - username to add
+ * @param param.data.password - password to add
+ * @memberof module:server/accounts
+ */
 Accounts.prototype.signup = function signup(param) {
     if (debug) log("server/accounts.js: signup(); user = "+param.data.username + "; usertype = "+param.data.usertype+"; password = "+param.data.password);
     var client = param.client;
@@ -91,7 +122,13 @@ Accounts.prototype.signup = function signup(param) {
 	server.emit(client.socket,"adminAccessRequired",null);
     }
 }
-    
+
+/**
+ * Respond to request for user list
+ * Emits userListResponse
+ * @param param.client - client sending the request
+ * @memberof module:server/accounts
+ */
 Accounts.prototype.userListRequest = function userListRequest(param) {
     if (debug) log("server/accounts.js: userListRequest()");
     var client = param.client;
@@ -106,6 +143,12 @@ Accounts.prototype.userListRequest = function userListRequest(param) {
 }
 
 // Clicked logout
+/**
+ * Logs the player out without removing the client from the connections list
+ * Emits logoutResponse and collapseMenus
+ * @param param.client - client to log out
+ * @memberof module:server/accounts
+ */
 Accounts.prototype.logout = function logout(param) {
     if (debug) log("server/accounts.js: logout()");
     var client = param.client;
@@ -119,6 +162,12 @@ Accounts.prototype.logout = function logout(param) {
 }
 
     // Clicked delete account
+/**
+ * Deletes the account currently logged into by the client, sends client to log in screen
+ * Emits logoutResponse and collapseMenus
+ * @param param.client - client to remove account
+ * @memberof module:server/accounts
+ */
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
     if (debug) log("server/accounts.js: deleteAccount()");
     var client = param.client;

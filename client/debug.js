@@ -1,3 +1,8 @@
+/**
+* Flags used to control debug output.
+*
+* @module client/debug
+*/
 define([], function() {
 
 var debugall = false;
@@ -14,6 +19,12 @@ var debug = {
     viewmapeditor:debugall||true
 }
 
+/**
+* Wrapper to determine processing of debug message.
+*
+* @memberof module:client/debug
+* @param msg String to log as debug output
+*/
 debug.log = function(msg) {
     console.log(msg);
 }

@@ -144,7 +144,8 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
     //zoom icon
     
     
-    
+dom.canvas.font = "30px Arial";
+
 return dom;
 
 });

@@ -1,7 +1,19 @@
+/**
+* Save menu class namespace.
+*
+* @module client/Saves
+*/
 define(["debug", "dom", "client"], function(debug, dom, client) {
+
 
 var Saves = function() {};
 
+/**
+* Registers all gui event messages associated with 
+* save game menu functionality. 
+*
+* @memberof module:client/Saves
+*/
 Saves.prototype.listen = function(router) {
 	router.listen("savedGamesListResponse", this.displaySavedGamesMenu);
 	router.listen("toggleSavedGamesMenu", this.toggleSavedGamesMenu);
@@ -10,7 +22,13 @@ Saves.prototype.listen = function(router) {
 	router.listen("deleteGameClick", this.deleteGameClick);
 }
 
-// Show and hide the saved game menu
+/**
+* If the saved games menu is currently hidden, a current saved games list 
+* is requested from the server and displayed. If it is currently displayed,
+* the list is hidden.
+*
+* @memberof module:client/Saves
+*/
 Saves.prototype.toggleSavedGamesMenu = function() {
     if(dom.savedGamesMenuHidden) {
 		client.emit("savedGamesListRequest", null);
@@ -23,6 +41,15 @@ Saves.prototype.toggleSavedGamesMenu = function() {
     }
 }
 
+/**
+* Formats a given saved games list object into html and
+* inserts into the current document html.
+*
+* @param data A list of currently saved games. Elements of
+*             this list are of the form 
+*                 {author:a,file_name:f,map_file_path:p}.
+* @memberof module:client/Saves
+*/
 Saves.prototype.displaySavedGamesMenu = function(data) {
 // Format the saved_games table into HTML
     var i;
@@ -45,6 +72,14 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
     dom.savedGamesMenu.style.display = "inline-block";
 }
 
+/**
+* Prompts the user for a file name and requests to save
+* the current game (currently just the map, not an entire
+* game object) under this file name on the server, with 
+* the requesting user listed as its author.
+*
+* @memberof module:client/Saves
+*/
 Saves.prototype.saveGameClick = function() {
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
@@ -54,13 +89,26 @@ Saves.prototype.saveGameClick = function() {
     }
 }
 
+/**
+* Prompts the user for a file name and attempts to load
+* this file from the server.
+*
+* @memberof module:client/Saves
+*/
 Saves.prototype.loadGameClick = function() {
     var filename = window.prompt("Load game:", "filename");
     if(filename) {
-        client.emit("loadNewMap", {filename:filename, username:username});
+        client.emit("loadNewMap", {filename:filename, 
+			username:client.username});
     }
 }
 
+/**
+* Prompts the user for a file name and attempts to
+* delete this file from the server.
+*
+* @memberof module:client/Saves
+*/
 Saves.prototype.deleteGameClick = function() {
     var filename = window.prompt("Delete game:", "filename");
     if(filename) {

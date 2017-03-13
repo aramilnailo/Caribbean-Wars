@@ -4,15 +4,34 @@ var log = require("./debug.js").log;
 
 var server = require("./server.js");
 
+/**
+* The chat namespace contains functions for parsing
+* chat bar input from the clients and emitting the
+* appropriate responses.
+* @module server/Chat
+*/
 var Chat = function() {};
-              
+
+/**
+* Registers the functions in this namespace with the
+* given message router.
+* @param router - the message router
+* @memberof module:server/Chat
+*/
 Chat.prototype.listen = function(router) {
     router.listen("chatPost",this.chatPost);
     router.listen("privateMessage",this.privateMessage);
     router.listen("evalExpression",this.evalExpression);
 }
 
-    // Recieved a chat post
+/**
+* Emits a public chat post to all clients.
+* @param param - data passed by the router
+* @param param.client - the client who submitted the post
+* @param param.data - string containing the chat post
+* @param param.clients - the client list
+* @memberof module:server/Chat
+*/
 Chat.prototype.chatPost = function(param) {
     var client = param.client;
     var CLIENT_LIST = param.clients;
@@ -25,7 +44,15 @@ Chat.prototype.chatPost = function(param) {
 	    }
 	}
 }
-
+/**
+* Emits a private message to a specified user.
+* @param param - data passed by the router
+* @param param.client - the client sending the message
+* @param param.data.user - the recipient of the message
+* @param param.data.message - the private message
+* @param param.clients - the client list
+* @memberof module:server/Chat
+*/
 Chat.prototype.privateMessage = function(param) {
     var client = param.client;
     var CLIENT_LIST = param.clients;
@@ -48,7 +75,15 @@ Chat.prototype.privateMessage = function(param) {
 	}
 }
     
-    // Debug command sent through chat
+/**
+* Evaluates an expression sent through chat, and either 
+* emits the response to log to the client's console, or 
+* sends an error message.
+* @param param - data passed by the router
+* @param param.client - the client submitting the command
+* @param param.data - the expression
+* @memberof module:server/Chat
+*/
 Chat.prototype.evalExpression = function(param) {
     var client = param.client;
     var data = param.data;

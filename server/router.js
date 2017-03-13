@@ -2,20 +2,36 @@
 var debug = require("./debug.js").router;
 var log = require("./debug.js").log;
 
-var Router = function () { };
+/**
+* The router namespace contains functions for routing
+* messages from the client and calling the appropriate
+* functions.
+* @module server/Router
+*/
+var Router = function() {};
 
 var client_list = [];
 var listeners = [];
 
+/**
+* Binds the given message with the given function.
+* @param msg - the string containing the message name
+* @param action - the function to be called when message is recieved
+* @memberof module:server/Router
+*/
 Router.prototype.listen = function(msg,action) {
-    if (debug) log("Router: listening for "+msg);
+    if (debug) log("server/router.js:: listen(); add msg="+msg);
     listeners.push({name:msg,func:action});
 }
 
-// ... will remove all matching calls
-// if any are identical
+/**
+* Unbinds the given message and the given function.
+* @param msg -- string with the message name
+* @param action -- the function associated with that message
+* @memberof module:server/Router
+*/
 Router.prototype.unlisten = function(msg,action) {
-    if (debug) log("Router: unlistening to "+msg);
+    if (debug) log("server/router.js: unlisten(); msg="+msg);
     var i = listeners.length-1;
     var L = {name:msg, func:action};
     // ele's with indices lt i do not change
@@ -27,10 +43,12 @@ Router.prototype.unlisten = function(msg,action) {
     }
 }
 
-// assumes: 
-//   msg.socket
-//   msg.name
-//   msg.data
+/**
+* Calls the function bound to the given message, if
+* one exists.
+* @param msg - the message name
+* @memberof module:server/Router
+*/
 Router.prototype.route = function(msg) {
     
     if (debug) log("server/router.js: route(msg); msg.name=" + msg.name);

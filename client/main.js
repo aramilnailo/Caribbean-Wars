@@ -1,3 +1,4 @@
+
 require(["client", "router", "chat", "stats", "login", "render", "saves", "view", "mapeditor"], 
 	function(client, router, chat, stats, login, render, saves, view, mapeditor) {
 
@@ -7,7 +8,7 @@ client.socket = socket;
 client.listen(router);
 chat.listen(router);
 stats.listen(router);
-login.listen(router);
+viewlogin.listen(router);
 render.listen(router);
 saves.listen(router);
 view.listen(router);

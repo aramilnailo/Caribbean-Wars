@@ -5,17 +5,40 @@ var log = require("./debug.js").log;
 var server = require("./server.js");
 var dbi = require("./dbi.js");
 
+/**
+* The session namespace controls the current game session
+* -- the list of players, the current map, and the current
+* host player.
+* @module server/Session
+*/
 var Session = function() {};
 
-Session.prototype.listen = function(sox) {
+/**
+* Registers functions in this namespace with the given
+* message router.
+* @param router - the message router
+* @memberof module:server/Session
+*/
+Session.prototype.listen = function(router) {
     if(debug) log("server/session.js: listen()");
-    sox.listen("endGameSession", this.endGameSession);
-    sox.listen("exitGameSession", this.exitGameSession);
-    sox.listen("enterGameSession", this.enterGameSession);
+    router.listen("endGameSession", this.endGameSession);
+    router.listen("exitGameSession", this.exitGameSession);
+    router.listen("enterGameSession", this.enterGameSession);
 }
 
+/**
+* Game session object: host, map file path, and list of players.
+* @memberof module:server/Session
+*/
 var GAME_SESSION = {host:null, map:"", players:[]};
 
+/**
+* Resets the game session object and ejects all players
+* to their login screen.
+* @param data - the data passed by the caller
+* @param data.clients - client list
+* @memberof module:server/Session
+*/
 Session.prototype.endGameSession = function(data) {
     if(debug) log("server/session.js: endGameSession()");
     // Reset the object
@@ -36,6 +59,12 @@ Session.prototype.endGameSession = function(data) {
     }
 }
 
+/**
+* Removes a given player from the game session. Ends
+* the game session if the player is host.
+* @param data - the player to remove
+* @memberof module:server/Session
+*/
 Session.prototype.exitGameSession = function (data) {
     if(debug) log("server/session.js: exitGameSession()");
     // Remove the player from the game session list
@@ -47,6 +76,12 @@ Session.prototype.exitGameSession = function (data) {
     if(data === GAME_SESSION.host) this.endGameSession(data);
 }
 
+/**
+* Adds a given player to the game session. Player is
+* made host if they are the first to be added.
+* @param data - the player to be added
+* @memberof module:server/Session
+*/
 Session.prototype.enterGameSession = function(data) {
     if(debug) log("server/session.js: enterGameSession()");
     // If no one is online, the player becomes host

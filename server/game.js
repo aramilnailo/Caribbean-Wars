@@ -11,15 +11,34 @@ var dbi = require("./dbi.js");
 
 //============== GAME LOGIC =========================================
 
+/**
+* The game namespace contains the functions related to the
+* game engine--processing input, updating the simulation,
+* and emitting the game state.
+* @module server/Game
+*/
 var Game = function () {};
 
+/**
+* Registers functions in the namespace with the given
+* message router.
+* @param router - the message router
+* @memberof module:server/Game
+*/
 Game.prototype.listen = function(router) {
     if (debug) log("server/game.js: listen()");
     router.listen("runGame",this.run);
     router.listen("keyPress",this.keyPress);
 }
 
-// Recieved game input
+/**
+* Updates the client's player according to which
+* keys the client is pressing.
+* @param param - data passed by the router
+* @param param.client - the client pressing keys
+* @param param.data - the keys being pressed
+* @memberof module:server/Game
+*/
 Game.prototype.keyPress = function (param) {
     if (debug) log("server/game.js: keyPress()");
     var client = param.client;
@@ -38,6 +57,11 @@ Game.prototype.keyPress = function (param) {
 	}
 }
 
+/**
+* The core game loop. Updates the player positions
+* and emits them to all clients.
+* @memberof module:server/Game
+*/
 Game.prototype.update = function() {
     //if (debug) log("server/game.js: update()");
     var pack = [], p, i, socket;
@@ -63,7 +87,11 @@ Game.prototype.update = function() {
     }
 }
 
-// Updates secondsPlayed database field
+/**
+* Updates the "seconds played" stat for every player
+* currently in the game.
+* @memberof module:server/Game
+*/
 Game.prototype.updateStats = function() {
     //if (debug) log("server/game.js: updateStats()");
 	for(var i in GAME_SESSION.players){
