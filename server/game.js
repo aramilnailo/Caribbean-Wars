@@ -49,7 +49,10 @@ Game.prototype.update = function() {
 	// Send the packet to each client
 	for(var i in CLIENT_LIST) {
 	    socket = CLIENT_LIST[i].socket;
-	    server.emit(socket, "newPositions", pack);
+	    if (CLIENT_LIST[i].player.usertype === "editor")
+		server.emit(socket, "refressEditScreen");
+	    else 
+		server.emit(socket, "newPositions", pack);
 	}
 }
 

@@ -50,9 +50,10 @@ var dom = {
 
     // MapEditor window
     mapEditorScreen:document.getElementById("map-editor-screen"),
-    mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
-    mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
+    mapEditorSavedMapsListButton:document.getElementById("map-editor-saved-maps-btn"),
+    mapEditorSavedMapsList:document.getElementById("map-editor-saved-maps-list"),
     mapEditorCanvas:document.getElementById("map-editor-canvas"),
+    mapEditorIconPanel:document.getElementById("map-editor-icon-panel"),
     mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
     mapEditorPaintWoodsIcon:document.getElementById("map-editor-paint-woods-img"),
     mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
@@ -63,6 +64,7 @@ var dom = {
     mapEditorFileMenuHidden:true,
 
 
+    
     /*
     mapEditorSavedMapListButton:document.getElementById("map-editor-saved-maps-btn"),
     mapEditorSavedMapList:document.getElementById("map-editor-saved-maps-list"),
@@ -112,8 +114,8 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
 dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick", data:null}); }
 
     // map editor event handling
-    dom.mapEditorSavedMapListButton.onclick =
-	function() { router.route({name:"mapEditorSavedMapListButtonClick", data:null}); }
+    dom.mapEditorSavedMapsListButton.onclick =
+	function() { router.route({name:"mapEditorSavedMapsListButtonClick", data:null}); }
     dom.mapEditorSaveMapButton.onclick =
 	function() { router.route({name:"mapEditorSaveMapButtonClick", data:null}); }
     //canvas

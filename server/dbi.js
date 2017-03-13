@@ -197,6 +197,7 @@ dbi.prototype.getSavedGamesList = function(cb) {
 
 // Retrieves the map file path from the saved games table
 dbi.prototype.getMapFilePath = function(file_name, cb) {
+    if (debug) log("dbi.js: getMapFilePath("+file_name+")");
     var sql = "SELECT * FROM ?? WHERE ??=?";
     var inserts = ["saved_games", "file_name", file_name];
     db.query(mysql.format(sql, inserts), function(err, rows) {

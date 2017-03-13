@@ -28,11 +28,12 @@ Client.prototype.players = [];
     
     
 Client.prototype.listen = function(router) {
-	router.listen("collapseMenus", this.hideAllMenus);
-	router.listen("newGameMapResponse", this.setMap);
-	router.listen("evalResponse", this.logToConsole);
-        router.listen("alert", this.pushAlert);
-        router.listen("adminAccessRequired",this.adminAccessRequired);
+    router.listen("collapseMenus", this.hideAllMenus);
+    router.listen("newGameMapResponse", this.setMap);
+    router.listen("getEditMapResponse", this.setMap);
+    router.listen("evalResponse", this.logToConsole);
+    router.listen("alert", this.pushAlert);
+    router.listen("adminAccessRequired",this.adminAccessRequired);
 }
 
 Client.prototype.setMap = function(data) {
@@ -49,7 +50,7 @@ Client.prototype.setMap = function(data) {
 	cl.map.name = data.name;
 	cl.map.ports = data.ports;
 	//new Client().map = data;	
-	if (debug.client) debug.log("client/client.js: data.lx,ly=="+data.lx+","+data.ly);
+	//if (debug.client) debug.log("client/client.js: data.lx,ly=="+data.lx+","+data.ly);
     }
 }
 

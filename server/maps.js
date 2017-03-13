@@ -20,9 +20,10 @@ var Maps = function() {};
 
 Maps.prototype.listen = function(router) {
     router.listen("getGameMap", this.getGameMap);
-    router.listen("loadNewGameMap",this.loadNewGameMap);
-    router.listen("loadMapCopy",this.loadMapCopy);
-    router.listen("saveMap",this.saveMap);
+    router.listen("getEditMap", this.getEditMap);
+    //router.listen("loadNewGameMap",this.loadNewGameMap);
+    //router.listen("loadMapCopy",this.loadMapCopy);
+    //router.listen("saveMap",this.saveMap);
 }
 
 Maps.prototype.getGameMap = function(param) {
@@ -40,6 +41,39 @@ Maps.prototype.getGameMap = function(param) {
 	    server.emit(client.socket, "alert", "Could not read from map file");
 	}
     });
+}
+
+
+Maps.prototype.getEditMap = function(param) {
+    if (debug) {
+	log("server/maps: getEditMap()");
+    }
+    //var filename = param.data.filename;
+    var client = param.client;
+    var username = param.data.username;
+    var usertype = param.data.usertype;
+    //if (debug) log("server/maps.js, getEditMap(): filename="+filename);
+    if (debug) log("server/maps.js, getEditMap(): username="+param.data.username);
+    if (debug) log("server/maps.js, getEditMap(): usertype="+param.data.usertype);
+    
+    if(usertype != "editor") {
+	server.emit(client.socket, "alert", "Map write access restricted to map editors.");
+    } else {
+	if(! param.data.filename) param.data.filename = "defaulteditmap";
+	dbi.getMapFilePath(param.data.filename, function(path) {
+	    if (debug) log("server/maps.js, getEditMap(): path = "+path);
+	    if(path) {
+		files.readFile(path, function(data) {	
+		    if(data) {
+			//server.emit(client.socket, "newGameMapResponse", {data:data, path:GAME_SESSION.map});
+			server.emit(client.socket, "getEditMapResponse", data);
+		    } else {
+			server.emit(client.socket, "alert", "Could not load "+param.data.filename);
+		    }
+		});
+	    }
+	});
+    }
 }
 
 Maps.prototype.loadNewGameMap = function(param) {

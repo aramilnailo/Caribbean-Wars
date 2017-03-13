@@ -19,10 +19,10 @@ Render.prototype.drawScreen = function(data) {
     var ly = client.map.ly;
     var lx = client.map.lx;
     //if (debug.render) log("client/render: lx="+lx+"; ly="+ly);  
-    for(i = 0; i < 10; i++) {
-	for(j = 0; j < 10; j++) {
+    for(i = 0; i < lx; i++) {
+	for(j = 0; j < ly; j++) {
 	    // 0 = blue, 1 = tan, 2 = green
-	    ch = client.map.data[10 * i + j]; // Current cell
+	    ch = client.map.data[lx*ly * i + j]; // Current cell
 	    dom.canvas.fillStyle = (ch == "0") ? "#42C5F4" :
 		(ch == "1") ? "#C19E70" : "#2A8C23";
 	    dom.canvas.fillRect(j * 50, i * 50, 50, 50);

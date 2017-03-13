@@ -38,12 +38,13 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      * 
      */
     var MapEditor = function () {
+	/*
 	var mapeditor = {
 
-	    /** Stack that stores map objects for Ctrl-Z reversion */
+	    //// Stack that stores map objects for Ctrl-Z reversion 
 	    mapEditHistory:[],
 	    
-	    /** Current map index */
+	    // Current map index 
 	    currentMap:0,
 	    
 	    // editor states
@@ -56,11 +57,26 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	}
 	// need to test mapData here, and load default.
 	
-	mapEditHistory.push(client.map);
-	return mapeditor;
+	mapeditor.mapEditHistory.push(client.map);
+    return mapeditor;
+	*/
+	this.mapEditHistory.push(client.map);
     };
 
 
+    MapEditor.prototype.mapEditHistory = [];
+    // Current map index 
+    MapEditor.prototype.currentMap = 0;
+    // editor states
+    MapEditor.prototype.paintingLand = false;
+    MapEditor.prototype.paintingWater = false;
+    MapEditor.prototype.paintingPort = false;
+    MapEditor.prototype.paintingWoods= false;
+
+    MapEditor.prototype.zoomLevel = 1.0
+
+    
+    
     MapEditor.prototype.listen = function(router) {
 	
 	router.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
@@ -87,9 +103,30 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	router.listen("mapEditorCanvasMouseMove",this.onCanvasMouseMove);
 	
 	router.listen("keyPressed",this.onKeyPress);
-	//router.listen("keyReleased",this.onKeyReleased) ?	
+	//router.listen("keyReleased",this.onKeyReleased) ?
+	router.listen("refreshEditScreen",this.drawEditScreen);
     }
 
+
+    MapEditor.prototype.drawEditScreen = function(event) {
+	var i, j, ch;
+	// Clear screen
+	dom.mapEditorCanvas.clearRect(0, 0, 500, 500);
+	var ly = client.map.ly;
+	var lx = client.map.lx;
+	// Draw the map
+	//if (debug.render) log("client/render: lx="+lx+"; ly="+ly);
+	for(i = 0; i < lx; i++) {
+	    for(j = 0; j < ly; j++) {
+		// 0 = blue, 1 = tan, 2 = green
+		ch = client.map.data[lx*ly * i + j]; // Current cell
+		dom.canvas.fillStyle = (ch == "0") ? "#42C5F4" :
+		    (ch == "1") ? "#C19E70" : "#2A8C23";
+		dom.canvas.fillRect(j * 50, i * 50, 50, 50);
+	    }
+	}
+    }
+    
     ////////////////////
     // Land icon functionality
     ////////////////////
@@ -254,12 +291,13 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     /**
      *
      */
-    savedMapListButton.onclick = function () {};
+    dom.mapEditorSavedMapsListButton.onclick = function () {};
+    dom.mapEditorSaveMapButton.onclick = function () {};
     
     /**
      *
      */
-    logoutButton.onclick = function () {
+    dom.mapEditorLogoutButton.onclick = function () {
 	this.clear();
     }
        
@@ -286,7 +324,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     };
     
     MapEditor.prototype.onCanvasMouseMove = function (event) {
-	this.onCanvasMouseDown(event);
+	//this.onCanvasMouseDown(event);
     };
     
            
@@ -343,26 +381,26 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     /**
      * 
      */
-    MapEditor.prototype.mapEditorCanvas.mapEditorCanvasMouseMove = function(event) {
+    MapEditor.prototype.mapEditorCanvasMouseMove = function(event) {
 	var x = event.clientX;
 	var y = event.clientY;
     };
     /**
      * Toggle painting land on the current map.
      */
-    MapEditor.prototype.mapEditorPaintLandIcon.mapEditorPaintLandIconClick = function() {};
+    MapEditor.prototype.mapEditorPaintLandIconClick = function() {};
 
     /**
      * Toggle painting water on the current map.
      */
-    MapEditor.prototype.mapEditorPaintWaterIcon.mapEditorPaintWaterIconClick = function() {
+    MapEditor.prototype.mapEditorPaintWaterIconClick = function() {
     };
 
     /**
      * Toggle painting ports on the current map.
      */
-    MapEditor.prototype.mapEditorPaintPortIcon.mapEditorPaintPortIconClick = function() {};
+    MapEditor.prototype.mapEditorPaintPortIconClick = function() {};
     
-   
+    return new MapEditor();
 
 });
