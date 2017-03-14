@@ -152,7 +152,7 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
 // Inserts the string 'filename' into the saved games database
 
 /**
- * Inserts a new row into the saved_games table in the database containing a new map file
+ * Inserts a new row into the saved_games table in the database containing a new game file
  * @param data - the packet containing the needed data
  * @param data.file_name - the name of the file to be added
  * @param data.author - the username of the user who is adding the map
@@ -163,6 +163,35 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
 dbi.prototype.saveGameFilename = function(data,cb) {
     if (data.file_name) {
 	db.query("INSERT INTO saved_games SET ?;",
+		 {author:data.author,
+		  file_name:data.file_name,
+		  map_file_path:data.map_file_path},
+		 function(err) {
+		     if(err) {
+			 if (debug) log(err.message);
+			 cb(false);
+		     } else {
+			 cb(true);
+		     }
+		 });
+    } else {
+	cb(false);
+    }
+}
+
+
+/**
+ * Inserts a new row into the saved_maps table in the database containing a new map file
+ * @param data - the packet containing the needed data
+ * @param data.file_name - the name of the file to be added
+ * @param data.author - the username of the user who is adding the map
+ * @param data.map_file_path - the location of the map file
+ * @param cb - callback function. returns true if successful with no errors, false otherwise
+ * @memberof module:server/dbi
+ */
+dbi.prototype.saveMapFilename = function(data,cb) {
+    if (data.file_name) {
+	db.query("INSERT INTO saved_maps SET ?;",
 		 {author:data.author,
 		  file_name:data.file_name,
 		  map_file_path:data.map_file_path},
@@ -202,9 +231,8 @@ dbi.prototype.removeUser = function(name, cb) {
 }
 
 
-// srw: check admin status here?
 /**
- * Removes the given map from the saved_games table in the database
+ * Removes the given game from the saved_games table in the database
  * @param data - packet containing needed data
  * @param data.file_name - name of the file to be deleted
  * @param data.author - name of user who's file is to be deleted
@@ -226,6 +254,31 @@ dbi.prototype.removeSavedGame = function(data, cb) {
 		}
 	});
 }
+
+/**
+ * Removes the given map from the saved_games table in the database
+ * @param data - packet containing needed data
+ * @param data.file_name - name of the file to be deleted
+ * @param data.author - name of user who's file is to be deleted
+ * @param cb - callback function. returns true if succeeded with no errors, false if otherwise 
+ * @memberof module:server/dbi
+ */
+dbi.prototype.removeSavedMap = function(data, cb) {
+    var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
+    var inserts = ["saved_maps", "file_name", data.file_name,
+		   "author", data.author, data.author, "admin"];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+		if(err) {
+		    if (debug) log(err.message);
+		    cb(false);
+		} else if(rows.affectedRows > 0) {
+		    cb(true); // If a successful deletion occurred
+		} else {
+		    cb(false);
+		}
+	});
+}
+
 
 //=================== RETRIEVAL =================================================
 
@@ -264,6 +317,46 @@ dbi.prototype.getSavedGamesList = function(cb) {
     });
 }
 
+
+/**
+ * Retrieves all of the information stored on the saved_games table on the database
+ * @param cb - callback function. returns an array of the rows if succeeded with no errors, null otherwise
+ * @memberof module:server/dbi
+ */
+dbi.prototype.getSavedMapsList = function(cb) {
+    db.query("SELECT * FROM saved_maps;", function(err, rows) {
+	if(err) {
+	    if (debug) log(err.message);
+	    cb(null);
+	} else {
+	    cb(rows);
+	}
+    });
+}
+
+
+/**
+ * Retrieves the file path for the given map from the saved_games table on the database
+ * @param file_name - the name of the file to be located
+ * @param cb - callback function. returns the file path if succeeded with no errors, null otherwise
+ * @memberof module:server/dbi
+ */
+dbi.prototype.getGameMapFilePath = function(file_name, cb) {
+    if (debug) log("dbi.js: getGameMapFilePath("+file_name+")");
+    var sql = "SELECT * FROM ?? WHERE ??=?";
+    var inserts = ["saved_games", "file_name", file_name];
+    db.query(mysql.format(sql, inserts), function(err, rows) {
+	if(err) {
+	    if (debug) log(err.message);
+	    cb(null);
+	} else if(rows.length > 0) {
+	    cb(rows[0].map_file_path);
+	} else {
+	    cb(null);
+	}
+    });
+}
+
 /**
  * Retrieves the file path for the given map from the saved_games table on the database
  * @param file_name - the name of the file to be located
@@ -273,13 +366,13 @@ dbi.prototype.getSavedGamesList = function(cb) {
 dbi.prototype.getMapFilePath = function(file_name, cb) {
     if (debug) log("dbi.js: getMapFilePath("+file_name+")");
     var sql = "SELECT * FROM ?? WHERE ??=?";
-    var inserts = ["saved_games", "file_name", file_name];
+    var inserts = ["saved_maps", "file_name", file_name];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);
 	    cb(null);
 	} else if(rows.length > 0) {
-	    cb(rows[0].map_file_path);
+	    cb(rows[0].path);
 	} else {
 	    cb(null);
 	}

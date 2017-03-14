@@ -28,6 +28,7 @@ Maps.prototype.listen = function(router) {
     //router.listen("loadMapCopy",this.loadMapCopy);
     router.listen("saveMap",this.saveMap);
     router.listen("loadSavedMap",this.loadSavedEditMap);
+    router.listen("savedMapsListRequest",this.savedMapsListRequest);
 }
 
 /**
@@ -55,6 +56,15 @@ Maps.prototype.getGameMap = function(param) {
 	}
     });
 }
+
+Maps.prototype.savedMapsListRequest = function(param) {
+    if (debug) log ("server/maps.js: savedMapsListRequest()");
+    var client = param.client;
+    dbi.getSavedMapsList(function(data) {
+	server.emit(client.socket,"savedMapsListResponse",data);
+    });
+}
+
 
 
 Maps.prototype.getEditMap = function(param) {

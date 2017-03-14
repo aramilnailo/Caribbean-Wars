@@ -18,9 +18,10 @@ var Saves = function() {}
 * @memberof module:server/saves
 */
 Saves.prototype.listen = function(router) {
-	router.listen("deleteSavedGame", this.deleteSavedGame);
-	router.listen("saveGameRequest", this.saveGameRequest);
-	router.listen("savedGamesListRequest", this.savedGamesListRequest);
+    router.listen("deleteSavedGame", this.deleteSavedGame);
+    router.listen("saveGameRequest", this.saveGameRequest);
+    router.listen("savedGamesListRequest", this.savedGamesListRequest);
+    router.listen("savedMapsListRequest", this.savedMapsListRequest);
 }
 
 /**

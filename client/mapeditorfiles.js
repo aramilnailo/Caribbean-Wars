@@ -32,7 +32,7 @@ MapEditorFiles.prototype.listen = function(router) {
 */
 MapEditorFiles.prototype.toggleSavedMapsList = function() {
     if(dom.mapEditorMapsListHidden) {
-		client.emit("mapEditorSavedMapsListRequest", null);
+		client.emit("savedMapsListRequest", null);
 		dom.mapEditorSavedMapsListButton.innerHTML = "Hide saved maps";
 		dom.mapEditorMapsListHidden = false;
     } else {

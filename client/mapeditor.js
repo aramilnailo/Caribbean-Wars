@@ -29,7 +29,7 @@
     */
 
 
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client,mapeditorfiles) {
        
     /**
      * Map editor class
@@ -107,6 +107,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	router.listen("getEditMapResponse",this.loadNewEditMap);
 	router.listen("mapEditorLogoutButtonClick",this.mapEditorLogoutButtonClick);
 	router.listen("mapEditorLoadMapButtonClick",this.mapEditorLoadMapButtonClick);
+	router.listen("mapEditorSavedMapsListButtonClick",this.mapEditorSavedMapsListButtonClick);
 	
     }
 
@@ -305,12 +306,11 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     MapEditor.prototype.displayMapFileMenu = function () {
 
     }
-    
+        
     /**
      *
      */
-    dom.mapEditorSavedMapsListButton.onclick = function () {};
-    dom.mapEditorSaveMapButton.onclick = function () {};
+    MapEditor.prototype.mapEditorSaveMapButtonClick = function (event) {};
            
     /*
       CANVAS EVENT HANDLERS
@@ -362,11 +362,16 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     /**
      * 
      */
-    MapEditor.prototype.mapEditorSavedMapListButtonClick = function () { };
+    MapEditor.prototype.mapEditorSavedMapsListButtonClick = function () {
+	if (debug.mapeditor) debug.log("client/mapeditorfiles.js: mapEditorSavedMapsListButtonClick()");
+	mapeditorfiles.toggleSavedMapsList();
+    };
+    
     /**
      * 
      */
     MapEditor.prototype.mapEditorSavedMapListButtonClick = function () { };
+    
     /**
      * 
      */
