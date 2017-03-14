@@ -50,7 +50,7 @@ var dom = {
 
     // MapEditor window
     mapEditorScreen:document.getElementById("map-editor-screen"),
-
+    
     mapEditorCanvas:document.getElementById("map-editor-canvas").getContext("2d"),
     mapEditorIconPanel:document.getElementById("map-editor-icon-panel"),
     mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
@@ -58,7 +58,7 @@ var dom = {
     mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
     mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
     mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
-
+    
     // MapEditor saved maps list
     mapEditorSavedMapsListButton:document.getElementById("map-editor-saved-maps-btn"),
     mapEditorSavedMapsList:document.getElementById("map-editor-saved-maps-list"),

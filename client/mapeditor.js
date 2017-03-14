@@ -29,7 +29,7 @@
     */
 
 
-define(["debug", "dom", "client", "router"], function(debug, dom, client, router) {
+define(["debug", "dom", "client"], function(debug, dom, client) {
        
     /**
      * Map editor class
@@ -76,36 +76,38 @@ define(["debug", "dom", "client", "router"], function(debug, dom, client, router
 
     
     
-    MapEditor.prototype.listen = function(r) {
+    MapEditor.prototype.listen = function(router) {
 	
-	r.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
-	r.listen("mapEditorPaintSandIconClick",this.raiseWaterIcon);
-	r.listen("mapEditorPaintSandIconClick",this.raisePortIcon);
-	r.listen("mapEditorPaintSandIconClick",this.raiseWoodsIcon);
+	router.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
+	router.listen("mapEditorPaintSandIconClick",this.raiseWaterIcon);
+	router.listen("mapEditorPaintSandIconClick",this.raisePortIcon);
+	router.listen("mapEditorPaintSandIconClick",this.raiseWoodsIcon);
 	
-	r.listen("mapEditorPaintWaterIconClick",this.raiseSandIcon);
-	r.listen("mapEditorPaintWaterIconClick",this.lowerWaterIcon);
-	r.listen("mapEditorPaintWaterIconClick",this.raisePortIcon);
-	r.listen("mapEditorPaintWaterIconClick",this.raiseWoodsIcon);
+	router.listen("mapEditorPaintWaterIconClick",this.raiseSandIcon);
+	router.listen("mapEditorPaintWaterIconClick",this.lowerWaterIcon);
+	router.listen("mapEditorPaintWaterIconClick",this.raisePortIcon);
+	router.listen("mapEditorPaintWaterIconClick",this.raiseWoodsIcon);
 
-	r.listen("mapEditorPaintPortIconClick",this.raiseSandIcon);
-	r.listen("mapEditorPaintPortIconClick",this.raiseWaterIcon);
-	r.listen("mapEditorPaintPortIconClick",this.lowerPortIcon);
-	r.listen("mapEditorPaintPortIconClick",this.raiseWoodsIcon);
+	router.listen("mapEditorPaintPortIconClick",this.raiseSandIcon);
+	router.listen("mapEditorPaintPortIconClick",this.raiseWaterIcon);
+	router.listen("mapEditorPaintPortIconClick",this.lowerPortIcon);
+	router.listen("mapEditorPaintPortIconClick",this.raiseWoodsIcon);
 
-	r.listen("mapEditorPaintWoodsIconClick",this.raiseSandIcon);
-	r.listen("mapEditorPaintWoodsIconClick",this.raiseWaterIcon);
-	r.listen("mapEditorPaintWoodsIconClick",this.raisePortIcon);
-	r.listen("mapEditorPaintWoodsIconClick",this.lowerWoodsIcon);
+	router.listen("mapEditorPaintWoodsIconClick",this.raiseSandIcon);
+	router.listen("mapEditorPaintWoodsIconClick",this.raiseWaterIcon);
+	router.listen("mapEditorPaintWoodsIconClick",this.raisePortIcon);
+	router.listen("mapEditorPaintWoodsIconClick",this.lowerWoodsIcon);
 
-	r.listen("mapEditorCanvasMouseDown",this.onCanvasMouseDown);
-	r.listen("mapEditorCanvasMouseMove",this.onCanvasMouseMove);
+	router.listen("mapEditorCanvasMouseDown",this.onCanvasMouseDown);
+	router.listen("mapEditorCanvasMouseMove",this.onCanvasMouseMove);
 	
-	r.listen("keyPressed",this.onKeyPress);
+	router.listen("keyPressed",this.onKeyPress);
 	//router.listen("keyReleased",this.onKeyReleased) ?
-	r.listen("refreshEditScreen",this.drawEditScreen);
-	r.listen("getEditMapResponse",this.loadNewEditMap);
-	r.listen("mapEditorLogoutButtonClick",this.mapEditorLogoutButtonClick);
+	router.listen("refreshEditScreen",this.drawEditScreen);
+	router.listen("getEditMapResponse",this.loadNewEditMap);
+	router.listen("mapEditorLogoutButtonClick",this.mapEditorLogoutButtonClick);
+	router.listen("mapEditorLoadMapButtonClick",this.mapEditorLoadMapButtonClick);
+	
     }
 
 
@@ -423,7 +425,14 @@ define(["debug", "dom", "client", "router"], function(debug, dom, client, router
 	client.emit("logout",null);
     };
 
-
+    MapEditor.prototype.mapEditorLoadMapButtonClick = function() {
+	var filename = window.prompt("Load file: ","filename");
+	if (filename) {
+	    client.emit("getEditMap",{username:client.username,
+				      usertype:client.usertype,
+				      filename:filename});
+	}
+    };
 
 
     
