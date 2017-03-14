@@ -70,20 +70,19 @@
 </div>
 
 <div id="map-editor-screen" style="display:none;">
-  <button id="map-editor-saved-maps-btn">Saved maps</button>
-  <div id="map-editor-saved-maps-list"></div>
   <canvas id="map-editor-canvas" width="500" height="500"
 	  style="border:1px solid black;font:30px Arial;"></canvas>
   <div id="map-editor-icon-panel" style="inline-block">
-    <img id="map-editor-paint-land-img"></img>
-    <img id="map-editor-paint-water-img"></img>
-    <img id="map-editor-paint-port-img"></img>
-    <img id="map-editor-paint-woods-img"></img>
+    <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
+    <img id="map-editor-paint-sand-img" alt="sand" src="client/imgs/mapeditorsandiconup.png">
+    <img id="map-editor-paint-grass-img" alt="grass" src="client/imgs/mapeditorgrassiconup.png">
+    <img id="map-editor-paint-port-img" alt="port" src="clientimgs/mapeditorporticonup.png">
   </div>
   <button id="map-editor-logout-btn">Logout</button>
-  <div id="map-editor-saved-maps-list" style="display:none"></div>
+  <button id="map-editor-saved-maps-btn">Saved maps</button>
   <button id="map-editor-save-map-btn">Save as</button>
   <button id="map-editor-load-map-btn">Load</button>
+  <div id="map-editor-saved-maps-list" style="display:none"></div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

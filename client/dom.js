@@ -53,8 +53,8 @@ var dom = {
     
     mapEditorCanvas:document.getElementById("map-editor-canvas").getContext("2d"),
     mapEditorIconPanel:document.getElementById("map-editor-icon-panel"),
-    mapEditorPaintLandIcon:document.getElementById("map-editor-paint-land-img"),
-    mapEditorPaintWoodsIcon:document.getElementById("map-editor-paint-woods-img"),
+    mapEditorPaintSandIcon:document.getElementById("map-editor-paint-sand-img"),
+    mapEditorPaintGrassIcon:document.getElementById("map-editor-paint-grass-img"),
     mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
     mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
     mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
@@ -117,13 +117,13 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
     dom.mapEditorCanvas.onmousemove =
 	function(event) { router.route({name:"mapEditorCanvasMouseMove", data:event}); }
     //land icon
-    dom.mapEditorPaintLandIcon.onclick =
-	function() { router.route({name:"mapEditorPaintLandIconClick", data:null}); }
-    dom.mapEditorPaintLandIcon.title = "land";
+    dom.mapEditorPaintSandIcon.onclick =
+	function() { router.route({name:"mapEditorPaintSandIconClick", data:null}); }
+    dom.mapEditorPaintSandIcon.title = "sand";
     //woods icon
-    dom.mapEditorPaintWoodsIcon.onclick =
-	function() { router.route({name:"mapEditorPaintWoodsIconClick", data:null}); }
-    dom.mapEditorPaintWoodsIcon.title = "woods";
+    dom.mapEditorPaintGrassIcon.onclick =
+	function() { router.route({name:"mapEditorPaintGrassIconClick", data:null}); }
+    dom.mapEditorPaintGrassIcon.title = "grass";
     //water icon
     dom.mapEditorPaintWaterIcon.onclick =
 	function() { router.route({name:"mapEditorPaintWaterIconClick", data:null}); }

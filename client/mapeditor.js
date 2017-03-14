@@ -48,10 +48,10 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	    currentMap:0,
 	    
 	    // editor states
-	    paintingLand:false,
+	    paintingSand:false,
 	    paintingWater:false,
 	    paintingPort:false,
-	    paintingWoods:false,
+	    paintingGrass:false,
 
 	    zoomLevel:1.0
 	}
@@ -67,10 +67,10 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     // Current map index 
     MapEditor.prototype.currentMap = 0;
     // editor states
-    MapEditor.prototype.paintingLand = false;
+    MapEditor.prototype.paintingSand = false;
     MapEditor.prototype.paintingWater = false;
     MapEditor.prototype.paintingPort = false;
-    MapEditor.prototype.paintingWoods= false;
+    MapEditor.prototype.paintingGrass= false;
 
     MapEditor.prototype.zoomLevel = 1.0
 
@@ -147,71 +147,71 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     }
     
     ////////////////////
-    // Land icon functionality
+    // Sand icon functionality
     ////////////////////
-    MapEditor.prototype.landicondownimg = "assets/mapeditorlandicondown.png";
-    MapEditor.prototype.landiconupimg = "assets/mapeditorlandiconup.png";
+    MapEditor.prototype.sandicondownimg = "imgs/mapeditorsandicondown.png";
+    MapEditor.prototype.sandiconupimg = "imgs/mapeditorsandiconup.png";
     /**
      *
      */
-    MapEditor.prototype.lowerLandIcon = function() {
-	dom.mapEditorPaintLandIcon.img = this.landicondownimg;
-	this.paintingLand = true;
+    MapEditor.prototype.lowerSandIcon = function() {
+	dom.mapEditorPaintSandIcon.src = this.landicondownimg;
+	this.paintingSand = true;
     }
     /**
      *
      */
-    MapEditor.prototype.raiseLandIcon = function() {
-	dom.mapEditorPaintLandIcon.img = this.landiconupimg;
-	this.paintingLand = false;
+    MapEditor.prototype.raiseSandIcon = function() {
+	dom.mapEditorPaintSandIcon.src = this.sandiconupimg;
+	this.paintingSand = false;
     }
 
     ////////////////////
     // Water icon functionality
     ////////////////////
-    MapEditor.prototype.watericondownimg = "assets/mapeditorwatericondown.png";
-    MapEditor.prototype.watericonupimg = "assets/mapeditorwatericonup.png";
+    MapEditor.prototype.watericondownimg = "imgs/mapeditorwatericondown.png";
+    MapEditor.prototype.watericonupimg = "imgs/mapeditorwatericonup.png";
     /**
      *
      */
     MapEditor.prototype.lowerWaterIcon = function() {
-	dom.mapEditorPaintWaterIcon.img = this.watericondownimg;
+	dom.mapEditorPaintWaterIcon.src = this.watericondownimg;
 	this.paintingWater = true;
     }
     /**
      *
      */
     MapEditor.prototype.raiseWaterIcon = function() {
-	dom.mapEditorPaintWaterIcon.img = this.watericonupimg;
+	dom.mapEditorPaintWaterIcon.src = this.watericonupimg;
 	this.paintingWater = false;
     }
 
     ////////////////////
-    // Woods icon functionality
+    // Grass icon functionality
     ////////////////////
-    MapEditor.prototype.woodsicondownimg = "assets/mapeditorwoodsicondown.png";
-    MapEditor.prototype.woodsiconupimg = "assets/mapeditorwoodsiconup.png";
+    MapEditor.prototype.grassicondownimg = "imgs/mapeditorgrassicondown.png";
+    MapEditor.prototype.grassiconupimg = "imgs/mapeditorgrassiconup.png";
     /**
      *
      */
-    MapEditor.prototype.lowerWoodsIcon = function() {
-	dom.mapEditorPaintWoodsIcon.img = this.woodsicondownimg;
-	this.paintingWoods = true;
+    MapEditor.prototype.lowerGrassIcon = function() {
+	dom.mapEditorPaintGrassIcon.src = this.grassicondownimg;
+	this.paintingGrass = true;
     }
     /**
      *
      */
-    MapEditor.prototype.raiseWoodsIcon = function() {
-	dom.mapEditorPaintWoodsIcon.img = this.woodsiconupimg;
-	this.paintingWoods = false;
+    MapEditor.prototype.raiseGrassIcon = function() {
+	dom.mapEditorPaintGrassIcon.src = this.grassiconupimg;
+	this.paintingGrass = false;
     }
 
     
     ////////////////////
     // Port icon functionality
     ////////////////////
-    MapEditor.prototype.porticondownimg = "assets/mapeditorporticondown.png";
-    MapEditor.prototype.porticonupimg = "assets/mapeditorporticonup.png";
+    MapEditor.prototype.porticondownimg = "imgs/mapeditorporticondown.png";
+    MapEditor.prototype.porticonupimg = "imgs/mapeditorporticonup.png";
     /**
      *
      */
@@ -299,18 +299,14 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	}
     };
     
-
-    /**
-     *
-     */
-    MapEditor.prototype.displayMapFileMenu = function () {
-
-    }
         
     /**
      *
      */
-    MapEditor.prototype.mapEditorSaveMapButtonClick = function (event) {};
+    MapEditor.prototype.mapEditorSaveMapButtonClick = function (event) {
+	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorSaveMapButtonClick()");
+	
+    };
            
     /*
       CANVAS EVENT HANDLERS
@@ -323,8 +319,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	var change = false;
 	var ch;
 	if (paintingWater) { ch = 0; change = true; }
-	if (paintingLand) { ch = 1; change = true; }
-	if (paintingWoods) { ch = 2; change = true; }
+	if (paintingSand) { ch = 1; change = true; }
+	if (paintingGrass) { ch = 2; change = true; }
 	if (paintingPort) { ch = 3; change = true; }
 	if (change) {
 	    var map = mapEditHistory[currentMap].copy();
@@ -407,7 +403,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     /**
      * Toggle painting land on the current map.
      */
-    MapEditor.prototype.mapEditorPaintLandIconClick = function() {};
+    MapEditor.prototype.mapEditorPaintSandIconClick = function() {};
 
     /**
      * Toggle painting water on the current map.
