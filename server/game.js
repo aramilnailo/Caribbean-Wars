@@ -27,7 +27,6 @@ var Game = function () {};
 */
 Game.prototype.listen = function(router) {
     if (debug) log("server/game.js: listen()");
-    router.listen("runGame",this.run);
     router.listen("keyPress",this.keyPress);
 }
 

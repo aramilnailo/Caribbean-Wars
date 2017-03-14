@@ -21,6 +21,7 @@ var db = {};
  * @memberof module:server/dbi
  */
 dbi.prototype.connect = function() {
+    if (debug) log ("server/dbi.js: connect()");
     db = mysql.createConnection({
 	host:"mysql.cs.iastate.edu",	
 	user:"dbu309sr5",
@@ -324,6 +325,7 @@ dbi.prototype.getSavedGamesList = function(cb) {
  * @memberof module:server/dbi
  */
 dbi.prototype.getSavedMapsList = function(cb) {
+    if (debug) log("server/dbi.js: getSavedMapsList()");
     db.query("SELECT * FROM saved_maps;", function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);

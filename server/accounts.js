@@ -20,6 +20,7 @@ var Accounts = function() {};
 * @memberof module:server/accounts
 */
 Accounts.prototype.listen = function(router) {
+    if (debug) log("server/accounts.js: listen()");
     router.listen("disconnect", this.disconnect);
     router.listen("login", this.login);
     router.listen("signup", this.signup);

@@ -22,6 +22,7 @@ var Maps = function() {};
 * @memberof module:server/Maps
 */
 Maps.prototype.listen = function(router) {
+    if (debug) log("server/maps.js: listen()");
     router.listen("getGameMap", this.getGameMap);
     router.listen("getEditMap", this.getEditMap);
     //router.listen("loadNewGameMap",this.loadNewGameMap);

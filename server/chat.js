@@ -19,6 +19,7 @@ var Chat = function() {};
 * @memberof module:server/Chat
 */
 Chat.prototype.listen = function(router) {
+    if (debug) log("server/chat.js: listen()");
     router.listen("chatPost",this.chatPost);
     router.listen("privateMessage",this.privateMessage);
     router.listen("evalExpression",this.evalExpression);
