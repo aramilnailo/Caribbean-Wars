@@ -29,7 +29,7 @@
     */
 
 
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "router"], function(debug, dom, client, router) {
        
     /**
      * Map editor class
@@ -60,11 +60,10 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	mapeditor.mapEditHistory.push(client.map);
     return mapeditor;
 	*/
-	this.mapEditHistory.push(client.map);
     };
 
 
-    MapEditor.prototype.mapEditHistory = [];
+    MapEditor.prototype.mapEditHistory=[];
     // Current map index 
     MapEditor.prototype.currentMap = 0;
     // editor states
@@ -77,35 +76,36 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
     
     
-    MapEditor.prototype.listen = function(router) {
+    MapEditor.prototype.listen = function(r) {
 	
-	router.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
-	router.listen("mapEditorPaintSandIconClick",this.raiseWaterIcon);
-	router.listen("mapEditorPaintSandIconClick",this.raisePortIcon);
-	router.listen("mapEditorPaintSandIconClick",this.raiseWoodsIcon);
+	r.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
+	r.listen("mapEditorPaintSandIconClick",this.raiseWaterIcon);
+	r.listen("mapEditorPaintSandIconClick",this.raisePortIcon);
+	r.listen("mapEditorPaintSandIconClick",this.raiseWoodsIcon);
 	
-	router.listen("mapEditorPaintWaterIconClick",this.raiseSandIcon);
-	router.listen("mapEditorPaintWaterIconClick",this.lowerWaterIcon);
-	router.listen("mapEditorPaintWaterIconClick",this.raisePortIcon);
-	router.listen("mapEditorPaintWaterIconClick",this.raiseWoodsIcon);
+	r.listen("mapEditorPaintWaterIconClick",this.raiseSandIcon);
+	r.listen("mapEditorPaintWaterIconClick",this.lowerWaterIcon);
+	r.listen("mapEditorPaintWaterIconClick",this.raisePortIcon);
+	r.listen("mapEditorPaintWaterIconClick",this.raiseWoodsIcon);
 
-	router.listen("mapEditorPaintPortIconClick",this.raiseSandIcon);
-	router.listen("mapEditorPaintPortIconClick",this.raiseWaterIcon);
-	router.listen("mapEditorPaintPortIconClick",this.lowerPortIcon);
-	router.listen("mapEditorPaintPortIconClick",this.raiseWoodsIcon);
+	r.listen("mapEditorPaintPortIconClick",this.raiseSandIcon);
+	r.listen("mapEditorPaintPortIconClick",this.raiseWaterIcon);
+	r.listen("mapEditorPaintPortIconClick",this.lowerPortIcon);
+	r.listen("mapEditorPaintPortIconClick",this.raiseWoodsIcon);
 
-	router.listen("mapEditorPaintWoodsIconClick",this.raiseSandIcon);
-	router.listen("mapEditorPaintWoodsIconClick",this.raiseWaterIcon);
-	router.listen("mapEditorPaintWoodsIconClick",this.raisePortIcon);
-	router.listen("mapEditorPaintWoodsIconClick",this.lowerWoodsIcon);
+	r.listen("mapEditorPaintWoodsIconClick",this.raiseSandIcon);
+	r.listen("mapEditorPaintWoodsIconClick",this.raiseWaterIcon);
+	r.listen("mapEditorPaintWoodsIconClick",this.raisePortIcon);
+	r.listen("mapEditorPaintWoodsIconClick",this.lowerWoodsIcon);
 
-	router.listen("mapEditorCanvasMouseDown",this.onCanvasMouseDown);
-	router.listen("mapEditorCanvasMouseMove",this.onCanvasMouseMove);
+	r.listen("mapEditorCanvasMouseDown",this.onCanvasMouseDown);
+	r.listen("mapEditorCanvasMouseMove",this.onCanvasMouseMove);
 	
-	router.listen("keyPressed",this.onKeyPress);
+	r.listen("keyPressed",this.onKeyPress);
 	//router.listen("keyReleased",this.onKeyReleased) ?
-	router.listen("refreshEditScreen",this.drawEditScreen);
-	router.listen("getEditMapResponse",this.loadNewEditMap);
+	r.listen("refreshEditScreen",this.drawEditScreen);
+	r.listen("getEditMapResponse",this.loadNewEditMap);
+	r.listen("mapEditorLogoutButtonClick",this.mapEditorLogoutButtonClick);
     }
 
 
@@ -117,9 +117,9 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     }
     
     MapEditor.prototype.loadNewEditMap = function(event) {
-	mapEditHistory.length = 0;
+	this.mapEditHistory=[];
 	this.mapEditHistory.push(client.map);
-	this.drawEditScreen(event);
+	new MapEditor().drawEditScreen(event);
 	this.currentMap = 0;
     }
     
@@ -309,14 +309,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      */
     dom.mapEditorSavedMapsListButton.onclick = function () {};
     dom.mapEditorSaveMapButton.onclick = function () {};
-    
-    /**
-     *
-     */
-    dom.mapEditorLogoutButton.onclick = function () {
-	this.clear();
-    }
-       
+           
     /*
       CANVAS EVENT HANDLERS
     */
@@ -375,7 +368,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     /**
      * 
      */
-    MapEditor.prototype.mapEditorSaveMapButton = function() {};
+    MapEditor.prototype.mapEditorSaveMapButtonClick = function() {};
 
     //////////////
     //  Map editor canvas event handlers
@@ -387,6 +380,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	var x = event.clientX;
 	var y = event.clientY;
     };
+    
     /**
      * 
      */
@@ -394,6 +388,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	var x = event.clientX;
 	var y = event.clientY;
     };
+    
     /**
      * 
      */
@@ -401,6 +396,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	var x = event.clientX;
 	var y = event.clientY;
     };
+    
     /**
      * Toggle painting land on the current map.
      */
@@ -416,6 +412,20 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
      * Toggle painting ports on the current map.
      */
     MapEditor.prototype.mapEditorPaintPortIconClick = function() {};
+
+    /**
+     * Logout
+     */
+    MapEditor.prototype.mapEditorLogoutButtonClick = function() {
+	dom.mapEditorScreen.style.display="none";
+	dom.mapEditorSavedMapsList.style.display="none";
+	dom.mapEditorSavedMapsListHidden = true;
+	client.emit("logout",null);
+    };
+
+
+
+
     
     return new MapEditor();
 

@@ -11,6 +11,7 @@ Login.prototype.listen = function(router) {
     router.listen("loginClick", this.loginClick);
     router.listen("signupClick", this.signupClick);
     router.listen("logoutClick", this.logoutClick);
+    router.listen("mapEditorLogoutClick", this.mapEditorLogoutClick);
     router.listen("deleteAccountClick", this.deleteAccountClick);
 }
 
@@ -97,6 +98,12 @@ Login.prototype.signupClick = function() {
 Login.prototype.logoutClick = function() {
     if (debug.login) log("client/login.js: logoutClick()");
     client.emit("logout", null);
+}
+
+// If logout button is clicked on game screen
+Login.prototype.mapEditorLogoutClick = function() {
+    if (debug.login) log("client/login.js: mapEditorLogoutClick()");
+    client.emit("mapEditorLogout", null);
 }
 
 // Delete account button is clicked on game screen

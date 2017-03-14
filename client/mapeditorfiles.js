@@ -1,23 +1,23 @@
 /**
 * Map editor saved maps class namespace.
 *
-* @module client/MapEditorSavedList
+* @module client/MapEditorFiles
 */
 define(["debug", "dom", "client"], function(debug, dom, client) {
 
 
-var MapEditorSavedList = function() {};
+var MapEditorFiles = function() {};
 
 /**
 * Registers all gui event messages associated with 
 * save game menu functionality. 
 *
-* @memberof module:client/MapEditorSavedList
+* @memberof module:client/MapEditorFiles
 */
-MapEditorSavedList.prototype.listen = function(router) {
+MapEditorFiles.prototype.listen = function(router) {
     if(debug.mapeditorsavedlist) debug.log("client/mapeditorlistmenu.js: listen()");
     router.listen("mapEditorSavedMapsListResponse", this.displaySavedMapsList);
-    router.listen("toggleMapEditorSavedList", this.toggleSavedMapsList);
+    router.listen("toggleMapEditorFiles", this.toggleSavedMapsList);
     router.listen("mapEditorSaveMapClick", this.saveMapClick);
     router.listen("mapEditorLoadMapClick", this.loadMapClick);
     router.listen("deleteSavedMapClick", this.deleteMapClick);
@@ -28,9 +28,9 @@ MapEditorSavedList.prototype.listen = function(router) {
 * is requested from the server and displayed. If it is currently displayed,
 * the list is hidden.
 *
-* @memberof module:client/MapEditorSavedList
+* @memberof module:client/MapEditorFiles
 */
-MapEditorSavedList.prototype.toggleSavedMapsList = function() {
+MapEditorFiles.prototype.toggleSavedMapsList = function() {
     if(dom.mapEditorMapsListHidden) {
 		client.emit("mapEditorSavedMapsListRequest", null);
 		dom.mapEditorSavedMapsListButton.innerHTML = "Hide saved maps";
@@ -51,7 +51,7 @@ MapEditorSavedList.prototype.toggleSavedMapsList = function() {
 *                 {author:a,file_name:f}.
 * @memberof module:client/MapEditorMapsList
 */
-MapEditorSavedList.prototype.displaySavedMapsList = function(data) {
+MapEditorFiles.prototype.displaySavedMapsList = function(data) {
 // Format the saved_games table into HTML
     var i;
     var html = "<table>" +
@@ -76,9 +76,9 @@ MapEditorSavedList.prototype.displaySavedMapsList = function(data) {
 * game object) under this file name on the server, with 
 * the requesting user listed as its author.
 *
-* @memberof module:client/MapEditorSavedList
+* @memberof module:client/MapEditorFiles
 */
-MapEditorSavedList.prototype.saveMapClick = function() {
+MapEditorFiles.prototype.saveMapClick = function() {
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
         client.emit("saveMapRequest",
@@ -90,9 +90,9 @@ MapEditorSavedList.prototype.saveMapClick = function() {
 * Prompts the user for a file name and attempts to load
 * this file from the server.
 *
-* @memberof module:client/MapEditorSavedList
+* @memberof module:client/MapEditorFiles
 */
-MapEditorSavedList.prototype.loadMapClick = function() {
+MapEditorFiles.prototype.loadMapClick = function() {
     var filename = window.prompt("Load map:", "filename");
     if(filename) {
         client.emit("getEditMap", {filename:filename, 
@@ -105,15 +105,15 @@ MapEditorSavedList.prototype.loadMapClick = function() {
 * Prompts the user for a file name and attempts to
 * delete this file from the server.
 *
-* @memberof module:client/MapEditorSavedList
+* @memberof module:client/MapEditorFiles
 */
-MapEditorSavedList.prototype.deleteMapClick = function() {
+MapEditorFiles.prototype.deleteMapClick = function() {
     var filename = window.prompt("Delete map:", "filename");
     if(filename) {
         client.emit("deleteSavedMap", filename);
     }
 }
 
-return new MapEditorSavedList();
+return new MapEditorFiles();
 
 });

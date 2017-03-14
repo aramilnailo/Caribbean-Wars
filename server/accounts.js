@@ -25,6 +25,7 @@ Accounts.prototype.listen = function(router) {
     router.listen("signup", this.signup);
     router.listen("userListRequest", this.userListRequest);
     router.listen("logout",this.logout);
+    router.listen("mapEditorLogout",this.logout);
     router.listen("deleteAccount",this.deleteAccount);
 }
     

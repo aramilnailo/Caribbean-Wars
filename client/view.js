@@ -20,6 +20,7 @@ View.prototype.listen = function(routr) {
     if (debug.view) debug.log("client/view.js: listen()");
     routr.listen("loginResponse", this.exitLoginScreen);
     routr.listen("logoutResponse", this.gameScreenToLogin);
+    routr.listen("mapEditorLogoutResponse", this.mapEditorScreenToLogin);
 }
 
 /**
@@ -79,6 +80,7 @@ View.prototype.mapEditorScreenToLogin = function() {
     dom.mapEditorScreen.style.display = "none";
     client.username = "";
     client.usertype = "";
+    client.player = null;
 }
 
 /**

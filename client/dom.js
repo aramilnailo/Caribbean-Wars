@@ -105,8 +105,10 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
 	function() { router.route({name:"mapEditorSavedMapsListButtonClick", data:null}); }
     dom.mapEditorSaveMapButton.onclick =
 	function() { router.route({name:"mapEditorSaveMapButtonClick", data:null}); }
-    dom.mapEditorLoadMapButton.onclick =
+    dom.mapEditorLoadMapButton.onclick = 
 	function() { router.route({name:"mapEditorLoadMapButtonClick", data:null}); }
+    dom.mapEditorLogoutButton.onclick =
+	function() { router.route({name:"mapEditorLogoutButtonClick", data:null}) };
     //canvas
     dom.mapEditorCanvas.onmousedown =
 	function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
