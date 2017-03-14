@@ -14,7 +14,7 @@ var debug = {
     saves:debugall||true,
     login:debugall||true,
     stats:debugall||true,
-    render:debugall||true,
+    render:debugall||false,
     view:debugall||true,
     viewmapeditor:debugall||true
 }

@@ -85,8 +85,8 @@ Saves.prototype.saveGameClick = function() {
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
         client.emit("saveGameRequest",
-            {file_name:filename, author:username,
-             map_file_path:mapData.path});
+            {file_name:filename, author:client.username,
+             map_file_path:client.map.path});
     }
 }
 

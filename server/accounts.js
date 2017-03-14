@@ -20,7 +20,6 @@ var Accounts = function() {};
 * @memberof module:server/accounts
 */
 Accounts.prototype.listen = function(router) {
-    if (debug) log("server/accounts.js: listen()");
     router.listen("disconnect", this.disconnect);
     router.listen("login", this.login);
     router.listen("signup", this.signup);
@@ -44,7 +43,7 @@ Accounts.prototype.disconnect = function disconnect(param) {
     if (debug) log("server/accounts.js: disconnect()");
     var client = param.client;
     var clients = param.clients;
-   // If in a game, remove the player
+   	// If in a game, remove the player
     if(client.player !== null) {
         session.exitGameSession(client.player);
     }
@@ -64,65 +63,65 @@ Accounts.prototype.disconnect = function disconnect(param) {
  * @memberof module:server/accounts
  */
 Accounts.prototype.login = function login(param) {
-    if (debug) log("server/accounts.js: login()");
+    if(debug) log("server/accounts.js: login()");
     var client = param.client;
     var data = param.data;
     // Check info with the database
-    dbi.login(data.username, data.usertype, data.password, function(resp) {
+    dbi.login(data.username, data.password, function(resp) {
         if(resp) {
-            // If login info is valid, give the client a player
-            client.player = player.Player(data.username,data.usertype);
-	    if (debug) log("server/accounts.js: login(): success; client.player="+client.player);
-
-            // The player joins the game
-	    if (data.usertype === "player" || data.usertype === "host")
-		session.enterGameSession(client.player);
-            server.emit(client.socket, "loginResponse", {success:true,
-							 username:data.username,
-							 usertype:data.usertype});
-            server.emit(client.socket, "collapseMenus", null);
-	    if (debug) log("server/accounts.js: login success");
+        	// If login info is valid, validate the usertype
+			if(data.usertype === "admin" && data.username !== "admin") {
+				server.emit(client.socket, "alert", "Can't login as admin");
+			} else {
+				// Update the usertype
+				dbi.setUsertype(data.username, data.usertype, function(resp) {});
+		    	if(data.usertype !== "editor") {
+					// If not a map editor, the client joins the game
+		            client.player = player.Player(data.username, data.usertype);
+					session.enterGameSession(client.player);
+				}
+				// Transition between menus
+	            server.emit(client.socket, "loginResponse", 
+					{username:data.username, usertype:data.usertype});
+	            server.emit(client.socket, "collapseMenus", null);
+		    	if (debug) log("server/accounts.js: login success");
+			}
         } else {
             // If login info is denied
-	    if (debug) log("server/accounts.js: login failure");
-            server.emit(client.socket, "loginResponse", {success:false});
+	    	if (debug) log("server/accounts.js: login failure");
+            server.emit(client.socket, "alert", "Invalid info");
         }
     });
 }
+
 /**
  * Attempts to add a new user
- * Emits loginResponse and collapseMenus
  * @param param.client - client to be put into the game upon successful add
  * @param param.data.username - username to add
  * @param param.data.password - password to add
  * @memberof module:server/accounts
  */
 Accounts.prototype.signup = function signup(param) {
-    if (debug) log("server/accounts.js: signup(); user = "+param.data.username + "; usertype = "+param.data.usertype+"; password = "+param.data.password);
+    if (debug) log("server/accounts.js: signup(); user = "+param.data.username + 
+		"; usertype = "+param.data.usertype+"; password = "+param.data.password);
     var client = param.client;
     var data = param.data;
-    // Create new record in database
-    var permission = false;
-    if (data.usertype != "admin" || data.username == "admin") permission = true;
-    if (permission) {
-    dbi.signup(data.username, data.usertype, data.password, function(resp) {
-        if(resp) {
-            // If info is valid, give the client a player
-            client.player = player.Player(data.username,data.usertype);
-            session.enterGameSession(client.player);
-            dbi.addUserStats(client.player.username, function(resp) {});
-            server.emit(client.socket, "loginResponse", {success:true,
-							 username:data.username,
-							 usertype:data.usertype});
-            server.emit(client.socket, "collapseMenus", null);
-        } else {
-            // If duplicate username, etc.
-            server.emit(client.socket, "loginResponse", {success:false});
-        }
-    });
+	// Validate usertype
+    if (data.username !== "admin" && data.usertype === "admin") {
+    	server.emit(client.socket, "alert", "Only username \"admin\" can " +
+			"be an admin");
     } else {
-	server.emit(client.socket,"adminAccessRequired",null);
-    }
+		// Insert new user into database
+		dbi.signup(data.username, data.password, function(resp) {
+        	if(resp) {
+            	dbi.addUserStats(data.username, function(resp) {});
+				dbi.setUsertype(data.username, data.usertype, function(resp) {});
+				server.emit(client.socket, "alert", "Signup successful!");
+        	} else {
+        		server.emit(client.socket, "alert", "Signup unsuccessful")
+        	}
+    	});
+	}
 }
 
 /**
@@ -140,11 +139,10 @@ Accounts.prototype.userListRequest = function userListRequest(param) {
 	    server.emit(client.socket, "userListResponse", data);
 	});
     } else {
-	server.emit(client.socket, "adminAccessRequired", null);
+		server.emit(client.socket, "alert", "Admin access required");
     }
 }
 
-// Clicked logout
 /**
  * Logs the player out without removing the client from the connections list
  * Emits logoutResponse and collapseMenus
@@ -163,7 +161,6 @@ Accounts.prototype.logout = function logout(param) {
 	server.emit(client.socket, "collapseMenus", null);
 }
 
-    // Clicked delete account
 /**
  * Deletes the account currently logged into by the client, sends client to log in screen
  * Emits logoutResponse and collapseMenus

@@ -28,8 +28,7 @@ Client.prototype.usertype = "";
 *
 * @memberof module:client/Client
 */
-Client.prototype.map = {data:"", path:""};
-
+Client.prototype.map = {lx:0, ly:0, path:"", author:"", name:"", data:[]};
 
 /** 
 * Server socket reference 
@@ -54,8 +53,6 @@ Client.prototype.players = [];
 // srw: recommend inserting additional client info here
 // e.g. zoom level
     
-
-    
 /**
 * Registers all gui event messages associated with client state
 * transistions.
@@ -65,29 +62,9 @@ Client.prototype.players = [];
 Client.prototype.listen = function(router) {
     if(debug.client) debug.log("client/client.js: listen()");
     router.listen("collapseMenus", this.hideAllMenus);
-    router.listen("newGameMapResponse", this.setMap);
-    router.listen("getEditMapResponse", this.setMap);
     router.listen("evalResponse", this.logToConsole);
     router.listen("alert", this.pushAlert);
-    router.listen("adminAccessRequired",this.adminAccessRequired);
 }
-
-Client.prototype.setMap = function(data) {
-    if(debug.client) debug.log("client/client.js: setMap()");
-    if(data.err) {
-	   alert(data.err);
-    } else {
-	var cl = new Client();
-	cl.map.lx = data.lx;
-	cl.map.ly = data.ly;
-	cl.map.data = data.data;
-	cl.map.path = data.path;
-	cl.map.author = data.author;
-	cl.map.name = data.name;
-	cl.map.ports = data.ports;
-    }
-}
-
 
 /**
 * Wrapper function: calls alert(data)

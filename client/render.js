@@ -36,8 +36,8 @@ Render.prototype.drawScreen = function(data) {
     // Clear screen
     dom.canvas.clearRect(0, 0, 500, 500);
     // Draw the map
-    if (debug.render) log("client/render.js: client.username="+client.username);
-    if (debug.render) log("client/render.js: client.usertype="+client.usertype);
+    if(debug.render) log("client/render.js: client.username="+client.username);
+    if(debug.render) log("client/render.js: client.usertype="+client.usertype);
     var ly = client.map.ly;
     var lx = client.map.lx;
     if(debug.render) log("client/render.js: client.map.lx,ly="+client.map.lx+","+client.map.ly);

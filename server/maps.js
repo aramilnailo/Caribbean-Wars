@@ -25,8 +25,7 @@ Maps.prototype.listen = function(router) {
     if (debug) log("server/maps.js: listen()");
     router.listen("getGameMap", this.getGameMap);
     router.listen("getEditMap", this.getEditMap);
-    //router.listen("loadNewGameMap",this.loadNewGameMap);
-    //router.listen("loadMapCopy",this.loadMapCopy);
+    router.listen("loadNewMap",this.loadNewGameMap);
     router.listen("saveMap",this.saveMap);
     router.listen("loadSavedMap",this.loadSavedEditMap);
     router.listen("savedMapsListRequest",this.savedMapsListRequest);
@@ -115,17 +114,16 @@ Maps.prototype.loadNewGameMap = function(param) {
     var CLIENT_LIST = param.clients;
     var filename = param.data.filename;
     var username = param.data.username;
-    if(!GAME_SESSION.host || username != GAME_SESSION.host.username) {
-	server.emit(client.socket, "alert", "Only host can load maps.");
+    if(username != GAME_SESSION.host.username) {
+		server.emit(client.socket, "alert", "Only host can load maps.");
     } else {
-	var i;
 	dbi.getMapFilePath(filename, function(path) {
 	    if(path) {
 		files.readFile(path, function(data) {
 		    if(data) {
 			GAME_SESSION.map = path;
 			for(var i in CLIENT_LIST) {
-			    CLIENT_LIST[i].socket.emit("newGameMapResponse", {data:data, path:path});
+			    server.emit(CLIENT_LIST[i].socket, "newGameMapResponse", data);
 			}
 		    }
 		});

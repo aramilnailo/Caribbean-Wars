@@ -103,37 +103,51 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
     // map editor event handling
     dom.mapEditorSavedMapsListButton.onclick =
 	function() { router.route({name:"mapEditorSavedMapsListButtonClick", data:null}); }
+	
     dom.mapEditorSaveMapButton.onclick =
 	function() { router.route({name:"mapEditorSaveMapButtonClick", data:null}); }
+	
     dom.mapEditorLoadMapButton.onclick = 
 	function() { router.route({name:"mapEditorLoadMapButtonClick", data:null}); }
+	
     dom.mapEditorLogoutButton.onclick =
 	function() { router.route({name:"mapEditorLogoutButtonClick", data:null}) };
+	
     //canvas
     dom.mapEditorCanvas.onmousedown =
 	function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
+	
     dom.mapEditorCanvas.onmouseup =
 	function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
+	
     dom.mapEditorCanvas.onmousemove =
 	function(event) { router.route({name:"mapEditorCanvasMouseMove", data:event}); }
+	
     //land icon
     dom.mapEditorPaintSandIcon.onclick =
 	function() { router.route({name:"mapEditorPaintSandIconClick", data:null}); }
+	
     dom.mapEditorPaintSandIcon.title = "sand";
+	
     //woods icon
     dom.mapEditorPaintGrassIcon.onclick =
 	function() { router.route({name:"mapEditorPaintGrassIconClick", data:null}); }
+	
     dom.mapEditorPaintGrassIcon.title = "grass";
+	
     //water icon
     dom.mapEditorPaintWaterIcon.onclick =
 	function() { router.route({name:"mapEditorPaintWaterIconClick", data:null}); }
+	
     dom.mapEditorPaintWaterIcon.title = "water";
+	
     //port icon
     dom.mapEditorPaintPortIcon.onclick =
 	function() { router.route({name:"mapEditorPaintPortIconClick", data:null}); }
+	
     dom.mapEditorPaintPortIcon.title = "port";
+	
     //zoom icon
-    
     
 dom.canvas.font = "30px Arial";
 dom.mapEditorCanvas.font = "30px Arial";

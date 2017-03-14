@@ -67,7 +67,7 @@ Login.prototype.loginClick = function() {
     if (debug) log("client/login.js: loginClick(); usertype = "+dom.loginUsertype.value);
     // Don't submit empty forms
     if(dom.loginUsername.value.length > 0 &&
-       dom.loginUsertype.value.length > 0 &&
+       dom.loginUsertype.value &&
        dom.loginPassword.value.length > 0)
 	client.emit("login", {username:dom.loginUsername.value,
 			      usertype:dom.loginUsertype.value,
@@ -87,7 +87,7 @@ Login.prototype.signupClick = function() {
     }
 
     if(dom.loginUsername.value.length > 0 &&
-       dom.loginUsertype.value.length > 0 &&
+       dom.loginUsertype.value &&
        dom.loginPassword.value.length > 0)
 	client.emit("signup", {username:dom.loginUsername.value,
 			       usertype:dom.loginUsertype.value,

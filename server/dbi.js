@@ -21,7 +21,6 @@ var db = {};
  * @memberof module:server/dbi
  */
 dbi.prototype.connect = function() {
-    if (debug) log ("server/dbi.js: connect()");
     db = mysql.createConnection({
 	host:"mysql.cs.iastate.edu",	
 	user:"dbu309sr5",
@@ -49,50 +48,23 @@ dbi.prototype.connect = function() {
  * @param cb - callback function. Returns true if info is valid and no errors, false otherwise
  * @memberof module:server/dbi
  */
-dbi.prototype.login = function(username, usertype, password, cb) {
-    if (debug) log("server/dbi.js: login(): username="+username+"; usertype="+usertype); 
-
-    if (usertype != "admin" || (usertype === "admin" && username === "admin") ) {
-	if (usertype === "admin" || usertype === "player" || usertype === "host" || usertype === "editor" )  {
-
-	    var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
-	    var inserts = ["user_info", "username", username, "password", password];
-	    db.query(mysql.format(sql, inserts), function(err, rows) {
+dbi.prototype.login = function(username, password, cb) {
+    if(debug) log("server/dbi.js: login(): username=" + username + 
+		" password=" + password);
+	// Verify the login info
+	var sql = "SELECT * FROM ?? WHERE ??=? AND ??=?;";
+	var inserts = ["user_info", "username", username, "password", password];
+	db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
-		    if (debug) log("server/dbi.js: login(): "+err.message);
+		    if (debug) log("server/dbi.js: login(): " + err.message);
 		    cb(false);
-		}
-		if(rows.length == 0)  { //cb(true);
+		} else if(rows.length == 0)  {
 		    if (debug) log("server/dbi.js: login(): user does not exist");
 		    cb(false);
-		}
-		if (debug) log("server/dbi.js: rows.length="+rows.length);
-	    });
-
-	    sql = "UPDATE ?? SET ??=? WHERE ??=?;";
-	    inserts = ["user_info", "usertype", usertype, "username", username];
-	    db.query(mysql.format(sql, inserts), function(err, rows) {
-		if(err) {
-		    if (debug) log("server/dbi.js: login(): "+err.message);
-		    cb(false);
 		} else {
-		    if (debug) log("server/dbi.js: login(): good");
-		    cb(true);
+			cb(true);
 		}
-		//if(rows.length > 0) cb(true);
-		//cb(false);
-	    });
-	    cb(true);
-	} else {
-	    if (debug) log("server/dbi.js: login() usertype restrited to player, host, or editor");	    
-	    cb(false);
-	}
-	
-    } else {
-	if (debug) log ("server/dbi.js: login(): Currently only admin can have admin usertype");
-	cb(false);
-    }
-
+	});
 }
 
 //==================== INSERTION ============================================
@@ -108,30 +80,33 @@ dbi.prototype.login = function(username, usertype, password, cb) {
  * @param cb - callback function. Returns true if username not taken and no errors, false otherwise
  * @memberof module:server/dbi
  */
-dbi.prototype.signup = function(username, usertype, password, cb) {
-    
-    if (username != "admin" || (usertype === "admin" && username === "admin") ) {
+dbi.prototype.signup = function(username, password, cb) {
+	var set = {username:username, usertype:"", password:password, online:false};
+	db.query("INSERT INTO user_info SET ?", set, function(err) {
+		if(err) {
+			if(debug) log(err.message);
+		    cb(false);
+		} else {
+		    cb(true);
+		}
+	});
+}
 
-	if (usertype === "player" || usertype === "host" || usertype === "editor") {
-	
-	    db.query("INSERT INTO user_info SET ?",
-		     {username:username, usertype:usertype, password:password, online:false},
-		     function(err) {
-			 if(err) {
-			     if (debug) log(err.message);
-			     cb(false);
-			 } else {
-			     cb(true);
-			 }
-		     });
-	} else {
-	    if (debug) log ("Usertype limited to host, player, editor, or admin");
-	    cb(false);
-	}
-    } else {
-	if (debug) log ("Currently only admin can have admin usertype");
-	cb(false);
-    }
+
+dbi.prototype.setUsertype = function(username, usertype, cb) {
+	// Update the usertype
+	var sql = "UPDATE ?? SET ??=? WHERE ??=?;";
+	var inserts = ["user_info", "usertype", usertype, "username", username];
+	db.query(mysql.format(sql, inserts), function(err, rows) {
+		if(err) {
+			if(debug) log("server/dbi.js : setUsertype() : "+err.message);
+			cb(false);
+		} else {
+			if (debug) log("server/dbi.js: set " + username + " to " +
+				usertype + "usertype");
+			cb(true);
+		}
+	});
 }
 
 
@@ -325,7 +300,6 @@ dbi.prototype.getSavedGamesList = function(cb) {
  * @memberof module:server/dbi
  */
 dbi.prototype.getSavedMapsList = function(cb) {
-    if (debug) log("server/dbi.js: getSavedMapsList()");
     db.query("SELECT * FROM saved_maps;", function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);

@@ -21,6 +21,10 @@ View.prototype.listen = function(routr) {
     routr.listen("loginResponse", this.exitLoginScreen);
     routr.listen("logoutResponse", this.gameScreenToLogin);
     routr.listen("mapEditorLogoutResponse", this.mapEditorScreenToLogin);
+	router.listen("newGameMapResponse", this.setMap);
+	router.listen("getEditMapResponse", this.setMap);
+	router.listen("keyPressed", this.keyPressed);
+	router.listen("keyReleased", this.keyReleased);
 }
 
 /**
@@ -35,25 +39,19 @@ View.prototype.listen = function(routr) {
 */
 View.prototype.exitLoginScreen = function(data) {
     if(debug.view) debug.log("[View] exitLoginScreen()");
-    if(data.success) {
 	dom.loginScreen.style.display = "none";
+	dom.usernameLabel.innerHTML = data.username;
 	client.username = data.username;
 	client.usertype = data.usertype;
-	if (client.usertype == "editor") {
-	    if (debug) debug.log("[View] Moving to map editor screen");
+	if(client.usertype === "editor") {
+	    if(debug) debug.log("[View] Moving to map editor screen");
 	    dom.mapEditorScreen.style.display="inline-block";
 	    client.emit("getEditMap", {filename:"",username:client.username,usertype:client.usertype});
 	} else {
-	    if (debug) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
+	    if(debug) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
 	    dom.gameScreen.style.display = "inline-block";
 	    client.emit("getGameMap", null);
-	    router.listen("keyPressed", function(event) { new View().keyPressed(event); });
-	    router.listen("keyReleased", function(event) { new View().keyReleased(event); });
 	}
-	dom.usernameLabel.innerHTML = data.username;
-    } else {
-	if(debug.view) debug.log("[View] data.failure");
-    }
 }
 
 /**
@@ -66,8 +64,6 @@ View.prototype.gameScreenToLogin = function() {
     dom.gameScreen.style.display = "none";
     client.username = "";
     client.usertype = "";
-    router.unlisten("keyPressed", function(event) { new View().keyPressed(event); });
-    router.unlisten("keyReleased", function(event) { new View().keyReleased(event); });
 }
 
 /**
@@ -90,16 +86,11 @@ View.prototype.mapEditorScreenToLogin = function() {
 * @param data Contains the current map as data.mapData.
 * @throws alert error message if an error occurred
 *         when attempting to set data.mapData.
-View.prototype.setMap = function(data) {
-    if(data.err) {
-	   client.pushAlert(data.err);
-    } else {
-       client.mapData = data;
-    }
-}
 */
+View.prototype.setMap = function(data) {
+	client.map = data;
+}
 
-// srw: shouldn't this logic be inside game.js?
 /**
 * Relays keypress to server. 
 *
