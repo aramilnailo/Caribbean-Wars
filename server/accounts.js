@@ -27,6 +27,7 @@ Accounts.prototype.listen = function(router) {
     router.listen("logout",this.logout);
     router.listen("mapEditorLogout",this.logout);
     router.listen("deleteAccount",this.deleteAccount);
+	router.listen("changeUserType", this.changeUserType);
 }
     
 //================== FUNCTIONS ========================================
@@ -168,27 +169,46 @@ Accounts.prototype.logout = function logout(param) {
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
     if (debug) log("server/accounts.js: deleteAccount()");
 	// If client is in-game, remove from the session
-    var client;
+    var current, client;
 	for(var i in param.clients) {
-		client = param.clients[i];
-		if(client.player && client.player.username === param.data) {
+		current = param.clients[i];
+		if(current.player && current.player.username === param.data) {
+			client = current;
 			session.exitGameSession(client.player);
 			client.player = null;
 			break;
 		}
 	}
-	var val = true;
-	dbi.removeUserStats(param.data, function(resp) {if(!resp) val = false;});
-	dbi.removeUser(param.data, function(resp) {if(!resp) val = false;});
-	if(val) {
-		if(client.socket) {
-			server.emit(client.socket, "logoutResponse", null);
-			server.emit(client.socket, "alert", "Your account has been deleted.");
+	dbi.removeUserStats(param.data, function(resp) {
+	if(resp) {
+	dbi.removeUser(param.data, function(val) {
+		if(val) {
+			if(client) {
+				server.emit(client.socket, "logoutResponse", null);
+				server.emit(client.socket, "alert", "Your account has been deleted.");
+			}
+			if(param.client !== client) server.emit(param.client.socket, "alert", "Account deleted.");
+		} else {
+			server.emit(param.client.socket, "alert", "Could not delete account");
 		}
-		if(param.client !== client) server.emit(param.client.socket, "alert", "Account deleted.");
+	});
 	} else {
 		server.emit(param.client.socket, "alert", "Could not delete account");
 	}
+	});
+}
+
+Accounts.prototype.changeUserType = function(param) {
+	var client = param.client;
+	var username = param.data.username;
+	var type = param.data.type;
+	dbi.setUsertype(username, type, function(resp) {
+		if(resp) {
+			server.emit(client.socket, "alert", "Type change successful.");
+		} else {
+			server.emit(client.socket, "alert", "Could not change type.");
+		}
+	});
 }
 
 module.exports = new Accounts();

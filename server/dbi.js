@@ -101,6 +101,8 @@ dbi.prototype.setUsertype = function(username, usertype, cb) {
 		if(err) {
 			if(debug) log("server/dbi.js : setUsertype() : "+err.message);
 			cb(false);
+		} else if(rows.length == 0) {
+			cb(false);
 		} else {
 			if (debug) log("server/dbi.js: set " + username + " to " +
 				usertype + "usertype");
@@ -197,13 +199,14 @@ dbi.prototype.removeUser = function(name, cb) {
     var sql = "DELETE FROM ?? WHERE ??=?";
     var inserts = ["user_info", "username", name];
     db.query(mysql.format(sql, inserts), function(err, rows) {
+		if(debug) log(rows.affectedRows);
 	if(err) {
 	    if (debug) log(err.message);
 	    cb(false);
-	} else if(rows.length == 0){
-	    cb(false);
+	} else if(rows.affectedRows > 0){
+	    cb(true);
 	} else {
-		cb(true);
+		cb(false);
 	}
     });
 }
@@ -391,12 +394,14 @@ dbi.prototype.addUserStats = function(username, cb) {
 dbi.prototype.removeUserStats = function(username, cb) {
     var sql = "DELETE FROM ?? WHERE ??=?";
     var inserts = ["user_stats", "username", username];
-    db.query(mysql.format(sql, inserts), function(err) {
+    db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);
 	    cb(false);
-	} else {
+	} else if(rows.affectedRows > 0) {
 	    cb(true);
+	} else {
+		cb(false);
 	}
     });
 }

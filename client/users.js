@@ -29,6 +29,8 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	    }
 	}
 
+	// Display the table with username, password, 
+	// user type, and online status
 	Users.prototype.displayUserList = function(data) {
 	    if (debug.users) log("client/users.js: displayUserList()");
 	    var i;
@@ -51,25 +53,45 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	    dom.userList.innerHTML = html;
 	}
 	
+	// Sign a new user up
 	Users.prototype.addUserClick = function(data) {
 		if(debug.users) log("[Users] addUserClick");
-		var username = window.prompt("[Add user] Username?", "user");
-		var password = window.prompt("[Add user] Password?", "password");
-		client.emit("signup", {username:username, password:password, usertype:"player"});
-	}
-	
-	Users.prototype.deleteUserClick = function(data) {
-		if(debug.users) log("[Users] deleteUserClick");
-		var username = window.prompt("[Delete user] Username?", "user");
-		if(username === "admin") {
-			alert("Cannot delete admin");
+		var username, password;
+		username = window.prompt("[Add user] Username?", "user");
+		if(username) password = window.prompt("[Add user] Password?", "password");
+		if(username && username.length > 0 && password && password.length > 0) {
+			client.emit("signup", {username:username, password:password, usertype:"player"});
 		} else {
-			client.emit("deleteAccount", username);
+			alert("Invalid input");
 		}
 	}
 	
+	// Remove a user
+	Users.prototype.deleteUserClick = function(data) {
+		if(debug.users) log("[Users] deleteUserClick");
+		var username = window.prompt("[Delete user] Username?", "user");
+		if(username) {
+			if(username === "admin") {
+				alert("Cannot delete admin");
+			} else {
+				client.emit("deleteAccount", username);
+			}
+		} else {
+			alert("Invalid input");
+		}
+	}
+	
+	// Change a user's type
 	Users.prototype.userTypeClick = function(data) {
 		if(debug.users) log("[Users] userTypeClick");
+		var username, type;
+		username = window.prompt("Username?", "user");
+		if(username) type = window.prompt("New type?", "type");
+		if(type === "admin" || type === "player" || type === "editor") {
+			client.emit("changeUserType", {username:username, type:type});
+		} else {
+			alert("Invalid input");
+		}
 	}
 	
 	return new Users();
