@@ -196,12 +196,14 @@ dbi.prototype.saveMapFilename = function(data,cb) {
 dbi.prototype.removeUser = function(name, cb) {
     var sql = "DELETE FROM ?? WHERE ??=?";
     var inserts = ["user_info", "username", name];
-    db.query(mysql.format(sql, inserts), function(err) {
+    db.query(mysql.format(sql, inserts), function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);
 	    cb(false);
+	} else if(rows.length == 0){
+	    cb(false);
 	} else {
-	    cb(true);
+		cb(true);
 	}
     });
 }

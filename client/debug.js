@@ -12,6 +12,7 @@ var debug = {
     router:debugall||true,
     chat:debugall||true,
     saves:debugall||true,
+	users:debugall||true,
     login:debugall||true,
     stats:debugall||true,
     render:debugall||false,

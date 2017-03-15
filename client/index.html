@@ -16,7 +16,6 @@
       Password: <input id="login-password" type="password"></input><br>
       <form id="login-usertype-radiobox" checked="player">
 		  Usertype: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
-		  			<input type="radio" name="usertype" id="usertype-host" value="host">host</input>
 					<input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
 					<input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
 	  </form>
@@ -68,10 +67,21 @@
 	
 	<!--ADMIN SCREEN-->
 	<div id="admin-screen" style="display:none;">
-	  <button id="user-list-btn">List Users</button>
-      <br>
-      <div id="user-list" style="display:none;"></div>
+	  <div id="admin-screen-btns">
+	    <button id="user-menu-btn">Show Users</button>
+  	  </div>
 	</div>
+	<br>
+	
+	<!--USER MENU-->
+  	<div id="user-menu" style="display:none;">
+	  <div id="user-list" style="display:table;"></div>
+	  <div id="user-menu-btns">
+		<button id="add-user-btn">Add User</button>
+		<button id="delete-user-btn">Delete User</button>
+		<button id="user-type-btn">Change User Type</button>
+	  </div>
+  	</div>
 	<br>
 
 	<!--OPTIONS MENU-->

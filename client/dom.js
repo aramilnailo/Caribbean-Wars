@@ -13,10 +13,6 @@ var dom = {
 	loginButton:document.getElementById("login-btn"),
 	signupButton:document.getElementById("signup-btn"),
 
-	// User list
-	userListButton:document.getElementById("user-list-btn"),
-	userList:document.getElementById("user-list"),
-
 	// Game screen
 	gameScreen:document.getElementById("game-screen"),
 	canvas:document.getElementById("canvas").getContext("2d"),
@@ -73,9 +69,17 @@ var dom = {
     
 	// Admin screen
 	adminScreen:document.getElementById("admin-screen"),
-    
+	
+	// User menu
+	userMenu:document.getElementById("user-menu"),
+	userMenuButton:document.getElementById("user-menu-btn"),
+	userList:document.getElementById("user-list"),
+	addUserButton:document.getElementById("add-user-btn"),
+	deleteUserButton:document.getElementById("delete-user-btn"),
+	userTypeButton:document.getElementById("user-type-btn"),
+	
 	// UI flags
-	userListHidden:true,
+	userMenuHidden:true,
 	chatWindowHidden:true,
 	statsMenuHidden:true,
     savedGamesMenuHidden:true,
@@ -91,7 +95,11 @@ dom.chatToggleButton.onclick = function() { router.route({name:"toggleChatWindow
 dom.statsMenuButton.onclick = function() { router.route({name:"toggleStatsMenu", data:null}); }
 dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick", data:null}); }
 
-dom.userListButton.onclick = function() { router.route({name:"toggleUserList", data:null}); }
+dom.userMenuButton.onclick = function() { router.route({name:"toggleUserMenu", data:null}); }
+dom.addUserButton.onclick = function() { router.route({name:"addUserClick", data:null}); }
+dom.deleteUserButton.onclick = function() { router.route({name:"deleteUserClick", data:null}); }
+dom.userTypeButton.onclick = function() { router.route({name:"userTypeClick", data:null}); }
+
 dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
 dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }
 dom.logoutButton.onclick = function() { router.route({name:"logoutClick", data:null}); }

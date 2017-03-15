@@ -44,10 +44,10 @@ Accounts.prototype.disconnect = function disconnect(param) {
     var client = param.client;
     var clients = param.clients;
    	// If in a game, remove the player
-    if(client.player !== null) {
-        session.exitGameSession(client.player);
-    }
-    server.emit(client.socket, "collapseMenus", null);
+    if(client.player) {
+		session.exitGameSession(client.player);
+		client.player = null;
+	}
     // Remove from client list
     var index = clients.indexOf(client);
     if(index > -1) clients.splice(index, 1);
@@ -75,15 +75,14 @@ Accounts.prototype.login = function login(param) {
 			} else {
 				// Update the usertype
 				dbi.setUsertype(data.username, data.usertype, function(resp) {});
-		    	if(data.usertype !== "editor") {
-					// If not a map editor, the client joins the game
+		    	if(data.usertype === "player") {
+					// If not a map editor or admin, the client joins the game
 		            client.player = player.Player(data.username, data.usertype);
 					session.enterGameSession(client.player);
 				}
 				// Transition between menus
 	            server.emit(client.socket, "loginResponse", 
 					{username:data.username, usertype:data.usertype});
-	            server.emit(client.socket, "collapseMenus", null);
 		    	if (debug) log("server/accounts.js: login success");
 			}
         } else {
@@ -154,11 +153,10 @@ Accounts.prototype.logout = function logout(param) {
     var client = param.client;
 	// Remove from the game session, but don't remove the client
 	if(client.player) {
-	    session.exitGameSession(client.player);
-	    client.player = null;
+		session.exitGameSession(client.player);
+		client.player = null;
 	}
 	server.emit(client.socket, "logoutResponse", null);
-	server.emit(client.socket, "collapseMenus", null);
 }
 
 /**
@@ -169,24 +167,28 @@ Accounts.prototype.logout = function logout(param) {
  */
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
     if (debug) log("server/accounts.js: deleteAccount()");
-    var client = param.client;
-    //if (client.player.usertype == "admin" ) {
-	if(client.player) {
-	    dbi.removeUserStats(client.player.username,
-				function(val) {});
-	    dbi.removeUser(client.player.username,
-			   function(resp) {});
-	    session.exitGameSession(client.player);
-	    client.player = null;
+	// If client is in-game, remove from the session
+    var client;
+	for(var i in param.clients) {
+		client = param.clients[i];
+		if(client.player && client.player.username === param.data) {
+			session.exitGameSession(client.player);
+			client.player = null;
+			break;
+		}
 	}
-	server.emit(client.socket, "logoutResponse", null);
-    server.emit(client.socket, "collapseMenus", null);
-    /*
-    } else {
-	server.emit(client.socket, "adminAccessRequired", null);
-    }
-*/
-    
+	var val = true;
+	dbi.removeUserStats(param.data, function(resp) {if(!resp) val = false;});
+	dbi.removeUser(param.data, function(resp) {if(!resp) val = false;});
+	if(val) {
+		if(client.socket) {
+			server.emit(client.socket, "logoutResponse", null);
+			server.emit(client.socket, "alert", "Your account has been deleted.");
+		}
+		if(param.client !== client) server.emit(param.client.socket, "alert", "Account deleted.");
+	} else {
+		server.emit(param.client.socket, "alert", "Could not delete account");
+	}
 }
 
 module.exports = new Accounts();

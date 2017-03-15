@@ -39,7 +39,7 @@ var GAME_SESSION = {host:null, map:"", players:[]};
 * @param data.clients - client list
 * @memberof module:server/Session
 */
-Session.prototype.endGameSession = function(data) {
+Session.prototype.endGameSession = function() {
     if(debug) log("server/session.js: endGameSession()");
     // Reset the object
     GAME_SESSION.host = null;
@@ -51,29 +51,33 @@ Session.prototype.endGameSession = function(data) {
     // Null out the player list
     GAME_SESSION.players = [];
     // Log everyone out
-    var CLIENT_LIST = data.clients;
+    var CLIENT_LIST = require("./router.js").client_list;
     for(i in CLIENT_LIST) {
-		CLIENT_LIST[i].player = null;
-		server.emit(CLIENT_LIST[i].socket, "logoutResponse", null);
-		server.emit(CLIENT_LIST[i].socket, "collapseMenus", null);
+		if(CLIENT_LIST[i].player) {
+			CLIENT_LIST[i].player = null;
+			server.emit(CLIENT_LIST[i].socket, "logoutResponse", null);
+			server.emit(CLIENT_LIST[i].socket, "collapseMenus", null);
+		}
     }
 }
 
 /**
 * Removes a given player from the game session. Ends
 * the game session if the player is host.
-* @param data - the player to remove
+* @param data - the client whose player to remove
 * @memberof module:server/Session
 */
-Session.prototype.exitGameSession = function (data) {
+Session.prototype.exitGameSession = function(data) {
     if(debug) log("server/session.js: exitGameSession()");
     // Remove the player from the game session list
-    index = GAME_SESSION.players.indexOf(data);
+    var index = GAME_SESSION.players.indexOf(data);
     if(index > -1) GAME_SESSION.players.splice(index, 1);
     // Turn the player offline in the database
     dbi.setUserOnlineStatus(data.username, false);
     // If the host leaves, it's game over for everyone
-    if(data === GAME_SESSION.host) this.endGameSession(data);
+    if(data === GAME_SESSION.host) {
+		this.endGameSession();
+	}
 }
 
 /**

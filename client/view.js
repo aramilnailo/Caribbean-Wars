@@ -66,7 +66,7 @@ View.prototype.returnToLoginScreen = function(data) {
 	if(client.usertype === "editor") {
 		dom.hide([dom.mapEditorScreen]);
 	} else if(client.usertype === "admin") {
-		dom.hide([dom.adminScreen, dom.userList, dom.sessionMenu, dom.statsMenu,
+		dom.hide([dom.adminScreen, dom.userMenu, dom.sessionMenu, dom.statsMenu,
 			dom.savedGamesMenu, dom.chatWindow, dom.optionsMenu]);
 	} else {
 		dom.hide([dom.gameScreen, dom.sessionMenu, dom.statsMenu,
