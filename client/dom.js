@@ -164,7 +164,7 @@ dom.mapEditorCanvas.font = "30px Arial";
 
 dom.show = function(data) {
 	for(var i in data) {
-		data[i].style.display = "inline-block";
+		data[i].style.display = "block";
 	}
 }
 
