@@ -1,3 +1,6 @@
+//router.listen("newGameMapResponse", this.setMap);
+//router.listen("getEditMapResponse", this.setMap);            //router.listen("newGameMapResponse", this.setMap);
+//router.listen("getEditMapResponse", this.setMap);
 /**
 * View controller namespace. Provides the logic to transition between gui views.
 *
@@ -20,8 +23,8 @@ View.prototype.listen = function(router) {
     if (debug.view) debug.log("client/view.js: listen()");
     router.listen("loginResponse", this.exitLoginScreen);
     router.listen("logoutResponse", this.returnToLoginScreen);
-	router.listen("newGameMapResponse", this.setMap);
-	router.listen("getEditMapResponse", this.setMap);
+	//router.listen("newGameMapResponse", this.setMap);
+	//router.listen("getEditMapResponse", this.setMap);
 	router.listen("keyPressed", this.keyPressed);
 	router.listen("keyReleased", this.keyReleased);
 }
@@ -86,6 +89,7 @@ View.prototype.returnToLoginScreen = function(data) {
 * @throws alert error message if an error occurred
 *         when attempting to set data.mapData.
 */
+    /*
 View.prototype.setMap = function(data) {
     if (debug.view) debug.log("client/view.js: setMap()");
     client.map = data;
@@ -126,6 +130,7 @@ View.prototype.setMap = function(data) {
 		m2.set(i,j,this.at(i,j));
     }
 }
+*/
 
 /**
 * Relays keypress to server. 

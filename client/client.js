@@ -30,6 +30,23 @@ Client.prototype.usertype = "";
 */
 Client.prototype.map = {lx:0, ly:0, path:"", author:"", name:"", data:[]};
 
+Client.prototype.setMap = function(data) {
+    if(debug.client) debug.log("client/client.js: setMap()");
+    if(data.err) {
+        alert(data.err);
+	    } else {
+		Client.prototype.map.lx = data.lx;
+		Client.prototype.map.ly = data.ly;
+		Client.prototype.map.data = data.data;
+		Client.prototype.map.path = data.path;
+		Client.prototype.map.author = data.author;
+		Client.prototype.map.name = data.name;
+		Client.prototype.map.ports = data.ports;
+	    }
+}
+    
+
+    
 Client.prototype.map.at = function (i,j) {
     var index = this.data.ly*i + j;
     if (index >= 0 && index < this.lx*this.ly) {
@@ -105,6 +122,8 @@ Client.prototype.listen = function(router) {
     router.listen("collapseMenus", this.hideAllMenus);
     router.listen("evalResponse", this.logToConsole);
     router.listen("alert", this.pushAlert);
+    router.listen("newGameMapResponse", this.setMap);
+    router.listen("getEditMapResponse", this.setMap); 
 }
 
 /**
