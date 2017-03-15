@@ -51,8 +51,9 @@ var dom = {
 
     // MapEditor window
     mapEditorScreen:document.getElementById("map-editor-screen"),
-    
-    mapEditorCanvas:document.getElementById("map-editor-canvas").getContext("2d"),
+
+    mapEditorCanvas:document.getElementById("map-editor-canvas"),
+    mapEditorCanvasContext:document.getElementById("map-editor-canvas").getContext("2d"),
     mapEditorIconPanel:document.getElementById("map-editor-icon-panel"),
     mapEditorPaintSandIcon:document.getElementById("map-editor-paint-sand-img"),
     mapEditorPaintGrassIcon:document.getElementById("map-editor-paint-grass-img"),
@@ -126,6 +127,9 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
     //canvas
     dom.mapEditorCanvas.onmousedown =
 	function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
+    
+    dom.mapEditorCanvas.onclick =
+	function(event) { router.route({name:"mapEditorCanvasClick", data:event}); }
 	
     dom.mapEditorCanvas.onmouseup =
 	function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
@@ -160,7 +164,7 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
     //zoom icon
     
 dom.canvas.font = "30px Arial";
-dom.mapEditorCanvas.font = "30px Arial";
+dom.mapEditorCanvasContext.font = "30px Arial";
 
 dom.show = function(data) {
 	for(var i in data) {

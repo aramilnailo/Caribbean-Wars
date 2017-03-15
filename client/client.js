@@ -30,6 +30,47 @@ Client.prototype.usertype = "";
 */
 Client.prototype.map = {lx:0, ly:0, path:"", author:"", name:"", data:[]};
 
+Client.prototype.map.at = function (i,j) {
+    var index = this.data.ly*i + j;
+    if (index >= 0 && index < this.lx*this.ly) {
+	return data[this.ly*i + j];
+    }
+}
+
+    
+Client.prototype.map.set = function (i,j,val) {
+    var index = this.data.ly*i + j;
+    if (index >= 0 && index < this.lx*this.ly) {
+	this.data[this.ly*i + j] = val;
+    }
+}
+
+Client.prototype.map.copyOf = function (m2) {
+    m2.lx = this.lx;
+    m2.ly = this.ly;
+    m2.path = this.path;
+    m2.author = this.author;
+    m2.data.length = this.data.length;
+    m2.name = this.name;
+    
+    m2.at = function (i,j) {
+	return this.data[this.ly*i + j];
+    };
+    
+    m2.set = function (i,j,val) {
+	var index = this.ly*i + j;
+	if (index >= 0 && index < this.lx*this.ly) {
+	    this.data[this.ly*i + j] = val;
+	}
+    }
+    
+    var i,j;
+    for (i = 0; i < this.lx; i++)
+	for (j = 0; j < this.ly; j++)
+	    m2.set(i,j,this.at(i,j));
+}
+    
+    
 /** 
 * Server socket reference 
 *

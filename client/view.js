@@ -87,7 +87,44 @@ View.prototype.returnToLoginScreen = function(data) {
 *         when attempting to set data.mapData.
 */
 View.prototype.setMap = function(data) {
-	client.map = data;
+    if (debug.view) debug.log("client/view.js: setMap()");
+    client.map = data;
+
+    client.map.at = function (i,j) {
+	return data[this.ly*i + j];
+    };
+
+    client.map.set = function (i,j,val) {
+	var index = this.data.ly*i + j;
+	if (index >= 0 && index < this.lx*this.ly) {
+	    this.data[this.ly*i + j] = val;
+	}
+    }
+
+    client.map.copyOf = function (m2) {
+	m2.lx = this.lx;
+	m2.ly = this.ly;
+	m2.path = this.path;
+	m2.author = this.author;
+	m2.data.length = this.data.length;
+	m2.name = this.name;
+
+	m2.at = function (i,j) {
+	    return this.data[this.ly*i + j];
+	};
+	
+	m2.set = function (i,j,val) {
+	    var index = this.ly*i + j;
+	    if (index >= 0 && index < this.lx*this.ly) {
+		this.data[this.ly*i + j] = val;
+	    }
+	}
+	
+	var i,j;
+	for (i = 0; i < this.lx; i++)
+	    for (j = 0; j < this.ly; j++)
+		m2.set(i,j,this.at(i,j));
+    }
 }
 
 /**
