@@ -9,84 +9,113 @@
 
     <style> th, td { border : 1px solid black; } </style>
     
+	
+	<!--LOGIN SCREEN-->
     <div id="login-screen">
       Username: <input id="login-username" type="text"></input><br>
       Password: <input id="login-password" type="password"></input><br>
       <form id="login-usertype-radiobox" checked="player">
-	Usertype: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
-	<input type="radio" name="usertype" id="usertype-host" value="host">host</input>
-	<input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
-	<input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
-	</form>
+		  Usertype: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
+		  			<input type="radio" name="usertype" id="usertype-host" value="host">host</input>
+					<input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
+					<input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
+	  </form>
       <button id="login-btn">Log in</button>
       <button id="signup-btn">Sign up</button>
-      <br>
-      <button id="user-list-btn">List Users</button>
-      <br>
-      <div id="user-list" style="display:none;">
-      </div>
     </div>
-    
+		
+	<!--SESSION MENU-->
+	<div id="session-menu" style="display:none;">
+	  <div id="username-label"></div>
+	  <div id="usertype-label"></div>
+	  <div id="session-menu-btns">
+	    <button id="logout-btn">Log out</button>
+	    <button id="delete-account-btn">Delete Account</button>
+	    <button id="saved-games-menu-btn">Show saved games</button>
+	    <button id="stats-menu-btn">Show stats</button>
+	  </div>
+    </div>
+	<br>
+
+	<!--SAVED GAMES MENU-->
+    <div id="saved-games-menu" style="display:none;">	  
+	  <div id="saved-games-list" style="display:table;"></div>
+	  <div id="saved-games-screen-btns">
+	    <button id="save-game-btn">Save</button>
+	    <button id="load-game-btn">Load</button>
+	    <button id="delete-game-btn">Delete</button>
+	  </div>
+    </div>
+	<br>
+
+	<!--STATS MENU-->
+    <div id="stats-menu" style="display:none;">
+	  <div id="stats-list" style="display:table;"></div>
+	  <div id="stats-menu-btns">
+        <button id="clear-stats-btn">Clear stats</button>
+	  </div>
+    </div>
+	<br>
+	
+	<!--GAME SCREEN-->
     <div id="game-screen" style="display:none;">
-      <div id="session-menu">
-	<div id="username-label"></div>
-	<div id="usertype-label"></div>
-	<div id="session-menu-btns">
-	  <button id="logout-btn">Log out</button>
-	  <button id="delete-account-btn">Delete Account</button>
-	  <button id="saved-games-menu-btn">Show saved games</button>
-	  <button id="stats-menu-btn">Show stats</button>
-	  <button id="clear-stats-btn">Clear stats</button>
+        <div id="game-window">
+  	    <canvas id="canvas" width="500" height="500"
+  		  style="border:1px solid black;font:30px Arial;"></canvas>
+        </div>
 	</div>
-      </div>
-      <div id="saved-games-menu" style="display:none;">
-	<div id="saved-games-list" style="display:table;"></div>
-	<div id="saved-games-screen-btns">
-	  <button id="save-game-btn">Save</button>
-	  <button id="load-game-btn">Load</button>
-	  <button id="delete-game-btn">Delete</button>
+	<br>
+	
+	<!--ADMIN SCREEN-->
+	<div id="admin-screen" style="display:none;">
+	  <button id="user-list-btn">List Users</button>
+      <br>
+      <div id="user-list" style="display:none;"></div>
 	</div>
-      </div>
-      <div id="stats-menu" style="display:none;"></div>
-      <div id="game-window">
-	<canvas id="canvas" width="500" height="500"
-		style="border:1px solid black;font:30px Arial;"></canvas>
-      </div>
-      <div id="options-menu">
-	<div id="options-menu-btns">
-	  <button id="chat-toggle-btn">Show chat</div>
-      </div>
+	<br>
+
+	<!--OPTIONS MENU-->
+    <div id="options-menu" style="display:none;">
+      <div id="options-menu-btns">
+  	    <button id="chat-toggle-btn">Show chat</div>
+  	  </div>
     </div>
-</div>
+	<br>
+	
+	<!--CHAT WINDOW-->
+	<div id="chat-window" style="display:none;">
+  	  <div id="chat-log" style="border:1px solid black;width:500px;height:100px;overflow-y:scroll">
+  	  </div>
+  	  <br>
+  	  <form id="chat-form">
+    	<input id="chat-input" type="text" style="width:500px"></input>
+    	<input id="chat-submit-btn" type="submit"></input>
+  	  </form>
+	</div>
+	<br>
 
-<div id="chat-window" style="display:none;">
-  <div id="chat-log" style="border:1px solid black;width:500px;height:100px;overflow-y:scroll">
-  </div>
-  <br>
-  <form id="chat-form">
-    <input id="chat-input" type="text" style="width:500px"></input>
-    <input id="chat-submit-btn" type="submit"></input>
-  </form>
-</div>
+	<!--MAP EDITOR SCREEN-->
+	<div id="map-editor-screen" style="display:none;">
+	  <canvas id="map-editor-canvas" width="500" height="500"
+		  style="border:1px solid black;font:30px Arial;"></canvas>
+	  <div id="map-editor-icon-panel" style="inline-block">
+	    <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
+	    <img id="map-editor-paint-sand-img" alt="sand" src="client/imgs/mapeditorsandiconup.png">
+	    <img id="map-editor-paint-grass-img" alt="grass" src="client/imgs/mapeditorgrassiconup.png">
+	    <img id="map-editor-paint-port-img" alt="port" src="clientimgs/mapeditorporticonup.png">
+	  </div>
+	  <button id="map-editor-logout-btn">Logout</button>
+	  <button id="map-editor-saved-maps-btn">Saved maps</button>
+	  <button id="map-editor-save-map-btn">Save as</button>
+	  <button id="map-editor-load-map-btn">Load</button>
+	  <div id="map-editor-saved-maps-list" style="display:none"></div>
+	</div>
+	
+	
+	<!--LOBBY SCREEN-->
 
-<div id="map-editor-screen" style="display:none;">
-  <canvas id="map-editor-canvas" width="500" height="500"
-	  style="border:1px solid black;font:30px Arial;"></canvas>
-  <div id="map-editor-icon-panel" style="inline-block">
-    <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
-    <img id="map-editor-paint-sand-img" alt="sand" src="client/imgs/mapeditorsandiconup.png">
-    <img id="map-editor-paint-grass-img" alt="grass" src="client/imgs/mapeditorgrassiconup.png">
-    <img id="map-editor-paint-port-img" alt="port" src="clientimgs/mapeditorporticonup.png">
-  </div>
-  <button id="map-editor-logout-btn">Logout</button>
-  <button id="map-editor-saved-maps-btn">Saved maps</button>
-  <button id="map-editor-save-map-btn">Save as</button>
-  <button id="map-editor-load-map-btn">Load</button>
-  <div id="map-editor-saved-maps-list" style="display:none"></div>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script data-main="./client/main.js" src="./client/require.js"></script>
-</body>
+	<script src="/socket.io/socket.io.js"></script>
+	<script data-main="./client/main.js" src="./client/require.js"></script>
+	</body>
 </html>
 <noscript src="ttps://cdn.sockit.io/sockit.io-1.4.5.js"></noscript>

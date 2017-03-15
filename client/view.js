@@ -3,7 +3,7 @@
 *
 * @module client/View
 */
-define(["debug", "dom", "client", "router"], function(debug, dom, client, router) {
+define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var View = function() {};
 
@@ -16,11 +16,10 @@ var View = function() {};
 * @param router The class responsible for routing
 *               gui messages
 */
-View.prototype.listen = function(routr) {
+View.prototype.listen = function(router) {
     if (debug.view) debug.log("client/view.js: listen()");
-    routr.listen("loginResponse", this.exitLoginScreen);
-    routr.listen("logoutResponse", this.gameScreenToLogin);
-    routr.listen("mapEditorLogoutResponse", this.mapEditorScreenToLogin);
+    router.listen("loginResponse", this.exitLoginScreen);
+    router.listen("logoutResponse", this.returnToLoginScreen);
 	router.listen("newGameMapResponse", this.setMap);
 	router.listen("getEditMapResponse", this.setMap);
 	router.listen("keyPressed", this.keyPressed);
@@ -39,17 +38,20 @@ View.prototype.listen = function(routr) {
 */
 View.prototype.exitLoginScreen = function(data) {
     if(debug.view) debug.log("[View] exitLoginScreen()");
-	dom.loginScreen.style.display = "none";
+	dom.hide([dom.loginScreen]);
 	dom.usernameLabel.innerHTML = data.username;
 	client.username = data.username;
 	client.usertype = data.usertype;
 	if(client.usertype === "editor") {
 	    if(debug) debug.log("[View] Moving to map editor screen");
-	    dom.mapEditorScreen.style.display="inline-block";
+	    dom.show([dom.mapEditorScreen]);
 	    client.emit("getEditMap", {filename:"",username:client.username,usertype:client.usertype});
+	} else if(client.usertype === "admin") {
+		if(debug) debug.log("[View] Moving to admin screen");
+		dom.show([dom.sessionMenu, dom.adminScreen, dom.optionsMenu]);
 	} else {
 	    if(debug) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
-	    dom.gameScreen.style.display = "inline-block";
+		dom.show([dom.gameScreen, dom.sessionMenu, dom.optionsMenu]);
 	    client.emit("getGameMap", null);
 	}
 }
@@ -59,24 +61,21 @@ View.prototype.exitLoginScreen = function(data) {
 *
 * @memberof module:client/View
 */
-View.prototype.gameScreenToLogin = function() {
-    dom.loginScreen.style.display = "inline-block";
-    dom.gameScreen.style.display = "none";
+View.prototype.returnToLoginScreen = function(data) {
+	if(debug.view) debug.log("[View] returning to login screen");
+	if(client.usertype === "editor") {
+		dom.hide([dom.mapEditorScreen]);
+	} else if(client.usertype === "admin") {
+		dom.hide([dom.adminScreen, dom.userList, dom.sessionMenu, dom.statsMenu,
+			dom.savedGamesMenu, dom.chatWindow, dom.optionsMenu]);
+	} else {
+		dom.hide([dom.gameScreen, dom.sessionMenu, dom.statsMenu,
+			dom.savedGamesMenu, dom.chatWindow, dom.optionsMenu]);
+	}
+	dom.show([dom.loginScreen]);
     client.username = "";
     client.usertype = "";
-}
-
-/**
-* Transition from the game screen to map editor screen
-*
-* @memberof module:client/View
-*/
-View.prototype.mapEditorScreenToLogin = function() {
-    dom.loginScreen.style.display = "inline-block";
-    dom.mapEditorScreen.style.display = "none";
-    client.username = "";
-    client.usertype = "";
-    client.player = null;
+	client.player = null;
 }
 
 /**

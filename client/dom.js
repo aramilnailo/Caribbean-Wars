@@ -6,9 +6,9 @@ var dom = {
 
 	// Login page
 	loginScreen:document.getElementById("login-screen"),
-        loginUsername:document.getElementById("login-username"),
-        loginUsertype:{},
-    	loginUsertypeForm:document.getElementById("login-usertype-radiobox"),
+    loginUsername:document.getElementById("login-username"),
+    loginUsertype:{},
+    loginUsertypeForm:document.getElementById("login-usertype-radiobox"),
 	loginPassword:document.getElementById("login-password"),
 	loginButton:document.getElementById("login-btn"),
 	signupButton:document.getElementById("signup-btn"),
@@ -21,24 +21,30 @@ var dom = {
 	gameScreen:document.getElementById("game-screen"),
 	canvas:document.getElementById("canvas").getContext("2d"),
 
-	// Upper game menu
-        usernameLabel:document.getElementById("username-label"),
-    	usertypeLabel:document.getElementById("usertype-label"),
+	// Session menu
+	sessionMenu:document.getElementById("session-menu"),
+    usernameLabel:document.getElementById("username-label"),
+   	usertypeLabel:document.getElementById("usertype-label"),
 	logoutButton:document.getElementById("logout-btn"),
 	deleteAccountButton:document.getElementById("delete-account-btn"),
+	savedGamesMenuButton:document.getElementById("saved-games-menu-btn"),
+	statsMenuButton:document.getElementById("stats-menu-btn"),
 
 	// Save game menu
-	savedGamesMenuButton:document.getElementById("saved-games-menu-btn"),
+	savedGamesMenu:document.getElementById("saved-games-menu"),
 	loadGameButton:document.getElementById("load-game-btn"),
 	saveGameButton:document.getElementById("save-game-btn"),
 	deleteGameButton:document.getElementById("delete-game-btn"),
-	savedGamesMenu:document.getElementById("saved-games-menu"),
 	savedGamesList:document.getElementById("saved-games-list"),
 
 	// Stats menu
 	statsMenu:document.getElementById("stats-menu"),
-	statsMenuButton:document.getElementById("stats-menu-btn"),
+	statsList:document.getElementById("stats-list"),
 	clearStatsButton:document.getElementById("clear-stats-btn"),
+
+	// Options menu
+	optionsMenu:document.getElementById("options-menu"),
+	chatToggleButton:document.getElementById("chat-toggle-btn"),
 
 	// Chat window
 	chatWindow:document.getElementById("chat-window"),
@@ -46,7 +52,6 @@ var dom = {
 	chatForm:document.getElementById("chat-form"),
 	chatInput:document.getElementById("chat-input"),
 	chatSubmitButton:document.getElementById("chat-submit-btn"),
-        chatToggleButton:document.getElementById("chat-toggle-btn"),
 
     // MapEditor window
     mapEditorScreen:document.getElementById("map-editor-screen"),
@@ -66,17 +71,15 @@ var dom = {
     mapEditorLoadMapButton:document.getElementById("map-editor-load-map-btn"),
     mapEditorSavedMapsListHidden:true,
     
+	// Admin screen
+	adminScreen:document.getElementById("admin-screen"),
     
 	// UI flags
 	userListHidden:true,
 	chatWindowHidden:true,
 	statsMenuHidden:true,
     savedGamesMenuHidden:true,
-    
-
-
-    
-    
+	
 }
 
 dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
@@ -86,6 +89,7 @@ dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", d
 dom.chatToggleButton.onclick = function() { router.route({name:"toggleChatWindow", data:null}); }
 
 dom.statsMenuButton.onclick = function() { router.route({name:"toggleStatsMenu", data:null}); }
+dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick", data:null}); }
 
 dom.userListButton.onclick = function() { router.route({name:"toggleUserList", data:null}); }
 dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
@@ -97,8 +101,6 @@ dom.savedGamesMenuButton.onclick = function() { router.route({name:"toggleSavedG
 dom.saveGameButton.onclick = function() { router.route({name:"saveGameClick", data:null}); }
 dom.loadGameButton.onclick = function() { router.route({name:"loadGameClick", data:null}); }
 dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick", data:null}); }
-
-dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick", data:null}); }
 
     // map editor event handling
     dom.mapEditorSavedMapsListButton.onclick =
@@ -151,7 +153,19 @@ dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick"
     
 dom.canvas.font = "30px Arial";
 dom.mapEditorCanvas.font = "30px Arial";
-    
+
+dom.show = function(data) {
+	for(var i in data) {
+		data[i].style.display = "inline-block";
+	}
+}
+
+dom.hide = function(data) {
+	for(var i in data) {
+		data[i].style.display = "none";
+	}
+}
+
 return dom;
 
 });

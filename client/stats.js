@@ -59,7 +59,6 @@ Stats.prototype.toggleStatsMenu = function() {
 */
 Stats.prototype.displayStatsMenu = function(data) {
     var i;
-    dom.statsMenu.style.display = "table";
     var html = "<table>" +
 	"<tr>" +
 	"<th>Username</th>" +
@@ -80,7 +79,7 @@ Stats.prototype.displayStatsMenu = function(data) {
 	    "</tr>";
     }
     html += "</table>";
-    dom.statsMenu.innerHTML = html;
+    dom.statsList.innerHTML = html;
 }
 
 /**

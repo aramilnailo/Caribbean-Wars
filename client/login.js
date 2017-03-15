@@ -24,8 +24,8 @@ Login.prototype.toggleUserList = function() {
 		dom.userListButton.innerHTML = "Hide users";
 		dom.userListHidden = false;
     } else {
-                if (debug.login) log("toggleUserList(): Hide users");
-         	dom.userList.style.display = "none";	
+        if (debug.login) log("toggleUserList(): Hide users");
+        dom.userList.style.display = "none";	
 		dom.userListButton.innerHTML = "List users";
 		dom.userListHidden = true;
     }
