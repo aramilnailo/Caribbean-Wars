@@ -85,6 +85,8 @@ var dom = {
 	kickButton:document.getElementById("kick-btn"),
 	promoteButton:document.getElementById("promote-btn"),
 	endSessionButton:document.getElementById("end-session-btn"),
+	newGameButton:document.getElementById("new-game-btn"),
+	resumeGameButton:document.getElementById("resume-game-btn"),
 	leaveSessionButton:document.getElementById("leave-session-btn"),
 	
 	// Session menu
@@ -131,6 +133,8 @@ dom.inviteButton.onclick = function() { router.route({name:"inviteClick", data:n
 dom.kickButton.onclick = function() { router.route({name:"kickClick", data:null}); }
 dom.promoteButton.onclick = function() { router.route({name:"promoteClick", data:null}); }
 dom.endSessionButton.onclick = function() { router.route({name:"endSessionClick", data:null}); }
+dom.newGameButton.onclick = function() { router.route({name:"newGameClick", data:null}); }
+dom.resumeGameButton.onclick = function() { router.route({name:"resumeGameClick", data:null}); }
 dom.leaveSessionButton.onclick = function() { router.route({name:"leaveSessionClick", data:null}); }
 
 dom.sessionMenuButton.onclick = function() { router.route({name:"toggleSessionMenu", data:null}); }

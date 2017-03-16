@@ -11,6 +11,8 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		router.listen("kickClick", this.kickClick);
 		router.listen("promoteClick", this.promoteClick);
 		router.listen("endSessionClick", this.endSessionClick);
+		router.listen("newGameClick", this.newGameClick);
+		router.listen("resumeGameClick", this.resumeGameClick);
 		router.listen("leaveSessionClick", this.leaveSessionClick);
 		router.listen("updateLobby", this.updateLobby);
 	}
@@ -89,9 +91,18 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		debug.log("[Lobby] endSessionClick");
 		client.emit("endGameSession", null);
 	}
+	
+	Lobby.prototype.newGameClick = function(data) {
+		debug.log("[Lobby] newGameClick");
+	}
+	
+	Lobby.prototype.resumeGameClick = function(data) {
+		debug.log("[Lobby] resumeGameClick");
+	}
 
 	Lobby.prototype.leaveSessionClick = function(data) {
 		debug.log("[Lobby] leaveSessionClick");
+		client.emit("exitGameSession", null);
 	}
 	
 	Lobby.prototype.updateLobby = function(data) {

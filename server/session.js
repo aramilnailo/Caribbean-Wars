@@ -101,6 +101,7 @@ Session.prototype.endGameSession = function(param) {
 */
 Session.prototype.exitGameSession = function(param) {
 	if(debug) log("server/session.js: exitGameSession()");
+	var clients = param.clients;
 	var client = param.client;
 	if(!client.player) return;
 	var id = client.player.id;
@@ -118,6 +119,20 @@ Session.prototype.exitGameSession = function(param) {
 			data:id});
 	}
 	client.player = null;
+	// Send the client out of the lobby
+	server.emit(client.socket, "exitLobby", null);
+	// Update the lobbies of everyone else
+	for(var i in GAME_SESSIONS[id].players) {
+		var p = GAME_SESSIONS[id].players[i];
+		for(var j in clients) {
+			var pl = clients[j].player;
+			var socket = clients[j].socket;
+			if(pl === p) {
+				server.emit(socket, "updateLobby", GAME_SESSIONS[id].players);
+			}
+		}
+	}
+	server.emit(client.socket, "alert", "You have left lobby " + id);
 }
 
 /**
