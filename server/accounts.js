@@ -3,7 +3,6 @@ var log = require("./debug.js").log;
 
 var server = require("./server.js");
 var dbi = require("./dbi.js");
-var session = require("./session.js");
 
 /**
  * The accounts namespace contains the functions relating to
@@ -45,7 +44,7 @@ Accounts.prototype.disconnect = function disconnect(param) {
     var clients = param.clients;
    	// If in a game, remove the player
     if(client.player) {
-		session.exitGameSession({client:client});
+		require("./session.js").exitGameSession({client:client});
 		client.player = null;
 	}
     // Remove from client list
@@ -78,8 +77,6 @@ Accounts.prototype.login = function login(param) {
 				// Transition between menus
 	            server.emit(client.socket, "loginResponse", 
 					{username:data.username, usertype:data.usertype});
-				// Get the current game session and emit
-				server.emit(client.socket, "gameSession", session.GAME_SESSION);
 		    	if (debug) log("server/accounts.js: login success");
 			}
         } else {

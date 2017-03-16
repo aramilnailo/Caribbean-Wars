@@ -64,10 +64,10 @@ Render.prototype.drawScreen = function(data) {
 	    */
 	}
     }
-    // Draw the players in black
+    // Draw the players as black squares
     dom.canvas.fillStyle = "#000000";
     for(i = 0; i < data.length; i++) {
-	dom.canvas.fillText(data[i].number, data[i].x, data[i].y);
+	dom.canvas.fillRect(data[i].x, data[i].y, 10, 10);
     }
 }
 

@@ -12,11 +12,18 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
 	Lobby.prototype.joinGameClick = function(data) {
 		debug.log("[Lobby] joinGameClick");
-		client.emit("enterGameSession", {username:client.username, usertype:client.usertype});
+		var id = window.prompt("Which game session?", "0");
+		if(id) {
+			client.emit("enterGameSession", {username:client.username, usertype:client.usertype, id:id});
+		} else {
+			alert("Invalid input");
+		}
 	}
 
 	Lobby.prototype.newGameClick = function(data) {
 		debug.log("[Lobby] newGameClick");
+		client.emit("newGameSession", null);
+		alert("Session created");
 	}
 	
 	Lobby.prototype.resumeGameClick = function(data) {
