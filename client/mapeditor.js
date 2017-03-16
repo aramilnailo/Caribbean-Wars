@@ -77,6 +77,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     */
     var mapEditHistor=[];
     var currentMap = 0;
+    var paintMove = false;
     var paintingSand = false;
     var paintingWater = false;
     var paintingPort = false;
@@ -108,6 +109,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	router.listen("mapEditorCanvasMouseDown",this.onCanvasMouseDown);
 	//router.listen("mapEditorCanvasClick",this.onCanvasClick);
 	router.listen("mapEditorCanvasMouseMove",this.onCanvasMouseMove);
+	router.listen("mapEditorCanvasMouseUp",this.onCanvasMouseUp);
+	router.listen("mapEditorCanvasMouseLeave",this.onCanvasMouseLeave);
 	
 	router.listen("keyPressed",this.onKeyPress);
 	//router.listen("keyReleased",this.onKeyReleased) ?
@@ -159,21 +162,10 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		}
 		dom.mapEditorCanvasContext.fillStyle = color;
 		dom.mapEditorCanvasContext.fillRect(j * 50, i * 50, 50, 50);
-		if(color == "#000000") debug.log("i,j="+i+","+j);
+		//if(color == "#000000") debug.log("i,j="+i+","+j);
 	    }
 	}
-	
-/*	
-	for(i = 0; i < lx; i++) {
-	    for(j = 0; j < ly; j++) {
-		// 0 = blue, 1 = tan, 2 = green
-		ch = client.map.data[ly * i + j]; // Current cell
-		dom.mapEditorCanvasContext.fillStyle = (ch == "0") ? "#42C5F4" :
-		    (ch == "1") ? "#C19E70" : "#2A8C23";
-		dom.mapEditorCanvasContext.fillRect(j * 50, i * 50, 50, 50);
-	    }
-*/
-    
+	    
 	if(debug.mapeditor) debug.log("client/mapeditor: drawEditScreen exit");
     }
     
@@ -373,8 +365,17 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	    client.map.data[client.map.lx*b+a] = ch;
 	    MapEditor.prototype.drawEditScreen(event);
 	}
+	paintMove = true;
     };
-     
+
+    MapEditor.prototype.onCanvasMouseUp = function (event) {
+	paintMove = false;
+    }
+
+    MapEditor.prototype.onCanvasMouseLeave = function (event) {
+	paintMove = false;
+    }
+    
     /*
     MapEditor.prototype.onCanvasClick = function (event) {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasClick()");
@@ -402,7 +403,30 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 
     
     MapEditor.prototype.onCanvasMouseMove = function (event) {
-	//this.onCanvasMouseDown(event);
+	if (paintMove) {
+	    if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasMouseMove()");
+	    var rect = event.target.getBoundingClientRect();
+	    var x = event.clientX - rect.left;
+	    var y = event.clientY - rect.top;
+	    //if (debug.mapeditor) debug.log("client/mapeditor.js: x,y="+x+","+y);
+	    var a = Math.floor(1.0/500.0*client.map.ly*x);
+	    var b = Math.floor(1.0/500.0*client.map.lx*y);
+	    if (debug.mapeditor) debug.log("client/mapeditor.js: a,b="+a+","+b);
+	    //if (debug.mapeditor) debug.log("client/mapeditor.js: flags: water="+paintingWater+",sand="+paintingSand+",port="+paintingPort+",grass="+paintingGrass);
+	    //var win = event.view;
+	    var change = false;
+	    var ch;
+	    if (paintingWater) { ch = 0; change = true; }
+	    if (paintingSand) { ch = 1; change = true; }
+	    if (paintingGrass) { ch = 2; change = true; }
+	    if (paintingPort) { ch = 3; change = true; }
+	    if (debug.mapeditor) debug.log("client/mapeditor.js: change="+change+"; ch="+ch);
+	    if (change) {
+		//client.map.set(a,b,ch);
+		client.map.data[client.map.lx*b+a] = ch;
+		MapEditor.prototype.drawEditScreen(event);
+	    }
+	}
     };
     
            

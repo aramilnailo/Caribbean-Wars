@@ -136,7 +136,11 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
 	
     dom.mapEditorCanvas.onmousemove =
 	function(event) { router.route({name:"mapEditorCanvasMouseMove", data:event}); }
-	
+    dom.mapEditorCanvas.onmouseup =
+	function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
+    dom.mapEditorCanvas.onmouseleave =
+	function(event) { router.route({name:"mapEditorCanvasMouseLeave", data:event}); }
+    
     //land icon
     dom.mapEditorPaintSandIcon.onclick =
 	function() { router.route({name:"mapEditorPaintSandIconClick", data:null}); }
