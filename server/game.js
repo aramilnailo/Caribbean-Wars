@@ -67,7 +67,7 @@ Game.prototype.update = function() {
 		var pack = [];
 		for(var j in GAME_SESSIONS[i].players) {
 			var p = GAME_SESSIONS[i].players[j];
-			if(p !== null) {
+			if(p.inGame) {
 	   		 	p.updatePosition();
 	    		pack.push({x:p.x, y:p.y});
 			}
@@ -98,9 +98,11 @@ Game.prototype.updateStats = function() {
 	for(var i in GAME_SESSIONS) {
 		for(var j in GAME_SESSIONS[i].players) {
 			var p = GAME_SESSIONS[i].players[j];
-	    	dbi.updateStat(p.username, "seconds_played", 1, function(resp) {
-				if(!resp && debug) log("Failed to update seconds played");
-	    	});
+			if(p.inGame) {
+	    		dbi.updateStat(p.username, "seconds_played", 1, function(resp) {
+					if(!resp && debug) log("Failed to update seconds played");
+	    		});
+			}
 		}
 	}
 }

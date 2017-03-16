@@ -22,6 +22,8 @@ var Player = function(username, usertype, id) {
 	username:username,
 	usertype:usertype,
 	id:id,
+	inGame:false,
+	inLobby:false,
 	pressingRight:false,
 	pressingLeft:false,
 	pressingUp:false,

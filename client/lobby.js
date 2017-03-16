@@ -3,14 +3,19 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	var Lobby = function() {}
 	
 	Lobby.prototype.listen = function(router) {
-		router.listen("joinGameClick", this.joinGameClick);
-		router.listen("newGameClick", this.newGameClick);
-		router.listen("resumeGameClick", this.resumeGameClick);
+		router.listen("joinSessionClick", this.joinSessionClick);
+		router.listen("newSessionClick", this.newSessionClick);
 		router.listen("toggleSessionMenu", this.toggleSessionMenu);
 		router.listen("sessionListResponse", this.displaySessionList);
+		router.listen("inviteClick", this.inviteClick);
+		router.listen("kickClick", this.kickClick);
+		router.listen("promoteClick", this.promoteClick);
+		router.listen("endSessionClick", this.endSessionClick);
+		router.listen("leaveSessionClick", this.leaveSessionClick);
+		router.listen("updateLobby", this.updateLobby);
 	}
 
-	Lobby.prototype.joinGameClick = function(data) {
+	Lobby.prototype.joinSessionClick = function(data) {
 		debug.log("[Lobby] joinGameClick");
 		var id = window.prompt("Which game session?", "0");
 		if(id) {
@@ -20,14 +25,9 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		}
 	}
 
-	Lobby.prototype.newGameClick = function(data) {
-		debug.log("[Lobby] newGameClick");
-		client.emit("newGameSession", null);
-		alert("Session created");
-	}
-	
-	Lobby.prototype.resumeGameClick = function(data) {
-		debug.log("[Lobby] resumeGameClick");
+	Lobby.prototype.newSessionClick = function(data) {
+		debug.log("[Lobby] newSessionClick");
+		client.emit("newGameSession", {username:client.username, usertype:client.usertype});
 	}
 	
 	Lobby.prototype.toggleSessionMenu = function() {
@@ -71,7 +71,39 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		html += "</table>"
 		dom.sessionList.innerHTML = html;
 	}
+	
+	
+	Lobby.prototype.inviteClick = function(data) {
+		debug.log("[Lobby] inviteClick");
+	}
+	
+	Lobby.prototype.kickClick = function(data) {
+		debug.log("[Lobby] kickClick");
+	}
+	
+	Lobby.prototype.promoteClick = function(data) {
+		debug.log("[Lobby] promoteClick");
+	}
+	
+	Lobby.prototype.endSessionClick = function(data) {
+		debug.log("[Lobby] endSessionClick");
+		client.emit("endGameSession", null);
+	}
 
+	Lobby.prototype.leaveSessionClick = function(data) {
+		debug.log("[Lobby] leaveSessionClick");
+	}
+	
+	Lobby.prototype.updateLobby = function(data) {
+		debug.log("[Lobby] updateLobby");
+		var html = "<ul>";
+		for(var i in data) {
+			html += "<li>" + data[i].username + "</li>";
+		}
+		html += "</ul>";
+		dom.lobbyPlayerList.innerHTML = html;
+	}
+	
 	return new Lobby();
 	
 });

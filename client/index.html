@@ -79,7 +79,17 @@
 	
 	<!--LOBBY SCREEN-->
 	<div id="lobby-screen" style="display:none;">
-		<div id="login-screen-btns">
+		<div id="lobby-player-list" style="display:none;"></div>
+		<div id="host-lobby-btns" style="display:none;">
+			<button id="invite-btn">Invite</button>
+			<button id="kick-btn">Kick</button>
+			<button id="promote-btn">Promote</button>
+			<button id="end-session-btn">End Session</button>
+		</div>
+		<div id="non-host-lobby-btns" style="display:none;">
+			<button id="leave-session-btn">Leave</button>
+		</div>
+		<div id="session-browser-btns">
 			<button id="session-menu-btn">Show Sessions</button>
 		</div>
 	</div>
@@ -88,9 +98,8 @@
 	<div id="session-menu" style="display:none;">
 		<div id="session-list"></div>
 		<div id="session-menu-btns">
-			<button id="join-game-btn">Join Game</button>
-			<button id="new-game-btn">Start Game</button>
-			<button id="resume-game-btn">Load Game</button>
+			<button id="join-session-btn">Join Session</button>
+			<button id="new-session-btn">Start Session</button>
 		</div>
 	</div>
 	

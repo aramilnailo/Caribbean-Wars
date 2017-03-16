@@ -19,7 +19,9 @@ View.prototype.listen = function(router) {
     if (debug.view) debug.log("client/view.js: listen()");
     router.listen("loginResponse", this.exitLoginScreen);
     router.listen("logoutResponse", this.returnToLoginScreen);
-	router.listen("enterGameResponse", this.enterGameScreen);
+	router.listen("enterLobby", this.enterLobby);
+	router.listen("exitLobby", this.exitLobby);
+	router.listen("enterGame", this.enterGameScreen);
 	router.listen("keyPressed", this.keyPressed);
 	router.listen("keyReleased", this.keyReleased);
 }
@@ -49,13 +51,32 @@ View.prototype.exitLoginScreen = function(data) {
 		dom.show([dom.inGameMenu, dom.adminScreen, dom.optionsMenu]);
 	} else {
 	    if(debug) debug.log("[View] Moving to lobby screen: username="+data.username+"; usertype="+data.usertype);
-		dom.show([dom.lobbyScreen, dom.inGameMenu, dom.optionsMenu]);
+		dom.hide([dom.lobbyPlayerList, dom.hostLobbyButtons, dom.nonHostLobbyButtons]);
+		dom.show([dom.lobbyScreen, dom.sessionBrowserButtons, dom.inGameMenu, dom.optionsMenu]);
 	}
+}
+
+View.prototype.enterLobby = function(data) {
+	debug.log("[View] enter lobby");
+	dom.hide([dom.sessionBrowserButtons, dom.sessionMenu]);
+	dom.show([dom.lobbyPlayerList]);
+	if(data.isHost) {
+		dom.show([dom.hostLobbyButtons]);
+	} else {
+		dom.show([dom.nonHostLobbyButtons]);
+	}
+}
+
+View.prototype.exitLobby = function() {
+	debug.log("[View] exit lobby");
+	dom.hide([dom.lobbyPlayerList, dom.hostLobbyButtons, 
+		dom.nonHostLobbyButtons]);
+	dom.show([dom.sessionBrowserButtons]);
 }
 
 View.prototype.enterGameScreen = function(data) {
 	client.emit("getGameMap", null);
-	dom.hide([dom.lobbyScreen, dom.sessionMenu]);
+	dom.hide([dom.lobbyScreen]);
 	dom.show([dom.gameScreen, dom.inGameMenu, dom.optionsMenu]);
 }
 
