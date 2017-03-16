@@ -94,6 +94,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 	Lobby.prototype.newGameClick = function(data) {
 		debug.log("[Lobby] newGameClick");
+		client.emit("beginGameSession", null);
 	}
 	
 	Lobby.prototype.resumeGameClick = function(data) {

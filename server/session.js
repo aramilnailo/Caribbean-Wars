@@ -25,6 +25,7 @@ Session.prototype.listen = function(router) {
     if(debug) log("server/session.js: listen()");
 	router.listen("newGameSession", this.newGameSession);
     router.listen("endGameSession", this.endGameSession);
+	router.listen("beginGameSession", this.beginGameSession);
     router.listen("exitGameSession", this.exitGameSession);
     router.listen("enterGameSession", this.enterGameSession);
 	router.listen("sessionListRequest", this.sessionListRequest);
@@ -79,9 +80,13 @@ Session.prototype.endGameSession = function(param) {
 		dbi.setUserOnlineStatus(player.username, false);
 		for(var j in clients) {
 			if(clients[j].player === player) {
-				clients[i].player = null;
-				server.emit(clients[i].socket, "exitLobby", null);
-				server.emit(clients[i].socket, "alert", "The game session has ended.");
+				if(clients[j].player.inLobby) {
+					server.emit(clients[j].socket, "exitLobby", null);
+				} else if(clients[j].player.inGame) {
+					server.emit(clients[j].socket, "logoutResponse", null);
+				}
+				server.emit(clients[j].socket, "alert", "The game session has ended.");
+				clients[j].player = null;
 			}
 		}
     }
@@ -90,6 +95,27 @@ Session.prototype.endGameSession = function(param) {
 	// Remove the session from the sessions list
 	var index = GAME_SESSIONS.indexOf(session);
  	GAME_SESSIONS.splice(index, 1);
+}
+
+Session.prototype.beginGameSession = function(param) {
+	var clients = param.clients;
+	var client = param.client;
+	if(!client.player) return;
+	var id = client.player.id;
+	var session = GAME_SESSIONS[id];
+	for(var i in session.players) {
+		var p = session.players[i];
+		for(var j in clients) {
+			var pl = clients[j].player;
+			var socket = clients[j].socket;
+			if(p === pl) {
+				p.inLobby = false;
+				p.inGame = true;
+				server.emit(socket, "enterGame", null);
+				server.emit(socket, "alert", "Game started");
+			}
+		}
+	}
 }
 
 /**
@@ -111,14 +137,6 @@ Session.prototype.exitGameSession = function(param) {
     if(index > -1) session.players.splice(index, 1);
     // Turn the player offline in the database
     dbi.setUserOnlineStatus(client.player.username, false);
-    // If the host leaves, it's game over for everyone
-    if(client.player === session.host) {
-		Session.prototype.endGameSession(
-			{client:client,
-			clients:require("./router.js").client_list, 
-			data:id});
-	}
-	client.player = null;
 	// Send the client out of the lobby
 	server.emit(client.socket, "exitLobby", null);
 	// Update the lobbies of everyone else
@@ -133,6 +151,14 @@ Session.prototype.exitGameSession = function(param) {
 		}
 	}
 	server.emit(client.socket, "alert", "You have left lobby " + id);
+    // If the host left, it's game over for everyone
+    if(client.player === session.host) {
+		Session.prototype.endGameSession(
+			{client:client,
+			clients:require("./router.js").client_list, 
+			data:id});
+	}
+	client.player = null;
 }
 
 /**
