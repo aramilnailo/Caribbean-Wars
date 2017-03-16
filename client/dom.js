@@ -60,12 +60,20 @@ var dom = {
     mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
     mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
     mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
-    mapEditorTextBox:document.getElementById("map-editor-textbox"),
+
+    // MapEditor textbox
+    mapEditorTextbox:document.getElementById("map-editor-textbox"),
+    mapEditorTextboxMessage:document.getElementById("map-editor-textbox-msg"),
+    mapEditorTextboxResizeForm:document.getElementById("map-editor-textbox-resize-form"),
+    mapEditorResizedLX:document.getElementById("map-editor-new-lx"),
+    mapEditorResizedLY:document.getElementById("map-editor-new-ly"),
+    mapEditorResizeSubmitButton:document.getElementById("map-editor-resize-submit-btn"),
+    mapEditorResizeButton:document.getElementById("map-editor-resize-btn"),
     
     // MapEditor saved maps list
     mapEditorSavedMapsListButton:document.getElementById("map-editor-saved-maps-btn"),
     mapEditorSavedMapsList:document.getElementById("map-editor-saved-maps-list"),
-    mapEditorMapSizeButton:document.getElementById("map-editor-size-btn");
+    mapEditorMapResizeButton:document.getElementById("map-editor-resize-btn"),
     mapEditorSaveMapButton:document.getElementById("map-editor-save-map-btn"),
     mapEditorLoadMapButton:document.getElementById("map-editor-load-map-btn"),
     mapEditorSavedMapsListHidden:true,
@@ -124,12 +132,28 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
     dom.mapEditorLoadMapButton.onclick = 
 	function() { router.route({name:"mapEditorLoadMapButtonClick", data:null}); }
 
-    dom.mapEditorSizeButton.onclick = 
-	function() { router.route({name:"mapEditorSizeButtonClick", data:null}); }
+    dom.mapEditorResizeButton.onclick = 
+	function() { router.route({name:"mapEditorResizeButtonClick", data:null}); }
 
     dom.mapEditorLogoutButton.onclick =
 	function() { router.route({name:"mapEditorLogoutButtonClick", data:null}) };
-	
+
+    dom.mapEditorResizeButton.onclick = 
+	function() { router.route({name:"mapEditorResizeButtonClick", data:null}); }
+    dom.mapEditorResizeSubmitButton.onclick=
+	function() { router.route({name:"mapEditorResizeSubmitButtonClick", data:null}) };
+
+
+    // MapEditor textbox
+    /*
+    mapEditorTextbox:document.getElementById("map-editor-textbox"),
+    mapEditorTextboxMessage:document.getElementById("map-editor-textbox-msg"),
+    mapEditorTextboxResizeForm:document.getElementById("map-editor-textbox-resize-form"),
+    mapEditorResizedLX:document.getElementById("map-editor-new-lx"),
+    mapEditorResizedLY:document.getElementById("map-editor-new-ly"),
+    mapEditorResizeSubmitButton:document.getElementById("map-editor-resize-submit-btn"),
+    */
+    
     //canvas
     dom.mapEditorCanvas.onmousedown =
 	function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }

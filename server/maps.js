@@ -26,7 +26,7 @@ Maps.prototype.listen = function(router) {
     router.listen("getGameMap", this.getGameMap);
     router.listen("getEditMap", this.getEditMap);
     router.listen("loadNewMap",this.loadNewGameMap);
-    router.listen("saveMap",this.saveMap);
+    router.listen("saveMapRequest",this.saveMap);
     router.listen("loadSavedMap",this.loadSavedEditMap);
     router.listen("savedMapsListRequest",this.savedMapsListRequest);
 }
@@ -142,7 +142,7 @@ Maps.prototype.loadMapCopy = function(param) {
     if (debug) log("server/maps.js, loadMapCopy(): filename="+filename);
     if (debug) log("server/maps.js, loadMapCopy(): username="+param.data.username);
     if (debug) log("server/maps.js, loadMapCopy(): usertype="+param.data.usertype);
-    
+
     if(usertype != "editor") {
 	server.emit(client.socket, "alert", "Map write access restricted to map editors.");
     } else {
@@ -188,6 +188,10 @@ Maps.prototype.saveMap = function(param) {
     var newpath = param.data.path;
     var username = param.data.username;
     var usertype = param.data.usertype;
+    if (debug) log("server/maps.js, loadMapCopy(): filename="+filename);
+    if (debug) log("server/maps.js, loadMapCopy(): username="+param.data.username);
+    if (debug) log("server/maps.js, loadMapCopy(): usertype="+param.data.usertype);
+
     if(usertype != "editor") {
 	server.emit(client.socket, "alert", "Map read/write access restricted to map editors.");
     } else {
@@ -202,7 +206,7 @@ Maps.prototype.saveMap = function(param) {
 		server.emit(client.socket, "alert", "Could not save " + filename);
 	    }
 	});
-	files.saveFile(data.map,newpath,function(err){
+	files.saveFile(param.data.map,newpath,function(err){
 	    if (err) {
 		//should delete filename from db as well, if stored.
 		server.emit(client.socket, "alert", "Could not save " + filename);

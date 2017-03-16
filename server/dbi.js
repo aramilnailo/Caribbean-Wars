@@ -172,7 +172,7 @@ dbi.prototype.saveMapFilename = function(data,cb) {
 	db.query("INSERT INTO saved_maps SET ?;",
 		 {author:data.author,
 		  file_name:data.filename,
-		  map_file_path:data.map_file_path},
+		  path:data.map_file_path},
 		 function(err) {
 		     if(err) {
 			 if (debug) log(err.message);

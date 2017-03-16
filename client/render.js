@@ -34,9 +34,10 @@ Render.prototype.drawScreen = function(data) {
     if(debug.render) log("client/render.js: drawScreen()");
     var ly = client.map.ly;
     var lx = client.map.lx;
-    var dy = client.map.dy;
-    var dx = client.map.dx;
     var i, j, ch;
+    // zoom. Need to pass as parameter.
+    var dx = 50;
+    var dy = 50; 
     // Clear screen
     dom.canvas.clearRect(0, 0, lx, ly);
     // Draw the map

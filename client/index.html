@@ -14,10 +14,10 @@
       Username: <input id="login-username" type="text"></input><br>
       Password: <input id="login-password" type="password"></input><br>
       <form id="login-usertype-radiobox" checked="player">
-		  Usertype: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
-					<input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
-					<input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
-	  </form>
+	Usertype: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
+	<input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
+	<input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
+      </form>
       <button id="login-btn">Log in</button>
       <button id="signup-btn">Sign up</button>
     </div>
@@ -104,13 +104,22 @@
 	    <img id="map-editor-paint-sand-img" alt="sand" src="client/imgs/mapeditorsandiconup.png">
 	    <img id="map-editor-paint-grass-img" alt="grass" src="client/imgs/mapeditorgrassiconup.png">
 	    <img id="map-editor-paint-port-img" alt="port" src="client/imgs/mapeditorporticonup.png">
+	    <div id="map-editor-textbox">
+	      <div id="map-editor-textbox-msg"><p style="font:12px Arial">Map edit mode</p></div>
+	      <div id="map-editor-textbox-resize-form" style="display:none">
+		<form>
+		  height: <input id="map-editor-new-ly"></input>
+		  width: <input id="map-editor-new-lx"></input>
+		  <input id="map-editor-resize-submit-btn" type="submit"><input>
+		</form>
+	      </div>
+	    </div>
 	  </div>
 	  <button id="map-editor-logout-btn">Logout</button>
 	  <button id="map-editor-saved-maps-btn">Saved maps</button>
 	  <button id="map-editor-save-map-btn">Save as</button>
 	  <button id="map-editor-load-map-btn">Load</button>
-	  <button id="map-editor-size-btn">Size</button>
-	  <div id="map-editor-textbox"><p>Map edit mode</p></div><br>
+	  <button id="map-editor-resize-btn">Size</button><br>
 	  <div id="map-editor-saved-maps-list"></div>
 	</div>
 	

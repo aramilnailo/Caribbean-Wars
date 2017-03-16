@@ -1,6 +1,4 @@
-//router.listen("newGameMapResponse", this.setMap);
-//router.listen("getEditMapResponse", this.setMap);            //router.listen("newGameMapResponse", this.setMap);
-//router.listen("getEditMapResponse", this.setMap);
+
 /**
 * View controller namespace. Provides the logic to transition between gui views.
 *
@@ -23,10 +21,10 @@ View.prototype.listen = function(router) {
     if (debug.view) debug.log("client/view.js: listen()");
     router.listen("loginResponse", this.exitLoginScreen);
     router.listen("logoutResponse", this.returnToLoginScreen);
-	//router.listen("newGameMapResponse", this.setMap);
-	//router.listen("getEditMapResponse", this.setMap);
-	router.listen("keyPressed", this.keyPressed);
-	router.listen("keyReleased", this.keyReleased);
+    //router.listen("newGameMapResponse", this.setMap);
+    //router.listen("getEditMapResponse", this.setMap);
+    router.listen("keyPressed", this.keyPressed);
+    router.listen("keyReleased", this.keyReleased);
 }
 
 /**
@@ -46,14 +44,14 @@ View.prototype.exitLoginScreen = function(data) {
 	client.username = data.username;
 	client.usertype = data.usertype;
 	if(client.usertype === "editor") {
-	    if(debug) debug.log("[View] Moving to map editor screen");
+	    if(debug.view) debug.log("[View] Moving to map editor screen");
 	    dom.show([dom.mapEditorScreen]);
 	    client.emit("getEditMap", {filename:"",username:client.username,usertype:client.usertype});
 	} else if(client.usertype === "admin") {
-		if(debug) debug.log("[View] Moving to admin screen");
+		if(debug.view) debug.log("[View] Moving to admin screen");
 		dom.show([dom.sessionMenu, dom.adminScreen, dom.optionsMenu]);
 	} else {
-	    if(debug) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
+	    if(debug.view) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
 		dom.show([dom.gameScreen, dom.sessionMenu, dom.optionsMenu]);
 	    client.emit("getGameMap", null);
 	}

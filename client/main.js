@@ -10,9 +10,9 @@ chat.listen(router);
 stats.listen(router);
 render.listen(router);
 saves.listen(router);
-view.listen(router);
 mapeditor.listen(router);
 mapeditorfiles.listen(router);
+view.listen(router);
 login.listen(router);
 users.listen(router);
 	    
