@@ -45,9 +45,23 @@ Render.prototype.drawScreen = function(data) {
 	for(j = 0; j < ly; j++) {
 	    // 0 = blue, 1 = tan, 2 = green
 	    ch = client.map.data[ly * i + j]; // Current cell
+	    var color; 
+	    switch (ch) {
+	    case 0 : color = "#42C5F4";
+		break;
+	    case 1 : color = "#C19E70";
+		break;
+	    case 2 : color = "#2A8C23";
+		break;
+	    default : color = "#000000";
+	    }
+	    dom.canvas.fillStyle = color;
+	    dom.canvas.fillRect(j * 50, i * 50, 50, 50);
+	    /*
 	    dom.canvas.fillStyle = (ch == "0") ? "#42C5F4" :
 		(ch == "1") ? "#C19E70" : "#2A8C23";
 	    dom.canvas.fillRect(j * 50, i * 50, 50, 50);
+	    */
 	}
     }
     // Draw the players in black

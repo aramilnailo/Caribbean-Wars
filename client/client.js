@@ -46,7 +46,7 @@ Client.prototype.setMap = function(data) {
 }
     
 
-    
+/*    
 Client.prototype.map.at = function (i,j) {
     var index = this.data.ly*i + j;
     if (index >= 0 && index < this.lx*this.ly) {
@@ -86,7 +86,7 @@ Client.prototype.map.copyOf = function (m2) {
 	for (j = 0; j < this.ly; j++)
 	    m2.set(i,j,this.at(i,j));
 }
-    
+  */  
     
 /** 
 * Server socket reference 

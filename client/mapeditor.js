@@ -127,21 +127,43 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     }
     
     MapEditor.prototype.loadNewEditMap = function(event) {
-	this.mapEditHistory=[];
-	this.mapEditHistory.push(client.map);
+	mapEditHistory=[];
+	mapEditHistory.push(client.map);
 	MapEditor.prototype.drawEditScreen(event);
-	this.currentMap = 0;
+	currentMap = 0;
     }
     
     MapEditor.prototype.drawEditScreen = function(event) {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen");
-	var i, j, ch;
 	// Clear screen
 	dom.mapEditorCanvasContext.clearRect(0, 0, 500, 500);
 	var ly = client.map.ly;
 	var lx = client.map.lx;
 	// Draw the map
 	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen;: lx="+lx+"; ly="+ly);
+
+	var i, j;
+        var ch, color;
+	for (i = 0; i < lx; i++) {
+	    for (j = 0; j < ly; j++) {
+		ch = client.map.data[ly * i + j];
+		//if (debug.mapeditor) debug.log("ch= "+ch);
+		switch (ch) {
+		case 0 : color = "#42C5F4";
+		    break;
+		case 1 : color = "#C19E70";
+		    break;
+		case 2 : color = "#2A8C23";
+		    break;
+		default  : color = "#000000";
+		}
+		dom.mapEditorCanvasContext.fillStyle = color;
+		dom.mapEditorCanvasContext.fillRect(j * 50, i * 50, 50, 50);
+		if(color == "#000000") debug.log("i,j="+i+","+j);
+	    }
+	}
+	
+/*	
 	for(i = 0; i < lx; i++) {
 	    for(j = 0; j < ly; j++) {
 		// 0 = blue, 1 = tan, 2 = green
@@ -150,7 +172,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		    (ch == "1") ? "#C19E70" : "#2A8C23";
 		dom.mapEditorCanvasContext.fillRect(j * 50, i * 50, 50, 50);
 	    }
-	}
+*/
+    
 	if(debug.mapeditor) debug.log("client/mapeditor: drawEditScreen exit");
     }
     
@@ -329,11 +352,12 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 
     MapEditor.prototype.onCanvasMouseDown = function (event) {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasMouseDown()");
-	var x = event.clientX;
-	var y = event.clientY;
+	var rect = event.target.getBoundingClientRect();
+	var x = event.clientX - rect.left;
+	var y = event.clientY - rect.top;
 	if (debug.mapeditor) debug.log("client/mapeditor.js: x,y="+x+","+y);
-	var a = Math.floor(x/500.0*client.map.lx);
-	var b = Math.floor(y/500.0*client.map.ly);
+	var a = Math.floor(1.0/500.0*client.map.ly*x);
+	var b = Math.floor(1.0/500.0*client.map.lx*y);
 	if (debug.mapeditor) debug.log("client/mapeditor.js: a,b="+a+","+b);
 	if (debug.mapeditor) debug.log("client/mapeditor.js: flags: water="+paintingWater+",sand="+paintingSand+",port="+paintingPort+",grass="+paintingGrass);
 	//var win = event.view;
@@ -345,12 +369,12 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	if (paintingPort) { ch = 3; change = true; }
 	if (debug.mapeditor) debug.log("client/mapeditor.js: change="+change+"; ch="+ch);
 	if (change) {
-	    if (debug.mapeditor) debug.log("before set: client.map.at(a,b)="+client.map.at(a,b));
-	    client.map.set(a,b,ch);
-	    if (debug.mapeditor) debug.log("after set: client.map.at(a,b)="+client.map.at(a,b));
+	    //client.map.set(a,b,ch);
+	    client.map.data[client.map.lx*b+a] = ch;
 	    MapEditor.prototype.drawEditScreen(event);
 	}
     };
+     
     /*
     MapEditor.prototype.onCanvasClick = function (event) {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasClick()");
