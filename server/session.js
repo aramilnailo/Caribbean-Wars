@@ -130,6 +130,7 @@ Session.prototype.exitGameSession = function(param) {
 Session.prototype.enterGameSession = function(param) {
     if(debug) log("server/session.js: enterGameSession()");
 	var client = param.client;
+	var clients = param.clients;
 	var username = param.data.username;
 	var usertype = param.data.usertype;
 	var id = param.data.id;
@@ -151,7 +152,16 @@ Session.prototype.enterGameSession = function(param) {
     dbi.setUserOnlineStatus(client.player.username, true);
 	// Move the player into the game lobby
 	server.emit(client.socket, "enterLobby", {isHost:val});
-	server.emit(client.socket, "updateLobby", GAME_SESSIONS[id].player);
+	for(var i in GAME_SESSIONS[id].players) {
+		var p = GAME_SESSIONS[id].players[i];
+		for(var j in clients) {
+			var pl = clients[j].player;
+			var socket = clients[j].socket;
+			if(pl === p) {
+				server.emit(socket, "updateLobby", GAME_SESSIONS[id].players);
+			}
+		}
+	}
 	server.emit(client.socket, "alert", "You have entered lobby " + id);
 	client.player.inLobby = true;
 }
