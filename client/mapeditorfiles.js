@@ -18,8 +18,8 @@ MapEditorFiles.prototype.listen = function(router) {
     if(debug.mapeditorsavedlist) debug.log("client/mapeditorlistmenu.js: listen()");
     router.listen("savedMapsListResponse", this.displaySavedMapsList);
     router.listen("toggleMapEditorFiles", this.toggleSavedMapsList);
-    router.listen("mapEditorSaveMapClick", this.saveMapClick);
-    router.listen("mapEditorLoadMapClick", this.loadMapClick);
+    router.listen("mapEditorSaveMapButtonClick", this.saveMapClick);
+    //router.listen("mapEditorLoadMapClick", this.loadMapClick);
     router.listen("deleteSavedMapClick", this.deleteMapClick);
 }
 

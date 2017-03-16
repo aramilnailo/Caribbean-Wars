@@ -1,34 +1,3 @@
-    /*
-      users: map editor
-      
-      ===== REQUIRES:
-      map class
-      access to database
-      
-      
-      ===== PROVIDES:
-      all html for map editor view
-      
-      default map (all water?) 
-      botton: toggle load stored game/map list
-      list: clickable list of all stored game/maps available to load
-      
-      onmousedown: paint current map element at current mouse location
-      
-      mouse-controlled map editing tools: 
-      mutual exclusive operations:
-      paint land, paint port, paint water, rotate, translate
-      Select current tool via clickable icon list
-      All tools operate on mousedrag in map canvas 
-      + paint on mousedown, mouseclick
-      
-      undo map edit: C-Z
-      
-      button: save map / save as
-      
-    */
-
-
 define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client,mapeditorfiles) {
        
     /**
@@ -37,44 +6,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * Provides html event handling logic to edit/create maps.
      * 
      */
-    var MapEditor = function () {
-	/*
-	var mapeditor = {
+    var MapEditor = function () {};
 
-	    //// Stack that stores map objects for Ctrl-Z reversion 
-	    mapEditHistory:[],
-	    
-	    // Current map index 
-	    currentMap:0,
-	    
-	    // editor states
-	    paintingSand:false,
-	    paintingWater:false,
-	    paintingPort:false,
-	    paintingGrass:false,
-
-	    zoomLevel:1.0
-	}
-	// need to test mapData here, and load default.
-	
-	mapeditor.mapEditHistory.push(client.map);
-    return mapeditor;
-	*/
-    };
-
-
-    /*
-    MapEditor.prototype.mapEditHistory=[];
-    // Current map index 
-    MapEditor.prototype.currentMap = 0;
-    // editor states
-    MapEditor.prototype.paintingSand = false;
-    MapEditor.prototype.paintingWater = false;
-    MapEditor.prototype.paintingPort = false;
-    MapEditor.prototype.paintingGrass= false;
-
-    MapEditor.prototype.zoomLevel = 1.0
-    */
     var mapEditHistor=[];
     var currentMap = 0;
     var paintMove = false;
@@ -82,8 +15,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     var paintingWater = false;
     var paintingPort = false;
     var paintingGrass = false;
-    
-    
+
     MapEditor.prototype.listen = function(router) {
 	
 	router.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
@@ -107,28 +39,35 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	router.listen("mapEditorPaintGrassIconClick",this.lowerGrassIcon);
 
 	router.listen("mapEditorCanvasMouseDown",this.onCanvasMouseDown);
-	//router.listen("mapEditorCanvasClick",this.onCanvasClick);
 	router.listen("mapEditorCanvasMouseMove",this.onCanvasMouseMove);
 	router.listen("mapEditorCanvasMouseUp",this.onCanvasMouseUp);
 	router.listen("mapEditorCanvasMouseLeave",this.onCanvasMouseLeave);
 	
 	router.listen("keyPressed",this.onKeyPress);
-	//router.listen("keyReleased",this.onKeyReleased) ?
 	router.listen("refreshEditScreen",this.drawEditScreen);
 	router.listen("getEditMapResponse",this.loadNewEditMap);
 	router.listen("mapEditorLogoutButtonClick",this.mapEditorLogoutButtonClick);
 	router.listen("mapEditorLoadMapButtonClick",this.mapEditorLoadMapButtonClick);
 	router.listen("mapEditorSavedMapsListButtonClick",this.mapEditorSavedMapsListButtonClick);
+	
     }
 
-
-    MapEditor.prototype.saveMap = function(event) {
-	var filename = window.prompt("Save as:","filename");
-	if (filename) {
-	    client.emit("saveEditMapRequest",{filename:filename,author:username});
+    /**
+     * Prompts the user for a file name and requests to save                                      
+     * the current game (currently just the map, not an entire       
+     * game object) under this file name on the server, with                                      
+     * the requesting user listed as its author.
+     */
+    MapEditorFiles.prototype.saveMapClick = function() {
+	var filename = window.prompt("Save as: ","filename");
+	if(filename) {
+	    var fullpath = "./assets/" + filename;
+	    client.emit("saveMapRequest",
+			{file_name:filename, author:dom.loginUsername,path:fullpath});
 	}
     }
     
+
     MapEditor.prototype.loadNewEditMap = function(event) {
 	mapEditHistory=[];
 	mapEditHistory.push(client.map);
@@ -150,7 +89,6 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	for (i = 0; i < lx; i++) {
 	    for (j = 0; j < ly; j++) {
 		ch = client.map.data[ly * i + j];
-		//if (debug.mapeditor) debug.log("ch= "+ch);
 		switch (ch) {
 		case 0 : color = "#42C5F4";
 		    break;
@@ -162,7 +100,6 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		}
 		dom.mapEditorCanvasContext.fillStyle = color;
 		dom.mapEditorCanvasContext.fillRect(j * 50, i * 50, 50, 50);
-		//if(color == "#000000") debug.log("i,j="+i+","+j);
 	    }
 	}
 	    
@@ -311,25 +248,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	}
 	*/
     };
-    
-    /**
-     * 
-     */
-    MapEditor.prototype.toggleMapFileMenu = function() {
-	if (debug.mapeditor) debug.log("client/mapeditor.js: toggleMapFileMenu()");
-	if (dom.mapEditorFileMenuHidden) {
-	    client.emit("mapEditorFileMenuRequest",null);
-	    dom.mapEditorFileMenu.style.display = "...";
-	    //dom.mapEditorMenuButton.innerHTML = "";
-	    dom.mapEditorFileMenuHidden = false;
-	} else {
-	    //dom.mapEditorMenuButton.innerHTML = "";
-	    dom.mapEditorFileMenu.style.display = "none";
-	    dom.mapEditorFileMenuHidden = true;
-	}
-    };
-    
-        
+            
     /**
      *
      */
@@ -343,29 +262,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     */
 
     MapEditor.prototype.onCanvasMouseDown = function (event) {
-	if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasMouseDown()");
-	var rect = event.target.getBoundingClientRect();
-	var x = event.clientX - rect.left;
-	var y = event.clientY - rect.top;
-	if (debug.mapeditor) debug.log("client/mapeditor.js: x,y="+x+","+y);
-	var a = Math.floor(1.0/500.0*client.map.ly*x);
-	var b = Math.floor(1.0/500.0*client.map.lx*y);
-	if (debug.mapeditor) debug.log("client/mapeditor.js: a,b="+a+","+b);
-	if (debug.mapeditor) debug.log("client/mapeditor.js: flags: water="+paintingWater+",sand="+paintingSand+",port="+paintingPort+",grass="+paintingGrass);
-	//var win = event.view;
-	var change = false;
-	var ch;
-	if (paintingWater) { ch = 0; change = true; }
-	if (paintingSand) { ch = 1; change = true; }
-	if (paintingGrass) { ch = 2; change = true; }
-	if (paintingPort) { ch = 3; change = true; }
-	if (debug.mapeditor) debug.log("client/mapeditor.js: change="+change+"; ch="+ch);
-	if (change) {
-	    //client.map.set(a,b,ch);
-	    client.map.data[client.map.lx*b+a] = ch;
-	    MapEditor.prototype.drawEditScreen(event);
-	}
 	paintMove = true;
+	MapEditor.prototype.onCanvasMouseMove(event);
     };
 
     MapEditor.prototype.onCanvasMouseUp = function (event) {
@@ -376,44 +274,19 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	paintMove = false;
     }
     
-    /*
-    MapEditor.prototype.onCanvasClick = function (event) {
-	if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasClick()");
-	var x = event.clientX;
-	var y = event.clientY;
-	var a = floor(x/client.map.lx);
-	var b = floor(y/client.map.ly);
-	var win = event.view;
-	var change = false;
-	var ch;
-	if (paintingWater) { ch = 0; change = true; }
-	if (paintingSand) { ch = 1; change = true; }
-	if (paintingGrass) { ch = 2; change = true; }
-	if (paintingPort) { ch = 3; change = true; }
-	if (change) {
-	    var map = mapEditHistory[currentMap].copy();
-	    map.set(a,b,ch);
-	    //mapEditHistory.push(map);
-	    //currentMap++;
-	    drawEditScreen();
-	}
-    };
-
-*/
-
     
     MapEditor.prototype.onCanvasMouseMove = function (event) {
 	if (paintMove) {
 	    if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasMouseMove()");
 	    var rect = event.target.getBoundingClientRect();
+	    var lx = client.map.lx;
+	    var ly = client.map.ly;
+	    var dx = client.map.dx;
+	    var dy = client.map.dy;
 	    var x = event.clientX - rect.left;
 	    var y = event.clientY - rect.top;
-	    //if (debug.mapeditor) debug.log("client/mapeditor.js: x,y="+x+","+y);
-	    var a = Math.floor(1.0/500.0*client.map.ly*x);
-	    var b = Math.floor(1.0/500.0*client.map.lx*y);
-	    if (debug.mapeditor) debug.log("client/mapeditor.js: a,b="+a+","+b);
-	    //if (debug.mapeditor) debug.log("client/mapeditor.js: flags: water="+paintingWater+",sand="+paintingSand+",port="+paintingPort+",grass="+paintingGrass);
-	    //var win = event.view;
+	    var a = Math.floor(dx*x/lx);
+	    var b = Math.floor(dy*y/ly);
 	    var change = false;
 	    var ch;
 	    if (paintingWater) { ch = 0; change = true; }
@@ -422,30 +295,13 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	    if (paintingPort) { ch = 3; change = true; }
 	    if (debug.mapeditor) debug.log("client/mapeditor.js: change="+change+"; ch="+ch);
 	    if (change) {
-		//client.map.set(a,b,ch);
 		client.map.data[client.map.lx*b+a] = ch;
 		MapEditor.prototype.drawEditScreen(event);
 	    }
 	}
     };
     
-           
-    /**
-     * 
-     * Supported items: 
-     * 
-     * Save 
-     * Save as
-     * New
-     * Load
-     */
-    var mapFileMenu = function () {};
-    
-    /**
-     * 
-     */
-    var mapFileMenu = function () {};
-    
+               
 
     //////////////
     //  Map file menu event handlers
@@ -467,49 +323,6 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * 
      */
     MapEditor.prototype.mapEditorSaveMapButtonClick = function() {};
-
-    //////////////
-    //  Map editor canvas event handlers
-    //////////////
-    /**
-     * 
-     */
-    MapEditor.prototype.mapEditorCanvasMouseDown = function (event) {
-	var x = event.clientX;
-	var y = event.clientY;
-    };
-    
-    /**
-     * 
-     */
-    MapEditor.prototype.mapEditorCanvasMouseUp = function(event) {
-	var x = event.clientX;
-	var y = event.clientY;
-    };
-    
-    /**
-     * 
-     */
-    MapEditor.prototype.mapEditorCanvasMouseMove = function(event) {
-	var x = event.clientX;
-	var y = event.clientY;
-    };
-    
-    /**
-     * Toggle painting sand on the current map.
-     */
-    MapEditor.prototype.mapEditorPaintSandIconClick = function() {};
-
-    /**
-     * Toggle painting water on the current map.
-     */
-    MapEditor.prototype.mapEditorPaintWaterIconClick = function() {
-    };
-
-    /**
-     * Toggle painting ports on the current map.
-     */
-    MapEditor.prototype.mapEditorPaintPortIconClick = function() {};
 
     /**
      * Logout

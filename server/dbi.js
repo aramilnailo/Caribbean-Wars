@@ -168,21 +168,21 @@ dbi.prototype.saveGameFilename = function(data,cb) {
  * @memberof module:server/dbi
  */
 dbi.prototype.saveMapFilename = function(data,cb) {
-    if (data.file_name) {
+    if (data.filename && data.author) {
 	db.query("INSERT INTO saved_maps SET ?;",
 		 {author:data.author,
-		  file_name:data.file_name,
+		  file_name:data.filename,
 		  map_file_path:data.map_file_path},
 		 function(err) {
 		     if(err) {
 			 if (debug) log(err.message);
-			 cb(false);
-		     } else {
 			 cb(true);
+		     } else {
+			 cb(false);
 		     }
 		 });
     } else {
-	cb(false);
+	cb(true);
     }
 }
 

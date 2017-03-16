@@ -192,20 +192,23 @@ Maps.prototype.saveMap = function(param) {
 	server.emit(client.socket, "alert", "Map read/write access restricted to map editors.");
     } else {
 	dbi.getMapFilePath(filename, function(path) {
-	    if (!path) {
-		dbi.saveGameFilename({author:username,file_name:filename,map_file_path:path},function(err) {
+	    if (path === null) {
+		dbi.saveMapFilename({author:username,filename:filename,map_file_path:newpath},function(err) {
 		    if (err) {
 			server.emit(client.socket, "alert", "Could not save " + filename);
 		    }
 		})
+	    } else {
+		server.emit(client.socket, "alert", "Could not save " + filename);
 	    }
 	});
-	var err;
-	files.saveFile(data,newpath,err);
-	if (err) {
-	    //should delete filename from db as well, if stored.
-	    server.emit(client.socket, "alert", "Could not write map copy.");
-	}
+	files.saveFile(data.map,newpath,function(err){
+	    if (err) {
+		//should delete filename from db as well, if stored.
+		server.emit(client.socket, "alert", "Could not save " + filename);
+		dbi.removeSavedMap(param,function(err) {});
+	    }
+	});
     }
 }
     

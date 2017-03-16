@@ -53,21 +53,6 @@ Files.prototype.readFile = function(filename, cb) {
 */
 Files.prototype.saveFile = function(obj, filename, cb) {
     if (debug) log ("server/files.js: saveFile() "+filename);
-    // permet overwrite for now; alert later?
-    /*
-    var extant = fs.stat(filename, function(err,stats) {
-	if (err) {
-	    //log (err.code);
-	    log(err.message);
-	    return false;
-	}
-	else return true;
-    });
-    if (extant) {
-    if(debug) log( "saveFile: attempt to overwrite" + filename);
-    cb = false;
-	else {
-    */	
     var json = JSON.stringify(obj);
     fs.writeFile(filename, json, "utf-8", function(err) {
 	if(err) {

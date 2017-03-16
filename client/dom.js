@@ -60,13 +60,16 @@ var dom = {
     mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
     mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
     mapEditorLogoutButton:document.getElementById("map-editor-logout-btn"),
+    mapEditorTextBox:document.getElementById("map-editor-textbox"),
     
     // MapEditor saved maps list
     mapEditorSavedMapsListButton:document.getElementById("map-editor-saved-maps-btn"),
     mapEditorSavedMapsList:document.getElementById("map-editor-saved-maps-list"),
+    mapEditorMapSizeButton:document.getElementById("map-editor-size-btn");
     mapEditorSaveMapButton:document.getElementById("map-editor-save-map-btn"),
     mapEditorLoadMapButton:document.getElementById("map-editor-load-map-btn"),
     mapEditorSavedMapsListHidden:true,
+    
     
 	// Admin screen
 	adminScreen:document.getElementById("admin-screen"),
@@ -120,7 +123,10 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
 	
     dom.mapEditorLoadMapButton.onclick = 
 	function() { router.route({name:"mapEditorLoadMapButtonClick", data:null}); }
-	
+
+    dom.mapEditorSizeButton.onclick = 
+	function() { router.route({name:"mapEditorSizeButtonClick", data:null}); }
+
     dom.mapEditorLogoutButton.onclick =
 	function() { router.route({name:"mapEditorLogoutButtonClick", data:null}) };
 	

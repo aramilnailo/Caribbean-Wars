@@ -32,14 +32,17 @@ Render.prototype.listen = function(router) {
 */
 Render.prototype.drawScreen = function(data) {
     if(debug.render) log("client/render.js: drawScreen()");
+    var ly = client.map.ly;
+    var lx = client.map.lx;
+    var dy = client.map.dy;
+    var dx = client.map.dx;
     var i, j, ch;
     // Clear screen
-    dom.canvas.clearRect(0, 0, 500, 500);
+    dom.canvas.clearRect(0, 0, lx, ly);
     // Draw the map
     if(debug.render) log("client/render.js: client.username="+client.username);
     if(debug.render) log("client/render.js: client.usertype="+client.usertype);
-    var ly = client.map.ly;
-    var lx = client.map.lx;
+
     if(debug.render) log("client/render.js: client.map.lx,ly="+client.map.lx+","+client.map.ly);
     for(i = 0; i < lx; i++) {
 	for(j = 0; j < ly; j++) {
@@ -56,7 +59,7 @@ Render.prototype.drawScreen = function(data) {
 	    default : color = "#000000";
 	    }
 	    dom.canvas.fillStyle = color;
-	    dom.canvas.fillRect(j * 50, i * 50, 50, 50);
+	    dom.canvas.fillRect(j * dy, i * dx, dy, dx);
 	    /*
 	    dom.canvas.fillStyle = (ch == "0") ? "#42C5F4" :
 		(ch == "1") ? "#C19E70" : "#2A8C23";
