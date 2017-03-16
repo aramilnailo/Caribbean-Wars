@@ -46,17 +46,17 @@ View.prototype.exitLoginScreen = function(data) {
 	    client.emit("getEditMap", {filename:"",username:client.username,usertype:client.usertype});
 	} else if(client.usertype === "admin") {
 		if(debug) debug.log("[View] Moving to admin screen");
-		dom.show([dom.sessionMenu, dom.adminScreen, dom.optionsMenu]);
+		dom.show([dom.inGameMenu, dom.adminScreen, dom.optionsMenu]);
 	} else {
 	    if(debug) debug.log("[View] Moving to lobby screen: username="+data.username+"; usertype="+data.usertype);
-		dom.show([dom.lobbyScreen, dom.sessionMenu, dom.optionsMenu]);
+		dom.show([dom.lobbyScreen, dom.inGameMenu, dom.optionsMenu]);
 	}
 }
 
 View.prototype.enterGameScreen = function(data) {
 	client.emit("getGameMap", null);
-	dom.hide([dom.lobbyScreen]);
-	dom.show([dom.gameScreen, dom.sessionMenu, dom.optionsMenu]);
+	dom.hide([dom.lobbyScreen, dom.sessionMenu]);
+	dom.show([dom.gameScreen, dom.inGameMenu, dom.optionsMenu]);
 }
 
 /**
@@ -66,9 +66,11 @@ View.prototype.enterGameScreen = function(data) {
 */
 View.prototype.returnToLoginScreen = function(data) {
 	if(debug.view) debug.log("[View] returning to login screen");
-	dom.hide([dom.gameScreen, dom.adminScreen, dom.lobbyScreen,
-		dom.sessionMenu, dom.statsMenu, dom.savedGamesMenu, 
-		dom.chatWindow, dom.optionsMenu]);
+	dom.hide([dom.gameScreen, dom.inGameMenu,
+		dom.statsMenu, dom.savedGamesMenu,
+		dom.adminScreen, dom.userMenu,
+		dom.lobbyScreen, dom.sessionMenu,
+		dom.optionsMenu, dom.chatWindow]);
 	dom.show([dom.loginScreen]);
     client.username = "";
     client.usertype = "";

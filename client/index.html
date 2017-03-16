@@ -22,11 +22,11 @@
       <button id="signup-btn">Sign up</button>
     </div>
 		
-	<!--SESSION MENU-->
-	<div id="session-menu" style="display:none;">
+	<!--IN GAME MENU-->
+	<div id="in-game-menu" style="display:none;">
 	  <div id="username-label"></div>
 	  <div id="usertype-label"></div>
-	  <div id="session-menu-btns">
+	  <div id="in-game-menu-btns">
 	    <button id="logout-btn">Log out</button>
 	    <button id="delete-account-btn">Delete Account</button>
 	    <button id="saved-games-menu-btn">Show saved games</button>
@@ -79,9 +79,15 @@
 	
 	<!--LOBBY SCREEN-->
 	<div id="lobby-screen" style="display:none;">
-		<div id="game-sessions-list">
+		<div id="login-screen-btns">
+			<button id="session-menu-btn">Show Sessions</button>
 		</div>
-		<div id="lobby-btns">
+	</div>
+	
+	<!--SESSION MENU-->
+	<div id="session-menu">
+		<div id="session-list"></div>
+		<div id="session-menu-btns">
 			<button id="join-game-btn">Join Game</button>
 			<button id="new-game-btn">Start Game</button>
 			<button id="resume-game-btn">Load Game</button>

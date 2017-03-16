@@ -25,6 +25,7 @@ Session.prototype.listen = function(router) {
     router.listen("endGameSession", this.endGameSession);
     router.listen("exitGameSession", this.exitGameSession);
     router.listen("enterGameSession", this.enterGameSession);
+	router.listen("sessionListRequest", this.sessionListRequest);
 }
 
 /**
@@ -106,6 +107,11 @@ Session.prototype.enterGameSession = function(param) {
     // Turn the player online in the database
     dbi.setUserOnlineStatus(client.player.username, true);
 	server.emit(client.socket, "enterGameResponse", null);
+}
+
+Session.prototype.sessionListRequest = function(param) {
+	var client = param.client;
+	server.emit(client.socket, "sessionListResponse", [GAME_SESSION]);
 }
 
 module.exports = new Session();
