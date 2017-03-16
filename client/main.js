@@ -1,6 +1,6 @@
 
-require(["client", "router", "chat", "stats", "login", "render", "saves", "view", "users", "mapeditor","mapeditorfiles"], 
-	function(client, router, chat, stats, login, render, saves, view, users, mapeditor, mapeditorfiles) {
+require(["client", "router", "chat", "stats", "login", "render", "saves", "view", "users", "lobby", "mapeditor","mapeditorfiles"], 
+	function(client, router, chat, stats, login, render, saves, view, users, lobby, mapeditor, mapeditorfiles) {
 
 var socket = io();
 client.socket = socket;
@@ -15,6 +15,7 @@ mapeditor.listen(router);
 mapeditorfiles.listen(router);
 login.listen(router);
 users.listen(router);
+lobby.listen(router);
 	    
 socket.on("message", function(message) {
 	router.route(message);

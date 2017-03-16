@@ -56,6 +56,7 @@ Login.prototype.signupClick = function() {
 // If logout button is clicked on game screen
 Login.prototype.logoutClick = function() {
     if (debug.login) log("client/login.js: logoutClick()");
+	client.emit("exitGameSession", null);
     client.emit("logout", null);
 }
 
@@ -71,7 +72,8 @@ Login.prototype.deleteAccountClick = function() {
 	if(client.username === "admin") {
 		alert("Cannot delete admin");
 	} else if(confirm("Are you sure you want to delete this account?")) {
-	   client.emit("deleteAccount", client.username);
+		client.emit("exitGameSession", client.username);
+	    client.emit("deleteAccount", client.username);
     }
 }
 

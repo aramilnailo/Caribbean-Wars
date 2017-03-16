@@ -34,15 +34,9 @@ Client.prototype.setMap = function(data) {
     if(debug.client) debug.log("client/client.js: setMap()");
     if(data.err) {
         alert(data.err);
-	    } else {
-		Client.prototype.map.lx = data.lx;
-		Client.prototype.map.ly = data.ly;
-		Client.prototype.map.data = data.data;
-		Client.prototype.map.path = data.path;
-		Client.prototype.map.author = data.author;
-		Client.prototype.map.name = data.name;
-		Client.prototype.map.ports = data.ports;
-	    }
+	} else {
+		Client.prototype.map = data;
+	}
 }
     
 

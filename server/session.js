@@ -4,6 +4,7 @@ var log = require("./debug.js").log;
 
 var server = require("./server.js");
 var dbi = require("./dbi.js");
+var player = require("./player.js");
 
 /**
 * The session namespace controls the current game session
@@ -35,12 +36,13 @@ var GAME_SESSION = {host:null, map:"", players:[]};
 /**
 * Resets the game session object and ejects all players
 * to their login screen.
-* @param data - the data passed by the caller
-* @param data.clients - client list
+* @param param - the data passed by the router
+* @param param.clients - client list
 * @memberof module:server/Session
 */
-Session.prototype.endGameSession = function() {
+Session.prototype.endGameSession = function(param) {
     if(debug) log("server/session.js: endGameSession()");
+	var CLIENT_LIST = param.clients;
     // Reset the object
     GAME_SESSION.host = null;
     GAME_SESSION.map = "";
@@ -51,12 +53,10 @@ Session.prototype.endGameSession = function() {
     // Null out the player list
     GAME_SESSION.players = [];
     // Log everyone out
-    var CLIENT_LIST = require("./router.js").client_list;
     for(i in CLIENT_LIST) {
 		if(CLIENT_LIST[i].player) {
 			CLIENT_LIST[i].player = null;
 			server.emit(CLIENT_LIST[i].socket, "logoutResponse", null);
-			server.emit(CLIENT_LIST[i].socket, "collapseMenus", null);
 		}
     }
 }
@@ -64,38 +64,48 @@ Session.prototype.endGameSession = function() {
 /**
 * Removes a given player from the game session. Ends
 * the game session if the player is host.
-* @param data - the client whose player to remove
+* @param param - passed by the router
+* @param param.client - client whose player to remove
 * @memberof module:server/Session
 */
-Session.prototype.exitGameSession = function(data) {
+Session.prototype.exitGameSession = function(param) {
+	var client = param.client;
+	if(!client.player) return;
     if(debug) log("server/session.js: exitGameSession()");
     // Remove the player from the game session list
-    var index = GAME_SESSION.players.indexOf(data);
+    var index = GAME_SESSION.players.indexOf(client.player);
     if(index > -1) GAME_SESSION.players.splice(index, 1);
     // Turn the player offline in the database
-    dbi.setUserOnlineStatus(data.username, false);
+    dbi.setUserOnlineStatus(client.player.username, false);
     // If the host leaves, it's game over for everyone
-    if(data === GAME_SESSION.host) {
-		this.endGameSession();
+    if(client.player === GAME_SESSION.host) {
+		Session.prototype.endGameSession({clients:require("./router.js").client_list});
 	}
+	client.player = null;
 }
 
 /**
 * Adds a given player to the game session. Player is
 * made host if they are the first to be added.
-* @param data - the player to be added
+* @param param - data passed by the router
+* @param param.client - client to be added to the session
 * @memberof module:server/Session
 */
-Session.prototype.enterGameSession = function(data) {
+Session.prototype.enterGameSession = function(param) {
     if(debug) log("server/session.js: enterGameSession()");
+	var client = param.client;
+	var data = param.data;
+	// Assign a new player to the client
+	client.player = player.Player(data.username, data.usertype);
     // If no one is online, the player becomes host
     if(GAME_SESSION.players.length == 0) {
-	GAME_SESSION.host = data;
+		GAME_SESSION.host = client.player;
     }
     // Add player to game session list
-    GAME_SESSION.players.push(data);
+    GAME_SESSION.players.push(client.player);
     // Turn the player online in the database
-    dbi.setUserOnlineStatus(data.username, true);
+    dbi.setUserOnlineStatus(client.player.username, true);
+	server.emit(client.socket, "enterGameResponse", null);
 }
 
 module.exports = new Session();

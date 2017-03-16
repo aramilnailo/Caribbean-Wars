@@ -71,6 +71,13 @@ var dom = {
 	// Admin screen
 	adminScreen:document.getElementById("admin-screen"),
 	
+	// Lobby screen
+	lobbyScreen:document.getElementById("lobby-screen"),
+	gameSessionsList:document.getElementById("game-sessions-list"),
+	joinGameButton:document.getElementById("join-game-btn"),
+	newGameButton:document.getElementById("new-game-btn"),
+	resumeGameButton:document.getElementById("resume-game-btn"),
+	
 	// User menu
 	userMenu:document.getElementById("user-menu"),
 	userMenuButton:document.getElementById("user-menu-btn"),
@@ -100,6 +107,10 @@ dom.userMenuButton.onclick = function() { router.route({name:"toggleUserMenu", d
 dom.addUserButton.onclick = function() { router.route({name:"addUserClick", data:null}); }
 dom.deleteUserButton.onclick = function() { router.route({name:"deleteUserClick", data:null}); }
 dom.userTypeButton.onclick = function() { router.route({name:"userTypeClick", data:null}); }
+
+dom.joinGameButton.onclick = function() { router.route({name:"joinGameClick", data:null}); }
+dom.newGameButton.onclick = function() { router.route({name:"newGameClick", data:null}); }
+dom.resumeGameButton.onclick = function() { router.route({name:"resumeGameClick", data:null}); }
 
 dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
 dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }

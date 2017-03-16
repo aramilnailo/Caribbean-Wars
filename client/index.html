@@ -76,7 +76,18 @@
 		<button id="user-type-btn">Change User Type</button>
 	  </div>
   	</div>
-
+	
+	<!--LOBBY SCREEN-->
+	<div id="lobby-screen" style="display:none;">
+		<div id="game-sessions-list">
+		</div>
+		<div id="lobby-btns">
+			<button id="join-game-btn">Join Game</button>
+			<button id="new-game-btn">Start Game</button>
+			<button id="resume-game-btn">Load Game</button>
+		</div>
+	</div>
+	
 	<!--OPTIONS MENU-->
     <div id="options-menu" style="display:none;">
       <div id="options-menu-btns">
@@ -88,7 +99,7 @@
 	<div id="chat-window" style="display:none;">
   	  <div id="chat-log" style="border:1px solid black;width:500px;height:100px;overflow-y:scroll">
   	  </div>
-  	  <br>
+	  <br>
   	  <form id="chat-form">
     	<input id="chat-input" type="text" style="width:500px"></input>
     	<input id="chat-submit-btn" type="submit"></input>
@@ -112,9 +123,6 @@
 	  <div id="map-editor-saved-maps-list" style="display:none"></div>
 	</div>
 	
-	
-	<!--LOBBY SCREEN-->
-
 	<script src="/socket.io/socket.io.js"></script>
 	<script data-main="./client/main.js" src="./client/require.js"></script>
 	</body>
