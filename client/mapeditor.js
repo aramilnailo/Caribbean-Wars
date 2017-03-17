@@ -118,6 +118,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	dom.mapEditorCanvasContext.clearRect(0, 0, 500, 500);
 	var ly = client.map.ly;
 	var lx = client.map.lx;
+	var dx = 500.0/lx;
+	var dy = 500.0/ly;
 	// Draw the map
 	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: lx="+lx+"; ly="+ly);
 	//if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: dx="+dx+"; dy="+dy);
@@ -136,7 +138,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		default  : color = "#000000";
 		}
 		dom.mapEditorCanvasContext.fillStyle = color;
-		dom.mapEditorCanvasContext.fillRect(j * dy, i * dx, 50, 50);
+		dom.mapEditorCanvasContext.fillRect(j * dy, i * dx, dx, dy);
 	    }
 	}
 	    
@@ -446,22 +448,29 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	    if (paintingSand) { ch = 1; change = true; }
 	    if (paintingGrass) { ch = 2; change = true; }
 	    if (paintingPort) { ch = 3; change = true; }
-	    if (debug.mapeditor) debug.log("client/mapeditor.js: change="+change+"; ch="+ch);
-	    if (debug.mapeditor) debug.log("client/mapeditor.js: a,b="+a+","+b);
-	    var bsq = brushSize*brushSize;
+	    //if (debug.mapeditor) debug.log("client/mapeditor.js: change="+change+"; ch="+ch);
+	    //if (debug.mapeditor) debug.log("client/mapeditor.js: a,b="+a+","+b);
+	    var bsq = brushSize*brushSize/4;
 	    var lim = Math.floor(brushSize/2)+1;
+
+	    var pmin = a-lim;
+	    if (pmin < 0) pmin = 0;
+	    var pmax = a+lim;
+	    if (pmax >= lx) pmax = lx;
+
+	    var qmin = b-lim;
+	    if (qmin < 0) qmin = 0;
+	    var qmax = b+lim;
+	    if (qmax >= ly) qmax = ly;
+
 	    if (change) {
 		var p,q;
-		for (p = a-lim; p < a+lim; p++) {
-		    if (p >= 0 && p < lx) {
-			for (q = b-lim; q < b+lim; q++) {
-			    if (q >= 0 && q < ly) {
-				if ((p-a)*(p-a)+(q-b)*(q-b) < bsq) {
-				    client.map.data[ly*q+p] = ch;
-				}
+		for (p = pmin; p < pmax; p++) {
+			for (q = qmin; q < qmax; q++) {
+			    if ((p-a)*(p-a)+(q-b)*(q-b) < bsq) {
+				client.map.data[ly*q+p] = ch;
 			    }
 			}
-		    }
 		}
 		MapEditor.prototype.drawEditScreen(event);
 	    }
