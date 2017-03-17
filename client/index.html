@@ -26,11 +26,11 @@
 	  
     </div>
 		
-	<!--SESSION MENU-->
-	<div id="session-menu" style="display:none;">
+	<!--IN GAME MENU-->
+	<div id="in-game-menu" style="display:none;">
 	  <div id="username-label"></div>
 	  <div id="usertype-label"></div>
-	  <div id="session-menu-btns">
+	  <div id="in-game-menu-btns">
 	    <button id="logout-btn">Log out</button>
 	    <button id="delete-account-btn">Delete Account</button>
 	    <button id="saved-games-menu-btn">Show saved games</button>
@@ -80,7 +80,35 @@
 		<button id="user-type-btn">Change User Type</button>
 	  </div>
   	</div>
-
+	
+	<!--LOBBY SCREEN-->
+	<div id="lobby-screen" style="display:none;">
+		<div id="lobby-player-list" style="display:none;"></div>
+		<div id="host-lobby-btns" style="display:none;">
+			<button id="invite-btn">Invite</button>
+			<button id="kick-btn">Kick</button>
+			<button id="promote-btn">Promote</button>
+			<button id="new-game-btn">Start new game</button>
+			<button id="resume-game-btn">Start game from file</button>
+			<button id="end-session-btn">End Session</button>
+		</div>
+		<div id="non-host-lobby-btns" style="display:none;">
+			<button id="leave-session-btn">Leave</button>
+		</div>
+		<div id="session-browser-btns">
+			<button id="session-menu-btn">Show Sessions</button>
+		</div>
+	</div>
+	
+	<!--SESSION MENU-->
+	<div id="session-menu" style="display:none;">
+		<div id="session-list"></div>
+		<div id="session-menu-btns">
+			<button id="join-session-btn">Join Session</button>
+			<button id="new-session-btn">Start Session</button>
+		</div>
+	</div>
+	
 	<!--OPTIONS MENU-->
     <div id="options-menu" style="display:none;">
       <div id="options-menu-btns">
@@ -92,7 +120,7 @@
 	<div id="chat-window" style="display:none;">
   	  <div id="chat-log" style="border:1px solid black;width:500px;height:100px;overflow-y:scroll">
   	  </div>
-  	  <br>
+	  <br>
   	  <form id="chat-form">
     	<input id="chat-input" type="text" style="width:500px"></input>
     	<input id="chat-submit-btn" type="submit"></input>
@@ -175,7 +203,6 @@
 	</div>
 	
 	</center>
-	<!--LOBBY SCREEN-->
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script data-main="./client/main.js" src="./client/require.js"></script>

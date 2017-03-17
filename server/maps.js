@@ -6,8 +6,6 @@ var server = require("./server.js");
 var dbi = require("./dbi.js");
 var files = require("./files.js");
 
-var GAME_SESSION = require("./session.js").GAME_SESSION;
-
 /**
 * The Maps namespace contains functions relating to loading
 * map data from the file system and emitting it to clients.
@@ -23,38 +21,15 @@ var Maps = function() {};
 */
 Maps.prototype.listen = function(router) {
     if (debug) log("server/maps.js: listen()");
-    router.listen("getGameMap", this.getGameMap);
     router.listen("getEditMap", this.getEditMap);
+//<<<<<<< HEAD
     router.listen("loadNewMap",this.loadNewGameMap);
     router.listen("saveMapRequest",this.saveMap);
+//=======
+//    router.listen("saveMap",this.saveMap);
+//>>>>>>> dev
     router.listen("loadSavedMap",this.loadSavedEditMap);
     router.listen("savedMapsListRequest",this.savedMapsListRequest);
-}
-
-/**
-* Emits the map data associated with the game session
-* to the client requesting it. If there is no map data,
-* the data read from "./assets/map" is associated with 
-* the game session before emitting.
-* @param param - data passed by the router
-* @param param.client - the client requesting the information
-* @memberof module:server/Maps
-*/
-Maps.prototype.getGameMap = function(param) {
-    if (debug) {
-	log("server/maps: getGameMap()");
-    }
-    var client = param.client;
-    //var data = param.data;
-    if(GAME_SESSION.map === "") GAME_SESSION.map = "./assets/map";
-    files.readFile(GAME_SESSION.map, function(data) {
-	if(data) {
-	    //server.emit(client.socket, "newGameMapResponse", {data:data, path:GAME_SESSION.map});
-	    server.emit(client.socket, "newGameMapResponse", data);
-	} else {
-	    server.emit(client.socket, "alert", "Could not read from map file");
-	}
-    });
 }
 
 Maps.prototype.savedMapsListRequest = function(param) {
@@ -64,8 +39,6 @@ Maps.prototype.savedMapsListRequest = function(param) {
 	server.emit(client.socket,"savedMapsListResponse",data);
     });
 }
-
-
 
 Maps.prototype.getEditMap = function(param) {
     if (debug) {
@@ -94,41 +67,6 @@ Maps.prototype.getEditMap = function(param) {
 			server.emit(client.socket, "alert", "Could not load "+param.data.filename);
 		    }
 		});
-	    }
-	});
-    }
-}
-
-/**
-* Loads the map data from a given filepath, associates it 
-* with the game session, and emits it to all clients.
-* @param param - data passed by the router
-* @param param.client - client attempting the load
-* @param param.data - the username and filename
-* @param param.clients - the client list
-* @memberof module:server/Maps
-*/
-Maps.prototype.loadNewGameMap = function(param) {
-    if (debug) log("server: loadNewGameMap()");
-    var client = param.client;
-    var CLIENT_LIST = param.clients;
-    var filename = param.data.filename;
-    var username = param.data.username;
-    if(username != GAME_SESSION.host.username) {
-		server.emit(client.socket, "alert", "Only host can load maps.");
-    } else {
-	dbi.getMapFilePath(filename, function(path) {
-	    if(path) {
-		files.readFile(path, function(data) {
-		    if(data) {
-			GAME_SESSION.map = path;
-			for(var i in CLIENT_LIST) {
-			    server.emit(CLIENT_LIST[i].socket, "newGameMapResponse", data);
-			}
-		    }
-		});
-	    } else {
-		server.emit(client.socket, "alert", "Could not read from map file.");
 	    }
 	});
     }

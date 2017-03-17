@@ -17,8 +17,8 @@ var dom = {
 	gameScreen:document.getElementById("game-screen"),
 	canvas:document.getElementById("canvas").getContext("2d"),
 
-	// Session menu
-	sessionMenu:document.getElementById("session-menu"),
+	// In Game menu
+	inGameMenu:document.getElementById("in-game-menu"),
     usernameLabel:document.getElementById("username-label"),
    	usertypeLabel:document.getElementById("usertype-label"),
 	logoutButton:document.getElementById("logout-btn"),
@@ -102,10 +102,33 @@ var dom = {
     
 	// Admin screen
 	adminScreen:document.getElementById("admin-screen"),
+	userMenuButton:document.getElementById("user-menu-btn"),
+	
+	// Lobby screen
+	lobbyScreen:document.getElementById("lobby-screen"),
+	sessionMenuButton:document.getElementById("session-menu-btn"),
+	lobbyPlayerList:document.getElementById("lobby-player-list"),
+	hostLobbyButtons:document.getElementById("host-lobby-btns"),
+	nonHostLobbyButtons:document.getElementById("non-host-lobby-btns"),
+	sessionBrowserButtons:document.getElementById("session-browser-btns"),
+	
+	// Lobby buttons
+	inviteButton:document.getElementById("invite-btn"),
+	kickButton:document.getElementById("kick-btn"),
+	promoteButton:document.getElementById("promote-btn"),
+	endSessionButton:document.getElementById("end-session-btn"),
+	newGameButton:document.getElementById("new-game-btn"),
+	resumeGameButton:document.getElementById("resume-game-btn"),
+	leaveSessionButton:document.getElementById("leave-session-btn"),
+	
+	// Session menu
+	sessionMenu:document.getElementById("session-menu"),
+	sessionList:document.getElementById("session-list"),
+	joinSessionButton:document.getElementById("join-session-btn"),
+	newSessionButton:document.getElementById("new-session-btn"),
 	
 	// User menu
 	userMenu:document.getElementById("user-menu"),
-	userMenuButton:document.getElementById("user-menu-btn"),
 	userList:document.getElementById("user-list"),
 	addUserButton:document.getElementById("add-user-btn"),
 	deleteUserButton:document.getElementById("delete-user-btn"),
@@ -117,6 +140,11 @@ var dom = {
 	statsMenuHidden:true,
     savedGamesMenuHidden:true,
 	
+	lobbyPlayerListHidden:true,
+	sessionMenuHidden:true,
+	hostLobbyButtonsHidden:true,
+	nonHostLobbyButtonsHidden:true,
+	sessionBrowserButtonsHidden:true
 }
 
 dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
@@ -132,6 +160,18 @@ dom.userMenuButton.onclick = function() { router.route({name:"toggleUserMenu", d
 dom.addUserButton.onclick = function() { router.route({name:"addUserClick", data:null}); }
 dom.deleteUserButton.onclick = function() { router.route({name:"deleteUserClick", data:null}); }
 dom.userTypeButton.onclick = function() { router.route({name:"userTypeClick", data:null}); }
+
+dom.inviteButton.onclick = function() { router.route({name:"inviteClick", data:null}); }
+dom.kickButton.onclick = function() { router.route({name:"kickClick", data:null}); }
+dom.promoteButton.onclick = function() { router.route({name:"promoteClick", data:null}); }
+dom.endSessionButton.onclick = function() { router.route({name:"endSessionClick", data:null}); }
+dom.newGameButton.onclick = function() { router.route({name:"newGameClick", data:null}); }
+dom.resumeGameButton.onclick = function() { router.route({name:"resumeGameClick", data:null}); }
+dom.leaveSessionButton.onclick = function() { router.route({name:"leaveSessionClick", data:null}); }
+
+dom.sessionMenuButton.onclick = function() { router.route({name:"toggleSessionMenu", data:null}); }
+dom.joinSessionButton.onclick = function() { router.route({name:"joinSessionClick", data:null}); }
+dom.newSessionButton.onclick = function() { router.route({name:"newSessionClick", data:null}); }
 
 dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
 dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }

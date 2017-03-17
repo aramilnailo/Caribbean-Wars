@@ -11,7 +11,7 @@ var log = require("./debug.js").log;
 * single player's state.
 * @module server/Player
 */
-var Player = function(username,usertype) {
+var Player = function(username, usertype, id) {
     /**
      * Player object
      * @memberof module:server/Player
@@ -21,7 +21,9 @@ var Player = function(username,usertype) {
 	y:250,
 	username:username,
 	usertype:usertype,
-	number:"" + Math.floor(10 * Math.random()),
+	id:id,
+	inGame:false,
+	inLobby:false,
 	pressingRight:false,
 	pressingLeft:false,
 	pressingUp:false,

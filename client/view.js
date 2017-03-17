@@ -1,4 +1,3 @@
-
 /**
 * View controller namespace. Provides the logic to transition between gui views.
 *
@@ -8,7 +7,6 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var View = function() {};
 
-    
 /**
 * Registers all gui messages whose actions are
 * implemented by the view controller
@@ -21,10 +19,11 @@ View.prototype.listen = function(router) {
     if (debug.view) debug.log("client/view.js: listen()");
     router.listen("loginResponse", this.exitLoginScreen);
     router.listen("logoutResponse", this.returnToLoginScreen);
-    //router.listen("newGameMapResponse", this.setMap);
-    //router.listen("getEditMapResponse", this.setMap);
-    router.listen("keyPressed", this.keyPressed);
-    router.listen("keyReleased", this.keyReleased);
+	router.listen("enterLobby", this.enterLobby);
+	router.listen("exitLobby", this.exitLobby);
+	router.listen("enterGame", this.enterGameScreen);
+	router.listen("keyPressed", this.keyPressed);
+	router.listen("keyReleased", this.keyReleased);
 }
 
 /**
@@ -48,13 +47,37 @@ View.prototype.exitLoginScreen = function(data) {
 	    dom.show([dom.mapEditorScreen]);
 	    client.emit("getEditMap", {filename:"",username:client.username,usertype:client.usertype});
 	} else if(client.usertype === "admin") {
-		if(debug.view) debug.log("[View] Moving to admin screen");
-		dom.show([dom.sessionMenu, dom.adminScreen, dom.optionsMenu]);
+		if(debug) debug.log("[View] Moving to admin screen");
+		dom.show([dom.inGameMenu, dom.adminScreen, dom.optionsMenu]);
 	} else {
-	    if(debug.view) debug.log("[View] Moving to game screen: username="+data.username+"; usertype="+data.usertype);
-		dom.show([dom.gameScreen, dom.sessionMenu, dom.optionsMenu]);
-	    client.emit("getGameMap", null);
+	    if(debug) debug.log("[View] Moving to lobby screen: username="+data.username+"; usertype="+data.usertype);
+		dom.hide([dom.lobbyPlayerList, dom.hostLobbyButtons, dom.nonHostLobbyButtons]);
+		dom.show([dom.lobbyScreen, dom.sessionBrowserButtons, dom.inGameMenu, dom.optionsMenu]);
 	}
+}
+
+View.prototype.enterLobby = function(data) {
+	debug.log("[View] enter lobby");
+	dom.hide([dom.sessionBrowserButtons, dom.sessionMenu]);
+	dom.show([dom.lobbyPlayerList]);
+	if(data.isHost) {
+		dom.show([dom.hostLobbyButtons]);
+	} else {
+		dom.show([dom.nonHostLobbyButtons]);
+	}
+}
+
+View.prototype.exitLobby = function() {
+	debug.log("[View] exit lobby");
+	dom.hide([dom.lobbyPlayerList, dom.hostLobbyButtons, 
+		dom.nonHostLobbyButtons]);
+	dom.show([dom.sessionBrowserButtons]);
+}
+
+View.prototype.enterGameScreen = function(data) {
+	client.emit("getGameMap", null);
+	dom.hide([dom.lobbyScreen]);
+	dom.show([dom.gameScreen, dom.inGameMenu, dom.optionsMenu]);
 }
 
 /**
@@ -64,15 +87,11 @@ View.prototype.exitLoginScreen = function(data) {
 */
 View.prototype.returnToLoginScreen = function(data) {
 	if(debug.view) debug.log("[View] returning to login screen");
-	if(client.usertype === "editor") {
-		dom.hide([dom.mapEditorScreen]);
-	} else if(client.usertype === "admin") {
-		dom.hide([dom.adminScreen, dom.userMenu, dom.sessionMenu, dom.statsMenu,
-			dom.savedGamesMenu, dom.chatWindow, dom.optionsMenu]);
-	} else {
-		dom.hide([dom.gameScreen, dom.sessionMenu, dom.statsMenu,
-			dom.savedGamesMenu, dom.chatWindow, dom.optionsMenu]);
-	}
+	dom.hide([dom.gameScreen, dom.inGameMenu,
+		dom.statsMenu, dom.savedGamesMenu,
+		dom.adminScreen, dom.userMenu,
+		dom.lobbyScreen, dom.sessionMenu,
+		dom.optionsMenu, dom.chatWindow]);
 	dom.show([dom.loginScreen]);
     client.username = "";
     client.usertype = "";

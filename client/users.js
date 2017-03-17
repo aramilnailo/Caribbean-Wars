@@ -16,13 +16,13 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	Users.prototype.toggleUserMenu = function() {
 	    if (debug.users) log("client/users.js:");
 	    if(dom.userMenuHidden) {
-		    if (debug.login) log("toggleUserMenu(): Show users");
+		    if (debug.users) log("toggleUserMenu(): Show users");
 	        client.emit("userListRequest", {usertype:client.usertype});
 			dom.userMenuButton.innerHTML = "Hide users";
 			dom.userMenu.style.display = "inline-block";
 			dom.userMenuHidden = false;
 	    } else {
-	        if (debug.login) log("toggleUserMenu(): Hide users");
+	        if (debug.users) log("toggleUserMenu(): Hide users");
 	        dom.userMenu.style.display = "none";	
 			dom.userMenuButton.innerHTML = "Show users";
 			dom.userMenuHidden = true;

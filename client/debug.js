@@ -13,6 +13,7 @@ var debug = {
     chat:debugall||true,
     saves:debugall||true,
     users:debugall||true,
+	lobby:debugall||true,
     login:debugall||true,
     stats:debugall||true,
     render:debugall||false,

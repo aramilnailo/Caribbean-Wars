@@ -5,7 +5,7 @@ var log = require("./debug.js").log;
 var server = require("./server.js");
 
 var CLIENT_LIST = require("./router.js").client_list;
-var GAME_SESSION = require("./session.js").GAME_SESSION;
+var GAME_SESSIONS = require("./session.js").GAME_SESSIONS;
 var dbi = require("./dbi.js");
 
 
@@ -17,7 +17,7 @@ var dbi = require("./dbi.js");
 * and emitting the game state.
 * @module server/Game
 */
-var Game = function () {};
+var Game = function() {};
 
 /**
 * Registers functions in the namespace with the given
@@ -62,30 +62,30 @@ Game.prototype.keyPress = function (param) {
 * @memberof module:server/Game
 */
 Game.prototype.update = function() {
-    //if (debug) log("server/game.js: update()");
-    var pack = [], p, i, socket;
     // Generate object with all player positions
-    for(var i in GAME_SESSION.players) {
-	p = GAME_SESSION.players[i];
-	if(p !== null) {
-	    p.updatePosition();
-	    pack.push({x:p.x, y:p.y, number:p.number});
+    for(var i in GAME_SESSIONS) {
+		var pack = [];
+		for(var j in GAME_SESSIONS[i].players) {
+			var p = GAME_SESSIONS[i].players[j];
+			if(p.inGame) {
+	   		 	p.updatePosition();
+	    		pack.push({x:p.x, y:p.y});
+			}
+    	}
+		// Send the packet to each client in the game session
+	    for(var j in GAME_SESSIONS[i].players) {
+			var p = GAME_SESSIONS[i].players[j];
+			for(var k in CLIENT_LIST) {
+				var player = CLIENT_LIST[k].player;
+				var socket = CLIENT_LIST[k].socket;
+				if(p === player) {
+					server.emit(socket, "newPositions", pack);
+				} else if(player && player.usertype === "editor") {
+					server.emit(socket, "refreshEditScreen");
+				}
+			}
+		}
 	}
-    }
-    //if (debug) log("server/game.js: CLIENT_LIST.length="+CLIENT_LIST.length);
-    // Send the packet to each client    
-    for(var i in CLIENT_LIST) {
-	socket = CLIENT_LIST[i].socket;
-	//if (debug) log("server/game.js: player?" + CLIENT_LIST[i].player);
-	if (CLIENT_LIST[i].player !== null) {
-	    if (CLIENT_LIST[i].player.usertype === "editor") {
-		//if (debug) log("server/game.js: update(): emitting refreshEditScreen");
-		server.emit(socket, "refreshEditScreen");
-	    } else  {
-		server.emit(socket, "newPositions", pack);
-	    }
-	}
-    }
 }
 
 /**
@@ -95,13 +95,15 @@ Game.prototype.update = function() {
 */
 Game.prototype.updateStats = function() {
     //if (debug) log("server/game.js: updateStats()");
-	for(var i in GAME_SESSION.players){
-	    var p = GAME_SESSION.players[i];
-	    dbi.updateStat(p.username, "seconds_played", 1, function(err) {
-		if(!err) {
-		    if (debug) log("Failed to update seconds played");
+	for(var i in GAME_SESSIONS) {
+		for(var j in GAME_SESSIONS[i].players) {
+			var p = GAME_SESSIONS[i].players[j];
+			if(p.inGame) {
+	    		dbi.updateStat(p.username, "seconds_played", 1, function(resp) {
+					if(!resp && debug) log("Failed to update seconds played");
+	    		});
+			}
 		}
-	    });
 	}
 }
 

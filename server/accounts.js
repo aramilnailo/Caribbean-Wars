@@ -3,8 +3,6 @@ var log = require("./debug.js").log;
 
 var server = require("./server.js");
 var dbi = require("./dbi.js");
-var player = require("./player.js");
-var session = require("./session.js");
 
 /**
  * The accounts namespace contains the functions relating to
@@ -46,7 +44,7 @@ Accounts.prototype.disconnect = function disconnect(param) {
     var clients = param.clients;
    	// If in a game, remove the player
     if(client.player) {
-		session.exitGameSession(client.player);
+		require("./session.js").exitGameSession({client:client});
 		client.player = null;
 	}
     // Remove from client list
@@ -76,11 +74,6 @@ Accounts.prototype.login = function login(param) {
 			} else {
 				// Update the usertype
 				dbi.setUsertype(data.username, data.usertype, function(resp) {});
-		    	if(data.usertype === "player") {
-					// If not a map editor or admin, the client joins the game
-		            client.player = player.Player(data.username, data.usertype);
-					session.enterGameSession(client.player);
-				}
 				// Transition between menus
 	            server.emit(client.socket, "loginResponse", 
 					{username:data.username, usertype:data.usertype});
@@ -152,11 +145,6 @@ Accounts.prototype.userListRequest = function userListRequest(param) {
 Accounts.prototype.logout = function logout(param) {
     if (debug) log("server/accounts.js: logout()");
     var client = param.client;
-	// Remove from the game session, but don't remove the client
-	if(client.player) {
-		session.exitGameSession(client.player);
-		client.player = null;
-	}
 	server.emit(client.socket, "logoutResponse", null);
 }
 
@@ -168,29 +156,27 @@ Accounts.prototype.logout = function logout(param) {
  */
 Accounts.prototype.deleteAccount = function deleteAccount(param) {
     if (debug) log("server/accounts.js: deleteAccount()");
-	// If client is in-game, remove from the session
+	// Find the client with the given username param.data
     var current, client;
 	for(var i in param.clients) {
 		current = param.clients[i];
 		if(current.player && current.player.username === param.data) {
 			client = current;
-			session.exitGameSession(client.player);
-			client.player = null;
 			break;
 		}
 	}
 	dbi.removeUserStats(param.data, function(resp) {
 	if(resp) {
 	dbi.removeUser(param.data, function(val) {
-		if(val) {
-			if(client) {
-				server.emit(client.socket, "logoutResponse", null);
-				server.emit(client.socket, "alert", "Your account has been deleted.");
-			}
-			if(param.client !== client) server.emit(param.client.socket, "alert", "Account deleted.");
-		} else {
-			server.emit(param.client.socket, "alert", "Could not delete account");
+	if(val) {
+		if(client) {
+			server.emit(client.socket, "logoutResponse", null);
+			server.emit(client.socket, "alert", "Your account has been deleted.");
 		}
+		if(param.client !== client) server.emit(param.client.socket, "alert", "Account deleted.");
+	} else {
+		server.emit(param.client.socket, "alert", "Could not delete account");
+	}
 	});
 	} else {
 		server.emit(param.client.socket, "alert", "Could not delete account");
