@@ -160,7 +160,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	map.cx = map.lx/2.0;
 	map.cy = map.ly/2.0;
 	mapEditHistory.push(map);
-	currentMap++;
+	currentMap = mapEditHistory.length -1;
 	client.map = map;
 	MapEditor.prototype.drawEditScreen(event);
     }
@@ -183,7 +183,9 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	var W = dom.mapEditorCanvas.width;
 	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: H="+H+"; W="+W);
 	var dx = Math.floor(zoom*H/lx);
+	if (dx < 1) dx = 1;
 	var dy = Math.floor(zoom*W/ly);
+	if (dy < 1) dy = 1;
 	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: dx="+dx+"; dy="+dy);
 	
 	var nx = Math.floor(H/dx);
@@ -402,32 +404,14 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	this.clear();
     };
     
-    /**
-     * Undisplays all map editor html elements.
-     * Unlistens to all associated router listeners.
-     * @memberof client/MapEditor
-     */
-    MapEditor.prototype.clear = function () {
-	if (debug.mapeditor) debug.log("client/mapeditor.js: clear()");
-	mapEditHistory = [];
-	//this.zoomLevel = 1.0;
-	mapEditHistory.push(newMap);
-	var i,j;
-	for (i = 0; i < 10; i++) {
-	    for (j = 0; j < 10; j++) {
-		newMap.data[10*i + j] = 0;
-		dom.canvas.fillRect(j * 50, i * 50, 50, 50);
-	    }
-	}
-    };
 
-
+    /*
     function clearMapEditorMessageBox() {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: clearMapEditorMessageBox()");
 	//dom.mapEditorTextboxMessage.innerHTML = "";
 	dom.mapEditorTextboxResizeForm.style.display = "none";
     }
-
+*/
 
     /**
      *
@@ -448,11 +432,11 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorZoomSubmitButtonClick()");
 
 	var zoom = dom.mapEditorNewZoom.value;
-	if (zoom.length > 0 && zoom > 0) {
+	if (zoom.length > 0 && zoom > 0.0) {
 	    var map = copyOfMap(client.map);
 	    map.name = "temp"+mapEditHistory.length;
 	    map.zoom = zoom;
-	    mapEditHistory.push(client.map);
+	    mapEditHistory.push(map);
 	    client.map = map;
 	    currentMap = mapEditHistory.length - 1;
 	    MapEditor.prototype.drawEditScreen(event);
@@ -485,20 +469,16 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	var ly = dom.mapEditorResizedLY.value;
 	if (debug.mapeditor) debug.log("client/mapeditor.js: read lx,ly="+lx+","+ly);
 	if (debug.mapeditor) debug.log("client/mapeditor.js: lx.length="+lx.length);
+	var oldmap = client.map;
 	
 	if (lx.length > 0 && ly.length > 0 && lx > 0 && ly > 0) {
 
-	    var oldmap = client.map;
-	    var map = {
-		"lx":lx,
-		"ly":ly,
-		"path":oldmap.path,
-		author:dom.loginUsername.value,
-		name:"tempmap"+mapEditHistory.length,
-		data:[],
-		ports:[]
-	    };
-	    
+	    var map = copyOfMap(client.map);
+	    map.author = dom.loginUsername.value;
+	    map.name = "tempmap"+mapEditHistory.length;
+	    map.data.length = 0;
+	    map.lx = lx;
+	    map.ly = ly;
 	    var i,j;
 	    //default: water.
 	    for (i = 0; i<lx; i++)
@@ -507,7 +487,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		}
 
 	    var oldindex,index;
-	    var oldsize = oldmap.lx*oldmap.ly;
+	    var oldsize = oldmap.data.length;
 	    var oldly = oldmap.ly;
 	    var mx = (lx < oldmap.lx) ? lx : oldmap.lx;
 	    var my = (ly < oldmap.ly) ? ly : oldmap.ly;
@@ -524,8 +504,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	    dom.mapEditorTextboxMessage.innerHTML = "<p style=\"font:12px Arial\">Map edit mode</p>";
 	    dom.mapEditorTextboxResizeForm.style.display="none";
 	    mapEditHistory.push(client.map);
-	    MapEditor.prototype.drawEditScreen(event);
 	    currentMap = mapEditHistory.length - 1;
+	    MapEditor.prototype.drawEditScreen(event);
 	} else {
 	    dom.mapEditorTextboxResizeForm.style.display="none";
 	    dom.mapEditorTextboxMessage.innerHTML = "<p style=\"font:12px Arial\">invalid map size</p>";	    
