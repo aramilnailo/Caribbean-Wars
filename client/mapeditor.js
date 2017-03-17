@@ -310,9 +310,9 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @param event
      * @memberof client/MapEditor
      */
-    function clearTextbox() {
-	if (debug.mapeditor) debug.log("client/mapeditor.js: clearTextbox()");
-	dom.mapEditorTextboxMessage.style.display="none";
+    function clearMapEditorMessageBox() {
+	if (debug.mapeditor) debug.log("client/mapeditor.js: clearMapEditorMessageBox()");
+	dom.mapEditorTextboxMessage.innerHTML = "";
 	dom.mapEditorTextboxResizeForm.style.display="none";
     }
 
@@ -325,7 +325,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.mapEditorResizeButtonClick = function (event) {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorResizeButtonClick()");
-	clearTextbox();
+	clearMapEditorMessageBox();
 	dom.mapEditorTextboxResizeForm.style.display="inline-block";
     }
 
@@ -335,9 +335,14 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.mapEditorResizeSubmitButtonClick = function(event) {
+	/*
 	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorResizeSubmitButtonClick()");
 	var lx = dom.mapEditorResizedLX.value;
 	var ly = dom.mapEditorResizedLY.value;
+	if (debug.mapeditor) debug.log("client/mapeditor.js: read lx,ly="+lx+","+ly);
+	if (debug.mapeditor) debug.log("client/mapeditor.js: lx.length="+lx.length);
+	*/
+	/*
 	if (lx.length > 0 && ly.length > 0 && lx > 0 && ly > 0) {
 
 	    var oldmap = client.map;
@@ -381,6 +386,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	    clearTextbox();
 	    dom.mapEditorTextboxMessage.innerHTML = "<p>invalid map size</p>";
 	}
+*/
     }
     
     /**

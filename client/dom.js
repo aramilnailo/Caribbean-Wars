@@ -142,8 +142,6 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
 	function() { router.route({name:"mapEditorSaveMapButtonClick", data:null}); }
     dom.mapEditorLoadMapButton.onclick = 
 	function() { router.route({name:"mapEditorLoadMapButtonClick", data:null}); }
-    dom.mapEditorResizeButton.onclick = 
-	function() { router.route({name:"mapEditorResizeButtonClick", data:null}); }
     dom.mapEditorLogoutButton.onclick =
 	function() { router.route({name:"mapEditorLogoutButtonClick", data:null}) };
     dom.mapEditorResizeButton.onclick = 
