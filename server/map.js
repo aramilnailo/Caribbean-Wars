@@ -6,6 +6,7 @@ var server = require("./server.js");
 
 //================ MAP OBJECT =================
 
+// note: screen focus on center = (cx,cy)
 /**
 * The map object containing the terrain data in the game.
 * @module server/Map
@@ -14,8 +15,8 @@ var Map = function() {
     var map = {
 	lx:0,
 	ly:0,
-	dx:1,
-	dy:1,
+	cx:0,
+	cy:0,
 	path:"",
 	author:"nobody",
 	name:"newmapfile",

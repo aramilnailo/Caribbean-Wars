@@ -19,6 +19,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     var paintingGrass = false;
 
     var brushSize = 1;
+
+    var currentZoom = 1.0;
     
     /**
      * 
@@ -60,8 +62,14 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	router.listen("mapEditorResizeButtonClick",this.mapEditorResizeButtonClick);
 	router.listen("mapEditorResizeSubmitButtonClick",this.mapEditorResizeSubmitButtonClick);
 	router.listen("mapEditorSaveMapButtonClick",this.mapEditorSaveMapButtonClick);
+	router.listen("mapEditorZoomButtonClick",this.mapEditorZoomButtonClick);
+	router.listen("mapEditorZoomSubmitButtonClick",this.mapEditorZoomSubmitButtonClick);
+	router.listen("mapEditorClearMapButtonClick",this.ClearMapButtonClick);
 
-
+	router.listen("mapEditorUndoChangeButtonClick",this.backtrack);
+	router.listen("mapEditorRedoChangeButtonClick",this.timewarp);
+	
+	
 	router.listen("mapEditorBrush20Click", this.mapEditorSwitchBrush20Click);
 	router.listen("mapEditorBrush18Click", this.mapEditorSwitchBrush18Click);
 	router.listen("mapEditorBrush16Click", this.mapEditorSwitchBrush16Click);
@@ -93,22 +101,29 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     };
 
 
+    
+    
     function copyOfMap(oldmap) {
-	var map = new Map();
+	var map = {};
 	map.lx = oldmap.lx;
 	map.ly = oldmap.ly;
-	map.dx = oldmap.dx;
-	map.dy = oldmap.dy;
+	map.cx = oldmap.cx;
+	map.cy = oldmap.cy;
 	map.path = oldmap.path;
+	map.zoom = oldmap.zoom;
 	map.author = client.username;
 	map.name = oldmap.name;
-	var size = oldmap.lx*oldmap.ly;
+	map.data = [];
+	map.ports = [];
+	var size = oldmap.data.length;
 	var n;
 	for (n = 0; n < size; n++)
 	    map.data.push(oldmap.data[n]);
-	var ports = oldmap.ports.length;
-	for (n = 0; n < ports; n++)
-	    map.ports.push(oldmap.ports[n]);
+	if (oldmap.ports !== undefined) {
+	    var ports = oldmap.ports.length;
+	    for (n = 0; n < ports; n++)
+		map.ports.push(oldmap.ports[n]);
+	}
 	return map;
     }
     
@@ -119,9 +134,35 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.loadNewEditMap = function(event) {
 	mapEditHistory=[];
+	client.map.zoom = 1.0;
+	client.map.cx = client.map.lx/2.0;
+	client.map.cy = client.map.ly/2.0;
+	if (client.map.ports === undefined) client.map.ports = [];
 	mapEditHistory.push(client.map);
 	MapEditor.prototype.drawEditScreen(event);
 	currentMap = 0;
+    }
+
+    /**
+     * 
+     * @memberof client/MapEditor
+     */
+    MapEditor.prototype.ClearMapButtonClick = function(event) {
+	if (debug.mapeditor) debug.log("client/mapeditor.js:ClearMapButtonClick");
+	var map = copyOfMap(client.map);
+	var nmax = map.data.length;
+	var n;
+	for (n = 0; n < nmax; n++) {
+	    map.data[n] = 0;
+	}
+	map.ports = [];
+	map.zoom = 1.0;
+	map.cx = map.lx/2.0;
+	map.cy = map.ly/2.0;
+	mapEditHistory.push(map);
+	currentMap++;
+	client.map = map;
+	MapEditor.prototype.drawEditScreen(event);
     }
     
     /**
@@ -134,11 +175,59 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	dom.mapEditorCanvasContext.clearRect(0, 0, 500, 500);
 	var ly = client.map.ly;
 	var lx = client.map.lx;
-	var dx = 500.0/lx;
-	var dy = 500.0/ly;
-	// Draw the map
 	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: lx="+lx+"; ly="+ly);
+	//var zoom = client.map.zoom;
+	var zoom = client.map.zoom;
+	
+	var H = dom.mapEditorCanvas.height;
+	var W = dom.mapEditorCanvas.width;
+	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: H="+H+"; W="+W);
+	var dx = Math.floor(zoom*H/lx);
+	var dy = Math.floor(zoom*W/ly);
+	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: dx="+dx+"; dy="+dy);
+	
+	var nx = Math.floor(H/dx);
+	var ny = Math.floor(W/dy);
+	
+	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: nx="+nx+"; ny="+ny);
+	//var cx = Math.floor(client.map.cx);
+	//var cy = Math.floor(client.map.cy);
+	var cx = lx/2.0;
+	var cy = ly/2.0;
+	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: cx="+cx+"; cy="+cy);
+
+
+	var minx = cx-Math.floor(nx/2);
+	var miny = cy-Math.floor(ny/2);
+	var maxx = cx+Math.floor(nx/2)+1;
+	var maxy = cy+Math.floor(ny/2)+1;
+
+	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: minx="+minx+"; maxx="+maxx);
+	if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: miny="+miny+"; maxy="+maxy);
+	
+	// Draw the map
 	//if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: dx="+dx+"; dy="+dy);
+	var i, j;
+        var ch, color;
+	for (i = minx; i < maxx; i++) {
+	    for (j = miny; j < maxy; j++) {
+		ch = client.map.data[ly * i + j];
+		switch (ch) {
+		case 0 : color = "#42C5F4";
+		    break;
+		case 1 : color = "#C19E70";
+		    break;
+		case 2 : color = "#2A8C23";
+		    break;
+		default  : color = "#000000";
+		}
+		dom.mapEditorCanvasContext.fillStyle = color;
+		dom.mapEditorCanvasContext.fillRect((j-miny) * dy, (i-minx) * dx, dx, dy);
+	    }
+	}
+	
+	//if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen: dx="+dx+"; dy="+dy);
+	/*
 	var i, j;
         var ch, color;
 	for (i = 0; i < lx; i++) {
@@ -157,7 +246,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		dom.mapEditorCanvasContext.fillRect(j * dy, i * dx, dx, dy);
 	    }
 	}
-	    
+	  */  
 	if(debug.mapeditor) debug.log("client/mapeditor: drawEditScreen exit");
     }
     
@@ -261,7 +350,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	var keycode = event.which || event.keyCode;
 	if (keycode === 90 && event.ctrlKey) {
 	    // Ctrl-Z; backtrack
-	    this.backtrack();
+	    MapEditor.prototype.backtrack();
 	}
     }
     
@@ -271,12 +360,28 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.backtrack = function () {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: backtrack()");
-	if (this.currentMap > 0) {
-	    this.currentMap--;
+	if (currentMap > 0) {
+	    currentMap--;
 	    client.map = mapEditHistory[currentMap];
+	    MapEditor.prototype.drawEditScreen(null);
 	}
     };
 
+
+    /** 
+     * 
+     * @memberof client/MapEditor
+     */
+    MapEditor.prototype.timewarp = function () {
+	if (debug.mapeditor) debug.log("client/mapeditor.js: timewarp()");
+	if (currentMap + 1 < mapEditHistory.length) {
+	    currentMap++;
+	    client.map = mapEditHistory[currentMap];
+	    MapEditor.prototype.drawEditScreen(null);
+	}
+    };
+
+    
     /**
      * 
      * @memberof client/MapEditor
@@ -316,11 +421,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	}
     };
 
-    /**
-     *
-     * @param event
-     * @memberof client/MapEditor
-     */
+
     function clearMapEditorMessageBox() {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: clearMapEditorMessageBox()");
 	//dom.mapEditorTextboxMessage.innerHTML = "";
@@ -328,6 +429,36 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     }
 
 
+    /**
+     *
+     * @param event
+     * @memberof client/MapEditor
+     */
+    MapEditor.prototype.mapEditorZoomButtonClick = function(event) {
+	dom.mapEditorTextboxMessage.innerHTML = "";
+	dom.mapEditorTextboxResizeForm.style.display = "none";
+	dom.mapEditorTextboxZoomForm.style.display="inline-block";
+    };
+    /**
+     *
+     * @param event
+     * @memberof client/MapEditor
+     */
+    MapEditor.prototype.mapEditorZoomSubmitButtonClick = function(event) {
+	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorZoomSubmitButtonClick()");
+
+	var zoom = dom.mapEditorNewZoom.value;
+	if (zoom.length > 0 && zoom > 0) {
+	    var map = copyOfMap(client.map);
+	    map.name = "temp"+mapEditHistory.length;
+	    map.zoom = zoom;
+	    mapEditHistory.push(client.map);
+	    client.map = map;
+	    currentMap = mapEditHistory.length - 1;
+	    MapEditor.prototype.drawEditScreen(event);
+	}
+    };
+    
     
     /**
      *
@@ -338,6 +469,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorResizeButtonClick()");
 	dom.mapEditorTextboxMessage.innerHTML = "";
 	dom.mapEditorTextboxResizeForm.style.display="inline-block";
+	dom.mapEditorTextboxZoomForm.style.display="none";
+
     }
 
     /**
@@ -399,17 +532,6 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	}
     }
     
-    /**
-     *
-     * @param event
-     * @memberof client/MapEditor
-     */
-    /*
-    MapEditor.prototype.mapEditorSaveMapButtonClick = function (event) {
-	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorSaveMapButtonClick()");
-	
-    };
-      */     
     /*
       CANVAS EVENT HANDLERS
     */
@@ -430,7 +552,11 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.onCanvasMouseUp = function (event) {
-	paintMove = false;
+	if (paintMove) {
+	    mapEditHistory.push(client.map);
+	    currentMap = mapEditHistory.length - 1;
+	    paintMove = false;
+	}
     }
 
     /**
@@ -438,7 +564,11 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.onCanvasMouseLeave = function (event) {
-	paintMove = false;
+	if (paintMove) {
+	    mapEditHistory.push(client.map);
+	    currentMap = mapEditHistory.length - 1;
+	    paintMove = false;
+	}
     }
     
     

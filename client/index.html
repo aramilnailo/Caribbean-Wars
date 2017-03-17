@@ -5,21 +5,25 @@
     <title>SR_5_CaribbeanWars</title>
   </head>
   <body>
+    <center>
     <h1>SR_5_Caribbean Wars</h1>
-
+    
     <style> th, td { border : 1px solid black; } </style>   
 	
 	<!--LOGIN SCREEN-->
-    <div id="login-screen">
-      Username: <input id="login-username" type="text"></input><br>
-      Password: <input id="login-password" type="password"></input><br>
-      <form id="login-usertype-radiobox" checked="player">
-	Usertype: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
-	<input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
-	<input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
-      </form>
-      <button id="login-btn">Log in</button>
-      <button id="signup-btn">Sign up</button>
+	<div id="login-screen">
+	  
+	    <img src="client/imgs/Confiance_Kent_fight.jpg" width="500"><br>
+	    Username: <input id="login-username" type="text"></input><br>
+	    Password: <input id="login-password" type="password"></input><br>
+	    <form id="login-usertype-radiobox" checked="player">
+	      Role: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
+	      <input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
+	      <input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
+	    </form>
+	    <button id="login-btn">Log in</button>
+	    <button id="signup-btn">Sign up</button>
+	  
     </div>
 		
 	<!--SESSION MENU-->
@@ -52,13 +56,13 @@
 	  </div>
     </div>
 	
-	<!--GAME SCREEN-->
+    <!--GAME SCREEN-->
     <div id="game-screen" style="display:none;">
         <div id="game-window">
   	    <canvas id="canvas" width="500" height="500"
   		  style="border:1px solid black;font:30px Arial;"></canvas>
         </div>
-	</div>
+    </div>
 	
 	<!--ADMIN SCREEN-->
 	<div id="admin-screen" style="display:none;">
@@ -142,21 +146,35 @@
 		      W: <input id="map-editor-new-lx" type="text"></input>
 		    </form>
 		  </td><td style="border:none">
-		    <button id="map-editor-resize-submit-btn">Submit</button>
+		    <button id="map-editor-resize-submit-btn">submit</button>
 		</td></tr>
 	      </table>
 	    </div>
+	    <div id="map-editor-textbox-zoom-form" style="display:none">
+	      <table><tr><td style="border:none">
+		    <form style="font:12px Arial">
+		      Zoom: <input id="map-editor-new-zoom" type="text"></input>
+		    </form>
+              </td></tr>
+		  <tr><td style="border:none">
+		    <button id="map-editor-zoom-submit-btn">submit</button>
+                  </td></tr>
+               </table>
+	    </div>
 	  </div>
-
-	  <button id="map-editor-logout-btn">Logout</button>
-	  <button id="map-editor-saved-maps-btn">Saved maps</button>
-	  <button id="map-editor-save-map-btn">Save as</button>
-	  <button id="map-editor-load-map-btn">Load</button>
-	  <button id="map-editor-resize-btn">Resize</button><br>
+	  <button id="map-editor-undo-btn">undo</button>
+	  <button id="map-editor-redo-btn">redo</button>
+	  <button id="map-editor-zoom-btn">zoom</button>
+	  <button id="map-editor-clear-map-btn">clear</button>
+	  <button id="map-editor-resize-btn">resize</button><br>
+	  <button id="map-editor-logout-btn">logout</button>
+	  <button id="map-editor-saved-maps-btn">saved maps</button>
+	  <button id="map-editor-save-map-btn">save as</button>
+	  <button id="map-editor-load-map-btn">load</button><br>
 	  <div id="map-editor-saved-maps-list"></div>
 	</div>
 	
-	
+	</center>
 	<!--LOBBY SCREEN-->
 
 	<script src="/socket.io/socket.io.js"></script>

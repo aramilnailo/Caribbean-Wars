@@ -69,7 +69,15 @@ var dom = {
     mapEditorResizedLY:document.getElementById("map-editor-new-ly"),
     mapEditorResizeSubmitButton:document.getElementById("map-editor-resize-submit-btn"),
     mapEditorResizeButton:document.getElementById("map-editor-resize-btn"),
+    mapEditorTextboxZoomForm:document.getElementById("map-editor-textbox-zoom-form"),
+    mapEditorNewZoom:document.getElementById("map-editor-new-zoom"),
+    mapEditorZoomButton:document.getElementById("map-editor-zoom-btn"),
+    mapEditorZoomSubmitButton:document.getElementById("map-editor-zoom-submit-btn"),
 
+    mapEditorClearMapButton:document.getElementById("map-editor-clear-map-btn"),
+    mapEditorUndoChangeButton:document.getElementById("map-editor-undo-btn"),
+    mapEditorRedoChangeButton:document.getElementById("map-editor-redo-btn"),
+    
     // MapEditor brush button panel
     mapEditorBrush20:document.getElementById("map-editor-brush-20"),
     mapEditorBrush18:document.getElementById("map-editor-brush-18"),
@@ -148,7 +156,19 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
 	function() { router.route({name:"mapEditorResizeButtonClick", data:null}); }
     dom.mapEditorResizeSubmitButton.onclick=
 	function() { router.route({name:"mapEditorResizeSubmitButtonClick", data:null}) };
+    dom.mapEditorClearMapButton.onclick =
+	function() { router.route({name:"mapEditorClearMapButtonClick", data:null}) };
+    dom.mapEditorUndoChangeButton.onclick =
+	function() { router.route({name:"mapEditorUndoChangeButtonClick", data:null}) };
+    dom.mapEditorRedoChangeButton.onclick =
+	function() { router.route({name:"mapEditorRedoChangeButtonClick", data:null}) };
 
+    dom.mapEditorZoomButton.onclick = 
+	function() { router.route({name:"mapEditorZoomButtonClick", data:null}); }
+    dom.mapEditorZoomSubmitButton.onclick=
+	function() { router.route({name:"mapEditorZoomSubmitButtonClick", data:null}) };
+
+    
     // MapEditor textbox
     /*
     mapEditorTextbox:document.getElementById("map-editor-textbox"),
