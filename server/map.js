@@ -14,8 +14,8 @@ var Map = function() {
     var map = {
 	lx:0,
 	ly:0,
-	dx:10,
-	dy:10,
+	dx:1,
+	dy:1,
 	path:"",
 	author:"nobody",
 	name:"newmapfile",
