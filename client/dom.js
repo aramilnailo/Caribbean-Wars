@@ -69,6 +69,19 @@ var dom = {
     mapEditorResizedLY:document.getElementById("map-editor-new-ly"),
     mapEditorResizeSubmitButton:document.getElementById("map-editor-resize-submit-btn"),
     mapEditorResizeButton:document.getElementById("map-editor-resize-btn"),
+
+    // MapEditor brush button panel
+    mapEditorBrush20:document.getElementById("map-editor-brush-20"),
+    mapEditorBrush18:document.getElementById("map-editor-brush-18"),
+    mapEditorBrush16:document.getElementById("map-editor-brush-16"),
+    mapEditorBrush14:document.getElementById("map-editor-brush-14"),
+    mapEditorBrush12:document.getElementById("map-editor-brush-12"),
+    mapEditorBrush10:document.getElementById("map-editor-brush-10"),
+    mapEditorBrush08:document.getElementById("map-editor-brush-08"),
+    mapEditorBrush06:document.getElementById("map-editor-brush-06"),
+    mapEditorBrush04:document.getElementById("map-editor-brush-04"),
+    mapEditorBrush02:document.getElementById("map-editor-brush-02"),
+    mapEditorBrush01:document.getElementById("map-editor-brush-01"),
     
     // MapEditor saved maps list
     mapEditorSavedMapsListButton:document.getElementById("map-editor-saved-maps-btn"),
@@ -125,24 +138,18 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
     // map editor event handling
     dom.mapEditorSavedMapsListButton.onclick =
 	function() { router.route({name:"mapEditorSavedMapsListButtonClick", data:null}); }
-	
     dom.mapEditorSaveMapButton.onclick =
 	function() { router.route({name:"mapEditorSaveMapButtonClick", data:null}); }
-	
     dom.mapEditorLoadMapButton.onclick = 
 	function() { router.route({name:"mapEditorLoadMapButtonClick", data:null}); }
-
     dom.mapEditorResizeButton.onclick = 
 	function() { router.route({name:"mapEditorResizeButtonClick", data:null}); }
-
     dom.mapEditorLogoutButton.onclick =
 	function() { router.route({name:"mapEditorLogoutButtonClick", data:null}) };
-
     dom.mapEditorResizeButton.onclick = 
 	function() { router.route({name:"mapEditorResizeButtonClick", data:null}); }
     dom.mapEditorResizeSubmitButton.onclick=
 	function() { router.route({name:"mapEditorResizeSubmitButtonClick", data:null}) };
-
 
     // MapEditor textbox
     /*
@@ -154,16 +161,13 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
     mapEditorResizeSubmitButton:document.getElementById("map-editor-resize-submit-btn"),
     */
     
-    //canvas
+    //map editor canvas
     dom.mapEditorCanvas.onmousedown =
 	function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
-    
     dom.mapEditorCanvas.onclick =
 	function(event) { router.route({name:"mapEditorCanvasClick", data:event}); }
-	
     dom.mapEditorCanvas.onmouseup =
 	function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
-	
     dom.mapEditorCanvas.onmousemove =
 	function(event) { router.route({name:"mapEditorCanvasMouseMove", data:event}); }
     dom.mapEditorCanvas.onmouseup =
@@ -171,30 +175,43 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
     dom.mapEditorCanvas.onmouseleave =
 	function(event) { router.route({name:"mapEditorCanvasMouseLeave", data:event}); }
     
-    //land icon
+    //map editor paint icons
     dom.mapEditorPaintSandIcon.onclick =
 	function() { router.route({name:"mapEditorPaintSandIconClick", data:null}); }
-	
     dom.mapEditorPaintSandIcon.title = "sand";
-	
-    //woods icon
     dom.mapEditorPaintGrassIcon.onclick =
 	function() { router.route({name:"mapEditorPaintGrassIconClick", data:null}); }
-	
     dom.mapEditorPaintGrassIcon.title = "grass";
-	
-    //water icon
     dom.mapEditorPaintWaterIcon.onclick =
 	function() { router.route({name:"mapEditorPaintWaterIconClick", data:null}); }
-	
     dom.mapEditorPaintWaterIcon.title = "water";
-	
-    //port icon
     dom.mapEditorPaintPortIcon.onclick =
 	function() { router.route({name:"mapEditorPaintPortIconClick", data:null}); }
-	
     dom.mapEditorPaintPortIcon.title = "port";
-	
+
+    //map editor brush icons
+    dom.mapEditorBrush20.onclick = 
+	function(event) { router.route({name:"mapEditorBrush20Click", data:null}); }
+    dom.mapEditorBrush18.onclick = 
+	function(event) { router.route({name:"mapEditorBrush18Click", data:null}); }
+    dom.mapEditorBrush16.onclick = 
+	function(event) { router.route({name:"mapEditorBrush16Click", data:null}); }
+    dom.mapEditorBrush14.onclick = 
+	function(event) { router.route({name:"mapEditorBrush14Click", data:null}); }
+    dom.mapEditorBrush12.onclick = 
+	function(event) { router.route({name:"mapEditorBrush12Click", data:null}); }
+    dom.mapEditorBrush10.onclick = 
+	function(event) { router.route({name:"mapEditorBrush10Click", data:null}); }
+    dom.mapEditorBrush08.onclick = 
+	function(event) { router.route({name:"mapEditorBrush08Click", data:null}); }
+    dom.mapEditorBrush06.onclick = 
+	function(event) { router.route({name:"mapEditorBrush06Click", data:null}); }
+    dom.mapEditorBrush04.onclick = 
+	function(event) { router.route({name:"mapEditorBrush04Click", data:null}); }
+    dom.mapEditorBrush02.onclick = 
+	function(event) { router.route({name:"mapEditorBrush02Click", data:null}); }
+    dom.mapEditorBrush01.onclick = 
+	function(event) { router.route({name:"mapEditorBrush01Click", data:null}); }
     //zoom icon
     
 dom.canvas.font = "30px Arial";

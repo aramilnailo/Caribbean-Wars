@@ -97,24 +97,54 @@
 
 	<!--MAP EDITOR SCREEN-->
 	<div id="map-editor-screen" style="display:none;">
-	  <canvas id="map-editor-canvas" width="500" height="500"
-		  style="border:1px solid black;font:30px Arial;"></canvas>
-	  <div id="map-editor-icon-panel" style="inline-block">
-	    <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
-	    <img id="map-editor-paint-sand-img" alt="sand" src="client/imgs/mapeditorsandiconup.png">
-	    <img id="map-editor-paint-grass-img" alt="grass" src="client/imgs/mapeditorgrassiconup.png">
-	    <img id="map-editor-paint-port-img" alt="port" src="client/imgs/mapeditorporticonup.png">
-	    <div id="map-editor-textbox">
-	      <div id="map-editor-textbox-msg"><p style="font:12px Arial">Map edit mode</p></div>
-	      <div id="map-editor-textbox-resize-form" style="display:none">
-		<form>
-		  height: <input id="map-editor-new-ly"></input>
-		  width: <input id="map-editor-new-lx"></input>
-		  <input id="map-editor-resize-submit-btn" type="submit"><input>
-		</form>
-	      </div>
-	    </div>
-	  </div>
+	  <table id="map-editor-organizer" style="inline-block; border:collapse">
+	    <tr><td style="border:none">
+		<table id="map-editor-brush-panel" style="inline-block; border:collapse">
+		  <tr><td style="border:none">
+		      <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
+		  </td></tr>
+		  <tr><td style="border:none">
+		      <img id="map-editor-paint-sand-img" alt="sand" src="client/imgs/mapeditorsandiconup.png">
+		  </td></tr>
+		  <tr><td style="border:none">
+		      <img id="map-editor-paint-grass-img" alt="grass" src="client/imgs/mapeditorgrassiconup.png">
+		  </td></tr>
+		  <tr><td style="border:none">
+		      <img id="map-editor-paint-port-img" alt="port" src="client/imgs/mapeditorporticonup.png">
+		  </td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-20" title="20px" src="client/imgs/mapeditorbrush20up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-18" title="18px" src="client/imgs/mapeditorbrush18up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-16" title="16px" src="client/imgs/mapeditorbrush16up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-14" title="14px" src="client/imgs/mapeditorbrush14up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-12" title="12px" src="client/imgs/mapeditorbrush12up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-10" title="10px" src="client/imgs/mapeditorbrush10up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-08" title="8px" src="client/imgs/mapeditorbrush08up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-06" title="6px" src="client/imgs/mapeditorbrush06up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-04" title="4px" src="client/imgs/mapeditorbrush04up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-02" title="2px" src="client/imgs/mapeditorbrush02up.png"></td></tr>
+		  <tr><td style="border:none"><img id="map-editor-brush-01" title="1px" src="client/imgs/mapeditorbrush01down.png"></td></tr>
+		</table>
+	      </td>
+	      <td style="border:none">
+		<canvas id="map-editor-canvas" width="500" height="500"
+			style="inline-block; border:1px solid black;font:30px Arial;"></canvas>
+	    </td></tr>
+	    <tr><td style="border:none">
+		  </td><td style="border:none">
+		  <div id="map-editor-textbox">
+		    <div id="map-editor-textbox-msg"><p style="font:12px Arial">Map edit mode</p></div>
+		    <div id="map-editor-textbox-resize-form" style="display:none">		      
+		      <form>
+			height: <input id="map-editor-new-ly"></input>
+			width: <input id="map-editor-new-lx"></input>
+			<input id="map-editor-resize-submit-btn" type="submit"><input>
+		      </form>
+		      
+		    </div>
+		  </div>
+		  </td></tr>
+	  </table>
+
 	  <button id="map-editor-logout-btn">Logout</button>
 	  <button id="map-editor-saved-maps-btn">Saved maps</button>
 	  <button id="map-editor-save-map-btn">Save as</button>

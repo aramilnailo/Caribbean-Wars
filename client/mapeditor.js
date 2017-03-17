@@ -20,6 +20,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 
     var dx = 50;
     var dy = 50;
+
+    var brushSize = 1;
     
     /**
      * 
@@ -61,6 +63,20 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	router.listen("mapEditorResizeButtonClick",this.mapEditorResizeButtonClick);
 	router.listen("mapEditorResizeSubmitButtonClick",this.mapEditorResizeSubmitButtonClick);
 	router.listen("mapEditorSaveMapButtonClick",this.mapEditorSaveMapButtonClick);
+
+
+	router.listen("mapEditorBrush20Click", this.mapEditorSwitchBrush20Click);
+	router.listen("mapEditorBrush18Click", this.mapEditorSwitchBrush18Click);
+	router.listen("mapEditorBrush16Click", this.mapEditorSwitchBrush16Click);
+	router.listen("mapEditorBrush14Click", this.mapEditorSwitchBrush14Click);
+	router.listen("mapEditorBrush12Click", this.mapEditorSwitchBrush12Click);
+	router.listen("mapEditorBrush10Click", this.mapEditorSwitchBrush10Click);
+	router.listen("mapEditorBrush08Click", this.mapEditorSwitchBrush08Click);
+	router.listen("mapEditorBrush06Click", this.mapEditorSwitchBrush06Click);
+	router.listen("mapEditorBrush04Click", this.mapEditorSwitchBrush04Click);
+	router.listen("mapEditorBrush02Click", this.mapEditorSwitchBrush02Click);
+	router.listen("mapEditorBrush01Click", this.mapEditorSwitchBrush01Click);
+	
     }
 
     /**
@@ -294,7 +310,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     function clearTextbox() {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: clearTextbox()");
-	dom.mapEditorTextboxMsg.style.display="none";
+	dom.mapEditorTextboxMessage.style.display="none";
 	dom.mapEditorTextboxResizeForm.style.display="none";
     }
 
@@ -307,7 +323,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.mapEditorResizeButtonClick = function (event) {
 	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorResizeButtonClick()");
-	clearTextBox();
+	clearTextbox();
 	dom.mapEditorTextboxResizeForm.style.display="inline-block";
     }
 
@@ -432,8 +448,21 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	    if (paintingPort) { ch = 3; change = true; }
 	    if (debug.mapeditor) debug.log("client/mapeditor.js: change="+change+"; ch="+ch);
 	    if (debug.mapeditor) debug.log("client/mapeditor.js: a,b="+a+","+b);
+	    var bsq = brushSize*brushSize;
+	    var lim = Math.floor(brushSize/2)+1;
 	    if (change) {
-		client.map.data[client.map.lx*b+a] = ch;
+		var p,q;
+		for (p = a-lim; p < a+lim; p++) {
+		    if (p >= 0 && p < lx) {
+			for (q = b-lim; q < b+lim; q++) {
+			    if (q >= 0 && q < ly) {
+				if ((p-a)*(p-a)+(q-b)*(q-b) < bsq) {
+				    client.map.data[ly*q+p] = ch;
+				}
+			    }
+			}
+		    }
+		}
 		MapEditor.prototype.drawEditScreen(event);
 	    }
 	}
@@ -491,6 +520,79 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     };
 
 
+    function flipAllBrushButtonsUp() {
+	dom.mapEditorBrush20.src="client/imgs/mapeditorbrush20up.png";
+	dom.mapEditorBrush18.src="client/imgs/mapeditorbrush18up.png";
+	dom.mapEditorBrush16.src="client/imgs/mapeditorbrush16up.png";
+	dom.mapEditorBrush14.src="client/imgs/mapeditorbrush14up.png";
+	dom.mapEditorBrush12.src="client/imgs/mapeditorbrush12up.png";
+	dom.mapEditorBrush10.src="client/imgs/mapeditorbrush10up.png";
+	dom.mapEditorBrush08.src="client/imgs/mapeditorbrush08up.png";
+	dom.mapEditorBrush06.src="client/imgs/mapeditorbrush06up.png";
+	dom.mapEditorBrush04.src="client/imgs/mapeditorbrush04up.png";
+	dom.mapEditorBrush02.src="client/imgs/mapeditorbrush02up.png";
+	dom.mapEditorBrush01.src="client/imgs/mapeditorbrush01up.png";	
+    }
+
+    
+    MapEditor.prototype.mapEditorSwitchBrush20Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush20.src="client/imgs/mapeditorbrush20down.png";
+	brushSize = 20;
+    }
+
+    MapEditor.prototype.mapEditorSwitchBrush18Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush18.src="client/imgs/mapeditorbrush18down.png";
+	brushSize = 18;
+    }
+    
+    MapEditor.prototype.mapEditorSwitchBrush16Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush16.src="client/imgs/mapeditorbrush16down.png";
+	brushSize = 16;
+    }
+    
+    MapEditor.prototype.mapEditorSwitchBrush14Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush14.src="client/imgs/mapeditorbrush14down.png";
+	brushSize = 14;
+    }
+    MapEditor.prototype.mapEditorSwitchBrush12Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush12.src="client/imgs/mapeditorbrush12down.png";
+	brushSize = 12;
+    }
+    MapEditor.prototype.mapEditorSwitchBrush10Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush10.src="client/imgs/mapeditorbrush10down.png";
+	brushSize = 10;
+    }
+    MapEditor.prototype.mapEditorSwitchBrush08Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush08.src="client/imgs/mapeditorbrush08down.png";
+	brushSize = 8;
+    }
+    MapEditor.prototype.mapEditorSwitchBrush06Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush06.src="client/imgs/mapeditorbrush06down.png";
+	brushSize = 6;
+    }
+    MapEditor.prototype.mapEditorSwitchBrush04Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush04.src="client/imgs/mapeditorbrush04down.png";
+	brushSize = 4;
+    }
+    MapEditor.prototype.mapEditorSwitchBrush02Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush02.src="client/imgs/mapeditorbrush02down.png";
+	brushSize = 2;
+    }
+    MapEditor.prototype.mapEditorSwitchBrush01Click = function (event) {
+	flipAllBrushButtonsUp();
+	dom.mapEditorBrush01.src="client/imgs/mapeditorbrush01down.png";
+	brushSize = 1;
+    }
     
     return new MapEditor();
 
