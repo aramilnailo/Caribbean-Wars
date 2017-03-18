@@ -20,15 +20,10 @@ var Maps = function() {};
 * @memberof module:server/Maps
 */
 Maps.prototype.listen = function(router) {
-    if (debug) log("server/maps.js: listen()");
+    if(debug) log("[Maps] listen()");
     router.listen("getEditMap", this.getEditMap);
-//<<<<<<< HEAD
-    router.listen("loadNewMap",this.loadNewGameMap);
     router.listen("saveMapRequest",this.saveMap);
-//=======
-//    router.listen("saveMap",this.saveMap);
-//>>>>>>> dev
-    router.listen("loadSavedMap",this.loadSavedEditMap);
+    router.listen("loadSavedMap",this.loadSavedEditMap); // jtjudge: loadMapCopy ??
     router.listen("savedMapsListRequest",this.savedMapsListRequest);
 }
 

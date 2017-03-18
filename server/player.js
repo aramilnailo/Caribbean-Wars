@@ -11,52 +11,32 @@ var log = require("./debug.js").log;
 * single player's state.
 * @module server/Player
 */
-var Player = function(username, usertype, id) {
+var Player = function() {
     /**
      * Player object
      * @memberof module:server/Player
      */
     var player = {
-	x:250,
-	y:250,
-	username:username,
-	usertype:usertype,
-	id:id,
-	inGame:false,
-	inLobby:false,
-	pressingRight:false,
-	pressingLeft:false,
-	pressingUp:false,
-	pressingDown:false,
-	maxSpeed:10
+		x:250,
+		y:250,
+		pressingRight:false,
+		pressingLeft:false,
+		pressingUp:false,
+		pressingDown:false,
+		maxSpeed:10,
+		diff:0
     }
     
 	player.updatePosition = function() {
-	var moved = false;
-	if(player.pressingRight) {
-	    moved = true;
-	    player.x += player.maxSpeed;
+		var oldX = player.x, oldY = player.y;
+		if(player.pressingRight) player.x += player.maxSpeed;
+		if(player.pressingLeft) player.x -= player.maxSpeed;
+		if(player.pressingUp) player.y -= player.maxSpeed;
+		if(player.pressingDown) player.y += player.maxSpeed;
+		var diffX = player.x - oldX, diffY = player.y - oldY;
+		player.diff += Math.sqrt(diffX * diffX + diffY * diffY);
 	}
-	if(player.pressingLeft) {
-	    moved = true;
-	    player.x -= player.maxSpeed;
-	}
-	if(player.pressingUp) {
-	    moved = true;
-	    player.y -= player.maxSpeed;
-	}
-	if(player.pressingDown) {
-	    moved = true;
-	    player.y += player.maxSpeed;
-	}
-	if(moved) {
-	    dbi.updateStat(username, "distance_sailed", 0.1, function(err) {
-		if(!err) {
-		    log("Could not update distance sailed");
-		}
-	    });
-	}
-    }
+	
     return player;
 }
 

@@ -46,7 +46,7 @@ Server.prototype.run = function(io) {
 	// Begin handling connections
 	io.sockets.on("connection", function(socket) {
 	    socket.on("message", function(message) {
-			if (debug) log("server.js: Routing " + message.name);
+			if (debug) log("[Server] Recieved \"" + message.name + "\"");
 			var param = {socket:socket, name:message.name, data:message.data};
 			router.route(param);
 	    });

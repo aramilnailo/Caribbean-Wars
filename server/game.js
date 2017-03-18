@@ -26,7 +26,7 @@ var Game = function() {};
 * @memberof module:server/Game
 */
 Game.prototype.listen = function(router) {
-    if (debug) log("server/game.js: listen()");
+    if(debug) log("[Game] listen()");
     router.listen("keyPress",this.keyPress);
 }
 
@@ -65,43 +65,48 @@ Game.prototype.update = function() {
     // Generate object with all player positions
     for(var i in GAME_SESSIONS) {
 		var pack = [];
-		for(var j in GAME_SESSIONS[i].players) {
-			var p = GAME_SESSIONS[i].players[j];
-			if(p.inGame) {
-	   		 	p.updatePosition();
-	    		pack.push({x:p.x, y:p.y});
+		for(var j in GAME_SESSIONS[i].clients) {
+			var c = GAME_SESSIONS[i].clients[j];
+	   		if(c.player) {
+				c.player.updatePosition();
+	    		pack.push({x:c.player.x, y:c.player.y});
 			}
     	}
 		// Send the packet to each client in the game session
-	    for(var j in GAME_SESSIONS[i].players) {
-			var p = GAME_SESSIONS[i].players[j];
-			for(var k in CLIENT_LIST) {
-				var player = CLIENT_LIST[k].player;
-				var socket = CLIENT_LIST[k].socket;
-				if(p === player) {
-					server.emit(socket, "newPositions", pack);
-				} else if(player && player.usertype === "editor") {
-					server.emit(socket, "refreshEditScreen");
-				}
+	    for(var j in GAME_SESSIONS[i].clients) {
+			var c = GAME_SESSIONS[i].clients[j];
+			if(c.player) {
+				server.emit(c.socket, "newPositions", pack);
+			} else if(c.usertype === "editor") {
+				server.emit(c.socket, "refreshEditScreen");
 			}
 		}
 	}
 }
 
 /**
-* Updates the "seconds played" stat for every player
-* currently in the game.
+* Updates the "seconds played" and "distance sailed" stats
+* for every player currently in a game.
 * @memberof module:server/Game
 */
 Game.prototype.updateStats = function() {
-    //if (debug) log("server/game.js: updateStats()");
 	for(var i in GAME_SESSIONS) {
-		for(var j in GAME_SESSIONS[i].players) {
-			var p = GAME_SESSIONS[i].players[j];
-			if(p.inGame) {
-	    		dbi.updateStat(p.username, "seconds_played", 1, function(resp) {
+		for(var j in GAME_SESSIONS[i].clients) {
+			var c = GAME_SESSIONS[i].clients[j];
+			if(c.player) {
+				// Add time change to seconds played
+	    		dbi.updateStat(c.username, "seconds_played", 1, function(resp) {
 					if(!resp && debug) log("Failed to update seconds played");
 	    		});
+				// Add position change to distance sailed
+				dbi.updateStat(c.username, "distance_sailed", c.player.diff, function(resp) {
+					if(resp) {
+						// Reset the position change
+						c.player.diff = 0;
+					} else {
+						if(debug) log("[Game] Could not update stats");
+					}
+				});
 			}
 		}
 	}

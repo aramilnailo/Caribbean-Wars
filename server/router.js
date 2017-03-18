@@ -20,7 +20,7 @@ var listeners = [];
 * @memberof module:server/Router
 */
 Router.prototype.listen = function(msg,action) {
-    if (debug) log("server/router.js:: listen(); add msg="+msg);
+    if (debug) log("[Router] Listening for \"" + msg + "\"");
     listeners.push({name:msg,func:action});
 }
 
@@ -31,15 +31,14 @@ Router.prototype.listen = function(msg,action) {
 * @memberof module:server/Router
 */
 Router.prototype.unlisten = function(msg,action) {
-    if (debug) log("server/router.js: unlisten(); msg="+msg);
+    if (debug) log("[Router] Not listening for \"" + msg + "\"");
     var i = listeners.length-1;
     var L = {name:msg, func:action};
     // ele's with indices lt i do not change
     // after splice when we move backwards
     while (i >= 0) {
-	if (listeners[i] === L)
-	    listeners.splice(i,1);
-	i--;
+		if (listeners[i] === L) listeners.splice(i,1);
+		i--;
     }
 }
 
@@ -51,25 +50,25 @@ Router.prototype.unlisten = function(msg,action) {
 */
 Router.prototype.route = function(msg) {
     
-    if (debug) log("server/router.js: route(msg); msg.name=" + msg.name);
+    if (debug) log("[Router] Routing \"" + msg.name + "\"");
     
     var socket = msg.socket;
 
     var client = client_list.find(function(c) {
-	return (c.socket === socket);
+		return (c.socket === socket);
     });
 
-    if (client === undefined) {
-	if(debug) log("server/router.js: pushing new client");
-	client = {socket:socket, player:null};
-	client_list.push(client);
+    if (!client) {
+		if(debug) log("[Router] Pushing new client");
+		client = {socket:socket, username:"", usertype:"", id:-1, player:null};
+		client_list.push(client);
     }  
     var param = {client:client, clients:client_list, call:msg.name, data:msg.data};
     for (var i in listeners) {
-	if (listeners[i].name === msg.name) {
-	    if(debug) log("server/router.js: calling " + msg.name);
-	    listeners[i].func(param);
-	}
+		if (listeners[i].name === msg.name) {
+	    	if(debug) log("[Router] Calling \"" + msg.name + "\"");
+	    	listeners[i].func(param);
+		}
     }
 }
 

@@ -19,7 +19,7 @@ var Chat = function() {};
 * @memberof module:server/Chat
 */
 Chat.prototype.listen = function(router) {
-    if (debug) log("server/chat.js: listen()");
+	if(debug) log("[Chat] listen()");
     router.listen("chatPost",this.chatPost);
     router.listen("privateMessage",this.privateMessage);
     router.listen("evalExpression",this.evalExpression);
@@ -35,15 +35,12 @@ Chat.prototype.listen = function(router) {
 */
 Chat.prototype.chatPost = function(param) {
     var client = param.client;
-    var CLIENT_LIST = param.clients;
     var data = param.data;
 	// Notify all clients to add post
-	if(client.player !== null) {
-	    for(var i in CLIENT_LIST) {
-		  server.emit(CLIENT_LIST[i].socket, "addToChat",
-			client.player.username + ": " + data);
-	    }
-	}
+    for(var i in param.clients) {
+	  server.emit(param.clients[i].socket, "addToChat",
+		client.username + ": " + data);
+    }
 }
 /**
 * Emits a private message to a specified user.
@@ -56,22 +53,15 @@ Chat.prototype.chatPost = function(param) {
 */
 Chat.prototype.privateMessage = function(param) {
     var client = param.client;
-    var CLIENT_LIST = param.clients;
     var data = param.data;
 	// Notify the target client to add the post
-	if(client.player !== null) {
-	    var current;
-	    for(var i in CLIENT_LIST) {
-            current = CLIENT_LIST[i];
-            if(current.player !== null &&
-               current.player.username == data.user) {
-                server.emit(client.socket, "addToChat", "From " +
-                        client.player.username +
-                        ": " + data.message);
-                server.emit(client.socket, "addToChat", "To " +
-                           current.player.username +
-                           ": " + data.message);
-            }
+	for(var i in param.clients) {
+		var current = param.clients[i];
+		if(current.username === data.user) {
+        	server.emit(client.socket, "addToChat", "From " + 
+			client.username + ": " + data.message);
+			server.emit(client.socket, "addToChat", "To " +
+            current.username + ": " + data.message);
 	    }
 	}
 }

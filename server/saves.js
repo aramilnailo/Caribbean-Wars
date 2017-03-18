@@ -18,7 +18,7 @@ var Saves = function() {}
 * @memberof module:server/saves
 */
 Saves.prototype.listen = function(router) {
-    if (debug) log ("server/saves.js: listen()");
+    if(debug) log("[Saves] listen()");
     router.listen("deleteSavedGame", this.deleteSavedGame);
     router.listen("saveGameRequest", this.saveGameRequest);
     router.listen("savedGamesListRequest", this.savedGamesListRequest);
@@ -36,7 +36,7 @@ Saves.prototype.listen = function(router) {
 Saves.prototype.deleteSavedGame = function(param) {
     var client = param.client;
     var data = param.data;
-	dbi.removeSavedGame({file_name:data, author:client.player.username},
+	dbi.removeSavedGame({file_name:data, author:client.username},
 		function(resp) {
         var msg = resp ? "Deleted \"" + data + "\"." : 
                     "Could not delete \"" + data + "\".";

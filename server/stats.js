@@ -18,7 +18,7 @@ var Stats = function () {};
 * @memberof module:server/stats
 */
 Stats.prototype.listen = function(router) {
-    if(debug) log("servers/stats.js: listen()");
+    if(debug) log("[Stats] listen()");
     router.listen("statsMenuRequest",this.statsMenuRequest);
 	router.listen("clearStats", this.clearStats);
 }
