@@ -68,12 +68,11 @@ Game.prototype.update = function() {
 		var session = GAME_SESSIONS[i];
 		if(session.game.running) {
 			var pack = [];
-			for(var j in session.clients) {
-				var c = session.clients[j];
-		   		if(c.player) {
-					c.player.updatePosition();
-		    		pack.push({x:c.player.x, y:c.player.y, 
-						active:c.player.active});
+			for(var j in session.game.players) {
+				var p = session.game.players[j];
+		   		if(p.active) {
+					p.updatePosition();
+		    		pack.push({x:p.x, y:p.y, name:p.name});
 				}
 	    	}
 			// Send the packet to each client in the game session
@@ -94,18 +93,19 @@ Game.prototype.update = function() {
 */
 Game.prototype.updateStats = function() {
 	for(var i in GAME_SESSIONS) {
-		for(var j in GAME_SESSIONS[i].clients) {
-			var c = GAME_SESSIONS[i].clients[j];
-			if(c.player) {
+		var session = GAME_SESSIONS[i];
+		for(var j in session.game.players) {
+			var p = session.game.players[j];
+			if(p.active) {
 				// Add time change to seconds played
-	    		dbi.updateStat(c.username, "seconds_played", 1, function(resp) {
+	    		dbi.updateStat(p.name, "seconds_played", 1, function(resp) {
 					if(!resp && debug) log("Failed to update seconds played");
 	    		});
 				// Add position change to distance sailed
-				dbi.updateStat(c.username, "distance_sailed", c.player.diff, function(resp) {
+				dbi.updateStat(p.name, "distance_sailed", p.diff, function(resp) {
 					if(resp) {
 						// Reset the position change
-						c.player.diff = 0;
+						p.diff = 0;
 					} else {
 						if(debug) log("[Game] Could not update stats");
 					}

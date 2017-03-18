@@ -35,6 +35,8 @@ Session.prototype.listen = function(router) {
 	
 	router.listen("startGame", this.startGame);
 	router.listen("stopGame", this.stopGame);
+	router.listen("exitGame", this.exitGame);
+	
     router.listen("getGameMap", this.getGameMap);
 	router.listen("loadNewMap",this.loadNewGameMap);
 }
@@ -79,10 +81,9 @@ Session.prototype.deleteGameSession = function(param) {
 		dbi.setUserOnlineStatus(c.username, false);
 		if(c.player) {
 			c.player = null;
-			server.emit(c.socket, "logoutResponse", null);
-		} else {
-			server.emit(c.socket, "exitLobby", null);
+			server.emit(c.socket, "exitToLobby", null);
 		}
+		server.emit(c.socket, "exitLobby", null);
 		c.id = -1;
 		server.emit(c.socket, "alert", "The game session has ended");
     }
@@ -304,8 +305,55 @@ Session.prototype.startGame = function(param) {
 	});
 }
 
+// Ends the game currently running in this session,
+// if one exists, and puts everyone back in the
+// lobby
 Session.prototype.stopGame = function(param) {
-	
+	var client = param.client;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	if(client !== session.host) {
+		server.emit(client.socket, "alert", "Only the host may end the game");
+		return;
+	}
+	if(!session.game.running) return;
+	for(var i in session.clients) {
+		var c = session.clients[i];
+		c.player = null;
+		dbi.setUserOnlineStatus(c.username, false);
+		server.emit(c.socket, "exitToLobby", 
+			{isHost:(c === session.host)});
+		server.emit(c.socket, "alert", "The game is over");
+	}
+	session.game = {map:"", players:[], running:false};
+}
+
+// Removes the requesting client from the game, returning
+// to the lobby
+Session.prototype.exitGame = function(param) {
+	var client = param.client;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	if(!session.game.running) return;
+	// Stop the game if the host exits
+	if(client === session.host) {
+		Session.prototype.stopGame({client:client});
+	} else {
+		// Disable in game
+		for(var i in session.game.players) {
+			if(session.game.players[i] === client.player) {
+				session.game.players[i].active = false;
+				break;
+			}
+		}
+		client.player = null;
+		// Move back to lobby
+		server.emit(client.socket, "exitToLobby", {isHost:false});
+		// Set offline in the database
+		dbi.setUserOnlineStatus(client.username, false);
+	}
 }
 
 /**

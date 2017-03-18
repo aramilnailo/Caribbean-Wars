@@ -70,10 +70,10 @@ Render.prototype.drawScreen = function(data) {
     }
     // Draw the players as black squares
     dom.canvas.fillStyle = "#000000";
+	dom.canvas.font = "10px Arial";
     for(i = 0; i < data.length; i++) {
-		if(data[i].active) {
-			dom.canvas.fillRect(data[i].x, data[i].y, 10, 10);
-		}
+		dom.canvas.fillRect(data[i].x, data[i].y, 10, 10);
+		dom.canvas.fillText(data[i].name, data[i].x - 10, data[i].y - 10);
     }
 }
 

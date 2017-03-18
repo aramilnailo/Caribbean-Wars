@@ -25,6 +25,8 @@ var dom = {
 	deleteAccountButton:document.getElementById("delete-account-btn"),
 	savedGamesMenuButton:document.getElementById("saved-games-menu-btn"),
 	statsMenuButton:document.getElementById("stats-menu-btn"),
+	stopGameButton:document.getElementById("stop-game-btn"),
+	leaveGameButton:document.getElementById("leave-game-btn"),
 
 	// Save game menu
 	savedGamesMenu:document.getElementById("saved-games-menu"),
@@ -177,6 +179,9 @@ dom.loginButton.onclick = function() { router.route({name:"loginClick", data:nul
 dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }
 dom.logoutButton.onclick = function() { router.route({name:"logoutClick", data:null}); }
 dom.deleteAccountButton.onclick = function() { router.route({name:"deleteAccountClick", data:null}); }
+
+dom.stopGameButton.onclick = function() { router.route({name:"stopGameClick", data:null}); }
+dom.leaveGameButton.onclick = function() { router.route({name:"leaveGameClick", data:null}); }
 
 dom.savedGamesMenuButton.onclick = function() { router.route({name:"toggleSavedGamesMenu", data:null}); }
 dom.saveGameButton.onclick = function() { router.route({name:"saveGameClick", data:null}); }

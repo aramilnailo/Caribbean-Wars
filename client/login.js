@@ -11,6 +11,9 @@ Login.prototype.listen = function(router) {
     router.listen("logoutClick", this.logoutClick);
     router.listen("mapEditorLogoutClick", this.mapEditorLogoutClick);
     router.listen("deleteAccountClick", this.deleteAccountClick);
+	
+	router.listen("stopGameClick", this.stopGameClick);
+	router.listen("leaveGameClick", this.leaveGameClick);
 }
 
 // Login button is clicked on login screen
@@ -76,6 +79,21 @@ Login.prototype.deleteAccountClick = function() {
 	    client.emit("deleteAccount", client.username);
     }
 }
+
+	// These don't really belong here...
+
+Login.prototype.stopGameClick = function() {
+	if(debug.login) log("[Login] stopGameClick");
+	client.emit("stopGame", null);
+}
+
+Login.prototype.leaveGameClick = function() {
+	if(debug.login) log("[Login] leaveGameClick");
+	client.emit("exitGame", null);
+}
+
+
+
 
 return new Login();
 

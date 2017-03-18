@@ -21,6 +21,7 @@ View.prototype.listen = function(router) {
     router.listen("logoutResponse", this.returnToLoginScreen);
 	router.listen("enterLobby", this.enterLobby);
 	router.listen("exitLobby", this.exitLobby);
+	router.listen("exitToLobby", this.gameScreenToLobby);
 	router.listen("enterGame", this.enterGameScreen);
 	router.listen("keyPressed", this.keyPressed);
 	router.listen("keyReleased", this.keyReleased);
@@ -98,56 +99,17 @@ View.prototype.returnToLoginScreen = function(data) {
 	client.player = null;
 }
 
-/**
-* Sets the current game map.
-* 
-* @memberof module:client/View
-* @param data Contains the current map as data.mapData.
-* @throws alert error message if an error occurred
-*         when attempting to set data.mapData.
-*/
-    /*
-View.prototype.setMap = function(data) {
-    if (debug.view) debug.log("client/view.js: setMap()");
-    client.map = data;
-
-    client.map.at = function (i,j) {
-	return data[this.ly*i + j];
-    };
-
-    client.map.set = function (i,j,val) {
-	var index = this.data.ly*i + j;
-	if (index >= 0 && index < this.lx*this.ly) {
-	    this.data[this.ly*i + j] = val;
+// Move from the game screen back to the lobby
+View.prototype.gameScreenToLobby = function(data) {
+	if(debug.view) debug.log("[View] Game screen to lobby");
+	dom.hide([dom.gameScreen]);
+	dom.show([dom.lobbyScreen, dom.lobbyPlayerList]);
+	if(data.isHost) {
+		dom.show([dom.hostLobbyButtons]);
+	} else {
+		dom.show([dom.nonHostLobbyButtons]);
 	}
-    }
-
-    client.map.copyOf = function (m2) {
-	m2.lx = this.lx;
-	m2.ly = this.ly;
-	m2.path = this.path;
-	m2.author = this.author;
-	m2.data.length = this.data.length;
-	m2.name = this.name;
-
-	m2.at = function (i,j) {
-	    return this.data[this.ly*i + j];
-	};
-	
-	m2.set = function (i,j,val) {
-	    var index = this.ly*i + j;
-	    if (index >= 0 && index < this.lx*this.ly) {
-		this.data[this.ly*i + j] = val;
-	    }
-	}
-	
-	var i,j;
-	for (i = 0; i < this.lx; i++)
-	    for (j = 0; j < this.ly; j++)
-		m2.set(i,j,this.at(i,j));
-    }
 }
-*/
 
 /**
 * Relays keypress to server. 
