@@ -50,6 +50,10 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
 	Lobby.prototype.displaySessionList = function(data) {
 		debug.log("[Lobby] displaySessionList");
+		if(data.length === 0) {
+			dom.sessionList.innerHTML = "No sessions";
+			return;
+		}
 		var html = "<table>" +
 		"<tr>" +
 		"<th>ID</th>" +
@@ -58,14 +62,13 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		"<th>Players</th>" +
 		"</tr>";
 		for(var i in data) {
-			var host = data[i].host ? data[i].host.username : "";
 			html += "<tr>" + 
 			"<td>" + i + "</td>" +
-			"<td>" + host + "</td>" +
+			"<td>" + data[i].host + "</td>" +
 			"<td>" + data[i].map + "</td>" + 
 			"<td>";
-			for(var j in data[i].players) {
-				html += data[i].players[j].username + ", ";
+			for(var j in data[i].users) {
+				html += data[i].users[j] + ", ";
 			}
 			html += "</td>" +
 			"</tr>";
@@ -110,7 +113,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		debug.log("[Lobby] updateLobby");
 		var html = "<ul>";
 		for(var i in data) {
-			html += "<li>" + data[i].username + "</li>";
+			html += "<li>" + data[i] + "</li>";
 		}
 		html += "</ul>";
 		dom.lobbyPlayerList.innerHTML = html;

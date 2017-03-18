@@ -47,7 +47,7 @@ Session.prototype.newGameSession = function(param) {
 	GAME_SESSIONS[id] = {host:client, map:"", clients:[client]};
 	// Move the player into the game lobby
 	server.emit(client.socket, "enterLobby", {isHost:true});
-	/*server.emit(client.socket, "updateLobby", GAME_SESSIONS[id].clients); */
+	server.emit(client.socket, "updateLobby", getNames(GAME_SESSIONS[id].clients));
 	server.emit(client.socket, "alert", "You are host of lobby " + id);
 	client.id = id;
 }
@@ -127,7 +127,7 @@ Session.prototype.exitGameSession = function(param) {
 	// Update the lobbies of everyone else
 	for(var i in session.clients) {
 		var c = session.clients[i];
-		server.emit(c.socket, "updateLobby", session.clients);
+		server.emit(c.socket, "updateLobby", getNames(session.clients));
 	}
 	server.emit(client.socket, "alert", "You have left lobby " + id);
     // If client is host, kick everyone out
@@ -162,18 +162,19 @@ Session.prototype.enterGameSession = function(param) {
     // Add client to game session list
    	session.clients.push(client);
 	// Move client into the game lobby
-	server.emit(client.socket, "enterLobby", {isHost:val});
+	server.emit(client.socket, "enterLobby", {isHost:isHost});
 	// Update every lobby list
 	for(var i in session.clients) {
 		var c = session.clients[i];
-		server.emit(c.socket, "updateLobby", session.clients);
+		server.emit(c.socket, "updateLobby", getNames(session.clients));
 	}
 	server.emit(client.socket, "alert", "You have entered lobby " + id);
+	client.id = id;
 }
 
 Session.prototype.sessionListRequest = function(param) {
 	var client = param.client;
-	server.emit(client.socket, "sessionListResponse", GAME_SESSIONS);
+	server.emit(client.socket, "sessionListResponse", getSessionTable());
 }
 
 /**
@@ -239,6 +240,27 @@ Session.prototype.getGameMap = function(param) {
     });
 }
 
+function getNames(clients) {
+	var names = [];
+	for(var i in clients) {
+		names.push(clients[i].username);
+	}
+	return names;
+}
+
+function getSessionTable() {
+	var table = [];
+	for(var i in GAME_SESSIONS) {
+		var s = GAME_SESSIONS[i];
+		table[i] = {host:"", map:"", users:[]};
+		table[i].host = s.host ? s.host.username : "";
+		table[i].map = s.map;
+		for(var j in s.clients) {
+			table[i].users.push(s.clients[j].username);
+		}
+	}
+	return table;
+}
 
 
 module.exports = new Session();
