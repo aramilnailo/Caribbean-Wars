@@ -122,6 +122,7 @@ var dom = {
 	newGameButton:document.getElementById("new-game-btn"),
 	resumeGameButton:document.getElementById("resume-game-btn"),
 	leaveSessionButton:document.getElementById("leave-session-btn"),
+	joinInProgressButton:document.getElementById("join-in-progress-btn"),
 	
 	// Session menu
 	sessionMenu:document.getElementById("session-menu"),
@@ -170,6 +171,7 @@ dom.endSessionButton.onclick = function() { router.route({name:"endSessionClick"
 dom.newGameButton.onclick = function() { router.route({name:"newGameClick", data:null}); }
 dom.resumeGameButton.onclick = function() { router.route({name:"resumeGameClick", data:null}); }
 dom.leaveSessionButton.onclick = function() { router.route({name:"leaveSessionClick", data:null}); }
+dom.joinInProgressButton.onclick = function() { router.route({name:"joinInProgressClick", data:null}); }
 
 dom.sessionMenuButton.onclick = function() { router.route({name:"toggleSessionMenu", data:null}); }
 dom.joinSessionButton.onclick = function() { router.route({name:"joinSessionClick", data:null}); }

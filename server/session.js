@@ -36,6 +36,7 @@ Session.prototype.listen = function(router) {
 	router.listen("startGame", this.startGame);
 	router.listen("stopGame", this.stopGame);
 	router.listen("exitGame", this.exitGame);
+	router.listen("enterGame", this.enterGame);
 	
     router.listen("getGameMap", this.getGameMap);
 	router.listen("loadNewMap",this.loadNewGameMap);
@@ -125,30 +126,7 @@ Session.prototype.enterGameSession = function(param) {
 		server.emit(c.socket, "updateLobby", getNames(session.clients));
 	}
 	server.emit(client.socket, "alert", "You have entered lobby " + id);
-	param.client.id = id;
-	if(session.game.running) {
-		var val = false;
-		for(var i in session.game.players) {
-			var p = session.game.players[i];
-			if(client.username === p.name) {
-				client.player = p;
-				p.active = val = true;
-				server.emit(client.socket, "alert", "Rejoined game");
-			    // Turn the client online in the database
-			    dbi.setUserOnlineStatus(client.username, true);
-				server.emit(client.socket, "enterGame", null);
-				break;
-			}
-		}
-		if(!val) {
-			client.player = new player.Player(client.username);
-			session.game.players.push(client.player);
-		    // Turn the client online in the database
-		    dbi.setUserOnlineStatus(c.username, true);
-			server.emit(c.socket, "enterGame", null);
-			server.emit(client.socket, "alert", "Joined game in progress");
-		}
-	}
+	client.id = id;
 }
 
 /**
@@ -328,6 +306,33 @@ Session.prototype.stopGame = function(param) {
 	}
 	session.game = {map:"", players:[], running:false};
 }
+
+// Enters the requesting client into the game
+Session.prototype.enterGame = function(param) {
+	var client = param.client;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	if(!session.game.running) {
+		server.emit(client.socket, "alert", "Game is not currently active");
+		return;
+	}
+	var p = session.game.players.find(function(pl) {
+		return pl.name === client.username;
+	});
+	if(p) {
+		p.active = true;
+		client.player = p;
+		server.emit(client.socket, "alert", "Rejoining game");
+	} else {
+		client.player = new player.Player(client.username);
+		server.emit(client.socket, "alert", "Joining as new player");
+		session.game.players.push(client.player);
+	}
+	dbi.setUserOnlineStatus(client.username, true);
+	server.emit(client.socket, "enterGame", null);
+}
+
 
 // Removes the requesting client from the game, returning
 // to the lobby

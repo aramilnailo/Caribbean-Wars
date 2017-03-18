@@ -14,6 +14,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		router.listen("newGameClick", this.newGameClick);
 		router.listen("resumeGameClick", this.resumeGameClick);
 		router.listen("leaveSessionClick", this.leaveSessionClick);
+		router.listen("joinInProgressClick", this.joinInProgressClick);
 		router.listen("updateLobby", this.updateLobby);
 	}
 
@@ -128,6 +129,12 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		debug.log("[Lobby] leaveSessionClick");
 		client.emit("exitGameSession", null);
 	}
+	
+	Lobby.prototype.joinInProgressClick = function(data) {
+		debug.log("[Lobby] joinInProgressClick");
+		client.emit("enterGame", null);
+	}
+	
 	
 	Lobby.prototype.updateLobby = function(data) {
 		debug.log("[Lobby] updateLobby");
