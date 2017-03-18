@@ -11,7 +11,7 @@ var log = require("./debug.js").log;
 * single player's state.
 * @module server/Player
 */
-var Player = function() {
+var Player = function(name) {
     /**
      * Player object
      * @memberof module:server/Player
@@ -24,10 +24,13 @@ var Player = function() {
 		pressingUp:false,
 		pressingDown:false,
 		maxSpeed:10,
-		diff:0
+		diff:0,
+		active:true,
+		name:name
     }
     
 	player.updatePosition = function() {
+		if(!player.active) return;
 		var oldX = player.x, oldY = player.y;
 		if(player.pressingRight) player.x += player.maxSpeed;
 		if(player.pressingLeft) player.x -= player.maxSpeed;

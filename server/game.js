@@ -11,13 +11,14 @@ var dbi = require("./dbi.js");
 
 //============== GAME LOGIC =========================================
 
+
 /**
 * The game namespace contains the functions related to the
 * game engine--processing input, updating the simulation,
 * and emitting the game state.
 * @module server/Game
 */
-var Game = function() {};
+var Game = function() {}
 
 /**
 * Registers functions in the namespace with the given
@@ -43,7 +44,7 @@ Game.prototype.keyPress = function (param) {
     var client = param.client;
     var data = param.data;
 	// If the client is in control of a player
-	if(client.player !== null) {
+	if(client.player) {
 	    // Assign booleans for each direction
 	    if(data.inputId === "left")
 		  client.player.pressingLeft = data.state;
@@ -64,21 +65,23 @@ Game.prototype.keyPress = function (param) {
 Game.prototype.update = function() {
     // Generate object with all player positions
     for(var i in GAME_SESSIONS) {
-		var pack = [];
-		for(var j in GAME_SESSIONS[i].clients) {
-			var c = GAME_SESSIONS[i].clients[j];
-	   		if(c.player) {
-				c.player.updatePosition();
-	    		pack.push({x:c.player.x, y:c.player.y});
-			}
-    	}
-		// Send the packet to each client in the game session
-	    for(var j in GAME_SESSIONS[i].clients) {
-			var c = GAME_SESSIONS[i].clients[j];
-			if(c.player) {
-				server.emit(c.socket, "newPositions", pack);
-			} else if(c.usertype === "editor") {
-				server.emit(c.socket, "refreshEditScreen");
+		var session = GAME_SESSIONS[i];
+		if(session.game.running) {
+			var pack = [];
+			for(var j in session.clients) {
+				var c = session.clients[j];
+		   		if(c.player) {
+					c.player.updatePosition();
+		    		pack.push({x:c.player.x, y:c.player.y, 
+						active:c.player.active});
+				}
+	    	}
+			// Send the packet to each client in the game session
+		    for(var j in session.clients) {
+				var c = session.clients[j];
+				if(c.player) {
+					server.emit(c.socket, "newPositions", pack);
+				}
 			}
 		}
 	}

@@ -36,6 +36,11 @@ saves.listen(router);
 
 server.run(io);
 
-// Update the game at 30 fps, update stats once per second
+// Update the game at 30 fps
 setInterval(game.update, 1000/30);
+
+// Refresh editor at 30 fps
+setInterval(maps.updateEditor, 1000/30);
+
+// Update stats once per second
 setInterval(game.updateStats, 1000);

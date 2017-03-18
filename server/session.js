@@ -23,12 +23,15 @@ var Session = function() {};
 */
 Session.prototype.listen = function(router) {
 	if(debug) log("[Session] listen()");
+	
 	router.listen("newGameSession", this.newGameSession);
-    router.listen("endGameSession", this.endGameSession);
-	router.listen("beginGameSession", this.beginGameSession);
-    router.listen("exitGameSession", this.exitGameSession);
+    router.listen("deleteGameSession", this.deleteGameSession);
     router.listen("enterGameSession", this.enterGameSession);
+	router.listen("exitGameSession", this.exitGameSession);
 	router.listen("sessionListRequest", this.sessionListRequest);
+	
+	router.listen("startGame", this.startGame);
+	router.listen("stopGame", this.stopGame);
     router.listen("getGameMap", this.getGameMap);
 	router.listen("loadNewMap",this.loadNewGameMap);
 }
@@ -44,7 +47,8 @@ Session.prototype.newGameSession = function(param) {
 	var id = GAME_SESSIONS.length;
 	log(id);
 	// Create new session with client.player as host
-	GAME_SESSIONS[id] = {host:client, map:"", clients:[client]};
+	GAME_SESSIONS[id] = {host:client, clients:[client], 
+		game:{map:"", players:[], running:false}};
 	// Move the player into the game lobby
 	server.emit(client.socket, "enterLobby", {isHost:true});
 	server.emit(client.socket, "updateLobby", getNames(GAME_SESSIONS[id].clients));
@@ -59,13 +63,13 @@ Session.prototype.newGameSession = function(param) {
 * @param param.clients - client list
 * @memberof module:server/Session
 */
-Session.prototype.endGameSession = function(param) {
+Session.prototype.deleteGameSession = function(param) {
 	var id = param.client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
-    // Reset the object
+    // Null out the object
     session.host = null;
-    session.map = "";
+    session.game = null;
 	// Kick everyone out to the session browser
     for(var i in session.clients) {
 		var c = session.clients[i];
@@ -79,63 +83,10 @@ Session.prototype.endGameSession = function(param) {
 		c.id = -1;
 		server.emit(c.socket, "alert", "The game session has ended");
     }
-    session.clients = [];
+    session.clients = null;
 	// Remove the session from the sessions list
 	var index = GAME_SESSIONS.indexOf(session);
  	GAME_SESSIONS.splice(index, 1);
-}
-
-/**
-* Moves every client in the session into a new game
-* @param param - data passed by router
-* @param param.client - client starting the game
-*/
-Session.prototype.beginGameSession = function(param) {
-	var id = param.client.id;
-	if(id === -1) return;
-	var session = GAME_SESSIONS[id];
-	for(var i in session.clients) {
-		var c = session.clients[i];
-		// Assign a new player to the client
-		c.player = new player.Player();
-	    // Turn the client online in the database
-	    dbi.setUserOnlineStatus(c.username, true);
-		server.emit(c.socket, "enterGame", null);
-		server.emit(c.socket, "alert", "Game started");
-	}
-}
-
-/**
-* Removes a given client from the game session. Ends
-* the game session if the client is host.
-* @param param - passed by the router
-* @param param.client - client to remove
-* @memberof module:server/Session
-*/
-Session.prototype.exitGameSession = function(param) {
-	var client = param.client;
-	var id = client.id;
-	if(id === -1) return;
-	var session = GAME_SESSIONS[id];
-    // Remove the client from the game session list
-    var index = session.clients.indexOf(client);
-    if(index > -1) session.clients.splice(index, 1);
-    // Turn the client offline in the database
-    dbi.setUserOnlineStatus(client.username, false);
-	// Send the client out of the lobby
-	server.emit(client.socket, "exitLobby", null);
-	// Update the lobbies of everyone else
-	for(var i in session.clients) {
-		var c = session.clients[i];
-		server.emit(c.socket, "updateLobby", getNames(session.clients));
-	}
-	server.emit(client.socket, "alert", "You have left lobby " + id);
-    // If client is host, kick everyone out
-    if(client === session.host) {
-		Session.prototype.endGameSession({client:client});
-	}
-	client.player = null;
-	client.id = -1;
 }
 
 /**
@@ -170,11 +121,132 @@ Session.prototype.enterGameSession = function(param) {
 	}
 	server.emit(client.socket, "alert", "You have entered lobby " + id);
 	client.id = id;
+	if(session.game.running) {
+		var val = false;
+		for(var i in session.game.players) {
+			var p = session.game.players[i];
+			if(client.username === p.name) {
+				client.player = p;
+				p.active = val = true;
+				server.emit(client.socket, "alert", "Rejoined game");
+			    // Turn the client online in the database
+			    dbi.setUserOnlineStatus(client.username, true);
+				server.emit(client.socket, "enterGame", null);
+				break;
+			}
+		}
+		if(!val) {
+			client.player = new player.Player(client.username);
+			session.game.players.push(client.player);
+		    // Turn the client online in the database
+		    dbi.setUserOnlineStatus(c.username, true);
+			server.emit(c.socket, "enterGame", null);
+			server.emit(client.socket, "alert", "Joined game in progress");
+		}
+	}
+}
+
+/**
+* Removes a given client from the game session. Ends
+* the game session if the client is host.
+* @param param - passed by the router
+* @param param.client - client to remove
+* @memberof module:server/Session
+*/
+Session.prototype.exitGameSession = function(param) {
+	var client = param.client;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+    // Remove the client from the game session list
+    var index = session.clients.indexOf(client);
+    if(index > -1) session.clients.splice(index, 1);
+    // Turn the client offline in the database
+    dbi.setUserOnlineStatus(client.username, false);
+	// Send the client out of the lobby
+	server.emit(client.socket, "exitLobby", null);
+	// Update the lobbies of everyone else
+	for(var i in session.clients) {
+		var c = session.clients[i];
+		server.emit(c.socket, "updateLobby", getNames(session.clients));
+	}
+	server.emit(client.socket, "alert", "You have left lobby " + id);
+    // If client is host, kick everyone out
+    if(client === session.host) {
+		Session.prototype.deleteGameSession({client:client});
+	} else {
+		for(var i in session.players) {
+			if(session.players[i] === client.player) {
+				session.players[i].active = false;
+				break;
+			}
+		}
+		client.player = null;
+		client.id = -1;
+	}
 }
 
 Session.prototype.sessionListRequest = function(param) {
 	var client = param.client;
 	server.emit(client.socket, "sessionListResponse", getSessionTable());
+}
+
+/**
+* Moves every client in the session into a game world
+* @param param - data passed by router
+* @param param.client - client starting the game
+*/
+Session.prototype.startGame = function(param) {
+	var id = param.client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	session.game = {map:"", players:[], running:false};
+	loadMap(param.data.filename, session, function(resp) {
+		if(!resp) {
+			server.emit(param.client.socket, "alert", 
+			"Could not load map data");
+		} else {
+			for(var i in session.clients) {
+				var c = session.clients[i];
+				// Assign a new player to the client
+				c.player = new player.Player(c.username);
+				session.game.players.push(c.player);
+			    // Turn the client online in the database
+			    dbi.setUserOnlineStatus(c.username, true);
+				server.emit(c.socket, "enterGame", null);
+				server.emit(c.socket, "alert", "Game started");
+			}
+			session.game.running = true;
+		}
+	});
+}
+
+Session.prototype.stopGame = function(param) {
+	
+}
+
+/**
+* Emits the map data associated with the game session
+* to the client requesting it. If there is no map data,
+* the data read from "./assets/map" is associated with 
+* the game session before emitting.
+* @param param - data passed by the router
+* @param param.client - the client requesting the information
+* @memberof module:server/Session
+*/
+Session.prototype.getGameMap = function(param) {
+    var client = param.client;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	if(!session.game.running) return;
+    files.readFile(session.game.map, function(data) {
+		if(data) {
+	    	server.emit(client.socket, "newGameMapResponse", data);
+		} else {
+	    	server.emit(client.socket, "alert", "Could not read from map file");
+		}
+    });
 }
 
 /**
@@ -195,50 +267,41 @@ Session.prototype.loadNewGameMap = function(param) {
     if(client !== session.host) {
 		server.emit(client.socket, "alert", "Only host can load maps.");
     } else {
-	dbi.getMapFilePath(filename, function(path) {
-	    if(path) {
-		files.readFile(path, function(data) {
-		    if(data) {
-				// Set the session's map file path
-				session.map = path;
-				// Emit new map data to session clients
-				for(var i in session.clients) {
-					var c = session.clients[i];
-					server.emit(c.socket, "newGameMapResponse", data);
-				}
-			}
+		loadMap(filename, session, function(resp) {
+			if(!resp) server.emit(client.socket, 
+				"alert", "Could not read from map file.");
 		});
-	    } else {
-		server.emit(client.socket, 
-			"alert", "Could not read from map file.");
-	    }
-	});
-    }
+	}
 }
 
-/**
-* Emits the map data associated with the game session
-* to the client requesting it. If there is no map data,
-* the data read from "./assets/map" is associated with 
-* the game session before emitting.
-* @param param - data passed by the router
-* @param param.client - the client requesting the information
-* @memberof module:server/Session
-*/
-Session.prototype.getGameMap = function(param) {
-    var client = param.client;
-	var id = client.id;
-	if(id === -1) return;
-	var session = GAME_SESSIONS[id];
-    if(session.map === "") session.map = "./assets/map";
-    files.readFile(session.map, function(data) {
-		if(data) {
-	    	server.emit(client.socket, "newGameMapResponse", data);
+
+
+//====== HELPERS ====================================
+
+function loadMap(filename, session, cb) {
+	dbi.getMapFilePath(filename, function(path) {
+		if(!path) {
+			cb(false);
 		} else {
-	    	server.emit(client.socket, "alert", "Could not read from map file");
+			files.readFile(path, function(data) {
+				if(!data) { 
+					cb(false);
+				} else {
+					// Set the session's map file path
+					session.game.map = path;
+					// Emit new map data to session clients
+					for(var i in session.clients) {
+						var c = session.clients[i];
+						server.emit(c.socket, 
+							"newGameMapResponse", data);
+					}
+					cb(true);
+				}
+			});
 		}
-    });
+	});
 }
+
 
 function getNames(clients) {
 	var names = [];

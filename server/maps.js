@@ -6,6 +6,8 @@ var server = require("./server.js");
 var dbi = require("./dbi.js");
 var files = require("./files.js");
 
+var clients = require("./router.js").client_list;
+
 /**
 * The Maps namespace contains functions relating to loading
 * map data from the file system and emitting it to clients.
@@ -147,6 +149,16 @@ Maps.prototype.saveMap = function(param) {
 	    }
 	});
     }
+}
+
+// Refreshes the map editor screen
+Maps.prototype.updateEditor = function() {
+	for(var i in clients) {
+		var c = clients[i];
+		if(c.usertype === "editor") {
+			server.emit(c.socket, "refreshEditScreen", null);
+		}
+	}
 }
     
 

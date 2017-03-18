@@ -29,7 +29,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
 	Lobby.prototype.newSessionClick = function(data) {
 		debug.log("[Lobby] newSessionClick");
-		client.emit("newGameSession", {username:client.username, usertype:client.usertype});
+		client.emit("newGameSession", null);
 	}
 	
 	Lobby.prototype.toggleSessionMenu = function() {
@@ -92,12 +92,17 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 	Lobby.prototype.endSessionClick = function(data) {
 		debug.log("[Lobby] endSessionClick");
-		client.emit("endGameSession", null);
+		client.emit("deleteGameSession", null);
 	}
 	
 	Lobby.prototype.newGameClick = function(data) {
 		debug.log("[Lobby] newGameClick");
-		client.emit("beginGameSession", null);
+		var filename = window.prompt("Which map?", "map");
+		if(filename) {
+			client.emit("startGame", {filename:filename});
+		} else {
+			alert("Invalid input");
+		}
 	}
 	
 	Lobby.prototype.resumeGameClick = function(data) {

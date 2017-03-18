@@ -71,7 +71,9 @@ Render.prototype.drawScreen = function(data) {
     // Draw the players as black squares
     dom.canvas.fillStyle = "#000000";
     for(i = 0; i < data.length; i++) {
-	dom.canvas.fillRect(data[i].x, data[i].y, 10, 10);
+		if(data[i].active) {
+			dom.canvas.fillRect(data[i].x, data[i].y, 10, 10);
+		}
     }
 }
 
