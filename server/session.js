@@ -30,6 +30,10 @@ Session.prototype.listen = function(router) {
 	router.listen("exitGameSession", this.exitGameSession);
 	router.listen("sessionListRequest", this.sessionListRequest);
 	
+	router.listen("setHost", this.setHost);
+	router.listen("kickUser", this.kickUser);
+	
+	
 	router.listen("startGame", this.startGame);
 	router.listen("stopGame", this.stopGame);
     router.listen("getGameMap", this.getGameMap);
@@ -97,6 +101,7 @@ Session.prototype.deleteGameSession = function(param) {
 * @memberof module:server/Session
 */
 Session.prototype.enterGameSession = function(param) {
+	log("[Session] enterGameSession");
 	var client = param.client;
 	var id = param.data.id;
 	if(id >= GAME_SESSIONS.length) {
@@ -144,7 +149,6 @@ Session.prototype.enterGameSession = function(param) {
 			server.emit(client.socket, "alert", "Joined game in progress");
 		}
 	}
-	log("[Session] enterGameSession, id " + param.client.id);
 }
 
 /**
@@ -155,7 +159,7 @@ Session.prototype.enterGameSession = function(param) {
 * @memberof module:server/Session
 */
 Session.prototype.exitGameSession = function(param) {
-	log("[Session] exitGameSession, id " + param.client.id);
+	log("[Session] exitGameSession");
 	var client = param.client;
 	var id = client.id;
 	if(id === -1) return;
@@ -183,9 +187,9 @@ Session.prototype.exitGameSession = function(param) {
 				break;
 			}
 		}
-		client.player = null;
-		client.id = -1;
 	}
+	client.player = null;
+	client.id = -1;
 }
 
 Session.prototype.sessionListRequest = function(param) {
