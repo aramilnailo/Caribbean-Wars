@@ -33,7 +33,6 @@ Session.prototype.listen = function(router) {
 	router.listen("setHost", this.setHost);
 	router.listen("kickUser", this.kickUser);
 	
-	
 	router.listen("startGame", this.startGame);
 	router.listen("stopGame", this.stopGame);
     router.listen("getGameMap", this.getGameMap);
@@ -181,9 +180,9 @@ Session.prototype.exitGameSession = function(param) {
     if(client === session.host) {
 		Session.prototype.deleteGameSession({client:client});
 	} else {
-		for(var i in session.players) {
-			if(session.players[i] === client.player) {
-				session.players[i].active = false;
+		for(var i in session.game.players) {
+			if(session.game.players[i] === client.player) {
+				session.game.players[i].active = false;
 				break;
 			}
 		}
@@ -192,6 +191,84 @@ Session.prototype.exitGameSession = function(param) {
 	client.id = -1;
 }
 
+
+// Host power -- forcibly removes a target user from the lobby
+Session.prototype.kickUser = function(param) {
+	var client = param.client;
+	var targetName = param.data;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	if(targetName === session.host.username) {
+		server.emit(client.socket, "alert", 
+			"Host cannot be kicked");
+		return;
+	}
+	var target = session.clients.find(function(c) {
+		return c.username === targetName;
+	});
+	if(target) {
+		var index = session.clients.indexOf(target);
+		// Remove from session list
+		session.clients.splice(index, 1);
+		// Set offline in database
+		dbi.setUserOnlineStatus(targetName, false);
+		// Disable in game if needed
+		for(var i in session.game.players) {
+			if(session.game.players[i] === target.player) {
+				session.game.players[i].active = false;
+				break;
+			}
+		}
+		// Move target out of the lobby
+		server.emit(target.socket, "exitLobby", null);
+		server.emit(target.socket, "alert", 
+			"You have been kicked from the lobby");
+		target.player = null;
+		target.id = -1;
+		server.emit(client.socket, "alert", 
+			targetName + " has been kicked");
+		// Modify the lobby lists
+		for(var i in session.clients) {
+			var c = session.clients[i];
+			server.emit(c.socket, "updateLobby", 
+				getNames(session.clients));
+		}
+	} else {
+		server.emit(client.socket, "alert", "No such player");
+	}
+}
+
+// Promotes the target user to host
+Session.prototype.setHost = function(param) {
+	var client = param.client;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	if(client.username === param.data) {
+		server.emit(client.socket, "alert", "Host cannot be promoted");
+		return;
+	}
+	var target = session.clients.find(function(c) {
+		return c.username === param.data;
+	});
+	if(target) {
+		// Set target to host
+		session.host = target;
+		// Notify target of the changes, refresh lobby
+		server.emit(target.socket, "alert", "You are now host of lobby " + id);
+		server.emit(target.socket, "exitLobby", null);
+		server.emit(target.socket, "enterLobby", {isHost:true});
+		// Notify former host of changes, refresh
+		server.emit(client.socket, "alert", param.data + " is now host");
+		server.emit(client.socket, "exitLobby", null);
+		server.emit(client.socket, "enterLobby", {isHost:false});
+	} else {
+		server.emit(client.socket, "alert", "No such player");
+	}
+}
+
+// Returns the list of all game sessions to the client
 Session.prototype.sessionListRequest = function(param) {
 	var client = param.client;
 	server.emit(client.socket, "sessionListResponse", getSessionTable());
@@ -321,9 +398,9 @@ function getSessionTable() {
 	var table = [];
 	for(var i in GAME_SESSIONS) {
 		var s = GAME_SESSIONS[i];
-		table[i] = {host:"", map:"", users:[]};
+		table[i] = {host:"", running:"", users:[]};
 		table[i].host = s.host ? s.host.username : "";
-		table[i].map = s.map;
+		table[i].running = s.game.running ? "yes" : "no";
 		for(var j in s.clients) {
 			table[i].users.push(s.clients[j].username);
 		}

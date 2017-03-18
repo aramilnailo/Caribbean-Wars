@@ -58,17 +58,20 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		"<tr>" +
 		"<th>ID</th>" +
 		"<th>Host</th>" +
-		"<th>Map</th>" +
+		"<th>inGame</th>" +
 		"<th>Players</th>" +
 		"</tr>";
 		for(var i in data) {
 			html += "<tr>" + 
 			"<td>" + i + "</td>" +
 			"<td>" + data[i].host + "</td>" +
-			"<td>" + data[i].map + "</td>" + 
+			"<td>" + data[i].running + "</td>" + 
 			"<td>";
 			for(var j in data[i].users) {
-				html += data[i].users[j] + ", ";
+				html += data[i].users[j];
+				if(j < data[i].users.length - 1) {
+					html += ", ";
+				}
 			}
 			html += "</td>" +
 			"</tr>";
@@ -84,10 +87,22 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 	Lobby.prototype.kickClick = function(data) {
 		debug.log("[Lobby] kickClick");
+		var target = window.prompt("Kick which player?", "user");
+		if(target) {
+			client.emit("kickUser", target);
+		} else {
+			alert("Invalid input");
+		}
 	}
 	
 	Lobby.prototype.promoteClick = function(data) {
 		debug.log("[Lobby] promoteClick");
+		var target = window.prompt("Promote which player to host?", "user");
+		if(target) {
+			client.emit("setHost", target);
+		} else {
+			alert("Invalid input");
+		}
 	}
 	
 	Lobby.prototype.endSessionClick = function(data) {
