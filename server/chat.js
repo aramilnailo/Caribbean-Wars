@@ -58,7 +58,7 @@ Chat.prototype.privateMessage = function(param) {
 	for(var i in param.clients) {
 		var current = param.clients[i];
 		if(current.username === data.user) {
-        	server.emit(client.socket, "addToChat", "From " + 
+        	server.emit(current.socket, "addToChat", "From " + 
 			client.username + ": " + data.message);
 			server.emit(client.socket, "addToChat", "To " +
             current.username + ": " + data.message);

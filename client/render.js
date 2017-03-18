@@ -61,11 +61,6 @@ Render.prototype.drawScreen = function(data) {
 	    }
 	    dom.canvas.fillStyle = color;
 	    dom.canvas.fillRect(j * dy, i * dx, dy, dx);
-	    /*
-	    dom.canvas.fillStyle = (ch == "0") ? "#42C5F4" :
-		(ch == "1") ? "#C19E70" : "#2A8C23";
-	    dom.canvas.fillRect(j * 50, i * 50, 50, 50);
-	    */
 	}
     }
     // Draw the players as black squares
