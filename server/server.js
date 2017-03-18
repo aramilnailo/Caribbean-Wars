@@ -50,6 +50,9 @@ Server.prototype.run = function(io) {
 			var param = {socket:socket, name:message.name, data:message.data};
 			router.route(param);
 	    });
+		socket.on("disconnect", function() {
+			router.route({socket:socket, name:"disconnect", data:null});
+		});
 	});
 }
 

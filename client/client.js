@@ -170,7 +170,7 @@ Client.prototype.emit = function(message, data) {
 Client.prototype.adminAccessRequired = function(data) {
     alert("Admin access required");
 }
-    
+
 return new Client();
 
 });

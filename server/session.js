@@ -120,7 +120,7 @@ Session.prototype.enterGameSession = function(param) {
 		server.emit(c.socket, "updateLobby", getNames(session.clients));
 	}
 	server.emit(client.socket, "alert", "You have entered lobby " + id);
-	client.id = id;
+	param.client.id = id;
 	if(session.game.running) {
 		var val = false;
 		for(var i in session.game.players) {
@@ -144,6 +144,7 @@ Session.prototype.enterGameSession = function(param) {
 			server.emit(client.socket, "alert", "Joined game in progress");
 		}
 	}
+	log("[Session] enterGameSession, id " + param.client.id);
 }
 
 /**
@@ -154,6 +155,7 @@ Session.prototype.enterGameSession = function(param) {
 * @memberof module:server/Session
 */
 Session.prototype.exitGameSession = function(param) {
+	log("[Session] exitGameSession, id " + param.client.id);
 	var client = param.client;
 	var id = client.id;
 	if(id === -1) return;
