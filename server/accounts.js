@@ -142,6 +142,8 @@ Accounts.prototype.userListRequest = function userListRequest(param) {
 Accounts.prototype.logout = function logout(param) {
     if (debug) log("[Accounts] logout()");
     var client = param.client;
+	client.username = "";
+	client.usertype = "";
 	server.emit(client.socket, "logoutResponse", null);
 }
 
@@ -167,6 +169,9 @@ Accounts.prototype.deleteAccount = function deleteAccount(param) {
 	dbi.removeUser(param.data, function(val) {
 	if(val) {
 		if(client) {
+			require("./session.js").exitGameSession({client:client});
+			client.username = "";
+			client.usertype = "";
 			server.emit(client.socket, "logoutResponse", null);
 			server.emit(client.socket, "alert", "Your account has been deleted.");
 		}
@@ -198,6 +203,14 @@ Accounts.prototype.changeUserType = function(param) {
 			server.emit(param.client.socket, "alert", "Type change successful.");
 			if(client) server.emit(client.socket, "alert", "Your type is now \"" +
 				type + "\"");
+			// Change the type on the server
+			client.usertype = type;
+			// Log out
+			require("./session.js").exitGameSession({client:client});
+			server.emit(client.socket, "logoutResponse", null);
+			// Log back in
+			server.emit(client.socket, "loginResponse", {username:client.username, 
+				usertype:client.usertype});
 		} else {
 			server.emit(param.client.socket, "alert", "Could not change type.");
 		}

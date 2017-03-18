@@ -80,8 +80,11 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
 *
 * @memberof module:client/Saves
 */
-//srw: problem -- mapData.path contains filename?
 Saves.prototype.saveGameClick = function() {
+	if(!client.inGame) {
+		alert("Cannot save outside of game");
+		return;
+	}
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
         client.emit("saveGameRequest",
@@ -97,6 +100,10 @@ Saves.prototype.saveGameClick = function() {
 * @memberof module:client/Saves
 */
 Saves.prototype.loadGameClick = function() {
+	if(!client.inGame) {
+		alert("Cannot load outside of game");
+		return;
+	}
     var filename = window.prompt("Load game:", "filename");
     if(filename) {
         client.emit("loadNewMap", {filename:filename, 

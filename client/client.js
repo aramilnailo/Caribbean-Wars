@@ -38,6 +38,8 @@ Client.prototype.setMap = function(data) {
 		Client.prototype.map = data;
 	}
 }
+
+Client.prototype.inGame = false;
     
 
 /*    

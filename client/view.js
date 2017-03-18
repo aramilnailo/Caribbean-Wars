@@ -76,6 +76,7 @@ View.prototype.exitLobby = function() {
 }
 
 View.prototype.enterGameScreen = function(data) {
+	client.inGame = true;
 	client.emit("getGameMap", null);
 	dom.hide([dom.lobbyScreen]);
 	dom.show([dom.gameScreen, dom.inGameMenu, dom.optionsMenu]);
@@ -97,6 +98,7 @@ View.prototype.returnToLoginScreen = function(data) {
     client.username = "";
     client.usertype = "";
 	client.player = null;
+	client.inGame = false;
 }
 
 // Move from the game screen back to the lobby
@@ -109,6 +111,7 @@ View.prototype.gameScreenToLobby = function(data) {
 	} else {
 		dom.show([dom.nonHostLobbyButtons]);
 	}
+	client.inGame = false;
 }
 
 /**

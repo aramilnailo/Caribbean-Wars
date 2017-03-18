@@ -84,11 +84,19 @@ Login.prototype.deleteAccountClick = function() {
 
 Login.prototype.stopGameClick = function() {
 	if(debug.login) log("[Login] stopGameClick");
+	if(!client.inGame) {
+		alert("Game is not in progress");
+		return;
+	}
 	client.emit("stopGame", null);
 }
 
 Login.prototype.leaveGameClick = function() {
 	if(debug.login) log("[Login] leaveGameClick");
+	if(!client.inGame) {
+		alert("Game is not in progress");
+		return;
+	}
 	client.emit("exitGame", null);
 }
 

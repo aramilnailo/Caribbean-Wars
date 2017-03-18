@@ -39,8 +39,8 @@ server.run(io);
 // Update the game at 30 fps
 setInterval(game.update, 1000/30);
 
-// Refresh editor at 30 fps
-setInterval(maps.updateEditor, 1000/30);
+// Refresh editor at 1 fps
+setInterval(maps.updateEditor, 1000);
 
 // Update stats once per second
 setInterval(game.updateStats, 1000);
