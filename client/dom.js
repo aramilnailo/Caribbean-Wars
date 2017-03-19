@@ -74,9 +74,11 @@ var dom = {
 	// Lobby screen
 	lobbyScreen:document.getElementById("lobby-screen"),
 	lobbyPlayerList:document.getElementById("lobby-player-list"),
+	hostLobbyButtons:document.getElementById("host-lobby-btns"),
 	newGameButton:document.getElementById("new-game-btn"),
 	resumeGameButton:document.getElementById("resume-game-btn"),
 	endSessionButton:document.getElementById("end-session-btn"),
+	lobbyButtons:document.getElementById("lobby-btns"),
 	leaveSessionButton:document.getElementById("leave-session-btn"),
 	joinInProgressButton:document.getElementById("join-in-progress-btn"),
 

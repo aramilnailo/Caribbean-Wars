@@ -55,7 +55,13 @@ View.prototype.sessionBrowser = function(data) {
 View.prototype.lobbyScreen = function(data) {
 	hideAll();
 	show(["lobbyScreen", "upperMenu", "optionsMenu"]);
-	if(data.isHost) show(["hostMenu"]);
+	if(data.isHost) {
+		show(["hostMenu", "hostLobbyButtons"]);
+		hide(["lobbyButtons"]);
+	} else {
+		show(["lobbyButtons"]);
+		hide(["hostLobbyButtons"]);
+	}
 	client.inGame = false;
 }
 
@@ -150,7 +156,6 @@ function collapse(data) {
 		}
 	}
 }
-
 
 function expand(data) {
 	for(var i in data) {
