@@ -71,7 +71,7 @@ Game.prototype.update = function() {
 			for(var j in session.game.players) {
 				var p = session.game.players[j];
 		   		if(p.active) {
-					p.updatePosition();
+					updatePosition(p);
 		    		pack.push({x:p.x, y:p.y, name:p.name});
 				}
 	    	}
@@ -114,5 +114,17 @@ Game.prototype.updateStats = function() {
 		}
 	}
 }
+
+function updatePosition(player) {
+	if(!player.active) return;
+	var oldX = player.x, oldY = player.y;
+	if(player.pressingRight) player.x += player.maxSpeed;
+	if(player.pressingLeft) player.x -= player.maxSpeed;
+	if(player.pressingUp) player.y -= player.maxSpeed;
+	if(player.pressingDown) player.y += player.maxSpeed;
+	var diffX = player.x - oldX, diffY = player.y - oldY;
+	player.diff += Math.sqrt(diffX * diffX + diffY * diffY);
+}
+
 
 module.exports = new Game();

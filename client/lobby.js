@@ -115,7 +115,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		debug.log("[Lobby] newGameClick");
 		var filename = window.prompt("Which map?", "map");
 		if(filename) {
-			client.emit("startGame", {filename:filename});
+			client.emit("startGame", filename);
 		} else {
 			alert("Invalid input");
 		}

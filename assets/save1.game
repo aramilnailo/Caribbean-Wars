@@ -1,0 +1,1 @@
+{"map":"assets/map","players":[{"x":180,"y":130,"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":10,"diff":0,"active":true,"name":"admin"}],"running":true}

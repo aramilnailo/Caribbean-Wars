@@ -39,7 +39,8 @@ Session.prototype.listen = function(router) {
 	router.listen("enterGame", this.enterGame);
 	
     router.listen("getGameMap", this.getGameMap);
-	router.listen("loadNewMap",this.loadNewGameMap);
+	router.listen("loadGameState", this.loadGameState);
+	router.listen("saveGameState", this.saveGameState);
 }
 
 /**
@@ -137,7 +138,7 @@ Session.prototype.enterGameSession = function(param) {
 * @memberof module:server/Session
 */
 Session.prototype.exitGameSession = function(param) {
-	log("[Session] exitGameSession");
+	if(debug) log("[Session] exitGameSession");
 	var client = param.client;
 	var id = client.id;
 	if(id === -1) return;
@@ -262,11 +263,12 @@ Session.prototype.startGame = function(param) {
 	var id = param.client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
-	session.game = {map:"", players:[], running:false};
-	loadMap(param.data.filename, session, function(resp) {
+	var mapFile = "assets/" + param.data;
+	session.game = {map:mapFile, players:[], running:false};
+	loadMap(session, function(resp) {
 		if(!resp) {
 			server.emit(param.client.socket, "alert", 
-			"Could not load map data");
+			"Could not read from map file");
 		} else {
 			for(var i in session.clients) {
 				var c = session.clients[i];
@@ -362,10 +364,7 @@ Session.prototype.exitGame = function(param) {
 }
 
 /**
-* Emits the map data associated with the game session
-* to the client requesting it. If there is no map data,
-* the data read from "./assets/map" is associated with 
-* the game session before emitting.
+* Emits the game map associated with this session
 * @param param - data passed by the router
 * @param param.client - the client requesting the information
 * @memberof module:server/Session
@@ -385,27 +384,76 @@ Session.prototype.getGameMap = function(param) {
     });
 }
 
+Session.prototype.saveGameState = function(param) {
+	var client = param.client;
+	var filename = param.data;
+	var path = "./assets/" + filename + ".game";
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	// Write the game state to the file system
+	files.saveFile(session.game, path, function(resp) {
+		if(resp) {
+			server.emit(client.socket, "alert", "Could not save game");
+		} else {
+			// Add the saved game to the database
+			dbi.saveGameFilename(client.username, filename, path, function(resp) {
+				if(!resp) {
+					server.emit(client.socket, "alert", "Could not save to database");
+				} else {
+					server.emit(client.socket, "alert", "Saved " + filename);
+				}
+			});
+		}
+	});
+}
+
+
 /**
-* Loads the map data from a given filepath, associates it 
-* with the game session, and emits it to all clients.
+* Loads the game save data from a given filename, associates it 
+* with the game session, and emits the map to all clients.
 * @param param - data passed by the router
 * @param param.client - client attempting the load
-* @param param.data - the username and filename
-* @param param.clients - the client list
+* @param param.data - the filename
 * @memberof module:server/Session
 */
-Session.prototype.loadNewGameMap = function(param) {
+Session.prototype.loadGameState = function(param) {
 	var client = param.client;
-    var filename = param.data.filename;
+    var filename = param.data;
 	var id = client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
     if(client !== session.host) {
-		server.emit(client.socket, "alert", "Only host can load maps.");
+		server.emit(client.socket, "alert", "Only host can load saves.");
     } else {
-		loadMap(filename, session, function(resp) {
-			if(!resp) server.emit(client.socket, 
-				"alert", "Could not read from map file.");
+		loadSave(filename, session, function(data) {
+			if(!data) {
+				server.emit(client.socket, 
+				"alert", "Could not read from save file");
+			} else {
+				session.game = data;
+				for(var i in session.clients) {
+					var c = session.clients[i];
+					var p = session.game.players.find(function(pl) {
+						return pl.name === c.username;
+					});
+					if(p) {
+						c.player = p;
+						c.player.active = true;
+						server.emit(c.socket, "alert", "Playing on saved game " + filename);
+					} else {
+						c.player = new player.Player(c.username);
+						session.game.players.push(c.player);
+						server.emit(c.socket, "alert", "Playing on saved game " + filename +
+						" as new player");
+					}
+				}
+				session.game.running = true;
+				loadMap(session, function(resp) {
+					if(!resp) server.emit(client.socket, 
+						"alert", "Could not read from map file.");
+				});
+			}
 		});
 	}
 }
@@ -414,26 +462,34 @@ Session.prototype.loadNewGameMap = function(param) {
 
 //====== HELPERS ====================================
 
-function loadMap(filename, session, cb) {
-	dbi.getMapFilePath(filename, function(path) {
+// Looks up the path for a given filename, reads the
+// game data from that path, and associates it with
+// the given session
+function loadSave(filename, session, cb) {
+	dbi.getSavedGameFilePath(filename, function(path) {
 		if(!path) {
-			cb(false);
+			cb(null);
 		} else {
 			files.readFile(path, function(data) {
-				if(!data) { 
-					cb(false);
-				} else {
-					// Set the session's map file path
-					session.game.map = path;
-					// Emit new map data to session clients
-					for(var i in session.clients) {
-						var c = session.clients[i];
-						server.emit(c.socket, 
-							"newGameMapResponse", data);
-					}
-					cb(true);
-				}
+				cb(data);
 			});
+		}
+	});
+}
+
+// Emits the session's current game map to its clients
+function loadMap(session, cb) {
+	files.readFile(session.game.map, function(data) {
+		if(!data) { 
+			cb(false);
+		} else {
+			// Emit new map data to session clients
+			for(var i in session.clients) {
+				var c = session.clients[i];
+				server.emit(c.socket, 
+					"newGameMapResponse", data);
+			}
+			cb(true);
 		}
 	});
 }

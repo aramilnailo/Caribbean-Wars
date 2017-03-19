@@ -55,15 +55,15 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
     var i;
     var html = "<table>" +
 	"<tr>" +
-	"<th>Host</th>" +
+	"<th>Author</th>" +
 	"<th>File Name</th>" +
-	"<th>Map</th>" +
+	"<th>File Path</th>" +
 	"</tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
 	    "<td>"+ data[i].author+"</td>" +
 	    "<td>" + data[i].file_name + "</td>" +
-	    "<td>" + data[i].map_file_path + "</td>" +
+	    "<td>" + data[i].file_path + "</td>" +
 	    "</tr>";
     }
     html += "</table>";
@@ -87,9 +87,7 @@ Saves.prototype.saveGameClick = function() {
 	}
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
-        client.emit("saveGameRequest",
-            {file_name:filename, author:client.username,
-             map_file_path:client.map.path});
+        client.emit("saveGameState", filename);
     }
 }
 
@@ -106,8 +104,7 @@ Saves.prototype.loadGameClick = function() {
 	}
     var filename = window.prompt("Load game:", "filename");
     if(filename) {
-        client.emit("loadNewMap", {filename:filename, 
-			username:client.username});
+        client.emit("loadGameState", filename);
     }
 }
 

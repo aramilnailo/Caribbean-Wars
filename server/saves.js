@@ -20,7 +20,6 @@ var Saves = function() {}
 Saves.prototype.listen = function(router) {
     if(debug) log("[Saves] listen()");
     router.listen("deleteSavedGame", this.deleteSavedGame);
-    router.listen("saveGameRequest", this.saveGameRequest);
     router.listen("savedGamesListRequest", this.savedGamesListRequest);
 }
 
@@ -35,29 +34,12 @@ Saves.prototype.listen = function(router) {
 */
 Saves.prototype.deleteSavedGame = function(param) {
     var client = param.client;
-    var data = param.data;
-	dbi.removeSavedGame({file_name:data, author:client.username},
+    var filename = param.data;
+	dbi.removeSavedGame(filename, client.username,
 		function(resp) {
-        var msg = resp ? "Deleted \"" + data + "\"." : 
-                    "Could not delete \"" + data + "\".";
+        var msg = resp ? "Deleted \"" + filename + "\"." : 
+                    "Could not delete \"" + filename + "\".";
         server.emit(client.socket, "alert", msg);
-    });
-}
-
-/**
-* Creates a new saved game with the given author.
-* @param param - data passed by the router
-* @param param.client - client attempting to save
-* @param param.data - file name
-* @memberof module:server/saves
-*/
-Saves.prototype.saveGameRequest = function(param) {
-    var client = param.client;
-    var data = param.data;
-	dbi.saveGameFilename(data, function(resp) {
-        var msg = resp ? "Saved \"" + data.file_name + "\"." :
-                        "Could not save \"" + data.file_name + "\".";
-		server.emit(client.socket, "alert", msg);
     });
 }
 

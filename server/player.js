@@ -28,17 +28,6 @@ var Player = function(name) {
 		active:true,
 		name:name
     }
-    
-	player.updatePosition = function() {
-		if(!player.active) return;
-		var oldX = player.x, oldY = player.y;
-		if(player.pressingRight) player.x += player.maxSpeed;
-		if(player.pressingLeft) player.x -= player.maxSpeed;
-		if(player.pressingUp) player.y -= player.maxSpeed;
-		if(player.pressingDown) player.y += player.maxSpeed;
-		var diffX = player.x - oldX, diffY = player.y - oldY;
-		player.diff += Math.sqrt(diffX * diffX + diffY * diffY);
-	}
 	
     return player;
 }

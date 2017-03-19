@@ -138,23 +138,19 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
  * @param cb - callback function. returns true if successful with no errors, false otherwise
  * @memberof module:server/dbi
  */
-dbi.prototype.saveGameFilename = function(data,cb) {
-    if (data.file_name) {
+dbi.prototype.saveGameFilename = function(author, file_name, file_path, cb) {
 	db.query("INSERT INTO saved_games SET ?;",
-		 {author:data.author,
-		  file_name:data.file_name,
-		  map_file_path:data.map_file_path},
+		 {author:author,
+		  file_name:file_name,
+		  file_path:file_path}, 
 		 function(err) {
-		     if(err) {
-			 if (debug) log(err.message);
-			 cb(false);
-		     } else {
-			 cb(true);
-		     }
-		 });
-    } else {
-	cb(false);
-    }
+		    if(err) {
+				if (debug) log(err.message);
+				cb(false);
+		    } else {
+			   cb(true);
+		    }
+	});
 }
 
 
@@ -220,10 +216,10 @@ dbi.prototype.removeUser = function(name, cb) {
  * @param cb - callback function. returns true if succeeded with no errors, false if otherwise 
  * @memberof module:server/dbi
  */
-dbi.prototype.removeSavedGame = function(data, cb) {
+dbi.prototype.removeSavedGame = function(file_name, author, cb) {
     var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
-    var inserts = ["saved_games", "file_name", data.file_name,
-		   "author", data.author, data.author, "admin"];
+    var inserts = ["saved_games", "file_name", file_name,
+		   "author", author, author, "admin"];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
 		    if (debug) log(err.message);
@@ -322,8 +318,8 @@ dbi.prototype.getSavedMapsList = function(cb) {
  * @param cb - callback function. returns the file path if succeeded with no errors, null otherwise
  * @memberof module:server/dbi
  */
-dbi.prototype.getGameMapFilePath = function(file_name, cb) {
-    if (debug) log("dbi.js: getGameMapFilePath("+file_name+")");
+dbi.prototype.getSavedGameFilePath = function(file_name, cb) {
+    if (debug) log("dbi.js: getSavedGameFilePath("+file_name+")");
     var sql = "SELECT * FROM ?? WHERE ??=?";
     var inserts = ["saved_games", "file_name", file_name];
     db.query(mysql.format(sql, inserts), function(err, rows) {
@@ -331,7 +327,7 @@ dbi.prototype.getGameMapFilePath = function(file_name, cb) {
 	    if (debug) log(err.message);
 	    cb(null);
 	} else if(rows.length > 0) {
-	    cb(rows[0].map_file_path);
+	    cb(rows[0].file_path);
 	} else {
 	    cb(null);
 	}
