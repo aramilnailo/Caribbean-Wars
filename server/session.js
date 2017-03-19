@@ -234,10 +234,18 @@ Session.prototype.setHost = function(param) {
 		session.host = target;
 		// Notify target of the changes, refresh lobby
 		server.emit(target.socket, "alert", "You are now host of lobby " + id);
-		server.emit(target.socket, "lobbyScreen", {isHost:true});
+		if(target.player) {
+			server.emit(target.socket, "gameScreen", {isHost:true});
+		} else {
+			server.emit(target.socket, "lobbyScreen", {isHost:true});
+		}
 		// Notify former host of changes, refresh
 		server.emit(client.socket, "alert", param.data + " is now host");
-		server.emit(client.socket, "lobbyScreen", {isHost:false});
+		if(client.player) {
+			server.emit(client.socket, "gameScreen", {isHost:false});
+		} else {
+			server.emit(client.socket, "lobbyScreen", {isHost:false});
+		}
 	} else {
 		server.emit(client.socket, "alert", "No such player");
 	}
@@ -428,14 +436,25 @@ Session.prototype.loadGameState = function(param) {
 				"alert", "Could not read from save file");
 			} else {
 				session.game = data;
+				for(var i in session.game.players) {
+					session.game.players[i].active = false;
+				}
 				for(var i in session.clients) {
 					var c = session.clients[i];
+					// Locate any former player of the client
 					var p = session.game.players.find(function(pl) {
 						return pl.name === c.username;
 					});
 					if(p) {
-						c.player = p;
-						c.player.active = true;
+						// If the client is already in game, simply reassign
+						if(c.player) {
+							c.player = p;
+							c.player.active = true;
+						} else {
+							// Otherwise reassign but deactivate
+							c.player = p;
+							c.player.active = false;
+						}
 						server.emit(c.socket, "alert", "Playing on saved game " + filename);
 					} else {
 						c.player = new player.Player(c.username);
