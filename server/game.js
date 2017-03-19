@@ -113,6 +113,15 @@ Game.prototype.updateStats = function() {
 			}
 		}
 	}
+	// Push the stats changes to all clients
+	dbi.getAllStats(function(data) {
+	    if(data) {
+			for(var i in CLIENT_LIST) {
+				server.emit(CLIENT_LIST[i].socket, 
+					"statsMenuResponse", data);
+			}
+	    }
+	});
 }
 
 function updatePosition(player) {

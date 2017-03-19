@@ -41,6 +41,13 @@ Saves.prototype.deleteSavedGame = function(param) {
                     "Could not delete \"" + filename + "\".";
         server.emit(client.socket, "alert", msg);
     });
+	// Push the changes to all clients
+	dbi.getSavedGamesList(function(data) {
+		for(var i in param.clients) {
+			server.emit(param.clients[i].socket, 
+				"savedGamesListResponse", data);
+		}
+	});
 }
 
 /**

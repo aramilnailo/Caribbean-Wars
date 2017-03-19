@@ -1,1 +1,1 @@
-{"map":"assets/map","players":[{"x":160,"y":260,"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":10,"diff":1483.5533905932743,"active":true,"name":"admin"},{"x":240,"y":340,"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":10,"diff":0,"active":true,"name":"user"}],"running":true}
+{"map":"assets/map","players":[{"x":250,"y":250,"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":10,"diff":0,"active":true,"name":"admin"}],"running":true}

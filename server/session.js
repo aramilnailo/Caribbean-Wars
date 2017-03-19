@@ -61,6 +61,7 @@ Session.prototype.newGameSession = function(param) {
 	server.emit(client.socket, "updateLobby", getNames(GAME_SESSIONS[id].clients));
 	server.emit(client.socket, "alert", "You are host of lobby " + id);
 	client.id = id;
+	pushSessionTable(param.clients);
 }
 
 /**
@@ -90,6 +91,7 @@ Session.prototype.deleteGameSession = function(param) {
 	// Remove the session from the sessions list
 	var index = GAME_SESSIONS.indexOf(session);
  	GAME_SESSIONS.splice(index, 1);
+	pushSessionTable(param.clients);
 }
 
 /**
@@ -125,6 +127,7 @@ Session.prototype.enterGameSession = function(param) {
 	}
 	server.emit(client.socket, "alert", "You have entered lobby " + id);
 	client.id = id;
+	pushSessionTable(param.clients);
 }
 
 /**
@@ -166,6 +169,7 @@ Session.prototype.exitGameSession = function(param) {
 	}
 	client.player = null;
 	client.id = -1;
+	pushSessionTable(param.clients);
 }
 
 
@@ -211,6 +215,11 @@ Session.prototype.kickUser = function(param) {
 			server.emit(c.socket, "updateLobby", 
 				getNames(session.clients));
 		}
+		for(var i in param.clients) {
+			var c = param.clients[i];
+			server.emit(c.socket, "sessionListResponse", getSessionTable());
+		}
+		pushSessionTable(param.clients);
 	} else {
 		server.emit(client.socket, "alert", "No such player");
 	}
@@ -246,6 +255,7 @@ Session.prototype.setHost = function(param) {
 		} else {
 			server.emit(client.socket, "lobbyScreen", {isHost:false});
 		}
+		pushSessionTable(param.clients);
 	} else {
 		server.emit(client.socket, "alert", "No such player");
 	}
@@ -287,6 +297,7 @@ Session.prototype.startGame = function(param) {
 			session.game.running = true;
 		}
 	});
+	pushSessionTable(param.clients);
 }
 
 // Ends the game currently running in this session,
@@ -311,6 +322,7 @@ Session.prototype.stopGame = function(param) {
 		server.emit(c.socket, "alert", "The game is over");
 	}
 	session.game = {map:"", players:[], running:false};
+	pushSessionTable(param.clients);
 }
 
 // Enters the requesting client into the game
@@ -337,6 +349,7 @@ Session.prototype.enterGame = function(param) {
 	}
 	dbi.setUserOnlineStatus(client.username, true);
 	server.emit(client.socket, "gameScreen", {isHost:false});
+	pushSessionTable(param.clients);
 }
 
 
@@ -364,6 +377,7 @@ Session.prototype.exitGame = function(param) {
 		server.emit(client.socket, "lobbyScreen", {isHost:false});
 		// Set offline in the database
 		dbi.setUserOnlineStatus(client.username, false);
+		pushSessionTable(param.clients);
 	}
 }
 
@@ -406,6 +420,13 @@ Session.prototype.saveGameState = function(param) {
 					server.emit(client.socket, "alert", "Could not save to database");
 				} else {
 					server.emit(client.socket, "alert", "Saved " + filename);
+					// Push the changes to all clients
+					dbi.getSavedGamesList(function(data) {
+						for(var i in param.clients) {
+							server.emit(param.clients[i].socket, 
+								"savedGamesListResponse", data);
+						}
+					});
 				}
 			});
 		}
@@ -470,6 +491,7 @@ Session.prototype.loadGameState = function(param) {
 				});
 			}
 		});
+		pushSessionTable(param.clients);
 	}
 }
 
@@ -530,6 +552,14 @@ function getSessionTable() {
 		}
 	}
 	return table;
+}
+
+function pushSessionTable(clients) {
+	// Send the changes to all clients
+	for(var i in clients) {
+		server.emit(clients[i].socket, 
+			"sessionListResponse", getSessionTable());
+	}
 }
 
 
