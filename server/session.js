@@ -30,11 +30,13 @@ Session.prototype.listen = function(router) {
 	router.listen("exitGameSession", this.exitGameSession);
 	router.listen("sessionListRequest", this.sessionListRequest);
 	
+	router.listen("inviteUser", this.inviteUser);
 	router.listen("setHost", this.setHost);
 	router.listen("kickUser", this.kickUser);
 	
 	router.listen("startGame", this.startGame);
 	router.listen("stopGame", this.stopGame);
+	router.listen("resumeGame", this.resumeGame);
 	router.listen("exitGame", this.exitGame);
 	router.listen("enterGame", this.enterGame);
 	
@@ -104,7 +106,7 @@ Session.prototype.deleteGameSession = function(param) {
 Session.prototype.enterGameSession = function(param) {
 	log("[Session] enterGameSession");
 	var client = param.client;
-	var id = param.data.id;
+	var id = param.data;
 	if(id >= GAME_SESSIONS.length) {
 		server.emit(client.socket, "alert", "No such game session");
 		return;
@@ -170,6 +172,28 @@ Session.prototype.exitGameSession = function(param) {
 	client.player = null;
 	client.id = -1;
 	pushSessionTable(param.clients);
+}
+
+// Host power -- invite a client with the given username
+Session.prototype.inviteUser = function(param) {
+	var client = param.client;
+	var targetName = param.data;
+	if(targetName === client.username) {
+		server.emit(client.socket, "alert", "Self-invitations not allowed");
+	}
+	var id = client.id;
+	if(id === -1) return;
+	var target = param.clients.find(function(c) {
+		return c.username === targetName;
+	});
+	if(!target) {
+		server.emit(client.socket, "alert", "No such user");
+	} else if(target.id == client.id) {
+		server.emit(client.socket, "alert", "User is already in lobby");
+	} else {
+		server.emit(target.socket, "invitation", 
+			{username:client.username, id:id});
+	}
 }
 
 
@@ -323,6 +347,58 @@ Session.prototype.stopGame = function(param) {
 	}
 	session.game = {map:"", players:[], running:false};
 	pushSessionTable(param.clients);
+}
+
+Session.prototype.resumeGame = function(param) {
+	var client = param.client;
+    var filename = param.data;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+    if(client !== session.host) {
+		server.emit(client.socket, 
+			"alert", "Only host can load saves.");
+    } else {
+		loadSave(filename, session, function(data) {
+			if(!data) {
+				server.emit(client.socket, 
+				"alert", "Could not read from save file");
+			} else {
+				session.game = data;
+				for(var i in session.game.players) {
+					session.game.players[i].active = false;
+				}
+				for(var i in session.clients) {
+					var c = session.clients[i];
+					// Locate any former player of the client
+					var p = session.game.players.find(function(pl) {
+						return pl.name === c.username;
+					});
+					if(p) {
+						c.player = p;
+						c.player.active = true;
+						server.emit(c.socket, "alert", 
+						"Game started on saved game " + filename);
+					} else {
+						c.player = new player.Player(c.username);
+						session.game.players.push(c.player);
+						server.emit(c.socket, "alert", 
+						"Game started on saved game " + filename +
+						". Spawning as new player");
+					}
+					server.emit(c.socket, "gameScreen", 
+					{isHost:(c === session.host)});
+					dbi.setUserOnlineStatus(c.username, true);
+				}
+				session.game.running = true;
+				loadMap(session, function(resp) {
+					if(!resp) server.emit(client.socket, 
+						"alert", "Could not read from map file.");
+				});
+			}
+		});
+		pushSessionTable(param.clients);
+	}
 }
 
 // Enters the requesting client into the game

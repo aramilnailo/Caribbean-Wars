@@ -8,6 +8,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		router.listen("sessionMenuToggle", this.toggleSessionMenu);
 		router.listen("sessionListResponse", this.displaySessionList);
 		
+		router.listen("invitation", this.inviteResponse);
 		router.listen("inviteClick", this.inviteClick);
 		router.listen("kickClick", this.kickClick);
 		router.listen("promoteClick", this.promoteClick);
@@ -24,7 +25,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		debug.log("[Lobby] joinGameClick");
 		var id = window.prompt("Which game session?", "0");
 		if(id) {
-			client.emit("enterGameSession", {username:client.username, usertype:client.usertype, id:id});
+			client.emit("enterGameSession", id);
 		} else {
 			alert("Invalid input");
 		}
@@ -84,6 +85,20 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 	Lobby.prototype.inviteClick = function(data) {
 		debug.log("[Lobby] inviteClick");
+		var target = window.prompt("Invite who?", "user");
+		if(target) {
+			client.emit("inviteUser", target);
+		}
+	}
+	
+	Lobby.prototype.inviteResponse = function(data) {
+		var id = data.id;
+		var username = data.username;
+		if(window.confirm(username + 
+			" has invited you to lobby " 
+			+ id + ". Accept?")) {
+			client.emit("enterGameSession", id);
+		}
 	}
 	
 	Lobby.prototype.kickClick = function(data) {
@@ -91,8 +106,6 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		var target = window.prompt("Kick which player?", "user");
 		if(target) {
 			client.emit("kickUser", target);
-		} else {
-			alert("Invalid input");
 		}
 	}
 	
@@ -101,8 +114,6 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		var target = window.prompt("Promote which player to host?", "user");
 		if(target) {
 			client.emit("setHost", target);
-		} else {
-			alert("Invalid input");
 		}
 	}
 	
@@ -111,13 +122,15 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		var filename = window.prompt("Which map?", "map");
 		if(filename) {
 			client.emit("startGame", filename);
-		} else {
-			alert("Invalid input");
 		}
 	}
 	
 	Lobby.prototype.resumeGameClick = function(data) {
 		debug.log("[Lobby] resumeGameClick");
+		var filename = window.prompt("Load from which save?", "save");
+		if(filename) {
+			client.emit("resumeGame", filename);
+		}
 	}
 
 	Lobby.prototype.endSessionClick = function(data) {
