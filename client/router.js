@@ -62,6 +62,7 @@ Router.prototype.unlisten = function(msg, action) {
 * @memberof module:client/Router
 */
 Router.prototype.route = function(msg) {
+	if(debug.router) debug.log("[Client] Routing \"" + msg.name + "\"");
     for (var i in listeners) {
 		if (listeners[i].name === msg.name) {
 		    listeners[i].func(msg.data);

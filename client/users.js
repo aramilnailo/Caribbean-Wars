@@ -5,7 +5,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	var Users = function() {}
 	
 	Users.prototype.listen = function(router) {
-		router.listen("toggleUserMenu", this.toggleUserMenu);
+		router.listen("userMenuToggle", this.toggleUserMenu);
 		router.listen("userListResponse", this.displayUserList);
 		router.listen("addUserClick", this.addUserClick);
 		router.listen("deleteUserClick", this.deleteUserClick);
@@ -15,17 +15,15 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	// Show and hide the user menu
 	Users.prototype.toggleUserMenu = function() {
 	    if (debug.users) log("client/users.js:");
-	    if(dom.userMenuHidden) {
+	    if(dom.userMenu.style.display === "none") {
 		    if (debug.users) log("toggleUserMenu(): Show users");
-	        client.emit("userListRequest", {usertype:client.usertype});
+	        client.emit("userListRequest", null);
 			dom.userMenuButton.innerHTML = "Hide users";
-			dom.userMenu.style.display = "inline-block";
-			dom.userMenuHidden = false;
+			dom.userMenu.style.display = "block";
 	    } else {
 	        if (debug.users) log("toggleUserMenu(): Hide users");
 	        dom.userMenu.style.display = "none";	
 			dom.userMenuButton.innerHTML = "Show users";
-			dom.userMenuHidden = true;
 	    }
 	}
 

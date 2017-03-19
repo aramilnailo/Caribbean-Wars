@@ -18,7 +18,7 @@ var Chat = function() {};
 */
 Chat.prototype.listen = function(router) {
     router.listen("addToChat", this.logToChat);
-	router.listen("toggleChatWindow", this.toggleChatWindow);
+	router.listen("chatWindowToggle", this.toggleChatWindow);
 	router.listen("chatFormSubmit", this.chatFormSubmit);
 }
 
@@ -38,14 +38,12 @@ Chat.prototype.logToChat = function(data) {
 * @memberof module:client/Chat
 */
 Chat.prototype.toggleChatWindow = function() {
-    if(dom.chatWindowHidden) {
-		dom.chatWindow.style.display = "inline-block";
+    if(dom.chatWindow.style.display === "none") {
+		dom.chatWindow.style.display = "block";
 		dom.chatToggleButton.innerHTML = "Hide chat";
-		dom.chatWindowHidden = false;
     } else {
 		dom.chatWindow.style.display = "none";
 		dom.chatToggleButton.innerHTML = "Show chat";
-		dom.chatWindowHidden = true;
     }
 }
 

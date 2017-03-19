@@ -19,7 +19,7 @@ var Stats = function() {};
 */
 Stats.prototype.listen = function(router) {
 	router.listen("statsMenuResponse", this.displayStatsMenu);
-	router.listen("toggleStatsMenu", this.toggleStatsMenu);	
+	router.listen("statsMenuToggle", this.toggleStatsMenu);	
 	router.listen("clearStatsClick", this.clearStatsClick);
 }
 
@@ -29,15 +29,13 @@ Stats.prototype.listen = function(router) {
 * @memberof module:client/Stats
 */
 Stats.prototype.toggleStatsMenu = function() {
-    if(dom.statsMenuHidden) {
+    if(dom.statsMenu.style.display === "none") {
 		client.emit("statsMenuRequest", null);
-		dom.statsMenu.style.display = "inline-block";
+		dom.statsMenu.style.display = "block";
 		dom.statsMenuButton.innerHTML = "Hide stats";
-		dom.statsMenuHidden = false;
     } else {
 		dom.statsMenu.style.display = "none";
 		dom.statsMenuButton.innerHTML = "Show stats";
-		dom.statsMenuHidden = true;
     }
 }
 

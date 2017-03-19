@@ -5,14 +5,16 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	Lobby.prototype.listen = function(router) {
 		router.listen("joinSessionClick", this.joinSessionClick);
 		router.listen("newSessionClick", this.newSessionClick);
-		router.listen("toggleSessionMenu", this.toggleSessionMenu);
+		router.listen("sessionMenuToggle", this.toggleSessionMenu);
 		router.listen("sessionListResponse", this.displaySessionList);
+		
 		router.listen("inviteClick", this.inviteClick);
 		router.listen("kickClick", this.kickClick);
 		router.listen("promoteClick", this.promoteClick);
-		router.listen("endSessionClick", this.endSessionClick);
+		
 		router.listen("newGameClick", this.newGameClick);
 		router.listen("resumeGameClick", this.resumeGameClick);
+		router.listen("endSessionClick", this.endSessionClick);
 		router.listen("leaveSessionClick", this.leaveSessionClick);
 		router.listen("joinInProgressClick", this.joinInProgressClick);
 		router.listen("updateLobby", this.updateLobby);
@@ -35,17 +37,15 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 	Lobby.prototype.toggleSessionMenu = function() {
 	    if (debug.lobby) debug.log("client/lobby.js: toggleSessionMenu");
-	    if(dom.sessionMenuHidden) {
+	    if(dom.sessionMenu.style.display === "none") {
 		    if(debug.lobby) debug.log("toggleSessionMenu(): Show sessions");
 	        client.emit("sessionListRequest", null);
 			dom.sessionMenuButton.innerHTML = "Hide sessions";
 			dom.sessionMenu.style.display = "block";
-			dom.sessionMenuHidden = false;
 	    } else {
 	        if(debug.lobby) debug.log("toggleSessionMenu(): Hide sessions");
 	        dom.sessionMenu.style.display = "none";	
 			dom.sessionMenuButton.innerHTML = "Show sessions";
-			dom.sessionMenuHidden = true;
 	    }
 	}
 
@@ -106,11 +106,6 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		}
 	}
 	
-	Lobby.prototype.endSessionClick = function(data) {
-		debug.log("[Lobby] endSessionClick");
-		client.emit("deleteGameSession", null);
-	}
-	
 	Lobby.prototype.newGameClick = function(data) {
 		debug.log("[Lobby] newGameClick");
 		var filename = window.prompt("Which map?", "map");
@@ -123,6 +118,11 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 	Lobby.prototype.resumeGameClick = function(data) {
 		debug.log("[Lobby] resumeGameClick");
+	}
+
+	Lobby.prototype.endSessionClick = function(data) {
+		debug.log("[Lobby] endSessionClick");
+		client.emit("deleteGameSession", null);
 	}
 
 	Lobby.prototype.leaveSessionClick = function(data) {

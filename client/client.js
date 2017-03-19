@@ -115,7 +115,6 @@ Client.prototype.players = [];
 */
 Client.prototype.listen = function(router) {
     if(debug.client) debug.log("client/client.js: listen()");
-    router.listen("collapseMenus", this.hideAllMenus);
     router.listen("evalResponse", this.logToConsole);
     router.listen("alert", this.pushAlert);
     router.listen("newGameMapResponse", this.setMap);
@@ -141,20 +140,6 @@ Client.prototype.pushAlert = function(data) {
 */
 Client.prototype.logToConsole = function(data) {
 	console.log(data);
-}
-
-/**
-* Hides all currently active menus.
-*
-* @param data Currently unused
-* @memberof module:client/Client
-*/
-// srw: hideAllMenus should be in view.js
-Client.prototype.hideAllMenus = function(data) {
-	if(!dom.chatWindowHidden) router.route("toggleChatWindow", null);
-	if(!dom.statsMenuHidden) router.route("toggleStatsMenu", null);
-	if(!dom.savedGamesMenuHidden) router.route("toggleSavedGamesMenu", null);
-	if(!dom.userListHidden) router.route("toggleUserList", null);
 }
 
 /**

@@ -1,44 +1,84 @@
 define(["router"], function(router) {
 
 var dom = {
+	
 	// Document
 	document:document,
 
 	// Login page
 	loginScreen:document.getElementById("login-screen"),
     loginUsername:document.getElementById("login-username"),
+	loginPassword:document.getElementById("login-password"),
     loginUsertype:{},
     loginUsertypeForm:document.getElementById("login-usertype-radiobox"),
-	loginPassword:document.getElementById("login-password"),
 	loginButton:document.getElementById("login-btn"),
 	signupButton:document.getElementById("signup-btn"),
 
-	// Game screen
-	gameScreen:document.getElementById("game-screen"),
-	canvas:document.getElementById("canvas").getContext("2d"),
-
-	// In Game menu
-	inGameMenu:document.getElementById("in-game-menu"),
+	// Upper menu
+	upperMenu:document.getElementById("upper-menu"),
     usernameLabel:document.getElementById("username-label"),
    	usertypeLabel:document.getElementById("usertype-label"),
 	logoutButton:document.getElementById("logout-btn"),
 	deleteAccountButton:document.getElementById("delete-account-btn"),
 	savedGamesMenuButton:document.getElementById("saved-games-menu-btn"),
 	statsMenuButton:document.getElementById("stats-menu-btn"),
+
+	// In Game menu
+	inGameMenu:document.getElementById("in-game-menu"),
 	stopGameButton:document.getElementById("stop-game-btn"),
 	leaveGameButton:document.getElementById("leave-game-btn"),
 
-	// Save game menu
+	// Host menu
+	hostMenu:document.getElementById("host-menu"),
+	inviteButton:document.getElementById("invite-btn"),
+	kickButton:document.getElementById("kick-btn"),
+	promoteButton:document.getElementById("promote-btn"),
+	
+	// Saved games menu
 	savedGamesMenu:document.getElementById("saved-games-menu"),
-	loadGameButton:document.getElementById("load-game-btn"),
-	saveGameButton:document.getElementById("save-game-btn"),
-	deleteGameButton:document.getElementById("delete-game-btn"),
 	savedGamesList:document.getElementById("saved-games-list"),
+	saveGameButton:document.getElementById("save-game-btn"),
+	loadGameButton:document.getElementById("load-game-btn"),
+	deleteGameButton:document.getElementById("delete-game-btn"),
 
 	// Stats menu
 	statsMenu:document.getElementById("stats-menu"),
 	statsList:document.getElementById("stats-list"),
 	clearStatsButton:document.getElementById("clear-stats-btn"),
+	
+	// Game screen
+	gameScreen:document.getElementById("game-screen"),
+	canvas:document.getElementById("canvas").getContext("2d"),
+	
+	// Admin screen
+	adminScreen:document.getElementById("admin-screen"),
+	userMenuButton:document.getElementById("user-menu-btn"),
+	
+	// User menu
+	userMenu:document.getElementById("user-menu"),
+	userList:document.getElementById("user-list"),
+	addUserButton:document.getElementById("add-user-btn"),
+	deleteUserButton:document.getElementById("delete-user-btn"),
+	userTypeButton:document.getElementById("user-type-btn"),
+	
+	// Session browser
+	sessionBrowser:document.getElementById("session-browser"),
+	sessionMenuButton:document.getElementById("session-menu-btn"),
+	
+	// Session menu
+	sessionMenu:document.getElementById("session-menu"),
+	sessionList:document.getElementById("session-list"),
+	joinSessionButton:document.getElementById("join-session-btn"),
+	newSessionButton:document.getElementById("new-session-btn"),
+	
+	// Lobby screen
+	lobbyScreen:document.getElementById("lobby-screen"),
+	lobbyPlayerList:document.getElementById("lobby-player-list"),
+	newGameButton:document.getElementById("new-game-btn"),
+	resumeGameButton:document.getElementById("resume-game-btn"),
+	endSessionButton:document.getElementById("end-session-btn"),
+	leaveSessionButton:document.getElementById("leave-session-btn"),
+	joinInProgressButton:document.getElementById("join-in-progress-btn"),
 
 	// Options menu
 	optionsMenu:document.getElementById("options-menu"),
@@ -50,6 +90,12 @@ var dom = {
 	chatForm:document.getElementById("chat-form"),
 	chatInput:document.getElementById("chat-input"),
 	chatSubmitButton:document.getElementById("chat-submit-btn"),
+
+
+
+
+
+
 
     // MapEditor window
     mapEditorScreen:document.getElementById("map-editor-screen"),
@@ -100,95 +146,71 @@ var dom = {
     mapEditorSaveMapButton:document.getElementById("map-editor-save-map-btn"),
     mapEditorLoadMapButton:document.getElementById("map-editor-load-map-btn"),
     mapEditorSavedMapsListHidden:true,
-    
-    
-	// Admin screen
-	adminScreen:document.getElementById("admin-screen"),
-	userMenuButton:document.getElementById("user-menu-btn"),
 	
-	// Lobby screen
-	lobbyScreen:document.getElementById("lobby-screen"),
-	sessionMenuButton:document.getElementById("session-menu-btn"),
-	lobbyPlayerList:document.getElementById("lobby-player-list"),
-	hostLobbyButtons:document.getElementById("host-lobby-btns"),
-	nonHostLobbyButtons:document.getElementById("non-host-lobby-btns"),
-	sessionBrowserButtons:document.getElementById("session-browser-btns"),
-	
-	// Lobby buttons
-	inviteButton:document.getElementById("invite-btn"),
-	kickButton:document.getElementById("kick-btn"),
-	promoteButton:document.getElementById("promote-btn"),
-	endSessionButton:document.getElementById("end-session-btn"),
-	newGameButton:document.getElementById("new-game-btn"),
-	resumeGameButton:document.getElementById("resume-game-btn"),
-	leaveSessionButton:document.getElementById("leave-session-btn"),
-	joinInProgressButton:document.getElementById("join-in-progress-btn"),
-	
-	// Session menu
-	sessionMenu:document.getElementById("session-menu"),
-	sessionList:document.getElementById("session-list"),
-	joinSessionButton:document.getElementById("join-session-btn"),
-	newSessionButton:document.getElementById("new-session-btn"),
-	
-	// User menu
-	userMenu:document.getElementById("user-menu"),
-	userList:document.getElementById("user-list"),
-	addUserButton:document.getElementById("add-user-btn"),
-	deleteUserButton:document.getElementById("delete-user-btn"),
-	userTypeButton:document.getElementById("user-type-btn"),
-	
-	// UI flags
-	userMenuHidden:true,
-	chatWindowHidden:true,
-	statsMenuHidden:true,
-    savedGamesMenuHidden:true,
-	
-	lobbyPlayerListHidden:true,
-	sessionMenuHidden:true,
-	hostLobbyButtonsHidden:true,
-	nonHostLobbyButtonsHidden:true,
-	sessionBrowserButtonsHidden:true
 }
 
-dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
-dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:event}); }
+// Login screen
+dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
+dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }
 
-dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", data:event}); }
-dom.chatToggleButton.onclick = function() { router.route({name:"toggleChatWindow", data:null}); }
+// Upper menu
+dom.logoutButton.onclick = function() { router.route({name:"logoutClick", data:null}); }
+dom.deleteAccountButton.onclick = function() { router.route({name:"deleteAccountClick", data:null}); }
+dom.savedGamesMenuButton.onclick = function() { router.route({name:"savedGamesMenuToggle", data:null}); }
+dom.statsMenuButton.onclick = function() { router.route({name:"statsMenuToggle", data:null}); }
 
-dom.statsMenuButton.onclick = function() { router.route({name:"toggleStatsMenu", data:null}); }
+// In game menu
+dom.stopGameButton.onclick = function() { router.route({name:"stopGameClick", data:null}); }
+dom.leaveGameButton.onclick = function() { router.route({name:"leaveGameClick", data:null}); }
+
+// Host menu
+dom.inviteButton.onclick = function() { router.route({name:"inviteClick", data:null}); }
+dom.kickButton.onclick = function() { router.route({name:"kickClick", data:null}); }
+dom.promoteButton.onclick = function() { router.route({name:"promoteClick", data:null}); }
+
+// Saved games menu
+dom.saveGameButton.onclick = function() { router.route({name:"saveGameClick", data:null}); }
+dom.loadGameButton.onclick = function() { router.route({name:"loadGameClick", data:null}); }
+dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick", data:null}); }
+
+// Stats menu
 dom.clearStatsButton.onclick = function() { router.route({name:"clearStatsClick", data:null}); }
 
-dom.userMenuButton.onclick = function() { router.route({name:"toggleUserMenu", data:null}); }
+// Admin screen
+dom.userMenuButton.onclick = function() { router.route({name:"userMenuToggle", data:null}); }
+
+// User menu
 dom.addUserButton.onclick = function() { router.route({name:"addUserClick", data:null}); }
 dom.deleteUserButton.onclick = function() { router.route({name:"deleteUserClick", data:null}); }
 dom.userTypeButton.onclick = function() { router.route({name:"userTypeClick", data:null}); }
 
-dom.inviteButton.onclick = function() { router.route({name:"inviteClick", data:null}); }
-dom.kickButton.onclick = function() { router.route({name:"kickClick", data:null}); }
-dom.promoteButton.onclick = function() { router.route({name:"promoteClick", data:null}); }
-dom.endSessionButton.onclick = function() { router.route({name:"endSessionClick", data:null}); }
-dom.newGameButton.onclick = function() { router.route({name:"newGameClick", data:null}); }
-dom.resumeGameButton.onclick = function() { router.route({name:"resumeGameClick", data:null}); }
-dom.leaveSessionButton.onclick = function() { router.route({name:"leaveSessionClick", data:null}); }
-dom.joinInProgressButton.onclick = function() { router.route({name:"joinInProgressClick", data:null}); }
+// Session browser
+dom.sessionMenuButton.onclick = function() { router.route({name:"sessionMenuToggle", data:null}); }
 
-dom.sessionMenuButton.onclick = function() { router.route({name:"toggleSessionMenu", data:null}); }
+// Session menu
 dom.joinSessionButton.onclick = function() { router.route({name:"joinSessionClick", data:null}); }
 dom.newSessionButton.onclick = function() { router.route({name:"newSessionClick", data:null}); }
 
-dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
-dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }
-dom.logoutButton.onclick = function() { router.route({name:"logoutClick", data:null}); }
-dom.deleteAccountButton.onclick = function() { router.route({name:"deleteAccountClick", data:null}); }
+// Lobby menu
+dom.newGameButton.onclick = function() { router.route({name:"newGameClick", data:null}); }
+dom.resumeGameButton.onclick = function() { router.route({name:"resumeGameClick", data:null}); }
+dom.endSessionButton.onclick = function() { router.route({name:"endSessionClick", data:null}); }
+dom.leaveSessionButton.onclick = function() { router.route({name:"leaveSessionClick", data:null}); }
+dom.joinInProgressButton.onclick = function() { router.route({name:"joinInProgressClick", data:null}); }
 
-dom.stopGameButton.onclick = function() { router.route({name:"stopGameClick", data:null}); }
-dom.leaveGameButton.onclick = function() { router.route({name:"leaveGameClick", data:null}); }
+// Options menu
+dom.chatToggleButton.onclick = function() { router.route({name:"chatWindowToggle", data:null}); }
 
-dom.savedGamesMenuButton.onclick = function() { router.route({name:"toggleSavedGamesMenu", data:null}); }
-dom.saveGameButton.onclick = function() { router.route({name:"saveGameClick", data:null}); }
-dom.loadGameButton.onclick = function() { router.route({name:"loadGameClick", data:null}); }
-dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick", data:null}); }
+// Chat window
+dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", data:event}); }
+
+// Input
+dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
+dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:event}); }
+
+
+
+
 
     // map editor event handling
     dom.mapEditorSavedMapsListButton.onclick =
@@ -278,9 +300,12 @@ dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick"
     dom.mapEditorBrush01.onclick = 
 	function(event) { router.route({name:"mapEditorBrush01Click", data:null}); }
     //zoom icon
-    
-dom.canvas.font = "30px Arial";
+
 dom.mapEditorCanvasContext.font = "30px Arial";
+
+
+
+
 
 dom.show = function(data) {
 	for(var i in data) {

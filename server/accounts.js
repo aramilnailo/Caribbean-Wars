@@ -62,22 +62,30 @@ Accounts.prototype.disconnect = function disconnect(param) {
 Accounts.prototype.login = function login(param) {
     if(debug) log("[Accounts] login()");
     var client = param.client;
-    var data = param.data;
+	var uname = param.data.username;
+	var type = param.data.usertype;
     // Check info with the database
-    dbi.login(data.username, data.password, function(resp) {
+    dbi.login(uname, param.data.password, function(resp) {
         if(resp) {
         	// If login info is valid, validate the usertype
-			if(data.usertype === "admin" && data.username !== "admin") {
+			if(type === "admin" && uname !== "admin") {
 				server.emit(client.socket, "alert", "Can't login as admin");
 			} else {
 				// Update the usertype
-				dbi.setUsertype(data.username, data.usertype, function(resp) {});
+				dbi.setUsertype(uname, type, function(resp) {});
 				// Assign data
-				client.username = data.username;
-				client.usertype = data.usertype;
+				client.username = uname;
+				client.usertype = type;
 				// Transition between menus
-	            server.emit(client.socket, "loginResponse", 
+            	server.emit(client.socket, "setClientInfo", 
 					{username:client.username, usertype:client.usertype});
+				if(type === "admin") {
+					server.emit(client.socket, "adminScreen", null);
+				} else if(type === "editor") {
+					server.emit(client.socket, "mapEditorScreen", null);
+				} else {
+					server.emit(client.socket, "sessionBrowser", null);
+				}
 		    	if (debug) log("[Accounts] Login success");
 			}
         } else {
@@ -144,7 +152,7 @@ Accounts.prototype.logout = function logout(param) {
     var client = param.client;
 	client.username = "";
 	client.usertype = "";
-	server.emit(client.socket, "logoutResponse", null);
+	server.emit(client.socket, "loginScreen", null);
 }
 
 /**
@@ -172,7 +180,7 @@ Accounts.prototype.deleteAccount = function deleteAccount(param) {
 			require("./session.js").exitGameSession({client:client});
 			client.username = "";
 			client.usertype = "";
-			server.emit(client.socket, "logoutResponse", null);
+			server.emit(client.socket, "loginScreen", null);
 			server.emit(client.socket, "alert", "Your account has been deleted.");
 		}
 		if(param.client !== client) server.emit(param.client.socket, "alert", "Account deleted.");
@@ -205,12 +213,18 @@ Accounts.prototype.changeUserType = function(param) {
 				type + "\"");
 			// Change the type on the server
 			client.usertype = type;
-			// Log out
+			// Exit game
 			require("./session.js").exitGameSession({client:client});
-			server.emit(client.socket, "logoutResponse", null);
-			// Log back in
-			server.emit(client.socket, "loginResponse", {username:client.username, 
+			// Change screens
+			server.emit(client.socket, "setClientInfo", {username:client.username, 
 				usertype:client.usertype});
+			if(type === "admin") {
+				server.emit(client.socket, "adminScreen", null);
+			} else if(type === "editor") {
+				server.emit(client.socket, "mapEditorScreen", null);
+			} else {
+				server.emit(client.socket, "sessionBrowser", null);
+			}
 		} else {
 			server.emit(param.client.socket, "alert", "Could not change type.");
 		}

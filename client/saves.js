@@ -16,7 +16,7 @@ var Saves = function() {};
 */
 Saves.prototype.listen = function(router) {
 	router.listen("savedGamesListResponse", this.displaySavedGamesMenu);
-	router.listen("toggleSavedGamesMenu", this.toggleSavedGamesMenu);
+	router.listen("savedGamesMenuToggle", this.toggleSavedGamesMenu);
 	router.listen("saveGameClick", this.saveGameClick);
 	router.listen("loadGameClick", this.loadGameClick);
 	router.listen("deleteGameClick", this.deleteGameClick);
@@ -30,14 +30,13 @@ Saves.prototype.listen = function(router) {
 * @memberof module:client/Saves
 */
 Saves.prototype.toggleSavedGamesMenu = function() {
-    if(dom.savedGamesMenuHidden) {
+    if(dom.savedGamesMenu.style.display === "none") {
 		client.emit("savedGamesListRequest", null);
+		dom.savedGamesMenu.style.display = "block";
 		dom.savedGamesMenuButton.innerHTML = "Hide saved games";
-		dom.savedGamesMenuHidden = false;
     } else {
 		dom.savedGamesMenu.style.display = "none";
 		dom.savedGamesMenuButton.innerHTML = "Show saved games";
-		dom.savedGamesMenuHidden = true;
     }
 }
 
@@ -68,8 +67,6 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
     }
     html += "</table>";
     dom.savedGamesList.innerHTML = html;
-    // Make the saved games screen visible
-    dom.savedGamesMenu.style.display = "inline-block";
 }
 
 /**

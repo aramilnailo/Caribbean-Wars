@@ -11,7 +11,6 @@ Login.prototype.listen = function(router) {
     router.listen("logoutClick", this.logoutClick);
     router.listen("mapEditorLogoutClick", this.mapEditorLogoutClick);
     router.listen("deleteAccountClick", this.deleteAccountClick);
-	
 	router.listen("stopGameClick", this.stopGameClick);
 	router.listen("leaveGameClick", this.leaveGameClick);
 }

@@ -57,7 +57,7 @@ Session.prototype.newGameSession = function(param) {
 	GAME_SESSIONS[id] = {host:client, clients:[client], 
 		game:{map:"", players:[], running:false}};
 	// Move the player into the game lobby
-	server.emit(client.socket, "enterLobby", {isHost:true});
+	server.emit(client.socket, "lobbyScreen", {isHost:true});
 	server.emit(client.socket, "updateLobby", getNames(GAME_SESSIONS[id].clients));
 	server.emit(client.socket, "alert", "You are host of lobby " + id);
 	client.id = id;
@@ -81,11 +81,8 @@ Session.prototype.deleteGameSession = function(param) {
     for(var i in session.clients) {
 		var c = session.clients[i];
 		dbi.setUserOnlineStatus(c.username, false);
-		if(c.player) {
-			c.player = null;
-			server.emit(c.socket, "exitToLobby", null);
-		}
-		server.emit(c.socket, "exitLobby", null);
+		server.emit(c.socket, "sessionBrowser", null);
+		c.player = null;
 		c.id = -1;
 		server.emit(c.socket, "alert", "The game session has ended");
     }
@@ -120,7 +117,7 @@ Session.prototype.enterGameSession = function(param) {
     // Add client to game session list
    	session.clients.push(client);
 	// Move client into the game lobby
-	server.emit(client.socket, "enterLobby", {isHost:isHost});
+	server.emit(client.socket, "lobbyScreen", {isHost:isHost});
 	// Update every lobby list
 	for(var i in session.clients) {
 		var c = session.clients[i];
@@ -149,7 +146,7 @@ Session.prototype.exitGameSession = function(param) {
     // Turn the client offline in the database
     dbi.setUserOnlineStatus(client.username, false);
 	// Send the client out of the lobby
-	server.emit(client.socket, "exitLobby", null);
+	server.emit(client.socket, "sessionBrowser", null);
 	// Update the lobbies of everyone else
 	for(var i in session.clients) {
 		var c = session.clients[i];
@@ -201,7 +198,7 @@ Session.prototype.kickUser = function(param) {
 			}
 		}
 		// Move target out of the lobby
-		server.emit(target.socket, "exitLobby", null);
+		server.emit(target.socket, "sessionBrowser", null);
 		server.emit(target.socket, "alert", 
 			"You have been kicked from the lobby");
 		target.player = null;
@@ -237,12 +234,10 @@ Session.prototype.setHost = function(param) {
 		session.host = target;
 		// Notify target of the changes, refresh lobby
 		server.emit(target.socket, "alert", "You are now host of lobby " + id);
-		server.emit(target.socket, "exitLobby", null);
-		server.emit(target.socket, "enterLobby", {isHost:true});
+		server.emit(target.socket, "lobbyScreen", {isHost:true});
 		// Notify former host of changes, refresh
 		server.emit(client.socket, "alert", param.data + " is now host");
-		server.emit(client.socket, "exitLobby", null);
-		server.emit(client.socket, "enterLobby", {isHost:false});
+		server.emit(client.socket, "lobbyScreen", {isHost:false});
 	} else {
 		server.emit(client.socket, "alert", "No such player");
 	}
@@ -277,7 +272,8 @@ Session.prototype.startGame = function(param) {
 				session.game.players.push(c.player);
 			    // Turn the client online in the database
 			    dbi.setUserOnlineStatus(c.username, true);
-				server.emit(c.socket, "enterGame", null);
+				server.emit(c.socket, "gameScreen", 
+				{isHost:(c === session.host)});
 				server.emit(c.socket, "alert", "Game started");
 			}
 			session.game.running = true;
@@ -302,7 +298,7 @@ Session.prototype.stopGame = function(param) {
 		var c = session.clients[i];
 		c.player = null;
 		dbi.setUserOnlineStatus(c.username, false);
-		server.emit(c.socket, "exitToLobby", 
+		server.emit(c.socket, "lobbyScreen", 
 			{isHost:(c === session.host)});
 		server.emit(c.socket, "alert", "The game is over");
 	}
@@ -332,7 +328,7 @@ Session.prototype.enterGame = function(param) {
 		session.game.players.push(client.player);
 	}
 	dbi.setUserOnlineStatus(client.username, true);
-	server.emit(client.socket, "enterGame", null);
+	server.emit(client.socket, "gameScreen", {isHost:false});
 }
 
 
@@ -357,7 +353,7 @@ Session.prototype.exitGame = function(param) {
 		}
 		client.player = null;
 		// Move back to lobby
-		server.emit(client.socket, "exitToLobby", {isHost:false});
+		server.emit(client.socket, "lobbyScreen", {isHost:false});
 		// Set offline in the database
 		dbi.setUserOnlineStatus(client.username, false);
 	}

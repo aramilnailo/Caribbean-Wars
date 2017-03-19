@@ -23,29 +23,42 @@
 	    </form>
 	    <button id="login-btn">Log in</button>
 	    <button id="signup-btn">Sign up</button>
-	  
-    </div>
 		
-	<!--IN GAME MENU-->
-	<div id="in-game-menu" style="display:none;">
-	  <div id="username-label"></div>
-	  <div id="usertype-label"></div>
-	  <div id="in-game-menu-btns">
+    </div>
+	
+	<!--UPPER MENU-->
+	<div id="upper-menu" style="display:none;">
+  	  	<div id="username-label"></div>
+  	  	<div id="usertype-label"></div>
 	    <button id="logout-btn">Log out</button>
 	    <button id="delete-account-btn">Delete Account</button>
 	    <button id="saved-games-menu-btn">Show saved games</button>
 	    <button id="stats-menu-btn">Show stats</button>
+	</div>
+	
+	<!--IN-GAME MENU-->
+	<div id="in-game-menu" style="display:none;">
+	  <div id="in-game-menu-btns">
 		<button id="leave-game-btn">Leave game</button>
-		<button id="stop-game-btn">End game</button>
+		<button id="stop-game-btn" class="host">End game</button>
 	  </div>
     </div>
+
+	<!--HOST MENU-->
+	<div id="host-menu" style="display:none;">
+		<div id="host-menu-btns" class="host">
+			<button id="invite-btn">Invite</button>
+			<button id="kick-btn">Kick</button>
+			<button id="promote-btn">Promote</button>
+		</div>
+	</div>
 
 	<!--SAVED GAMES MENU-->
     <div id="saved-games-menu" style="display:none;">	  
 	  <div id="saved-games-list" style="display:table;"></div>
-	  <div id="saved-games-screen-btns">
+	  <div id="saved-games-menu-btns">
 	    <button id="save-game-btn">Save</button>
-	    <button id="load-game-btn">Load</button>
+	    <button id="load-game-btn" class="host">Load</button>
 	    <button id="delete-game-btn">Delete</button>
 	  </div>
     </div>
@@ -62,7 +75,7 @@
     <div id="game-screen" style="display:none;">
         <div id="game-window">
   	    <canvas id="canvas" width="500" height="500"
-  		  style="border:1px solid black;font:30px Arial;"></canvas>
+  		  style="border:1px solid black;"></canvas>
         </div>
     </div>
 	
@@ -77,27 +90,14 @@
   	<div id="user-menu" style="display:none;">
 	  <div id="user-list" style="display:table;"></div>
 	  <div id="user-menu-btns">
-		<button id="add-user-btn">Add User</button>
-		<button id="delete-user-btn">Delete User</button>
-		<button id="user-type-btn">Change User Type</button>
+		<button id="add-user-btn" class="admin">Add User</button>
+		<button id="delete-user-btn" class="admin">Delete User</button>
+		<button id="user-type-btn" class="admin">Change User Type</button>
 	  </div>
   	</div>
 	
-	<!--LOBBY SCREEN-->
-	<div id="lobby-screen" style="display:none;">
-		<div id="lobby-player-list" style="display:none;"></div>
-		<div id="host-lobby-btns" style="display:none;">
-			<button id="invite-btn">Invite</button>
-			<button id="kick-btn">Kick</button>
-			<button id="promote-btn">Promote</button>
-			<button id="new-game-btn">Start new game</button>
-			<button id="resume-game-btn">Start game from file</button>
-			<button id="end-session-btn">End Session</button>
-		</div>
-		<div id="non-host-lobby-btns" style="display:none;">
-			<button id="leave-session-btn">Leave</button>
-			<button id="join-in-progress-btn">Join In Progress</button>
-		</div>
+	<!--SESSION BROWSER-->
+	<div id="session-browser" style="display:none;">
 		<div id="session-browser-btns">
 			<button id="session-menu-btn">Show Sessions</button>
 		</div>
@@ -112,6 +112,18 @@
 		</div>
 	</div>
 	
+	<!--LOBBY SCREEN-->
+	<div id="lobby-screen" style="display:none;">
+		<div id="lobby-player-list"></div>
+		<div id="lobby-btns">
+			<button id="new-game-btn" class="host">Start new game</button>
+			<button id="resume-game-btn" class="host">Start game from file</button>
+			<button id="end-session-btn" class="host">End Session</button>
+			<button id="leave-session-btn" class="player">Leave</button>
+			<button id="join-in-progress-btn" class="player">Join In Progress</button>
+		</div>
+	</div>
+	
 	<!--OPTIONS MENU-->
     <div id="options-menu" style="display:none;">
       <div id="options-menu-btns">
@@ -123,7 +135,6 @@
 	<div id="chat-window" style="display:none;">
   	  <div id="chat-log" style="border:1px solid black;width:500px;height:100px;overflow-y:scroll">
   	  </div>
-	  <br>
   	  <form id="chat-form">
     	<input id="chat-input" type="text" style="width:500px"></input>
     	<input id="chat-submit-btn" type="submit"></input>
