@@ -13,6 +13,7 @@ Client.prototype.inGame = false;
 Client.prototype.socket = null;
 Client.prototype.map = null;
 Client.prototype.gameStateBuffer = [];
+Client.prototype.camera = {x:0, y:0, zoom:1};
 
 /**
 * Registers all gui event messages associated with client state

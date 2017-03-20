@@ -31,44 +31,52 @@ Render.prototype.listen = function(router) {
 *             info on all players (number, x, y)
 */
 Render.prototype.drawScreen = function(data) {
-    if(debug.render) log("client/render.js: drawScreen()");
-    var ly = client.map.ly;
-    var lx = client.map.lx;
-    var i, j, ch;
-    // zoom. Need to pass as parameter.
-    var dx = 50;
-    var dy = 50; 
-    // Clear screen
-    dom.canvas.clearRect(0, 0, lx, ly);
-    // Draw the map
-    if(debug.render) log("client/render.js: client.username="+client.username);
-    if(debug.render) log("client/render.js: client.usertype="+client.usertype);
-
-    if(debug.render) log("client/render.js: client.map.lx,ly="+client.map.lx+","+client.map.ly);
-    for(i = 0; i < lx; i++) {
-	for(j = 0; j < ly; j++) {
-	    // 0 = blue, 1 = tan, 2 = green
-	    ch = client.map.data[ly * i + j]; // Current cell
-	    var color; 
-	    switch (ch) {
-	    case 0 : color = "#42C5F4";
-		break;
-	    case 1 : color = "#C19E70";
-		break;
-	    case 2 : color = "#2A8C23";
-		break;
-	    default : color = "#000000";
-	    }
-	    dom.canvas.fillStyle = color;
-	    dom.canvas.fillRect(j * dy, i * dx, dy, dx);
+	if(client.map) {
+		var map = client.map.data;
+		var cam_x = client.camera.x;
+		var cam_y = client.camera.y;
+		
+		var width = 500; // camera width in pixels
+		var height = 500; // camera height in pixels
+		
+		var cells_in_cam_x = 20; // camera width in cells
+		var cells_in_cam_y = 20; // camera height in cells
+		
+		var cell_w = 500 / 20; // cell width in pixels
+		var cell_h = 500 / 20; // cell height in pixels
+		
+		// Draw map
+		for(var i = 0; i < cells_in_cam_y; i++) {
+			var line = map[i + cam_y];
+			for(var j = 0; j < cells_in_cam_x; j++) {
+				var ch, color;
+				if(line) ch = line.charAt(j + cam_x);
+			    switch(ch) {
+			    	case "0": 
+						color = "#42C5F4";
+						break;
+			    	case "1": 
+						color = "#C19E70";
+						break;
+			    	case "2":
+						color = "#2A8C23";
+						break;
+			    	default: 
+						color = "#000000";
+			    }
+			    dom.canvas.fillStyle = color;
+			    dom.canvas.fillRect(j * cell_w, i * cell_h, cell_w, cell_h);
+			}
+		}
 	}
-    }
     // Draw the players as black squares
     dom.canvas.fillStyle = "#000000";
 	dom.canvas.font = "10px Arial";
     for(i = 0; i < data.length; i++) {
-		dom.canvas.fillRect(data[i].x, data[i].y, 10, 10);
-		dom.canvas.fillText(data[i].name, data[i].x - 10, data[i].y - 10);
+		var shifted_x = data[i].x - cam_x * cell_w;
+		var shifted_y = data[i].y - cam_y * cell_h;
+		dom.canvas.fillRect(shifted_x, shifted_y, 10, 10);
+		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
     }
 }
 

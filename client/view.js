@@ -110,7 +110,13 @@ View.prototype.keyPressed = function(event) {
 	    client.emit("keyPress", { inputId:"left", state:true});
 	else if(keycode === 87)
 	    client.emit("keyPress", { inputId:"up", state:true});
-    }
+	
+	// Camera controls
+    else if(keycode === 37) client.camera.x--;
+	else if(keycode === 38) client.camera.y--;
+	else if(keycode === 39) client.camera.x++;
+	else if(keycode === 40) client.camera.y++;
+	}
 }
 
 /**

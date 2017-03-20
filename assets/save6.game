@@ -1,0 +1,1 @@
+{"map":"assets/newmap.map","players":[{"x":190,"y":670,"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":10,"diff":0,"active":true,"name":"admin"},{"x":760,"y":330,"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":10,"diff":0,"active":true,"name":"user"}],"running":true}
