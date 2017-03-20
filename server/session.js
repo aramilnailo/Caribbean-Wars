@@ -543,21 +543,22 @@ Session.prototype.loadGameState = function(param) {
 						return pl.name === c.username;
 					});
 					if(p) {
-						// If the client is already in game, simply reassign
+						// If the client is in-game, reassign and activate
+						// else wait for them to rejoin
 						if(c.player) {
 							c.player = p;
 							c.player.active = true;
-						} else {
-							// Otherwise reassign but deactivate
-							c.player = p;
-							c.player.active = false;
+							server.emit(c.socket, "alert", "Playing on saved game " + filename);
 						}
-						server.emit(c.socket, "alert", "Playing on saved game " + filename);
 					} else {
-						c.player = new player.Player(c.username);
-						session.game.players.push(c.player);
-						server.emit(c.socket, "alert", "Playing on saved game " + filename +
-						" as new player");
+						// If the client is in-game, assign new active player
+						// Else wait for them to join
+						if(c.player) {
+							c.player = new player.Player(c.username);
+							session.game.players.push(c.player);
+							server.emit(c.socket, "alert", "Playing on saved game " + filename +
+							" as new player");
+						}
 					}
 				}
 				session.game.running = true;
