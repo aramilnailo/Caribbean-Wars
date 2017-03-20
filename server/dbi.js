@@ -459,17 +459,22 @@ dbi.prototype.setStat = function(username, usertype, stat, newval, cb){
  * @param cb - callback function. returns true if succeeded with no errors, false otherwise
  * @memberof module:server/dbi
  */
-dbi.prototype.updateStat = function(username, stat, diff, cb) {
-    var sql = "UPDATE ?? SET ??=??+? WHERE ??=?;";
-    var inserts = ["user_stats", stat, stat, diff, "username", username];
-    db.query(mysql.format(sql, inserts), function(err, rows) {
-	if(err) {
-	    if (debug) log(err.message);
-	    cb(false);
-	} else {
-	    cb(true);
+dbi.prototype.updateStats = function(users, stats, cb) {
+	var val = true;
+	for(var i in users) {
+		for(var j in stats[i]) {
+    		var sql = "UPDATE ?? SET ??=??+? WHERE ??=?;";
+    		var inserts = ["user_stats", stats[i][j].name, stats[i][j].name, 
+								stats[i][j].diff, "username", users[i].name];
+    		db.query(mysql.format(sql, inserts), function(err) {
+				if(err) {
+	    			if(debug) log(err.message);
+	    			val = false;
+				}
+    		});
+		}
 	}
-    });
+	cb(val);
 }
 
 /**

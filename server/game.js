@@ -94,24 +94,27 @@ Game.prototype.update = function() {
 Game.prototype.updateStats = function() {
 	for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
+		var users = [];
+		var stats = [];
 		for(var j in session.game.players) {
 			var p = session.game.players[j];
 			if(p.active) {
-				// Add time change to seconds played
-	    		dbi.updateStat(p.name, "seconds_played", 1, function(resp) {
-					if(!resp && debug) log("Failed to update seconds played");
-	    		});
-				// Add position change to distance sailed
-				dbi.updateStat(p.name, "distance_sailed", p.diff, function(resp) {
-					if(resp) {
-						// Reset the position change
-						p.diff = 0;
-					} else {
-						if(debug) log("[Game] Could not update stats");
-					}
-				});
+				users.push(p);
+				var arr = [];
+				arr.push({name:"seconds_played", diff:1});
+				arr.push({name:"shots_fired", diff:0});
+				arr.push({name:"distance_sailed", diff:p.diff});
+				arr.push({name:"ships_sunk", diff:0});
+				arr.push({name:"ships_lost", diff:0});
+				stats.push(arr);
+				p.diff = 0;
 			}
 		}
+		dbi.updateStats(users, stats, function(resp) {
+			if(!resp && debug) {
+				log("Failed to update stats");
+			}
+		});
 	}
 	// Push the stats changes to all clients
 	dbi.getAllStats(function(data) {
