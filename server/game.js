@@ -92,6 +92,7 @@ Game.prototype.update = function() {
 * @memberof module:server/Game
 */
 Game.prototype.updateStats = function() {
+	var send = false;
 	for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
 		var users = [];
@@ -99,6 +100,7 @@ Game.prototype.updateStats = function() {
 		for(var j in session.game.players) {
 			var p = session.game.players[j];
 			if(p.active) {
+				send = true;
 				users.push(p);
 				var arr = [];
 				arr.push({name:"seconds_played", diff:1});
@@ -117,6 +119,7 @@ Game.prototype.updateStats = function() {
 		});
 	}
 	// Push the stats changes to all clients
+	if(send) {
 	dbi.getAllStats(function(data) {
 	    if(data) {
 			for(var i in CLIENT_LIST) {
@@ -125,6 +128,7 @@ Game.prototype.updateStats = function() {
 			}
 	    }
 	});
+	}
 }
 
 function updatePosition(player) {
