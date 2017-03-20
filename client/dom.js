@@ -303,19 +303,6 @@ dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:
 	function(event) { router.route({name:"mapEditorBrush01Click", data:null}); }
     //zoom icon
 
-
-dom.show = function(data) {
-	for(var i in data) {
-		data[i].style.display = "block";
-	}
-}
-
-dom.hide = function(data) {
-	for(var i in data) {
-		data[i].style.display = "none";
-	}
-}
-
 return dom;
 
 });

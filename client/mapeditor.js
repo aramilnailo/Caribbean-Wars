@@ -10,8 +10,10 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     var MapEditor = function () {};
 
-    var mapEditHistory=[];
-    var currentMap = 0;
+	// Undo/redo stacks
+    var mapUndoStack=[];
+	var mapRedoStack=[];
+	
     var paintMove = false;
     var paintingSand = false;
     var paintingWater = false;
@@ -98,15 +100,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     }
 	
     function copyOfMap(oldmap) {
-		return {
-			width:oldmap.width,
-			height:oldmap.height,
-			path:oldmap.path,
-			author:client.username,
-			name:oldmap.name,
-			data:oldmap.data,
-			ports:oldmap.ports
-		};
+		// deep copy
+		return JSON.parse(JSON.stringify(oldmap));
     }
     
     /**
@@ -114,12 +109,15 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.loadNewEditMap = function(event) {
-		mapEditHistory=[];
-		client.camera.zoom = 1.0;
-		if(!client.map.ports) client.map.ports = [];
-		mapEditHistory.push(client.map);
+		mapUndoStack=[];
+		mapRedoStack=[];
+		// Set to max zoom
+		client.camera.zoom = 20 / client.map.width;
+		if(client.camera.zoom > 20 / client.map.height) {
+			client.camera.zoom = 20 / client.map.height;
+		}
+		mapUndoStack.push(copyOf(client.map));
 		MapEditor.prototype.drawEditScreen(event);
-		currentMap = 0;
     }
 
     /**
@@ -128,20 +126,16 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.clearMapButtonClick = function(event) {
 		if (debug.mapeditor) debug.log("client/mapeditor.js:ClearMapButtonClick");
-		var map = copyOfMap(client.map);
-		var newData = [];
-		for(var i = 0; i < map.height; ) {
-			var line = "";
-			for(var j = 0; j < map.width; j++) {
-				line += "0";
-			}
-			newData.push(line);
+		mapUndoStack.push(copyOfMap(client.map));
+		// Zero out the data of the new map
+		var line = "";
+		while(line.length < client.map.width) {
+			line += "0";	
 		}
-		map.ports = [];
-		mapEditHistory.push(map);
-		currentMap = mapEditHistory.length - 1;
-		client.map = map;
-		client.camera.zoom = 1.0;
+		client.map.data = [];
+		while(client.map.data.length < client.map.height) {
+			client.map.data.push(line);
+		}
 		MapEditor.prototype.drawEditScreen(event);
     }
     
@@ -317,11 +311,13 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.backtrack = function () {
-		if (debug.mapeditor) debug.log("client/mapeditor.js: backtrack()");
-		if (currentMap > 0) {
-		    currentMap--;
-		    client.map = mapEditHistory[currentMap];
-		    MapEditor.prototype.drawEditScreen(null);
+		if(debug.mapeditor) debug.log("client/mapeditor.js: backtrack()");
+		if(mapUndoStack.length > 0) {
+			mapRedoStack.push(copyOfMap(client.map));
+			client.map = mapUndoStack.pop();
+			MapEditor.prototype.drawEditScreen(null);
+		} else {
+			alert("Undo limit reached");
 		}
     };
 
@@ -332,10 +328,12 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.timewarp = function () {
 		if (debug.mapeditor) debug.log("client/mapeditor.js: timewarp()");
-		if (currentMap + 1 < mapEditHistory.length) {
-		    currentMap++;
-		    client.map = mapEditHistory[currentMap];
+		if(mapRedoStack.length > 0) {
+			mapUndoStack.push(copyOfMap(client.map));
+		    client.map = mapRedoStack.pop();
 		    MapEditor.prototype.drawEditScreen(null);
+		} else {
+			alert("Redo limit reached");
 		}
     };
 
@@ -385,15 +383,10 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.mapEditorZoomSubmitButtonClick = function(event) {
 		if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorZoomSubmitButtonClick()");
-
 		var val = dom.mapEditorNewZoom.value;
-		if (val.length > 0 && val > 0.0) {
-		    var map = copyOfMap(client.map);
-		    map.name = "temp"+mapEditHistory.length;
-		    client.camera.zoom = val;
-		    mapEditHistory.push(map);
-		    client.map = map;
-		    currentMap = mapEditHistory.length - 1;
+		if (val.length > 0 && val > 0.1 && val < 4.0) {
+			client.camera.zoom = val;
+			dom.mapEditorNewZoom.value = "";
 		    MapEditor.prototype.drawEditScreen(event);
 		}
     };
@@ -420,23 +413,22 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorResizeSubmitButtonClick()");
 		var lx = dom.mapEditorResizedLX.value;
 		var ly = dom.mapEditorResizedLY.value;
-		if (debug.mapeditor) debug.log("client/mapeditor.js: read lx,ly="+lx+","+ly);
-		if (debug.mapeditor) debug.log("client/mapeditor.js: lx.length="+lx.length);
 		var oldmap = client.map;
 	
 		if (lx.length > 0 && ly.length > 0 && lx > 0 && ly > 0) {
 
 		    var map = copyOfMap(client.map);
-		    map.author = dom.loginUsername.value;
-		    map.name = "tempmap"+mapEditHistory.length;
-		    map.data.length = 0;
-		    map.lx = lx;
-		    map.ly = ly;
-		    var i,j;
+		    map.author = client.username;
+		    map.data = [];
+		    map.width = lx;
+		    map.height = ly;
 		    //default: water.
-		    for (i = 0; i<lx; i++)
-			for (j = 0; j<ly; j++) {
-			    map.data.push(0);
+		    for (var i = 0; i < lx; i++) {
+				for (var j = 0; j < ly; j++) {
+					// TO DO
+					
+			    	map.data.push(0);
+				}
 			}
 
 		    var oldindex,index;
@@ -456,8 +448,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		    //post-processing
 		    dom.mapEditorTextboxMessage.innerHTML = "<p style=\"font:12px Arial\">Map edit mode</p>";
 		    dom.mapEditorTextboxResizeForm.style.display="none";
-		    mapEditHistory.push(client.map);
-		    currentMap = mapEditHistory.length - 1;
+			
+		    mapUndoStack.push(copyOfMap(client.map));
 		    MapEditor.prototype.drawEditScreen(event);
 		} else {
 		    dom.mapEditorTextboxResizeForm.style.display="none";
@@ -476,6 +468,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.onCanvasMouseDown = function (event) {
 		paintMove = true;
+	    mapUndoStack.push(copyOfMap(client.map));
+		mapRedoStack = [];
 		MapEditor.prototype.onCanvasMouseMove(event);
     };
 
@@ -485,11 +479,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.onCanvasMouseUp = function (event) {
-		if(paintMove) {
-		    mapEditHistory.push(client.map);
-		    currentMap = mapEditHistory.length - 1;
-		    paintMove = false;
-		}
+		if(paintMove) paintMove = false;
     }
 
     /**
@@ -497,11 +487,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.onCanvasMouseLeave = function (event) {
-		if(paintMove) {
-		    mapEditHistory.push(client.map);
-		    currentMap = mapEditHistory.length - 1;
-		    paintMove = false;
-		}
+		if(paintMove) paintMove = false;
     }
     
     

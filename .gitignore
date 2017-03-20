@@ -33,7 +33,6 @@ pkg/
 *.app
 
 *.ilk
-*.map
 *.exp
 *.gch
 *.pch
