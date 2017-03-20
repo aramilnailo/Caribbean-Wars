@@ -90,8 +90,8 @@ Render.prototype.drawScreen = function(data) {
     dom.canvas.fillStyle = "#000000";
 	dom.canvas.font = "10px Arial";
     for(i = 0; i < data.length; i++) {
-		var shifted_x = (data[i].x - cam_x * cell_w) * client.camera.zoom;
-		var shifted_y = (data[i].y - cam_y * cell_h) * client.camera.zoom;
+		var shifted_x = data[i].x * client.camera.zoom - cam_x * cell_w;
+		var shifted_y = data[i].y * client.camera.zoom - cam_y * cell_h;
 		dom.canvas.fillRect(shifted_x, shifted_y, 10 * client.camera.zoom, 10 * client.camera.zoom);
 		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
     }

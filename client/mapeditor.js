@@ -19,8 +19,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     var paintingGrass = false;
 
     var brushSize = 1;
-    var zoom = client.zoom;
-    
+	
     /**
      * 
      * @memberof client/MapEditor
@@ -116,7 +115,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.loadNewEditMap = function(event) {
 		mapEditHistory=[];
-		zoom = 1.0;
+		client.camera.zoom = 1.0;
 		if(!client.map.ports) client.map.ports = [];
 		mapEditHistory.push(client.map);
 		MapEditor.prototype.drawEditScreen(event);
@@ -142,7 +141,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		mapEditHistory.push(map);
 		currentMap = mapEditHistory.length - 1;
 		client.map = map;
-		zoom = 1.0;
+		client.camera.zoom = 1.0;
 		MapEditor.prototype.drawEditScreen(event);
     }
     
@@ -151,7 +150,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.drawEditScreen = function(event) {
-		if (debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen");
+		if(debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen");
+		if(!client.map) return;
 		
 		var map = client.map.data;
 	
@@ -160,8 +160,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		var cam_y = client.camera.y; 
 	
 		// camera dimensions in cells
-		var cam_w = 20 / zoom;
-		var cam_h = 20 / zoom;
+		var cam_w = 20 / client.camera.zoom;
+		var cam_h = 20 / client.camera.zoom;
 	
 		// camera dimensions in pixels
 		var width = 500;
@@ -390,7 +390,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		if (val.length > 0 && val > 0.0) {
 		    var map = copyOfMap(client.map);
 		    map.name = "temp"+mapEditHistory.length;
-		    zoom = val;
+		    client.camera.zoom = val;
 		    mapEditHistory.push(map);
 		    client.map = map;
 		    currentMap = mapEditHistory.length - 1;
@@ -510,48 +510,49 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.onCanvasMouseMove = function (event) {
+		if(!client.map) return;
 		if (paintMove) {
 		    if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasMouseMove()");
 		    var rect = event.target.getBoundingClientRect();
-		    var lx = client.map.lx;
-		    var ly = client.map.ly;
-		    var wx = rect.height;
-		    var wy = rect.width;
-		    var x = event.clientX - rect.left;
-		    var y = event.clientY - rect.top;
-		    var a = Math.floor(lx*x/wx);
-		    var b = Math.floor(ly*y/wy);
+		    var a = Math.floor(client.map.height * (event.clientX - rect.left) / rect.height);
+		    var b = Math.floor(client.map.width * (event.clientY - rect.top) / rect.width);
 		    var change = false;
 		    var ch;
-		    if (paintingWater) { ch = 0; change = true; }
-		    if (paintingSand) { ch = 1; change = true; }
-		    if (paintingGrass) { ch = 2; change = true; }
-		    if (paintingPort) { ch = 3; change = true; }
-		    //if (debug.mapeditor) debug.log("client/mapeditor.js: change="+change+"; ch="+ch);
-		    //if (debug.mapeditor) debug.log("client/mapeditor.js: a,b="+a+","+b);
-		    var bsq = brushSize*brushSize/4;
-		    var lim = Math.floor(brushSize/2)+1;
+		    if (paintingWater) { ch = "0"; change = true; }
+		    if (paintingSand) { ch = "1"; change = true; }
+		    if (paintingGrass) { ch = "2"; change = true; }
+		    if (paintingPort) { ch = "3"; change = true; }
 
-		    var pmin = a-lim;
+			 if (debug.mapeditor) debug.log("client/mapeditor.js: ch: " + ch);
+
+		    var bsq = brushSize * brushSize / 4;
+		    var lim = Math.floor(brushSize / 2) + 1;
+
+		    var pmin = a - lim;
 		    if (pmin < 0) pmin = 0;
-		    var pmax = a+lim;
-		    if (pmax >= lx) pmax = lx;
+		    var pmax = a + lim;
+		    if (pmax >= client.map.width) 
+				pmax = client.map.width;
 
-		    var qmin = b-lim;
+		    var qmin = b - lim;
 		    if (qmin < 0) qmin = 0;
-		    var qmax = b+lim;
-		    if (qmax >= ly) qmax = ly;
+		    var qmax = b + lim;
+		    if (qmax >= client.map.height) 
+				qmax = client.map.height;
 
 		    if (change) {
-			var p,q;
-			for (p = pmin; p < pmax; p++) {
-				for (q = qmin; q < qmax; q++) {
-				    if ((p-a)*(p-a)+(q-b)*(q-b) < bsq) {
-					client.map.data[ly*q+p] = ch;
-				    }
+				var p,q;
+				for (p = pmin; p < pmax; p++) {
+					for (q = qmin; q < qmax; q++) {
+					    if ((p-a)*(p-a)+(q-b)*(q-b) < bsq) {
+							var line = client.map.data[q];
+							line = line.substring(0, p) + ch + 
+									line.substring(p + 1);
+							client.map.data[q] = line;
+					    }
+					}
 				}
-			}
-			MapEditor.prototype.drawEditScreen(event);
+				MapEditor.prototype.drawEditScreen(event);
 		    }
 		}
     };          

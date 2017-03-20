@@ -63,7 +63,8 @@ Router.prototype.unlisten = function(msg, action) {
 */
 Router.prototype.route = function(msg) {
 	if(debug.router) {
-		if(msg.name !== "newPositions") debug.log("[Client] Routing \"" + msg.name + "\"");
+		if(msg.name !== "newPositions" && 
+			msg.name !== "refreshEditScreen") debug.log("[Client] Routing \"" + msg.name + "\"");
 	}
     for (var i in listeners) {
 		if (listeners[i].name === msg.name) {
