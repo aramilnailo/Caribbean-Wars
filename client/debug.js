@@ -18,7 +18,7 @@ var debug = {
     stats:debugall||true,
     render:debugall||false,
     view:debugall||true,
-    mapeditor:debugall||true,
+    mapeditor:debugall||false,
     mapeditorfiles:debugall||true
 }
 

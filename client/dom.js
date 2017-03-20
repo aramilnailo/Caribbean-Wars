@@ -303,11 +303,6 @@ dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:
 	function(event) { router.route({name:"mapEditorBrush01Click", data:null}); }
     //zoom icon
 
-dom.mapEditorCanvasContext.font = "30px Arial";
-
-
-
-
 
 dom.show = function(data) {
 	for(var i in data) {

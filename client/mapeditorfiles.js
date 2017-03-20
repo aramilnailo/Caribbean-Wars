@@ -19,8 +19,8 @@ MapEditorFiles.prototype.listen = function(router) {
     if(debug.mapeditorsavedlist) debug.log("client/mapeditorlistmenu.js: listen()");
     router.listen("savedMapsListResponse", this.displaySavedMapsList);
     router.listen("toggleMapEditorFiles", this.toggleSavedMapsList);
-    //router.listen("mapEditorSaveMapButtonClick", this.saveMapClick);
-    //router.listen("mapEditorLoadMapClick", this.loadMapClick);
+    router.listen("mapEditorSaveMapButtonClick", this.saveMapClick);
+    router.listen("mapEditorLoadMapClick", this.loadMapClick);
     router.listen("deleteSavedMapClick", this.deleteMapClick);
 
 }
@@ -80,19 +80,19 @@ MapEditorFiles.prototype.displaySavedMapsList = function(data) {
 *
 * @memberof module:client/MapEditorFiles
 */
-    /*
 MapEditorFiles.prototype.saveMapClick = function() {
     if(debug.mapeditorfiles) debug.log("saveMapClick: author="+dom.loginUsername.value);
     var filename = window.prompt("Save as: ","filename");
     if(filename) {
+		var path = "./assets/" + filename + ".map";
         client.emit("saveMapRequest",
 		    {filename:filename,
-		     path:"./assets/",
+			 path:path,
 		     username:client.username,
 		     usertype:client.usertype});
     }
 }
-*/
+
 
 /**
 * Prompts the user for a file name and attempts to load

@@ -300,7 +300,7 @@ Session.prototype.startGame = function(param) {
 	var id = param.client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
-	var mapFile = "assets/" + param.data;
+	var mapFile = "assets/" + param.data + ".map";
 	session.game = {map:mapFile, players:[], running:false};
 	loadMap(session, function(resp) {
 		if(!resp) {

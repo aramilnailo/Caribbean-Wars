@@ -76,10 +76,7 @@ View.prototype.gameScreen = function(data) {
 
 View.prototype.mapEditorScreen = function(data) {
 	hideAll();
-	client.emit("getEditMap", 
-	{filename:"", 
-	username:client.username, 
-	usertype:client.usertype});
+	client.emit("getEditMap", {filename:"default"});
 	show(["mapEditorScreen"]);
 	client.inGame = false;
 }
@@ -111,7 +108,7 @@ View.prototype.keyPressed = function(event) {
 		    client.emit("keyPress", { inputId:"left", state:true});
 		} else if(keycode === 87) {
 		    client.emit("keyPress", { inputId:"up", state:true});
-		
+			
 		// Camera controls
 	    } else if(keycode === 37) {
 			client.camera.x--;
@@ -125,16 +122,30 @@ View.prototype.keyPressed = function(event) {
 		} else if(keycode === 40) {
 			client.camera.y++;
 			if(event.shiftKey) client.camera.y += 4;
+		} else if(keycode === 187) {// "=/+"
+			client.camera.zoom += 0.2;
+		} else if(keycode === 189) {// "-/_"
+			client.camera.zoom -= 0.2;
 		}
-
+		
 		// Correct camera
 		if(client.map) {
+			if(client.camera.zoom < 0.1) client.camera.zoom = 0.1;
+			if(client.camera.zoom > 3.0) client.camera.zoom = 3.0;
+			if(20 / client.camera.zoom > client.map.width) {
+				client.camera.zoom = 20 / client.map.width;
+			}
+			if(20 / client.camera.zoom > client.map.height) {
+				client.camera.zoom = 20 / client.map.height;
+			}
+			var cam_w = 20 / client.camera.zoom;
+			var cam_h = 20 / client.camera.zoom;
 			if(client.camera.x < 0) client.camera.x = 0;
 			if(client.camera.y < 0) client.camera.y = 0;
-			if(client.camera.x > client.map.width - 20) 
-				client.camera.x = client.map.width - 20;
-			if(client.camera.y > client.map.height - 20)
-				client.camera.y = client.map.height - 20;
+			if(client.camera.x > client.map.width - cam_w)
+				client.camera.x = client.map.width - cam_w;
+			if(client.camera.y > client.map.height - cam_h)
+				client.camera.y = client.map.height - cam_h;
 		}
 	}
 }

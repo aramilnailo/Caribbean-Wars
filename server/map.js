@@ -13,24 +13,17 @@ var server = require("./server.js");
 */
 var Map = function() {
     var map = {
-	lx:0,
-	ly:0,
-	cx:0,
-	cy:0,
+	width:0,
+	height:0,
 	path:"",
-	author:"nobody",
-	name:"newmapfile",
+	author:"",
+	name:"",
 	data:[],
 	ports:[]
     };
 
     return map;
 };
-
-// not currently used.
-Map.prototype.waterMapCode = 0;
-Map.prototype.sandMapCode = 1;
-Map.prototype.grassMapCode = 2;
 
 module.exports = Map;
 
