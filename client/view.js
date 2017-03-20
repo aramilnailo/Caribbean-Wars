@@ -100,22 +100,42 @@ View.prototype.adminScreen = function(data) {
 View.prototype.keyPressed = function(event) {
     // If the chat bar is not in focus
     if(dom.chatInput !== dom.document.activeElement) {
-	//for compatability with firefox
-	var keycode = event.which || event.keyCode;
-	if(keycode === 68)
-	    client.emit("keyPress", { inputId:"right", state:true});	
-	else if(keycode === 83)
-	    client.emit("keyPress", { inputId:"down", state:true});
-	else if(keycode === 65)
-	    client.emit("keyPress", { inputId:"left", state:true});
-	else if(keycode === 87)
-	    client.emit("keyPress", { inputId:"up", state:true});
-	
-	// Camera controls
-    else if(keycode === 37) client.camera.x--;
-	else if(keycode === 38) client.camera.y--;
-	else if(keycode === 39) client.camera.x++;
-	else if(keycode === 40) client.camera.y++;
+		//for compatability with firefox
+		var keycode = event.which || event.keyCode;
+		
+		if(keycode === 68) {
+		    client.emit("keyPress", { inputId:"right", state:true});	
+		} else if(keycode === 83) {
+		    client.emit("keyPress", { inputId:"down", state:true});
+		} else if(keycode === 65) {
+		    client.emit("keyPress", { inputId:"left", state:true});
+		} else if(keycode === 87) {
+		    client.emit("keyPress", { inputId:"up", state:true});
+		
+		// Camera controls
+	    } else if(keycode === 37) {
+			client.camera.x--;
+			if(event.shiftKey) client.camera.x -= 4;
+		} else if(keycode === 38) {
+			client.camera.y--;
+			if(event.shiftKey) client.camera.y -= 4;
+		} else if(keycode === 39) {
+			client.camera.x++;
+			if(event.shiftKey) client.camera.x += 4;
+		} else if(keycode === 40) {
+			client.camera.y++;
+			if(event.shiftKey) client.camera.y += 4;
+		}
+
+		// Correct camera
+		if(client.map) {
+			if(client.camera.x < 0) client.camera.x = 0;
+			if(client.camera.y < 0) client.camera.y = 0;
+			if(client.camera.x > client.map.width - 20) 
+				client.camera.x = client.map.width - 20;
+			if(client.camera.y > client.map.height - 20)
+				client.camera.y = client.map.height - 20;
+		}
 	}
 }
 

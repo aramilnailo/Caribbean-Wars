@@ -31,44 +31,61 @@ Render.prototype.listen = function(router) {
 *             info on all players (number, x, y)
 */
 Render.prototype.drawScreen = function(data) {
-	if(client.map) {
-		var map = client.map.data;
-		var cam_x = client.camera.x;
-		var cam_y = client.camera.y;
-		
-		var width = 500; // camera width in pixels
-		var height = 500; // camera height in pixels
-		
-		var cells_in_cam_x = 20; // camera width in cells
-		var cells_in_cam_y = 20; // camera height in cells
-		
-		var cell_w = 500 / 20; // cell width in pixels
-		var cell_h = 500 / 20; // cell height in pixels
-		
-		// Draw map
-		for(var i = 0; i < cells_in_cam_y; i++) {
-			var line = map[i + cam_y];
-			for(var j = 0; j < cells_in_cam_x; j++) {
-				var ch, color;
-				if(line) ch = line.charAt(j + cam_x);
-			    switch(ch) {
-			    	case "0": 
-						color = "#42C5F4";
-						break;
-			    	case "1": 
-						color = "#C19E70";
-						break;
-			    	case "2":
-						color = "#2A8C23";
-						break;
-			    	default: 
-						color = "#000000";
-			    }
-			    dom.canvas.fillStyle = color;
-			    dom.canvas.fillRect(j * cell_w, i * cell_h, cell_w, cell_h);
-			}
+	if(!client.map) return;
+	
+	var map = client.map.data;
+	
+	// camera position in cells
+	var cam_x = client.camera.x;
+	var cam_y = client.camera.y; 
+	
+	// camera dimensions in cells
+	var cam_w = 20;
+	var cam_h = 20;
+	
+	// camera dimensions in pixels
+	var width = 500;
+	var height = 500;
+	
+	// cell dimensions in pixels
+	var cell_w = width / cam_w; 
+	var cell_h = height / cam_h;
+	
+	// Draw camera
+	for(var i = 0; i < cam_h; i++) {
+		var line = map[i + cam_y];
+		for(var j = 0; j < cam_w; j++) {
+			var ch, color;
+			if(line) ch = line.charAt(j + cam_x);
+		    switch(ch) {
+		    	case "0": 
+					color = "#42C5F4";
+					break;
+		    	case "1": 
+					color = "#C19E70";
+					break;
+		    	case "2":
+					color = "#2A8C23";
+					break;
+		    	default: 
+					color = "#000000";
+		    }
+		    dom.canvas.fillStyle = color;
+		    dom.canvas.fillRect(j * cell_w, i * cell_h, cell_w, cell_h);
 		}
 	}
+	
+	// In the upper left corner, draw camera's position in world map
+	dom.canvas.clearRect(500, 0, 100, 500);
+	dom.canvas.strokeStyle = "#000000"; // Black
+	dom.canvas.strokeRect(500, 0, 100, 100);
+	var rel_x = Math.floor(100 * cam_x / client.map.width);
+	var rel_y = Math.floor(100 * cam_y / client.map.height);
+	var rel_w = Math.floor(100 * cam_w / client.map.width);
+	var rel_h = Math.floor(100 * cam_h / client.map.height);
+	dom.canvas.strokeStyle = "#ff0000"; // Red
+	dom.canvas.strokeRect(500 + rel_x, 0 + rel_y, rel_w, rel_h);
+	
     // Draw the players as black squares
     dom.canvas.fillStyle = "#000000";
 	dom.canvas.font = "10px Arial";
