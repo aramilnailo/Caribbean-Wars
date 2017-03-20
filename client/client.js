@@ -14,6 +14,7 @@ Client.prototype.socket = null;
 Client.prototype.map = null;
 Client.prototype.gameStateBuffer = [];
 Client.prototype.camera = {x:0, y:0, zoom:1.0};
+Client.prototype.loading = false;
 
 /**
 * Registers all gui event messages associated with client state
@@ -25,8 +26,7 @@ Client.prototype.listen = function(router) {
     if(debug.client) debug.log("client/client.js: listen()");
     router.listen("evalResponse", this.logToConsole);
     router.listen("alert", this.pushAlert);
-    router.listen("newGameMapResponse", this.setMap);
-    router.listen("getEditMapResponse", this.setMap); 
+    router.listen("newGameMapResponse", this.setMap); 
 }
 
 /**

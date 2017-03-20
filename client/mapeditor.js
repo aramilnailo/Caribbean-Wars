@@ -28,6 +28,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      */
     MapEditor.prototype.listen = function(router) {
 
+    router.listen("getEditMapResponse", this.setEditMap);
+		
 	router.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
 	router.listen("mapEditorPaintSandIconClick",this.raiseWaterIcon);
 	router.listen("mapEditorPaintSandIconClick",this.raisePortIcon);
@@ -54,7 +56,6 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	router.listen("mapEditorCanvasMouseLeave",this.onCanvasMouseLeave);
 	
 	router.listen("keyPressed",this.onKeyPress);
-	router.listen("refreshEditScreen",this.drawEditScreen);
 	router.listen("getEditMapResponse",this.loadNewEditMap);
 	router.listen("mapEditorLogoutButtonClick",this.mapEditorLogoutButtonClick);
 	router.listen("mapEditorLoadMapButtonClick",this.mapEditorLoadMapButtonClick);
@@ -112,10 +113,9 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		mapUndoStack=[];
 		mapRedoStack=[];
 		// Set to max zoom
-		client.camera.zoom = 20 / client.map.width;
-		if(client.camera.zoom > 20 / client.map.height) {
-			client.camera.zoom = 20 / client.map.height;
-		}
+		var max_w = 20 / client.map.width;
+		var max_h = 20 / client.map.height;
+		client.camera.zoom = max_w < max_h ? max_w : max_h;
 		mapUndoStack.push(copyOfMap(client.map));
     }
 
@@ -144,12 +144,11 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     MapEditor.prototype.drawEditScreen = function(event) {
 		if(debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen");
 		if(!client.map) return;
-		
 		var map = client.map.data;
 	
 		// camera position in cells
 		var cam_x = client.camera.x;
-		var cam_y = client.camera.y; 
+		var cam_y = client.camera.y;
 	
 		// camera dimensions in cells
 		var cam_w = 20 / client.camera.zoom;
@@ -160,9 +159,16 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		var height = 500;
 	
 		// cell dimensions in pixels
-		var cell_w = width / cam_w; 
+		var cell_w = width / cam_w;
 		var cell_h = height / cam_h;
-	
+		
+		if(debug.mapeditor) debug.log("cam_x: " + cam_x + 
+										"\ncam_y: " + cam_y +
+										"\ncam_w: " + cam_w +
+										"\ncam_h: " + cam_h + 
+										"\ncell_w: " + cell_w +
+										"\ncell_h: " + cell_h);
+		
 		// Draw camera
 		for(var i = 0; i < cam_h; i++) {
 			var line = map[i + cam_y];
@@ -454,11 +460,10 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		
 		client.map = newMap;
 		
-		// // reset zoom to max
-		// client.camera.zoom = 20 / newMap.width;
-		// if(client.camera.zoom > 20 / newMap.height) {
-		// 	client.camera.zoom = 20 / newMap.height;
-		// }
+		// reset zoom to max
+		var max_w = 20 / client.map.width;
+		var max_h = 20 / client.map.height;
+		client.camera.zoom = max_w < max_h ? max_w : max_h;
 		
 	    //post-processing
 	    dom.mapEditorTextboxMessage.innerHTML = "<p style=\"font:12px Arial\">Map edit mode</p>";
@@ -582,11 +587,26 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     MapEditor.prototype.mapEditorLoadMapButtonClick = function() {
 		var filename = window.prompt("Load file: ","filename");
 		if (filename) {
+			client.loading = true;
 		    client.emit("getEditMap",{username:client.username,
 					      usertype:client.usertype,
 					      filename:filename});
 		}
     };
+	
+	/**
+	 * Sets the client's map data to the given parameter
+	 * @param data - the new map data
+	 */
+	MapEditor.prototype.setEditMap = function(data) {
+	    if(debug.client) debug.log("mapeditor: setMap()");
+	    if(data.err) {
+	        alert(data.err);
+		} else {
+			client.map = data;
+			client.loading = false;
+		}
+	}
 
 
     function flipAllBrushButtonsUp() {

@@ -21,4 +21,11 @@ socket.on("message", function(message) {
 	router.route(message);
 });
 
+setInterval(function() { 
+	if(!client.loading && client.usertype === "editor") {
+		mapeditor.drawEditScreen(); 
+	}
+}, 1000/30);
+
+
 });
