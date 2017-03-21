@@ -1,1 +1,0 @@
-{"map":"assets/map2.map","players":[{"box":{"x":49.5,"y":85.25,"w":0.5,"h":0.5,"dir":0,"prev_x":49.5,"prev_y":85.25},"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":0.25,"diff":0,"active":true,"name":"admin"}],"running":true}
