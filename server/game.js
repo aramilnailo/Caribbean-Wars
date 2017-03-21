@@ -165,14 +165,62 @@ function updatePosition(player) {
 function runCollisions(session) {
 	
 	for(var i in session.game.players) {
-		var box = session.game.players[i].box;
+		var player = session.game.players[i];
+		var box = player.box;
 		var map = session.mapData;
 		// Check each player's bounding box against the map limits
 		if(box.x < 0) box.x = 0;
 		if(box.y < 0) box.y = 0;
 		if(box.x + box.w > map.width) box.x = map.width - box.w;
 		if(box.y + box.h > map.height) box.y = map.height - box.h;
+		
+		// Check against map data
+		var corners = [{x:box.x, y:box.y},
+			{x:box.x + box.w, y:box.y},
+			{x:box.x, y:box.y + box.h},
+			{x:box.x + box.w, y:box.y + box.h}
+		];
+		
+		for(var i in corners) {
+			var cell_x = Math.floor(corners[i].x);
+			var cell_y = Math.floor(corners[i].y);
+			var ch = map.data[cell_y].charAt(cell_x);
+			corners[i].bad = (ch !== "0");
+		}
+		
+		if(debug) {
+			var vals = [];
+			for(var i in corners) {
+				vals[i] = corners[i].bad ? "X" : " ";
+			}
+			var out = "\n" + vals[0] + "-------" + vals[1] + "\n" +
+			"|       |\n" +
+			"|       |\n" +
+			"|       |\n" + 
+			vals[2] + "-------" + vals[3] + "\n";
+
+			log(out);
+		}
+		
+		// Correct for collisions
+		if(corners[0].bad) {
+			box.x += player.maxSpeed;
+			box.y += player.maxSpeed;
+		}
+		if(corners[1].bad) {
+			box.x -= player.maxSpeed;
+			box.y += player.maxSpeed;
+		}
+		if(corners[2].bad) {
+			box.x += player.maxSpeed;
+			box.y -= player.maxSpeed;
+		}
+		if(corners[3].bad) {
+			box.x -= player.maxSpeed;
+			box.y -= player.maxSpeed;
+		}
 	}
+	
 	
 	// Calculate the diffs with the corrected boxes
 	for(var i in session.game.players) {
