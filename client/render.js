@@ -90,9 +90,13 @@ Render.prototype.drawScreen = function(data) {
     dom.canvas.fillStyle = "#000000";
 	dom.canvas.font = "10px Arial";
     for(i = 0; i < data.length; i++) {
-		var shifted_x = data[i].x * client.camera.zoom - cam_x * cell_w;
-		var shifted_y = data[i].y * client.camera.zoom - cam_y * cell_h;
-		dom.canvas.fillRect(shifted_x, shifted_y, 10 * client.camera.zoom, 10 * client.camera.zoom);
+		var shifted_x = (data[i].box.x - cam_x) * cell_w;
+		var shifted_y = (data[i].box.y - cam_y) * cell_h;
+		
+		var shifted_w = data[i].box.w * cell_w;
+		var shifted_h = data[i].box.h * cell_h;
+		
+		dom.canvas.fillRect(shifted_x, shifted_y, shifted_w, shifted_h);
 		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
     }
 }

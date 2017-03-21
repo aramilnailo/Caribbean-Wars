@@ -68,13 +68,24 @@ Game.prototype.update = function() {
 		var session = GAME_SESSIONS[i];
 		if(session.game.running) {
 			var pack = [];
+			// Run the physics engine
 			for(var j in session.game.players) {
 				var p = session.game.players[j];
 		   		if(p.active) {
 					updatePosition(p);
-		    		pack.push({x:p.x, y:p.y, name:p.name});
 				}
 	    	}
+			runCollisions(session);
+			// Add the player data to the packet
+			for(var j in session.game.players) {
+				var p = session.game.players[j];
+				if(p.active) {
+					pack.push({name:p.name, box:p.box});
+				}
+				log("\n[" + p.name + "]\n" + 
+				"\n\tx: " + p.box.x +
+				"\n\ty: " + p.box.y);
+			}
 			// Send the packet to each client in the game session
 		    for(var j in session.clients) {
 				var c = session.clients[j];
@@ -92,6 +103,7 @@ Game.prototype.update = function() {
 * @memberof module:server/Game
 */
 Game.prototype.updateStats = function() {
+	// Flag for stats emit
 	var send = false;
 	for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
@@ -112,12 +124,15 @@ Game.prototype.updateStats = function() {
 				p.diff = 0;
 			}
 		}
-		dbi.updateStats(users, stats, function(resp) {
-			if(!resp && debug) {
-				log("Failed to update stats");
-			}
-		});
+		if(send) {
+			dbi.updateStats(users, stats, function(resp) {
+				if(!resp && debug) {
+					log("Failed to update stats");
+				}
+			});
+		}
 	}
+	// If any of the players are in game
 	// Push the stats changes to all clients
 	if(send) {
 	dbi.getAllStats(function(data) {
@@ -133,13 +148,40 @@ Game.prototype.updateStats = function() {
 
 function updatePosition(player) {
 	if(!player.active) return;
-	var oldX = player.x, oldY = player.y;
-	if(player.pressingRight) player.x += player.maxSpeed;
-	if(player.pressingLeft) player.x -= player.maxSpeed;
-	if(player.pressingUp) player.y -= player.maxSpeed;
-	if(player.pressingDown) player.y += player.maxSpeed;
-	var diffX = player.x - oldX, diffY = player.y - oldY;
-	player.diff += Math.sqrt(diffX * diffX + diffY * diffY);
+
+	player.box.prev_x = player.box.x;
+	player.box.prev_y = player.box.y;
+
+	var dx = 0, dy = 0;
+	if(player.pressingRight) dx += player.maxSpeed;
+	if(player.pressingLeft) dx -= player.maxSpeed;
+	if(player.pressingUp) dy -= player.maxSpeed;
+	if(player.pressingDown) dy += player.maxSpeed;
+
+	player.box.x += dx;
+	player.box.y += dy;
+}
+
+function runCollisions(session) {
+	
+	for(var i in session.game.players) {
+		var box = session.game.players[i].box;
+		var map = session.mapData;
+		// Check each player's bounding box against the map limits
+		if(box.x < 0) box.x = 0;
+		if(box.y < 0) box.y = 0;
+		if(box.x + box.w > map.width) box.x = map.width - box.w;
+		if(box.y + box.h > map.height) box.y = map.height - box.h;
+	}
+	
+	// Calculate the diffs with the corrected boxes
+	for(var i in session.game.players) {
+		var player = session.game.players[i];
+		var dx = player.box.x - player.box.prev_x;
+		var dy = player.box.x - player.box.prev_x;
+		player.diff += Math.sqrt(dx * dx + dy * dy);
+	}
+	
 }
 
 

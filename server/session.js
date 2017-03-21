@@ -57,7 +57,7 @@ Session.prototype.newGameSession = function(param) {
 	log(id);
 	// Create new session with client.player as host
 	GAME_SESSIONS[id] = {host:client, clients:[client], 
-		game:{map:"", players:[], running:false}};
+		game:{map:"", players:[], running:false}, mapData:null};
 	// Move the player into the game lobby
 	server.emit(client.socket, "lobbyScreen", {isHost:true});
 	server.emit(client.socket, "updateLobby", getNames(GAME_SESSIONS[id].clients));
@@ -364,10 +364,11 @@ Session.prototype.resumeGame = function(param) {
 				server.emit(client.socket, 
 				"alert", "Could not read from save file");
 			} else {
-				session.game = data;
-				for(var i in session.game.players) {
-					session.game.players[i].active = false;
+				for(var i in data.players) {
+					data.players[i].active = false;
 				}
+				data.running = false;
+				session.game = data;
 				for(var i in session.clients) {
 					var c = session.clients[i];
 					// Locate any former player of the client
@@ -532,10 +533,11 @@ Session.prototype.loadGameState = function(param) {
 				server.emit(client.socket, 
 				"alert", "Could not read from save file");
 			} else {
-				session.game = data;
-				for(var i in session.game.players) {
-					session.game.players[i].active = false;
+				for(var i in data.players) {
+					data.players[i].active = false;
 				}
+				data.running = false;
+				session.game = data;
 				for(var i in session.clients) {
 					var c = session.clients[i];
 					// Locate any former player of the client
@@ -597,6 +599,7 @@ function loadMap(session, cb) {
 		if(!data) { 
 			cb(false);
 		} else {
+			session.mapData = data;
 			// Emit new map data to session clients
 			for(var i in session.clients) {
 				var c = session.clients[i];
