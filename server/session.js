@@ -472,6 +472,8 @@ Session.prototype.getGameMap = function(param) {
 	if(!session.game.running) return;
     files.readFile(session.game.map, function(data) {
 		if(data) {
+			var zoom = Math.max(20 / data.width, 20 / data.height);
+			server.emit(client.socket, "setClientZoom", zoom);
 	    	server.emit(client.socket, "newGameMapResponse", data);
 		} else {
 	    	server.emit(client.socket, "alert", "Could not read from map file");
@@ -603,8 +605,9 @@ function loadMap(session, cb) {
 			// Emit new map data to session clients
 			for(var i in session.clients) {
 				var c = session.clients[i];
-				server.emit(c.socket, 
-					"newGameMapResponse", data);
+				var zoom = Math.max(20 / data.width, 20 / data.height);
+				server.emit(c.socket, "setClientZoom", zoom);
+				server.emit(c.socket, "newGameMapResponse", data);
 			}
 			cb(true);
 		}

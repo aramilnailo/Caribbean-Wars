@@ -1,1 +1,1 @@
-{"map":"assets/map1.map","players":[{"box":{"x":3.5,"y":3,"w":0.5,"h":0.5,"dir":0,"prev_x":3.5,"prev_y":3},"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":0.25,"diff":0,"active":true,"name":"admin"}],"running":true}
+{"map":"assets/map1.map","players":[{"box":{"x":30.5,"y":36.75,"w":0.5,"h":0.5,"dir":0,"prev_x":30.5,"prev_y":36.75},"pressingRight":false,"pressingLeft":false,"pressingUp":false,"pressingDown":false,"maxSpeed":0.25,"diff":0,"active":true,"name":"admin"}],"running":true}

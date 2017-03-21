@@ -21,6 +21,7 @@ View.prototype.listen = function(router) {
     if (debug.view) debug.log("client/view.js: listen()");
 	mrouter = router;
 	router.listen("setClientInfo", this.setClientInfo);
+	router.listen("setClientZoom", this.setClientZoom);
 	router.listen("loginScreen", this.loginScreen);
 	router.listen("sessionBrowser", this.sessionBrowser);
 	router.listen("lobbyScreen", this.lobbyScreen);
@@ -36,6 +37,10 @@ View.prototype.setClientInfo = function(data) {
 	client.username = data.username;
 	client.usertype = data.usertype;
 	dom.usernameLabel.innerHTML = data.username;
+}
+
+View.prototype.setClientZoom = function(data) {
+	client.camera.zoom = data;
 }
 
 View.prototype.loginScreen = function(data) {
