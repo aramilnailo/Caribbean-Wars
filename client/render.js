@@ -51,6 +51,12 @@ Render.prototype.drawScreen = function(data) {
 	var cell_w = width / cam_w; 
 	var cell_h = height / cam_h;
 	
+	log("\ncam_w: " + cam_w + 
+	"\ncam_h: " + cam_h +
+	"\ncam_x: " + cam_x +
+	"\ncam_y: " + cam_y);
+	
+	
 	// Draw camera
 	for(var i = 0; i < cam_h; i++) {
 		var line = map[i + cam_y];
@@ -74,18 +80,7 @@ Render.prototype.drawScreen = function(data) {
 		    dom.canvas.fillRect(j * cell_w, i * cell_h, cell_w, cell_h);
 		}
 	}
-	
-	// In the upper left corner, draw camera's position in world map
-	dom.canvas.clearRect(500, 0, 100, 500);
-	dom.canvas.strokeStyle = "#000000"; // Black
-	dom.canvas.strokeRect(500, 0, 100, 100);
-	var rel_x = Math.floor(100 * cam_x / client.map.width);
-	var rel_y = Math.floor(100 * cam_y / client.map.height);
-	var rel_w = Math.floor(100 * cam_w / client.map.width);
-	var rel_h = Math.floor(100 * cam_h / client.map.height);
-	dom.canvas.strokeStyle = "#ff0000"; // Red
-	dom.canvas.strokeRect(500 + rel_x, 0 + rel_y, rel_w, rel_h);
-	
+		
     // Draw the players as black squares
     dom.canvas.fillStyle = "#000000";
 	dom.canvas.font = "10px Arial";
@@ -99,6 +94,30 @@ Render.prototype.drawScreen = function(data) {
 		dom.canvas.fillRect(shifted_x, shifted_y, shifted_w, shifted_h);
 		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
     }
+	
+	// In the upper left corner, draw camera's position in world map
+	dom.canvas.clearRect(500, 0, 100, 500);
+	dom.canvas.strokeStyle = "#000000"; // Black
+	dom.canvas.strokeRect(500, 0, 100, 100);
+	var rel_x = Math.floor(100 * cam_x / client.map.width);
+	var rel_y = Math.floor(100 * cam_y / client.map.height);
+	var rel_w = Math.floor(100 * cam_w / client.map.width);
+	var rel_h = Math.floor(100 * cam_h / client.map.height);
+	dom.canvas.strokeStyle = "#ff0000"; // Red
+	dom.canvas.strokeRect(500 + rel_x, 0 + rel_y, rel_w, rel_h);
+	
+	// Draw the player positions on the minimap
+	dom.canvas.fillStyle = "#ff0000"; // Red
+    for(i = 0; i < data.length; i++) {
+		var p_rel_x = Math.floor(100 * data[i].box.x / client.map.width);
+		var p_rel_y = Math.floor(100 * data[i].box.y / client.map.height);
+		
+		var p_rel_w = Math.max(3, Math.floor(100 * data[i].box.w / client.map.width));
+		var p_rel_h = Math.max(3, Math.floor(100 * data[i].box.h / client.map.width));
+		
+		dom.canvas.fillRect(500 + p_rel_x, 0 + p_rel_y, p_rel_w, p_rel_h);
+    }
+	
 }
 
 return new Render();

@@ -20,8 +20,8 @@ var Player = function(name) {
 		box:{
 			x:5, 
 			y:5, 
-			w:0.5, 
-			h:0.5, 
+			w:1, 
+			h:1, 
 			dir:0, 
 			prev_x:0, 
 			prev_y:0
@@ -32,8 +32,8 @@ var Player = function(name) {
 		pressingDown:false,
 		speedX:0,
 		speedY:0,
-		maxAccel:0.05,
-		maxSpeed:0.25,
+		maxAccel:0.03,
+		maxSpeed:0.15,
 		diff:0,
 		active:true,
 		name:name

@@ -143,8 +143,8 @@ View.prototype.keyPressed = function(event) {
 			if(20 / client.camera.zoom > client.map.height) {
 				client.camera.zoom = 20 / client.map.height;
 			}
-			var cam_w = 20 / client.camera.zoom;
-			var cam_h = 20 / client.camera.zoom;
+			var cam_w = Math.floor(20 / client.camera.zoom);
+			var cam_h = Math.floor(20 / client.camera.zoom);
 			if(client.camera.x < 0) client.camera.x = 0;
 			if(client.camera.y < 0) client.camera.y = 0;
 			if(client.camera.x > client.map.width - cam_w)
