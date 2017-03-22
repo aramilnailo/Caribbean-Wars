@@ -91,7 +91,7 @@ Render.prototype.drawScreen = function(data) {
 		dom.canvas.save();
         dom.canvas.translate(shifted_x,shifted_y);
         dom.canvas.rotate(data[i].angle*Math.PI/180);
-		dom.canvas.drawImage(shipImage,-shipImage.width/2,-shipImage.height/2,shipImage.width,shipImage.height);
+		dom.canvas.drawImage(shipImage,-shipImage.width/2,-shipImage.height/2,shipImage.width*client.camera.zoom,shipImage.height*client.camera.zoom);
 		dom.canvas.restore();
 		
 		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
