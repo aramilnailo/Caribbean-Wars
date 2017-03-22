@@ -115,6 +115,8 @@ View.prototype.keyPressed = function(event) {
 		    client.emit("gameInput", {inputId:"up", state:true});
 		} else if(keycode === 70) {
 			client.emit("gameInput", {inputId:"firing", state:true});
+		} else if(keycode === 82) {
+			client.emit("gameInput", {inputId:"rotating", state:true});
 			
 		// Camera controls
 	    } else if(keycode === 37) {
@@ -129,9 +131,9 @@ View.prototype.keyPressed = function(event) {
 		} else if(keycode === 40) {
 			client.camera.y++;
 			if(event.shiftKey) client.camera.y += 4;
-		} else if(keycode === 187) {// "=/+"
+		} else if(keycode === 187) {	// "=/+"
 			client.camera.zoom += 0.2;
-		} else if(keycode === 189) {// "-/_"
+		} else if(keycode === 189) {	// "-/_"
 			client.camera.zoom -= 0.2;
 		}
 		
@@ -175,8 +177,10 @@ View.prototype.keyReleased = function(event) {
 	else if(keycode === 87)
 	    client.emit("gameInput", {inputId:"up", state:false});
 	else if(keycode === 70)
-		client.emit("gameInput", {inputId:"firing", state:false})
-    }
+		client.emit("gameInput", {inputId:"firing", state:false});
+	else if(keycode === 82)
+		client.emit("gameInput", {inputId:"rotating", state:false});
+	}
 }
 
 function hide(data) {

@@ -6,13 +6,13 @@ var Projectile = function() {
 	
 	var proj = {
 		box:{
-			x:-1,
-			y:-1,
+			x:0,
+			y:0,
 			w:0.2,
 			h:0.2,
 			dir:0,
-			dx:1.5,
-			dy:1.5,
+			dx:0,
+			dy:0,
 			hit:false,
 			stuck:false
 		},

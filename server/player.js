@@ -28,7 +28,8 @@ var Player = function(name) {
 			left:false,
 			up:false,
 			down:false,
-			firing:false
+			firing:false,
+			rotating:false
 		},
 		diff:{
 			distanceSailed:0,

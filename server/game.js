@@ -57,6 +57,8 @@ Game.prototype.input = function (param) {
 		  	client.player.input.down = data.state;
 		else if(data.inputId === "firing")
 			client.player.input.firing = data.state;
+		else if(data.inputId === "rotating")
+			client.player.input.rotating = data.state;
 	}
 }
 
@@ -154,6 +156,7 @@ Game.prototype.updateStats = function() {
 	}
 }
 
+// Physics engine
 function updatePhysics(session) {
 	var map = session.mapData;
 	// Move players / handle player collisions / handle input
@@ -308,19 +311,15 @@ function handleInput(player, list) {
 	// Apply position changes
 	player.box.x += player.box.dx;
 	player.box.y += player.box.dy;
+	// Apply rotation
+	if(player.input.rotating) {
+		player.box.dir += 0.1;
+	}
 	// Fire / load projectiles
 	if(player.input.firing) {
 		fireProjectile(player, list);
 	} else {
 		loadProjectile(player);
-	}
-}
-
-function loadProjectile(player) {
-	if(player.input.firing) return;
-	if(player.projectiles.length < player.numCannons) {
-		var proj = new projectile();
-		player.projectiles.push(proj);
 	}
 }
 
@@ -334,10 +333,24 @@ function fireProjectile(player, list) {
 	}
 	proj.box.x = player.box.x;
 	proj.box.y = player.box.y;
+	// Fire from the side
+	proj.box.dir = player.box.dir + 
+		(3 * Math.PI / 2);
+	proj.box.dx = Math.cos(proj.box.dir);
+	proj.box.dy = Math.sin(proj.box.dir);
 	proj.active = true;
 	list.push(proj);
 	player.diff.shotsFired++;
 }
+
+function loadProjectile(player) {
+	if(player.input.firing) return;
+	if(player.projectiles.length < player.numCannons) {
+		var proj = new projectile();
+		player.projectiles.push(proj);
+	}
+}
+
 
 
 module.exports = new Game();
