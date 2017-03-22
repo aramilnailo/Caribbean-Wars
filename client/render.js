@@ -50,6 +50,12 @@ Render.prototype.drawScreen = function(data) {
 	// cell dimensions in pixels
 	var cell_w = width / cam_w; 
 	var cell_h = height / cam_h;
+
+	// loading images to be displayed
+	var shipImage = new Image();
+    shipImage.src = "client/imgs/TempPlayerIcon.png";
+    var cannonballImage = new Image();
+    cannonballImage.src = "client/imgs/Cannonball.png";
 	
 	// Draw camera
 	for(var i = 0; i < cam_h; i++) {
@@ -92,7 +98,13 @@ Render.prototype.drawScreen = function(data) {
     for(i = 0; i < data.length; i++) {
 		var shifted_x = data[i].x * client.camera.zoom - cam_x * cell_w;
 		var shifted_y = data[i].y * client.camera.zoom - cam_y * cell_h;
-		dom.canvas.fillRect(shifted_x, shifted_y, 10 * client.camera.zoom, 10 * client.camera.zoom);
+		//dom.canvas.fillRect(shifted_x, shifted_y, 10 * client.camera.zoom, 10 * client.camera.zoom);
+		dom.canvas.save();
+        dom.canvas.translate(shifted_x,shifted_y);
+        dom.canvas.rotate(data[i].angle*Math.PI/180);
+		dom.canvas.drawImage(shipImage,-shipImage.width/2,-shipImage.height/2,shipImage.width,shipImage.height);
+		dom.canvas.restore();
+		
 		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
     }
 }

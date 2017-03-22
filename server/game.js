@@ -72,7 +72,7 @@ Game.prototype.update = function() {
 				var p = session.game.players[j];
 		   		if(p.active) {
 					updatePosition(p);
-		    		pack.push({x:p.x, y:p.y, name:p.name});
+		    		pack.push({x:p.x, y:p.y, name:p.name, angle:30});
 				}
 	    	}
 			// Send the packet to each client in the game session
