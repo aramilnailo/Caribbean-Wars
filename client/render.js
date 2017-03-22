@@ -57,8 +57,14 @@ Render.prototype.drawScreen = function(data) {
     var cannonballImage = new Image();
     cannonballImage.src = "client/imgs/Cannonball.png";
 	
+	// variables for rendering objects based on camera location
+	var i;
+	var shifted_x;
+	var shifted_y;
+
+
 	// Draw camera
-	for(var i = 0; i < cam_h; i++) {
+	for(i = 0; i < cam_h; i++) {
 		var line = map[i + cam_y];
 		for(var j = 0; j < cam_w; j++) {
 			var ch, color;
@@ -85,8 +91,8 @@ Render.prototype.drawScreen = function(data) {
     dom.canvas.fillStyle = "#000000";
 	dom.canvas.font = "10px Arial";
     for(i = 0; i < data.length; i++) {
-		var shifted_x = data[i].x * client.camera.zoom - cam_x * cell_w;
-		var shifted_y = data[i].y * client.camera.zoom - cam_y * cell_h;
+		shifted_x = data[i].x * client.camera.zoom - cam_x * cell_w;
+		shifted_y = data[i].y * client.camera.zoom - cam_y * cell_h;
 		//dom.canvas.fillRect(shifted_x, shifted_y, 10 * client.camera.zoom, 10 * client.camera.zoom);
 		dom.canvas.save();
         dom.canvas.translate(shifted_x,shifted_y);
@@ -96,6 +102,39 @@ Render.prototype.drawScreen = function(data) {
 		
 		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
     }
+	// Rendering for ships based on other git branch
+	/* 
+	for(i in data.ships) {
+		shifted_x = data.ships[i].box.x * client.camera.zoom - cam_x * cell_w;
+		shifted_y = data.ships[i].box.y * client.camera.zoom - cam_y * cell_h;
+		dom.canvas.save();
+        dom.canvas.translate(shifted_x,shifted_y);
+        dom.canvas.rotate(data[i].angle*Math.PI/180);
+		dom.canvas.drawImage(shipImage,-shipImage.width/2,-shipImage.height/2,shipImage.width*client.camera.zoom,shipImage.height*client.camera.zoom);
+		dom.canvas.restore();
+		
+		dom.canvas.fillText(data.ships[i].box.name, shifted_x - 10, shifted_y - 10);
+    }
+	*/
+
+	// Rendering for cannonballs based on other git branch
+	/*
+	for(i in data.projectiles){
+		shifted_x = (data.projectiles[i].box.x - cam_x) * cell_w;
+		shifted_y = (data.projectiles[i].box.y - cam_y) * cell_h;
+
+		dom.canvas.save();
+		dom.canvas.translate(shifted_x,shifted_y);
+		dom.canvas.drawImage(cannonballImage,-cannonballImage.width/2,-cannonballImage.height/2,cannonballImage.width*client.camera.zoom,shipImage.height*client.camera.zoom);
+		dom.canvas.restore();
+
+	}
+	 */
+
+
+
+
+
 	// In the upper left corner, draw camera's position in world map
 	dom.canvas.clearRect(500, 0, 100, 500);
 	dom.canvas.strokeStyle = "#000000"; // Black
