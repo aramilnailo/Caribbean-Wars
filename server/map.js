@@ -1,9 +1,4 @@
 
-var debug = require("./debug.js").map;
-var log = require("./debug.js").log;
-
-var server = require("./server.js");
-
 //================ MAP OBJECT =================
 
 // note: screen focus on center = (cx,cy)

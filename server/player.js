@@ -1,9 +1,4 @@
 
-
-var dbi = require("./dbi.js");
-var debug = require("./debug.js").player;
-var log = require("./debug.js").log;
-
 //========= PLAYER OBJECT ==================
 
 /**
@@ -23,18 +18,30 @@ var Player = function(name) {
 			w:1, 
 			h:1, 
 			dir:0, 
-			prev_x:0, 
-			prev_y:0
 		},
+		
+		prevX:5,
+		prevY:5,
+		
 		pressingRight:false,
 		pressingLeft:false,
 		pressingUp:false,
 		pressingDown:false,
+		
+		firing:false,
+		numCannons:10,
+		projectiles:[],
+		
 		speedX:0,
 		speedY:0,
 		maxAccel:0.03,
 		maxSpeed:0.15,
-		diff:0,
+		
+		diff:{
+			distanceSailed:0,
+			shotsFired:0
+		},
+		
 		active:true,
 		name:name
     }

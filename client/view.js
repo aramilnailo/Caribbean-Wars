@@ -106,13 +106,15 @@ View.prototype.keyPressed = function(event) {
 		var keycode = event.which || event.keyCode;
 		
 		if(keycode === 68) {
-		    client.emit("keyPress", { inputId:"right", state:true});	
+		    client.emit("gameInput", {inputId:"right", state:true});	
 		} else if(keycode === 83) {
-		    client.emit("keyPress", { inputId:"down", state:true});
+		    client.emit("gameInput", {inputId:"down", state:true});
 		} else if(keycode === 65) {
-		    client.emit("keyPress", { inputId:"left", state:true});
+		    client.emit("gameInput", {inputId:"left", state:true});
 		} else if(keycode === 87) {
-		    client.emit("keyPress", { inputId:"up", state:true});
+		    client.emit("gameInput", {inputId:"up", state:true});
+		} else if(keycode === 70) {
+			client.emit("gameInput", {inputId:"firing", state:true});
 			
 		// Camera controls
 	    } else if(keycode === 37) {
@@ -165,13 +167,15 @@ View.prototype.keyReleased = function(event) {
     if(dom.chatInput !== dom.document.activeElement) {
 	var keycode = event.which || event.keyCode;
 	if(keycode === 68)
-	    client.emit("keyPress", { inputId:"right", state:false});	
+	    client.emit("gameInput", {inputId:"right", state:false});	
 	else if(keycode === 83)
-	    client.emit("keyPress", { inputId:"down", state:false});
+	    client.emit("gameInput", {inputId:"down", state:false});
 	else if(keycode === 65)
-	    client.emit("keyPress", { inputId:"left", state:false});
+	    client.emit("gameInput", {inputId:"left", state:false});
 	else if(keycode === 87)
-	    client.emit("keyPress", { inputId:"up", state:false});
+	    client.emit("gameInput", {inputId:"up", state:false});
+	else if(keycode === 70)
+		client.emit("gameInput", {inputId:"firing", state:false})
     }
 }
 

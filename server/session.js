@@ -56,8 +56,17 @@ Session.prototype.newGameSession = function(param) {
 	var id = GAME_SESSIONS.length;
 	log(id);
 	// Create new session with client.player as host
-	GAME_SESSIONS[id] = {host:client, clients:[client], 
-		game:{map:"", players:[], running:false}, mapData:null};
+	GAME_SESSIONS[id] = {
+		host:client, 
+		clients:[client],
+		game:{
+			map:"", 
+			players:[], 
+			projectiles:[], 
+			running:false
+		}, 
+		mapData:null
+	};
 	// Move the player into the game lobby
 	server.emit(client.socket, "lobbyScreen", {isHost:true});
 	server.emit(client.socket, "updateLobby", getNames(GAME_SESSIONS[id].clients));
@@ -301,7 +310,7 @@ Session.prototype.startGame = function(param) {
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
 	var mapFile = "assets/" + param.data + ".map";
-	session.game = {map:mapFile, players:[], running:false};
+	session.game = {map:mapFile, players:[], projectiles:[], running:false};
 	loadMap(session, function(resp) {
 		if(!resp) {
 			server.emit(param.client.socket, "alert", 
@@ -345,7 +354,7 @@ Session.prototype.stopGame = function(param) {
 			{isHost:(c === session.host)});
 		server.emit(c.socket, "alert", "The game is over");
 	}
-	session.game = {map:"", players:[], running:false};
+	session.game = {map:"", players:[], projectiles:[], running:false};
 	pushSessionTable(param.clients);
 }
 

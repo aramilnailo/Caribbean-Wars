@@ -8,6 +8,7 @@ var CLIENT_LIST = require("./router.js").client_list;
 var GAME_SESSIONS = require("./session.js").GAME_SESSIONS;
 var dbi = require("./dbi.js");
 
+var projectile = require("./projectile.js");
 
 //============== GAME LOGIC =========================================
 
@@ -28,7 +29,7 @@ var Game = function() {}
 */
 Game.prototype.listen = function(router) {
     if(debug) log("[Game] listen()");
-    router.listen("keyPress",this.keyPress);
+    router.listen("gameInput",this.input);
 }
 
 /**
@@ -39,21 +40,23 @@ Game.prototype.listen = function(router) {
 * @param param.data - the keys being pressed
 * @memberof module:server/Game
 */
-Game.prototype.keyPress = function (param) {
-    if (debug) log("server/game.js: keyPress()");
+Game.prototype.input = function (param) {
+    if (debug) log("server/game.js: input()");
     var client = param.client;
     var data = param.data;
 	// If the client is in control of a player
 	if(client.player) {
 	    // Assign booleans for each direction
 	    if(data.inputId === "left")
-		  client.player.pressingLeft = data.state;
+		  	client.player.pressingLeft = data.state;
 	    else if(data.inputId === "right")
-		  client.player.pressingRight = data.state;
+		  	client.player.pressingRight = data.state;
 	    else if(data.inputId === "up")
-		  client.player.pressingUp = data.state;
+		  	client.player.pressingUp = data.state;
 	    else if(data.inputId === "down")
-		  client.player.pressingDown = data.state;
+		  	client.player.pressingDown = data.state;
+		else if(data.inputId === "firing")
+			client.player.firing = data.state;
 	}
 }
 
@@ -66,25 +69,30 @@ Game.prototype.update = function() {
     // Generate object with all player positions
     for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
+		log(session.game.projectiles);
 		if(session.game.running) {
-			var pack = [];
+			var pack = {ships:[], projectiles:[]};
 			// Run the physics engine
 			updatePhysics(session);
 			// Add the player data to the packet
 			for(var j in session.game.players) {
 				var p = session.game.players[j];
 				if(p.active) {
-					pack.push({name:p.name, box:p.box});
+					pack.ships.push({name:p.name, box:p.box});
 				}
-				log("\n[" + p.name + "]\n" + 
-				"\n\tx: " + p.box.x +
-				"\n\ty: " + p.box.y);
+			}
+			// Add projectile data to the packet
+			for(var j in session.game.projectiles) {
+				var p = session.game.projectiles[j];
+				if(p.active) {
+					pack.projectiles.push({box:p.box});
+				}
 			}
 			// Send the packet to each client in the game session
 		    for(var j in session.clients) {
 				var c = session.clients[j];
 				if(c.player) {
-					server.emit(c.socket, "newPositions", pack);
+					server.emit(c.socket, "gameUpdate", pack);
 				}
 			}
 		}
@@ -110,12 +118,19 @@ Game.prototype.updateStats = function() {
 				users.push(p);
 				var arr = [];
 				arr.push({name:"seconds_played", diff:1});
-				arr.push({name:"shots_fired", diff:0});
-				arr.push({name:"distance_sailed", diff:p.diff});
+				arr.push({
+					name:"shots_fired", 
+					diff:p.diff.shotsFired
+				});
+				arr.push({
+					name:"distance_sailed", 
+					diff:p.diff.distanceSailed
+				});
 				arr.push({name:"ships_sunk", diff:0});
 				arr.push({name:"ships_lost", diff:0});
 				stats.push(arr);
-				p.diff = 0;
+				p.diff.distanceSailed = 0;
+				p.diff.shotsFired = 0;
 			}
 		}
 		if(send) {
@@ -140,20 +155,49 @@ Game.prototype.updateStats = function() {
 	}
 }
 
+function loadProjectile(player) {
+	if(player.firing) return;
+	if(player.projectiles.length < player.numCannons) {
+		player.projectiles.push(new projectile());
+	}
+}
+
+// Fire all projectiles the player has
+function fireProjectile(player, list) {
+	if(!player.firing) return;
+	var proj = player.projectiles.pop();
+	if(!proj) {
+		firing = false;
+		return;
+	}
+	proj.box.x = player.box.x;
+	proj.box.y = player.box.y;
+	proj.active = true;
+	list.push(proj);
+	player.diff.shotsFired++;
+}
+
 function updatePhysics(session) {
+	
+	var map = session.mapData;
+	
+	// Move players / handle input
 	
 	for(var i in session.game.players) {
 		var player = session.game.players[i];
 		if(!player.active) return;
 		
 		var box = player.box;
-		var map = session.mapData;
 		
 		// Correct position at map limits
 		if(box.x < 0) box.x = 0;
 		if(box.y < 0) box.y = 0;
 		if(box.x + box.w > map.width) box.x = map.width - box.w;
 		if(box.y + box.h > map.height) box.y = map.height - box.h;
+		
+		// Store for stats tracking
+		player.prevX = box.x;
+		player.prevY = box.y;
 		
 		// Store collisions at corners
 		var corners = [{x:box.x, y:box.y},
@@ -217,7 +261,7 @@ function updatePhysics(session) {
 			}
 		}	
 		
-		// Handle input
+		// Handle motion from input
 		var ddx = 0, ddy = 0;
 		if(player.pressingRight) ddx = stuck ? 0.001 : hit ? 0.01 : player.maxAccel;
 		if(player.pressingLeft) ddx = stuck ? -0.001 : hit ? -0.01 : -player.maxAccel;
@@ -238,9 +282,17 @@ function updatePhysics(session) {
 			player.speedY = -player.maxSpeed;
 		}
 		
-		// Apply changes
+		// Apply position changes
 		player.box.x += player.speedX;
 		player.box.y += player.speedY;
+		
+		// Handle projectiles
+		if(player.firing) {
+			fireProjectile(player, 
+				session.game.projectiles);
+		} else {
+			loadProjectile(player);
+		}
 		
 		// Log to debug
 		if(debug) {
@@ -248,7 +300,8 @@ function updatePhysics(session) {
 			for(var i in corners) {
 				vals[i] = corners[i].bad ? "X" : " ";
 			}
-			var out = "\n" + vals[0] + "-------" + vals[1] + "\n" +
+			var out = "\n[" + player.name + "]\n" +
+			vals[0] + "-------" + vals[1] + "\n" +
 			"|       |\n" +
 			"|       |\n" +
 			"|       |\n" + 
@@ -258,15 +311,25 @@ function updatePhysics(session) {
 		}	
 	}
 	
+	// Move projectiles
+	for(var i in session.game.projectiles) {
+		var proj = session.game.projectiles[i];
+		proj.box.x += proj.dx;
+		proj.box.y += proj.dy;
+		if(proj.box.x < 0 || proj.box.x > map.width ||
+		proj.box.y < 0 || proj.box.y > map.height) {
+			proj.active = false;
+		}
+	}
+	
 	// Calculate the diffs with the corrected boxes
 	for(var i in session.game.players) {
 		var player = session.game.players[i];
-		var dx = player.box.x - player.box.prev_x;
-		var dy = player.box.x - player.box.prev_x;
-		player.diff += Math.sqrt(dx * dx + dy * dy);
+		var dx = player.box.x - player.prevX;
+		var dy = player.box.x - player.prevY;
+		player.diff.distanceSailed += Math.sqrt(dx * dx + dy * dy);
 	}
 	
 }
-
 
 module.exports = new Game();

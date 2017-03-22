@@ -20,7 +20,7 @@ var Render = function() {};
 */
 Render.prototype.listen = function(router) {
     if(debug.render) log("client/render.js: listen()");
-    router.listen("newPositions", this.drawScreen);
+    router.listen("gameUpdate", this.drawScreen);
 }
 
 /**
@@ -84,16 +84,27 @@ Render.prototype.drawScreen = function(data) {
     // Draw the players as black squares
     dom.canvas.fillStyle = "#000000";
 	dom.canvas.font = "10px Arial";
-    for(i = 0; i < data.length; i++) {
-		var shifted_x = (data[i].box.x - cam_x) * cell_w;
-		var shifted_y = (data[i].box.y - cam_y) * cell_h;
+    for(var i in data.ships) {
+		var shifted_x = (data.ships[i].box.x - cam_x) * cell_w;
+		var shifted_y = (data.ships[i].box.y - cam_y) * cell_h;
 		
-		var shifted_w = data[i].box.w * cell_w;
-		var shifted_h = data[i].box.h * cell_h;
+		var shifted_w = data.ships[i].box.w * cell_w;
+		var shifted_h = data.ships[i].box.h * cell_h;
 		
 		dom.canvas.fillRect(shifted_x, shifted_y, shifted_w, shifted_h);
-		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
+		dom.canvas.fillText(data.ships[i].name, shifted_x - 10, shifted_y - 10);
     }
+	
+	// Draw projectiles as smaller black squares
+	for(var i in data.projectiles) {
+		var shifted_x = (data.projectiles[i].box.x - cam_x) * cell_w;
+		var shifted_y = (data.projectiles[i].box.y - cam_y) * cell_h;
+		
+		var shifted_w = data.projectiles[i].box.w * cell_w;
+		var shifted_h = data.projectiles[i].box.h * cell_h;
+		
+		dom.canvas.fillRect(shifted_x, shifted_y, shifted_w, shifted_h);
+	}
 	
 	// In the upper left corner, draw camera's position in world map
 	dom.canvas.clearRect(500, 0, 100, 500);
@@ -108,12 +119,12 @@ Render.prototype.drawScreen = function(data) {
 	
 	// Draw the player positions on the minimap
 	dom.canvas.fillStyle = "#ff0000"; // Red
-    for(i = 0; i < data.length; i++) {
-		var p_rel_x = Math.floor(100 * data[i].box.x / client.map.width);
-		var p_rel_y = Math.floor(100 * data[i].box.y / client.map.height);
+   	for(var i in data.ships) {
+		var p_rel_x = Math.floor(100 * data.ships[i].box.x / client.map.width);
+		var p_rel_y = Math.floor(100 * data.ships[i].box.y / client.map.height);
 		
-		var p_rel_w = Math.max(3, Math.floor(100 * data[i].box.w / client.map.width));
-		var p_rel_h = Math.max(3, Math.floor(100 * data[i].box.h / client.map.width));
+		var p_rel_w = Math.max(3, Math.floor(100 * data.ships[i].box.w / client.map.width));
+		var p_rel_h = Math.max(3, Math.floor(100 * data.ships[i].box.h / client.map.width));
 		
 		dom.canvas.fillRect(500 + p_rel_x, 0 + p_rel_y, p_rel_w, p_rel_h);
     }
