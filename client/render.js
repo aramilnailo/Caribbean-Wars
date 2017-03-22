@@ -10,6 +10,12 @@ var log = debug.log;
     
 var Render = function() {};
 
+// loading images to be displayed
+var shipImage = new Image();
+var cannonballImage = new Image();
+shipImage.src = "client/imgs/shipImage.png";
+cannonballImage.src = "client/imgs/cannonballImage.png";
+
 /**
 * Register gui events implemented by this
 * class.
@@ -51,12 +57,6 @@ Render.prototype.drawScreen = function(data) {
 	var cell_w = width / cam_w; 
 	var cell_h = height / cam_h;
 	
-	log("\ncam_w: " + cam_w + 
-	"\ncam_h: " + cam_h +
-	"\ncam_x: " + cam_x +
-	"\ncam_y: " + cam_y);
-	
-	
 	// Draw camera
 	for(var i = 0; i < cam_h; i++) {
 		var line = map[i + cam_y];
@@ -91,8 +91,19 @@ Render.prototype.drawScreen = function(data) {
 		var shifted_w = data.ships[i].box.w * cell_w;
 		var shifted_h = data.ships[i].box.h * cell_h;
 		
-		dom.canvas.fillRect(shifted_x, shifted_y, shifted_w, shifted_h);
-		dom.canvas.fillText(data.ships[i].name, shifted_x - 10, shifted_y - 10);
+		dom.canvas.save();
+		dom.canvas.translate(shifted_x, shifted_y);
+		dom.canvas.rotate(data.ships[i].box.dir);
+		dom.canvas.drawImage(
+			shipImage, 
+			-shipImage.width / 2, 
+			-shipImage.height / 2, 
+			shipImage.width * client.camera.zoom, 
+			shipImage.height * client.camera.zoom
+		);
+		dom.canvas.restore();
+		dom.canvas.fillText(data.ships[i].name, 
+			shifted_x - 10, shifted_y - 10);
     }
 	
 	// Draw projectiles as smaller black squares
@@ -103,7 +114,16 @@ Render.prototype.drawScreen = function(data) {
 		var shifted_w = data.projectiles[i].box.w * cell_w;
 		var shifted_h = data.projectiles[i].box.h * cell_h;
 		
-		dom.canvas.fillRect(shifted_x, shifted_y, shifted_w, shifted_h);
+		dom.canvas.save();
+		dom.canvas.translate(shifted_x, shifted_y);
+		dom.canvas.drawImage(
+			cannonballImage, 
+			-cannonballImage.width / 2, 
+			-cannonballImage.height / 2, 
+			cannonballImage.width * client.camera.zoom, 
+			cannonballImage.height * client.camera.zoom
+		);
+		dom.canvas.restore();
 	}
 	
 	// In the upper left corner, draw camera's position in world map
