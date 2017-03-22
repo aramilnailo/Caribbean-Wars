@@ -81,17 +81,6 @@ Render.prototype.drawScreen = function(data) {
 		}
 	}
 	
-	// In the upper left corner, draw camera's position in world map
-	dom.canvas.clearRect(500, 0, 100, 500);
-	dom.canvas.strokeStyle = "#000000"; // Black
-	dom.canvas.strokeRect(500, 0, 100, 100);
-	var rel_x = Math.floor(100 * cam_x / client.map.width);
-	var rel_y = Math.floor(100 * cam_y / client.map.height);
-	var rel_w = Math.floor(100 * cam_w / client.map.width);
-	var rel_h = Math.floor(100 * cam_h / client.map.height);
-	dom.canvas.strokeStyle = "#ff0000"; // Red
-	dom.canvas.strokeRect(500 + rel_x, 0 + rel_y, rel_w, rel_h);
-	
     // Draw the players as black squares
     dom.canvas.fillStyle = "#000000";
 	dom.canvas.font = "10px Arial";
@@ -107,6 +96,16 @@ Render.prototype.drawScreen = function(data) {
 		
 		dom.canvas.fillText(data[i].name, shifted_x - 10, shifted_y - 10);
     }
+	// In the upper left corner, draw camera's position in world map
+	dom.canvas.clearRect(500, 0, 100, 500);
+	dom.canvas.strokeStyle = "#000000"; // Black
+	dom.canvas.strokeRect(500, 0, 100, 100);
+	var rel_x = Math.floor(100 * cam_x / client.map.width);
+	var rel_y = Math.floor(100 * cam_y / client.map.height);
+	var rel_w = Math.floor(100 * cam_w / client.map.width);
+	var rel_h = Math.floor(100 * cam_h / client.map.height);
+	dom.canvas.strokeStyle = "#ff0000"; // Red
+	dom.canvas.strokeRect(500 + rel_x, 0 + rel_y, rel_w, rel_h);
 }
 
 return new Render();
