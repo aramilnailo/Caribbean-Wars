@@ -15,33 +15,31 @@ var Player = function(name) {
 		box:{
 			x:5, 
 			y:5, 
-			w:1, 
-			h:1, 
-			dir:0, 
+			w:0.5, 
+			h:0.5, 
+			dir:0,
+			dx:0,
+			dy:0,
+			hit:false,
+			stuck:false,
 		},
-		
-		prevX:5,
-		prevY:5,
-		
-		pressingRight:false,
-		pressingLeft:false,
-		pressingUp:false,
-		pressingDown:false,
-		
-		firing:false,
-		numCannons:10,
-		projectiles:[],
-		
-		speedX:0,
-		speedY:0,
-		maxAccel:0.03,
-		maxSpeed:0.15,
-		
+		input:{
+			right:false,
+			left:false,
+			up:false,
+			down:false,
+			firing:false
+		},
 		diff:{
 			distanceSailed:0,
 			shotsFired:0
 		},
-		
+		maxAccel:0.03,
+		maxSpeed:0.15,
+		prevX:5,
+		prevY:5,
+		numCannons:10,
+		projectiles:[],
 		active:true,
 		name:name
     }

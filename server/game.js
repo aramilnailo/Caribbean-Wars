@@ -48,15 +48,15 @@ Game.prototype.input = function (param) {
 	if(client.player) {
 	    // Assign booleans for each direction
 	    if(data.inputId === "left")
-		  	client.player.pressingLeft = data.state;
+		  	client.player.input.left = data.state;
 	    else if(data.inputId === "right")
-		  	client.player.pressingRight = data.state;
+		  	client.player.input.right = data.state;
 	    else if(data.inputId === "up")
-		  	client.player.pressingUp = data.state;
+		  	client.player.input.up = data.state;
 	    else if(data.inputId === "down")
-		  	client.player.pressingDown = data.state;
+		  	client.player.input.down = data.state;
 		else if(data.inputId === "firing")
-			client.player.firing = data.state;
+			client.player.input.firing = data.state;
 	}
 }
 
@@ -69,7 +69,6 @@ Game.prototype.update = function() {
     // Generate object with all player positions
     for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
-		log(session.game.projectiles);
 		if(session.game.running) {
 			var pack = {ships:[], projectiles:[]};
 			// Run the physics engine
@@ -155,19 +154,182 @@ Game.prototype.updateStats = function() {
 	}
 }
 
+function updatePhysics(session) {
+	var map = session.mapData;
+	// Move players / handle player collisions / handle input
+	for(var i in session.game.players) {
+		var player = session.game.players[i];
+		if(!player.active) continue;
+		var box = player.box;
+		// Store for stats tracking
+		player.prevX = box.x;
+		player.prevY = box.y;
+		// Correct position at map limits
+		if(box.x < 0) box.x = 0;
+		if(box.y < 0) box.y = 0;
+		if(box.x + box.w > map.width) box.x = map.width - box.w;
+		if(box.y + box.h > map.height) box.y = map.height - box.h;
+		// Correct speed bounds
+		if(box.dx > player.maxSpeed) {
+			box.dx = player.maxSpeed;
+		} else if(box.dx < -player.maxSpeed) {
+			box.dx = -player.maxSpeed;
+		}
+		if(box.dy > player.maxSpeed) {
+			box.dy = player.maxSpeed;
+		} else if(box.dy < -player.maxSpeed) {
+			box.dy = -player.maxSpeed;
+		}
+		// Handle player collisions
+		handleCollisions(player.box, map);
+		// Handle input
+		handleInput(player, session.game.projectiles);
+	}
+	// Calculate the diffs with the corrected boxes
+	for(var i in session.game.players) {
+		if(!player.active) continue;
+		var player = session.game.players[i];
+		var dx = player.box.x - player.prevX;
+		var dy = player.box.y - player.prevY;
+		player.diff.distanceSailed += 
+			Math.sqrt(dx * dx + dy * dy);
+	}
+	// Move projectiles / handle projectile collisions
+	for(var i in session.game.projectiles) {
+		var proj = session.game.projectiles[i];
+		if(!proj.active) continue;
+		// Remove if proj has travelled its range
+		var dx = proj.box.dx, dy = proj.box.dy;
+		proj.range -= Math.sqrt(dx * dx + dy * dy);
+		if(proj.range < 0) proj.active = false;
+		// Remove if proj is out of map bounds
+		if(proj.box.x < 0 || proj.box.x > map.width ||
+			proj.box.y < 0 || proj.box.y > map.height)
+				proj.active = false;
+		if(proj.active) {
+			// Handle projectile collision
+			handleCollisions(proj.box, map);
+			// Update position
+			proj.box.x += proj.box.dx;
+			proj.box.y += proj.box.dy;
+		}
+	}
+}
+
+function handleCollisions(box, map) {
+	// Store collisions at corners
+	var corners = [{x:box.x, y:box.y},
+		{x:box.x + box.w, y:box.y},
+		{x:box.x, y:box.y + box.h},
+		{x:box.x + box.w, y:box.y + box.h}
+	];
+	// Check corners against map data
+	for(var i in corners) {
+		var cell_x = Math.floor(corners[i].x);
+		var cell_y = Math.floor(corners[i].y);
+		if(!map.data[cell_y]) {
+			corners[i].bad = true;
+		} else {
+			var ch = map.data[cell_y].charAt(cell_x);
+			corners[i].bad = (ch !== "0");
+		}
+	}
+	var hit = false;
+	var stuck = false;
+	// If collisions on all corners, box is stopped
+	if(corners[0].bad && corners[1].bad &&
+		corners[2].bad && corners[3].bad) {
+		box.dx = 0;
+		box.dy = 0;
+		hit = true;
+		stuck = true;
+	} else {
+		// Handle motion from collisions
+		var ddx = ddy = 0.1;
+		if(corners[0].bad) {
+			box.dx += ddx;
+			box.dy += ddy;
+			if(box.dx > 0) box.dx = 0;
+			if(box.dy > 0) box.dy = 0;
+			hit = true;
+		}
+		if(corners[1].bad) {
+			box.dx -= ddx;
+			box.dy += ddy;
+			if(box.dx < 0) box.dx = 0;
+			if(box.dy > 0) box.dy = 0;
+			hit = true;
+		}
+		if(corners[2].bad) {
+			box.dx += ddx;
+			box.dy -= ddy;
+			if(box.dx > 0) box.dx = 0;
+			if(box.dy < 0) box.dy = 0;
+			hit = true;
+		}
+		if(corners[3].bad) {
+			box.dx -= ddx;
+			box.dy -= ddy;
+			if(box.dx < 0) box.dx = 0;
+			if(box.dy < 0) box.dy = 0;
+			hit = true;
+		}
+	}
+	box.hit = hit;
+	box.stuck = stuck;
+	// Log to debug
+	if(false) {
+		var vals = [];
+		for(var i in corners) {
+			vals[i] = corners[i].bad ? "X" : " ";
+		}
+		var out = "\n[" + box.x + ", " + box.y + "]\n" +
+		vals[0] + "-------" + vals[1] + "\n" +
+		"|       |\n" +
+		"|       |\n" +
+		"|       |\n" + 
+		vals[2] + "-------" + vals[3] + "\n";
+		log(out);
+	}
+}
+
+function handleInput(player, list) {
+	var stuck = player.box.stuck;
+	var hit = player.box.hit;
+	// Handle motion from input
+	var ddx = 0, ddy = 0;
+	if(player.input.right) ddx = stuck ? 0.001 : hit ? 0.01 : player.maxAccel;
+	if(player.input.left) ddx = stuck ? -0.001 : hit ? -0.01 : -player.maxAccel;
+	if(player.input.up) ddy = stuck ? -0.001 : hit ? -0.01 : -player.maxAccel;
+	if(player.input.down) ddy = stuck ? 0.001 : hit ? 0.01 : player.maxAccel;
+	// Apply velocity changes
+	player.box.dx += ddx;
+	player.box.dy += ddy;
+	// Apply position changes
+	player.box.x += player.box.dx;
+	player.box.y += player.box.dy;
+	// Fire / load projectiles
+	if(player.input.firing) {
+		fireProjectile(player, list);
+	} else {
+		loadProjectile(player);
+	}
+}
+
 function loadProjectile(player) {
-	if(player.firing) return;
+	if(player.input.firing) return;
 	if(player.projectiles.length < player.numCannons) {
-		player.projectiles.push(new projectile());
+		var proj = new projectile();
+		player.projectiles.push(proj);
 	}
 }
 
 // Fire all projectiles the player has
 function fireProjectile(player, list) {
-	if(!player.firing) return;
+	if(!player.input.firing) return;
 	var proj = player.projectiles.pop();
 	if(!proj) {
-		firing = false;
+		player.input.firing = false;
 		return;
 	}
 	proj.box.x = player.box.x;
@@ -177,159 +339,5 @@ function fireProjectile(player, list) {
 	player.diff.shotsFired++;
 }
 
-function updatePhysics(session) {
-	
-	var map = session.mapData;
-	
-	// Move players / handle input
-	
-	for(var i in session.game.players) {
-		var player = session.game.players[i];
-		if(!player.active) return;
-		
-		var box = player.box;
-		
-		// Correct position at map limits
-		if(box.x < 0) box.x = 0;
-		if(box.y < 0) box.y = 0;
-		if(box.x + box.w > map.width) box.x = map.width - box.w;
-		if(box.y + box.h > map.height) box.y = map.height - box.h;
-		
-		// Store for stats tracking
-		player.prevX = box.x;
-		player.prevY = box.y;
-		
-		// Store collisions at corners
-		var corners = [{x:box.x, y:box.y},
-			{x:box.x + box.w, y:box.y},
-			{x:box.x, y:box.y + box.h},
-			{x:box.x + box.w, y:box.y + box.h}
-		];
-				
-		// Check corners against map data
-		for(var i in corners) {
-			var cell_x = Math.floor(corners[i].x);
-			var cell_y = Math.floor(corners[i].y);
-			if(!map.data[cell_y]) {
-				corners[i].bad = true;
-			} else {
-				var ch = map.data[cell_y].charAt(cell_x);
-				corners[i].bad = (ch !== "0");
-			}
-		}
-		
-		var hit = false;
-		var stuck = false;
-		
-		// If collisions on all corners, player is stopped
-		if(corners[0].bad && corners[1].bad &&
-			corners[2].bad && corners[3].bad) {
-			player.speedX = 0;
-			player.speedY = 0;
-			hit = true;
-			stuck = true;
-		} else {
-			// Calculate motion from collisions
-			var ddx = ddy = 0.1;
-			if(corners[0].bad) {
-				player.speedX += ddx;
-				player.speedY += ddy;
-				if(player.speedX > 0) player.speedX = 0;
-				if(player.speedY > 0) player.speedY = 0;
-				hit = true;
-			}
-			if(corners[1].bad) {
-				player.speedX -= ddx;
-				player.speedY += ddy;
-				if(player.speedX < 0) player.speedX = 0;
-				if(player.speedY > 0) player.speedY = 0;
-				hit = true;
-			}
-			if(corners[2].bad) {
-				player.speedX += ddx;
-				player.speedY -= ddy;
-				if(player.speedX > 0) player.speedX = 0;
-				if(player.speedY < 0) player.speedY = 0;
-				hit = true;
-			}
-			if(corners[3].bad) {
-				player.speedX -= ddx;
-				player.speedY -= ddy;
-				if(player.speedX < 0) player.speedX = 0;
-				if(player.speedY < 0) player.speedY = 0;
-				hit = true;
-			}
-		}	
-		
-		// Handle motion from input
-		var ddx = 0, ddy = 0;
-		if(player.pressingRight) ddx = stuck ? 0.001 : hit ? 0.01 : player.maxAccel;
-		if(player.pressingLeft) ddx = stuck ? -0.001 : hit ? -0.01 : -player.maxAccel;
-		if(player.pressingUp) ddy = stuck ? -0.001 : hit ? -0.01 : -player.maxAccel;
-		if(player.pressingDown) ddy = stuck ? 0.001 : hit ? 0.01 : player.maxAccel;
-		player.speedX += ddx;
-		player.speedY += ddy;
-	
-		// Correct speed bounds
-		if(player.speedX > player.maxSpeed) {
-			player.speedX = player.maxSpeed;
-		} else if(player.speedX < -player.maxSpeed) {
-			player.speedX = -player.maxSpeed;
-		}
-		if(player.speedY > player.maxSpeed) {
-			player.speedY = player.maxSpeed;
-		} else if(player.speedY < -player.maxSpeed) {
-			player.speedY = -player.maxSpeed;
-		}
-		
-		// Apply position changes
-		player.box.x += player.speedX;
-		player.box.y += player.speedY;
-		
-		// Handle projectiles
-		if(player.firing) {
-			fireProjectile(player, 
-				session.game.projectiles);
-		} else {
-			loadProjectile(player);
-		}
-		
-		// Log to debug
-		if(debug) {
-			var vals = [];
-			for(var i in corners) {
-				vals[i] = corners[i].bad ? "X" : " ";
-			}
-			var out = "\n[" + player.name + "]\n" +
-			vals[0] + "-------" + vals[1] + "\n" +
-			"|       |\n" +
-			"|       |\n" +
-			"|       |\n" + 
-			vals[2] + "-------" + vals[3] + "\n";
-
-			log(out);
-		}	
-	}
-	
-	// Move projectiles
-	for(var i in session.game.projectiles) {
-		var proj = session.game.projectiles[i];
-		proj.box.x += proj.dx;
-		proj.box.y += proj.dy;
-		if(proj.box.x < 0 || proj.box.x > map.width ||
-		proj.box.y < 0 || proj.box.y > map.height) {
-			proj.active = false;
-		}
-	}
-	
-	// Calculate the diffs with the corrected boxes
-	for(var i in session.game.players) {
-		var player = session.game.players[i];
-		var dx = player.box.x - player.prevX;
-		var dy = player.box.x - player.prevY;
-		player.diff.distanceSailed += Math.sqrt(dx * dx + dy * dy);
-	}
-	
-}
 
 module.exports = new Game();
