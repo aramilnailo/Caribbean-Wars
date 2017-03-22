@@ -15,8 +15,8 @@ var Player = function(name) {
 		box:{
 			x:5, 
 			y:5, 
-			w:0.5, 
-			h:0.5, 
+			w:2, 
+			h:1, 
 			dir:0,
 			dx:0,
 			dy:0,
