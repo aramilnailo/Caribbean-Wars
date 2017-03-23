@@ -119,18 +119,18 @@ Render.prototype.drawScreen = function(data) {
 			dom.canvas.lineTo((verts[j].x - cam_x) * cell_w, (verts[j].y - cam_y) * cell_h);
 		}
 		dom.canvas.lineTo((verts[0].x - cam_x) * cell_w, (verts[0].y - cam_y) * cell_h);
-		dom.canvas.lineTo((s.box.x - cam_x) * cell_w, (s.box.y - cam_y) * cell_h);
 		dom.canvas.stroke();
 		}
 		
 		// Draw name
 		if(data.ships[i].name === client.username) {
 			dom.canvas.fillText(data.ships[i].name + 
-				": " + data.ships[i].health, 
-			shifted_x - 10, shifted_y - 10);
+				": " + data.ships[i].health + 
+				", " + data.ships[i].ammo, 
+			shifted_x - shifted_w, shifted_y - shifted_w);
 		} else {
 			dom.canvas.fillText(data.ships[i].name, 
-				shifted_x - 10, shifted_y - 10);
+				shifted_x - shifted_w, shifted_y - shifted_w);
 		}
     }
 	
@@ -153,7 +153,6 @@ Render.prototype.drawScreen = function(data) {
 			dom.canvas.lineTo((verts[j].x - cam_x) * cell_w, (verts[j].y - cam_y) * cell_h);
 		}
 		dom.canvas.lineTo((verts[0].x - cam_x) * cell_w, (verts[0].y - cam_y) * cell_h);
-		dom.canvas.lineTo((p.box.x - cam_x) * cell_w, (p.box.y - cam_y) * cell_h);
 		dom.canvas.stroke();
 		}
 		

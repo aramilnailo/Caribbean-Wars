@@ -80,7 +80,7 @@ Game.prototype.update = function() {
 				var p = session.game.players[j];
 				if(p.active) {
 					pack.ships.push({name:p.name, box:p.box, 
-						health:p.health});
+						health:p.health, ammo:p.projectiles.length});
 				}
 			}
 			// Add projectile data to the packet
