@@ -103,7 +103,11 @@ th, td {
 #game-screen {
 	margin:auto;
 	width:600px;
+}
+
+#canvas {
 	background-color:white;
+	border:2px solid black;
 }
 
 #upper-game-screen {
@@ -147,18 +151,37 @@ th, td {
 	width:100%;
 }
 
+#chat-window {
+	width:100%;
+}
+
 #chat-log {
 	border:2px solid white;
-	width:100%;
+	width:95%;
 	height:100px;
 	overflow-y:scroll;
 	background-color:black;
 	color:white;
 }
 
-#map-editor-organizer {
+#chat-input {
+	width:85%;
+	background-color:black;
+	color:white;
+}
+
+#chat-submit-btn {
+	width:10%;
+	margin-left:auto;
+}
+
+#map-editor-screen {
+	width:650px;
 	margin:auto;
-	width:65%;
+}
+
+#map-editor-organizer {
+	width:100%;
 }
 
 #map-editor-organizer::after {
@@ -180,8 +203,8 @@ th, td {
 }
 
 #map-editor-textbox {
-	width:60%;
-	margin:auto;
+	width:90%;
+	margin-left:auto;
 }
 
 #map-editor-textbox-msg,

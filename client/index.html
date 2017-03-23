@@ -80,8 +80,7 @@
     <!--GAME SCREEN-->
     <div id="game-screen" style="display:none;">
         <div id="game-window">
-  	    <canvas id="canvas" width="600" height="500"
-  		  style="border:1px solid black;"></canvas>
+  	    <canvas id="canvas" width="600" height="500"></canvas>
         </div>
     </div>
 		
@@ -139,25 +138,25 @@
 	
 	<!--OPTIONS MENU-->
     <div id="options-menu" class="clear-menu" style="display:none;">
+	<center>
       <div id="options-menu-btns">
   	    <button id="chat-toggle-btn">Show chat</button>
   	  </div>
 	  	<!--CHAT WINDOW-->
 	  	<div id="chat-window" style="display:none;">
-	    	  <div id="chat-log">
-	    	  </div>
+	    	  <div id="chat-log"></div>
 	    	  <form id="chat-form">
-	      	<input id="chat-input" type="text" style="width:500px"></input>
-	      	<input id="chat-submit-btn" type="submit"></input>
+	      	<input id="chat-input" type="text"></input>
+	      	<input id="chat-submit-btn" type="submit" style="display:inline-block;"></input>
 	    	  </form>
 	  	</div>
-	  
+	</center>
     </div>
 	
 	<!--MAP EDITOR SCREEN-->
 	<div id="map-editor-screen" style="display:none;">
 		
-		<div id="map-editor-textbox" class="clear-menu">
+		<div id="map-editor-textbox">
 			<div id="map-editor-textbox-msg"><p style="font:12px Arial;color:white;">Map edit mode</p></div>
 			<div id="map-editor-btns">
 				<button id="map-editor-logout-btn">logout</button>
@@ -199,33 +198,33 @@
 		</div>
 		
 		<div id="map-editor-organizer">
-		    <table id="map-editor-brush-panel" style="inline-block; border:collapse">
-		      <tr><td style="border:none">
-			  <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
-		      </td></tr>
-		      <tr><td style="border:none">
-			  <img id="map-editor-paint-sand-img" alt="sand" src="client/imgs/mapeditorsandiconup.png">
-		      </td></tr>
-		      <tr><td style="border:none">
-			  <img id="map-editor-paint-grass-img" alt="grass" src="client/imgs/mapeditorgrassiconup.png">
-		      </td></tr>
-		      <tr><td style="border:none">
-			  <img id="map-editor-paint-port-img" alt="port" src="client/imgs/mapeditorporticonup.png">
-		      </td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-20" title="20px" src="client/imgs/mapeditorbrush20up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-18" title="18px" src="client/imgs/mapeditorbrush18up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-16" title="16px" src="client/imgs/mapeditorbrush16up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-14" title="14px" src="client/imgs/mapeditorbrush14up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-12" title="12px" src="client/imgs/mapeditorbrush12up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-10" title="10px" src="client/imgs/mapeditorbrush10up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-08" title="8px" src="client/imgs/mapeditorbrush08up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-06" title="6px" src="client/imgs/mapeditorbrush06up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-04" title="4px" src="client/imgs/mapeditorbrush04up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-02" title="2px" src="client/imgs/mapeditorbrush02up.png"></td></tr>
-		      <tr><td style="border:none"><img id="map-editor-brush-01" title="1px" src="client/imgs/mapeditorbrush01down.png"></td></tr>
-		    </table>
-		    <canvas id="map-editor-canvas" width="600" height="500"
-			    style="inline-block; border:1px solid black;"></canvas>
+	    <table id="map-editor-brush-panel" style="inline-block; border:collapse">
+	      <tr><td style="border:none">
+		  <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
+	      </td></tr>
+	      <tr><td style="border:none">
+		  <img id="map-editor-paint-sand-img" alt="sand" src="client/imgs/mapeditorsandiconup.png">
+	      </td></tr>
+	      <tr><td style="border:none">
+		  <img id="map-editor-paint-grass-img" alt="grass" src="client/imgs/mapeditorgrassiconup.png">
+	      </td></tr>
+	      <tr><td style="border:none">
+		  <img id="map-editor-paint-port-img" alt="port" src="client/imgs/mapeditorporticonup.png">
+	      </td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-20" title="20px" src="client/imgs/mapeditorbrush20up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-18" title="18px" src="client/imgs/mapeditorbrush18up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-16" title="16px" src="client/imgs/mapeditorbrush16up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-14" title="14px" src="client/imgs/mapeditorbrush14up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-12" title="12px" src="client/imgs/mapeditorbrush12up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-10" title="10px" src="client/imgs/mapeditorbrush10up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-08" title="8px" src="client/imgs/mapeditorbrush08up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-06" title="6px" src="client/imgs/mapeditorbrush06up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-04" title="4px" src="client/imgs/mapeditorbrush04up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-02" title="2px" src="client/imgs/mapeditorbrush02up.png"></td></tr>
+	      <tr><td style="border:none"><img id="map-editor-brush-01" title="1px" src="client/imgs/mapeditorbrush01down.png"></td></tr>
+	    </table>
+	    <canvas id="map-editor-canvas" width="600" height="500"
+		    style="inline-block; border:1px solid black;"></canvas>
 	  	</div>
 	  
 	</div>
