@@ -9,12 +9,15 @@ var Client = function() {};
 
 Client.prototype.username = "";
 Client.prototype.usertype = "";
-Client.prototype.inGame = false;
 Client.prototype.socket = null;
-Client.prototype.map = null;
-Client.prototype.gameStateBuffer = [];
+
 Client.prototype.camera = {x:0, y:0, zoom:1.0};
 Client.prototype.loading = false;
+Client.prototype.drawing = false;
+Client.prototype.inGame = false;
+
+Client.prototype.gameState = null;
+Client.prototype.map = null;
 
 /**
 * Registers all gui event messages associated with client state
@@ -26,7 +29,6 @@ Client.prototype.listen = function(router) {
     if(debug.client) debug.log("client/client.js: listen()");
     router.listen("evalResponse", this.logToConsole);
     router.listen("alert", this.pushAlert);
-    router.listen("newGameMapResponse", this.setMap); 
 }
 
 /**
@@ -48,19 +50,6 @@ Client.prototype.pushAlert = function(data) {
 */
 Client.prototype.logToConsole = function(data) {
 	console.log(data);
-}
-
-/**
- * Sets the client's map data to the given parameter
- * @param data - the new map data
- */
-Client.prototype.setMap = function(data) {
-    if(debug.client) debug.log("client/client.js: setMap()");
-    if(data.err) {
-        alert(data.err);
-	} else {
-		Client.prototype.map = data;
-	}
 }
 
 /**

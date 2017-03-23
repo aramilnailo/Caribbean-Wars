@@ -30,6 +30,9 @@ View.prototype.listen = function(router) {
 	router.listen("mapEditorScreen", this.mapEditorScreen);
 	router.listen("keyPressed", this.keyPressed);
 	router.listen("keyReleased", this.keyReleased);
+	
+    router.listen("newGameMapResponse", this.setMap); 
+	router.listen("gameUpdate", this.setGameState);
 }
 
 
@@ -41,6 +44,20 @@ View.prototype.setClientInfo = function(data) {
 
 View.prototype.setClientZoom = function(data) {
 	client.camera.zoom = data;
+}
+
+View.prototype.setMap = function(data) {
+    if(debug.client) debug.log("client/client.js: setMap()");
+    if(data.err) {
+        alert(data.err);
+	} else {
+		client.map = data;
+		client.loading = false;
+	}
+}
+
+View.prototype.setGameState = function(data) {
+	client.gameState = data;
 }
 
 View.prototype.loginScreen = function(data) {
@@ -77,6 +94,7 @@ View.prototype.gameScreen = function(data) {
 	"optionsMenu"]);
 	if(data.isHost) show(["hostMenu"]);
 	client.inGame = true;
+	client.loading = true;
 }
 
 View.prototype.mapEditorScreen = function(data) {

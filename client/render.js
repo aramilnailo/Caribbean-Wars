@@ -26,7 +26,6 @@ cannonballImage.src = "client/imgs/cannonballImage.png";
 */
 Render.prototype.listen = function(router) {
     if(debug.render) log("client/render.js: listen()");
-    router.listen("gameUpdate", this.drawScreen);
 }
 
 /**
@@ -37,13 +36,15 @@ Render.prototype.listen = function(router) {
 *             info on all players (number, x, y)
 */
 Render.prototype.drawScreen = function(data) {
-	if(!client.map) return;
+	client.drawing = true;
 	
-	var map = client.map.data;
+	var map = data.map.data;
+	var ships = data.state.ships;
+	var projectiles = data.state.projectiles;
 	
 	// camera position in cells
 	var cam_x = client.camera.x;
-	var cam_y = client.camera.y; 
+	var cam_y = client.camera.y;
 	
 	// camera dimensions in cells
 	var cam_w = 20 / client.camera.zoom;
@@ -85,8 +86,8 @@ Render.prototype.drawScreen = function(data) {
 	dom.canvas.fillStyle = "#000000";
 	dom.canvas.strokeStyle = "#000000";
 	dom.canvas.font = "10px Arial";
-    for(var i in data.ships) {
-		var s = data.ships[i];
+    for(var i in ships) {
+		var s = ships[i];
 
 		// Transform the coordinates
 		var shifted_x = (s.box.x - cam_x) * cell_w;
@@ -100,7 +101,7 @@ Render.prototype.drawScreen = function(data) {
 			shifted_x, 
 			shifted_y
 		);
-		dom.canvas.rotate(data.ships[i].box.dir);
+		dom.canvas.rotate(ships[i].box.dir);
 		dom.canvas.drawImage(
 			shipImage, 
 			-shifted_w/2, 
@@ -123,20 +124,20 @@ Render.prototype.drawScreen = function(data) {
 		}
 		
 		// Draw name
-		if(data.ships[i].name === client.username) {
-			dom.canvas.fillText(data.ships[i].name + 
-				": " + data.ships[i].health + 
-				", " + data.ships[i].ammo, 
+		if(ships[i].name === client.username) {
+			dom.canvas.fillText(ships[i].name + 
+				": " + ships[i].health + 
+				", " + ships[i].ammo, 
 			shifted_x - shifted_w, shifted_y - shifted_w);
 		} else {
-			dom.canvas.fillText(data.ships[i].name, 
+			dom.canvas.fillText(ships[i].name, 
 				shifted_x - shifted_w, shifted_y - shifted_w);
 		}
     }
 	
 	// Render projectiles
-	for(var i in data.projectiles) {
-		var p = data.projectiles[i];
+	for(var i in projectiles) {
+		var p = projectiles[i];
 		
 		// Transform coordinates
 		var shifted_x = (p.box.x - cam_x) * cell_w;
@@ -186,16 +187,17 @@ Render.prototype.drawScreen = function(data) {
 	
 	// Draw the player positions on the minimap
 	dom.canvas.fillStyle = "#ff0000"; // Red
-   	for(var i in data.ships) {
-		var p_rel_x = Math.floor(100 * data.ships[i].box.x / client.map.width);
-		var p_rel_y = Math.floor(100 * data.ships[i].box.y / client.map.height);
+   	for(var i in ships) {
+		var p_rel_x = Math.floor(100 * ships[i].box.x / client.map.width);
+		var p_rel_y = Math.floor(100 * ships[i].box.y / client.map.height);
 		
-		var p_rel_w = Math.max(3, Math.floor(100 * data.ships[i].box.w / client.map.width));
-		var p_rel_h = Math.max(3, Math.floor(100 * data.ships[i].box.h / client.map.width));
+		var p_rel_w = Math.max(3, Math.floor(100 * ships[i].box.w / client.map.width));
+		var p_rel_h = Math.max(3, Math.floor(100 * ships[i].box.h / client.map.width));
 		
 		dom.canvas.fillRect(500 + p_rel_x, 0 + p_rel_y, p_rel_w, p_rel_h);
     }
 	
+	client.drawing = false;
 }
 
 return new Render();

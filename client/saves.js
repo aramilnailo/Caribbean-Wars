@@ -103,6 +103,7 @@ Saves.prototype.loadGameClick = function() {
     if(filename) {
         client.emit("loadGameState", filename);
     }
+	client.loading = true;
 }
 
 /**
