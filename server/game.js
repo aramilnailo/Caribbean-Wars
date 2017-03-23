@@ -163,35 +163,20 @@ function updatePhysics(session) {
 	for(var i in session.game.players) {
 		var player = session.game.players[i];
 		if(!player.active) continue;
-		var box = player.box;
-		// Store for stats tracking
-		player.prevX = box.x;
-		player.prevY = box.y;
-		// Correct position at map limits
-		if(box.x < 0) box.x = 0;
-		if(box.y < 0) box.y = 0;
-		if(box.x + box.w > map.width) box.x = map.width - box.w;
-		if(box.y + box.h > map.height) box.y = map.height - box.h;
-		// Correct speed bounds
-		if(box.dx > player.maxSpeed) {
-			box.dx = player.maxSpeed;
-		} else if(box.dx < -player.maxSpeed) {
-			box.dx = -player.maxSpeed;
-		}
-		if(box.dy > player.maxSpeed) {
-			box.dy = player.maxSpeed;
-		} else if(box.dy < -player.maxSpeed) {
-			box.dy = -player.maxSpeed;
-		}
-		// Handle player collisions
-		handleCollisions(player.box, map);
+		// Store x and y for stats tracking
+		player.prevX = player.box.x;
+		player.prevY = player.box.y;
 		// Handle input
 		handleInput(player, session.game.projectiles);
+		// Handle player collisions
+		handleCollisions(player.box, map);
+		// Update player boxes
+		updateBox(player.box, map);
 	}
 	// Calculate the diffs with the corrected boxes
 	for(var i in session.game.players) {
-		if(!player.active) continue;
 		var player = session.game.players[i];
+		if(!player.active) continue;
 		var dx = player.box.x - player.prevX;
 		var dy = player.box.y - player.prevY;
 		player.diff.distanceSailed += 
@@ -212,108 +197,122 @@ function updatePhysics(session) {
 		if(proj.active) {
 			// Handle projectile collision
 			handleCollisions(proj.box, map);
-			// Update position
-			proj.box.x += proj.box.dx;
-			proj.box.y += proj.box.dy;
+			// Update projectile boxes
+			updateBox(proj.box, map);
 		}
 	}
 }
 
+// Checks each vert in the box for collisions, returns
+// the net force applied to the box
 function handleCollisions(box, map) {
-	// Store collisions at corners
-	var corners = [{x:box.x, y:box.y},
-		{x:box.x + box.w, y:box.y},
-		{x:box.x, y:box.y + box.h},
-		{x:box.x + box.w, y:box.y + box.h}
-	];
-	// Check corners against map data
-	for(var i in corners) {
-		var cell_x = Math.floor(corners[i].x);
-		var cell_y = Math.floor(corners[i].y);
+	// Check verts against map data
+	var v = box.verts;
+	for(var i in v) {
+		var cell_x = Math.floor(v[i].x);
+		var cell_y = Math.floor(v[i].y);
 		if(!map.data[cell_y]) {
-			corners[i].bad = true;
+			v[i].hit = true;
 		} else {
 			var ch = map.data[cell_y].charAt(cell_x);
-			corners[i].bad = (ch !== "0");
+			v[i].hit = (ch !== "0");
 		}
 	}
-	var hit = false;
-	var stuck = false;
-	// If collisions on all corners, box is stopped
-	if(corners[0].bad && corners[1].bad &&
-		corners[2].bad && corners[3].bad) {
-		box.dx = 0;
-		box.dy = 0;
-		hit = true;
-		stuck = true;
-	} else {
-		// Handle motion from collisions
-		var ddx = ddy = 0.1;
-		if(corners[0].bad) {
-			box.dx += ddx;
-			box.dy += ddy;
-			if(box.dx > 0) box.dx = 0;
-			if(box.dy > 0) box.dy = 0;
-			hit = true;
-		}
-		if(corners[1].bad) {
-			box.dx -= ddx;
-			box.dy += ddy;
-			if(box.dx < 0) box.dx = 0;
-			if(box.dy > 0) box.dy = 0;
-			hit = true;
-		}
-		if(corners[2].bad) {
-			box.dx += ddx;
-			box.dy -= ddy;
-			if(box.dx > 0) box.dx = 0;
-			if(box.dy < 0) box.dy = 0;
-			hit = true;
-		}
-		if(corners[3].bad) {
-			box.dx -= ddx;
-			box.dy -= ddy;
-			if(box.dx < 0) box.dx = 0;
-			if(box.dy < 0) box.dy = 0;
-			hit = true;
+	// Calculate force from collisions, update stuck / hit
+	box.stuck = true;
+	box.hit = false;
+	for(var i in v) {
+		if(!v[i].hit) {
+			box.stuck = false;
+		} else {
+			if(!box.hit) {
+				box.hit = true;
+				box.forces.push({
+					x:-box.dx,
+					y:-box.dy
+				});
+			}
 		}
 	}
-	box.hit = hit;
-	box.stuck = stuck;
 	// Log to debug
 	if(false) {
-		var vals = [];
-		for(var i in corners) {
-			vals[i] = corners[i].bad ? "X" : " ";
+		var out = "";
+		for(var i in v) {
+			var val = v[i].hit ? "X" : "o";
+			out += "-" + val;
 		}
-		var out = "\n[" + box.x + ", " + box.y + "]\n" +
-		vals[0] + "-------" + vals[1] + "\n" +
-		"|       |\n" +
-		"|       |\n" +
-		"|       |\n" + 
-		vals[2] + "-------" + vals[3] + "\n";
-		log(out);
+		log("[" + box.x + ", " + box.y + "]" + out);
 	}
+}
+
+function updateBox(box, map) {
+	log(box);
+	// Calculate acceleration based on forces
+	while(box.forces.length > 0) {
+		var force = box.forces.pop();
+		box.ddx += force.x / box.mass;
+		box.ddy += force.y / box.mass;
+	}
+
+	// Apply acceleration to velocity
+	box.dx += box.ddx;
+	box.dy += box.ddy;
+	
+	box.ddx = 0;
+	box.ddy = 0;
+
+	// Apply velocity bounds
+	if(box.dx > box.dx_max) 
+		box.dx = box.dx_max;
+	else if(box.dx < -box.dx_max) 
+		box.dx = -box.dx_max;
+	if(box.dy > box.dy_max) 
+		box.dy = box.dy_max;
+	else if(box.dy < -box.dy_max)
+		box.dy = -box.dy_max;
+	// Apply velocity to position
+	if(box.hit) {
+		box.dx *= 0.1;
+		box.dy *= 0.1;
+	}
+	if(box.stuck) {
+		box.dx = 0;
+		box.dy = 0;
+	}
+	box.x += box.dx;
+	box.y += box.dy;
+	// Update verts
+	var verts = box.verts;
+	for(var i in verts) {
+		verts[i].x -= box.x;
+		verts[i].y -= box.y;
+		var sin = Math.sin(box.ddir);
+		var cos = Math.cos(box.ddir);
+		var x_new = verts[i].x * cos - verts[i].y * sin;
+		var y_new = verts[i].x * sin + verts[i].y * cos;
+		verts[i].x = x_new + box.x;
+		verts[i].y = y_new + box.y;
+		verts[i].x += box.dx;
+		verts[i].y += box.dy;
+	}
+	box.ddir = 0;
 }
 
 function handleInput(player, list) {
-	var stuck = player.box.stuck;
-	var hit = player.box.hit;
-	// Handle motion from input
-	var ddx = 0, ddy = 0;
-	if(player.input.right) ddx = stuck ? 0.001 : hit ? 0.01 : player.maxAccel;
-	if(player.input.left) ddx = stuck ? -0.001 : hit ? -0.01 : -player.maxAccel;
-	if(player.input.up) ddy = stuck ? -0.001 : hit ? -0.01 : -player.maxAccel;
-	if(player.input.down) ddy = stuck ? 0.001 : hit ? 0.01 : player.maxAccel;
-	// Apply velocity changes
-	player.box.dx += ddx;
-	player.box.dy += ddy;
-	// Apply position changes
-	player.box.x += player.box.dx;
-	player.box.y += player.box.dy;
-	// Apply rotation
+	var mag = 0.01;
+	// Apply force
+	if(player.input.up) 
+		player.box.forces.push({x:0 , y:-mag});
+	if(player.input.down)
+		player.box.forces.push({x:0 , y:mag});
+	if(player.input.left)
+		player.box.forces.push({x:-mag , y:0});
+	if(player.input.right)
+		player.box.forces.push({x:mag , y:0});
+	// Rotate
 	if(player.input.rotating) {
 		player.box.dir += 0.1;
+		player.box.ddir = 0.1;
 	}
 	// Fire / load projectiles
 	if(player.input.firing) {
@@ -331,14 +330,11 @@ function fireProjectile(player, list) {
 		player.input.firing = false;
 		return;
 	}
-	proj.box.x = player.box.x;
-	proj.box.y = player.box.y;
-	// Fire from the side
-	proj.box.dir = player.box.dir + 
-		(3 * Math.PI / 2);
-	proj.box.dx = Math.cos(proj.box.dir);
-	proj.box.dy = Math.sin(proj.box.dir);
-	proj.active = true;
+	proj = new projectile(player);
+	proj.box.forces.push({
+		x:player.box.dx + player.firepower * Math.cos(proj.box.dir),
+		y:player.box.dy + player.firepower * Math.sin(proj.box.dir)
+	});
 	list.push(proj);
 	player.diff.shotsFired++;
 }
@@ -346,8 +342,7 @@ function fireProjectile(player, list) {
 function loadProjectile(player) {
 	if(player.input.firing) return;
 	if(player.projectiles.length < player.numCannons) {
-		var proj = new projectile();
-		player.projectiles.push(proj);
+		player.projectiles.push({});	// Placeholder object
 	}
 }
 

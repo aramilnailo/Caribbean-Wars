@@ -16,12 +16,22 @@ var Player = function(name) {
 			x:5, 
 			y:5, 
 			w:2, 
-			h:1, 
+			h:1,
 			dir:0,
+			ddir:0,
+			
 			dx:0,
 			dy:0,
+			ddx:0,
+			ddy:0,
+			dx_max:0.15,
+			dy_max:0.15,
+			mass:1,
+			
 			hit:false,
 			stuck:false,
+			verts:[],
+			forces:[]
 		},
 		input:{
 			right:false,
@@ -35,15 +45,27 @@ var Player = function(name) {
 			distanceSailed:0,
 			shotsFired:0
 		},
-		maxAccel:0.03,
-		maxSpeed:0.15,
 		prevX:5,
 		prevY:5,
 		numCannons:10,
+		firepower:0.5,
 		projectiles:[],
 		active:true,
 		name:name
     }
+	
+	var x1 = player.box.x - player.box.w / 2,
+	x2 = player.box.x + player.box.w / 2,
+	y1 = player.box.y - player.box.h / 2,
+	y2 = player.box.y + player.box.h / 2;
+	
+	player.box.verts.push({ x:x1, y:y2 }); // bottom left
+	player.box.verts.push({ x:x2, y:y2 }); // bottom right
+	player.box.verts.push({ 
+		x:player.box.x + player.box.w,		// point
+		y:player.box.y});
+	player.box.verts.push({ x:x2, y:y1 }); // top right
+	player.box.verts.push({ x:x1, y:y1 }); // top left
 	
     return player;
 }

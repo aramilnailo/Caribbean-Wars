@@ -82,21 +82,23 @@ Render.prototype.drawScreen = function(data) {
 	}
 	
 	// Render the ships
-    dom.canvas.strokeStyle = "#000000";
+	dom.canvas.fillStyle = "#000000";
+	dom.canvas.strokeStyle = "#000000";
 	dom.canvas.font = "10px Arial";
     for(var i in data.ships) {
+		var s = data.ships[i];
+
 		// Transform the coordinates
-		var shifted_x = (data.ships[i].box.x - cam_x) * cell_w;
-		var shifted_y = (data.ships[i].box.y - cam_y) * cell_h;
-		var shifted_w = data.ships[i].box.w * cell_w;
-		var shifted_h = data.ships[i].box.h * cell_h;
-		// Draw bounding box
-		dom.canvas.strokeRect(shifted_x, shifted_y, shifted_w, shifted_h);
+		var shifted_x = (s.box.x - cam_x) * cell_w;
+		var shifted_y = (s.box.y - cam_y) * cell_h;
+		var shifted_w = s.box.w * cell_w;
+		var shifted_h = s.box.h * cell_h;
+		
 		// Draw image
 		dom.canvas.save();
 		dom.canvas.translate(
-			shifted_x + shifted_w / 2, 
-			shifted_y + shifted_h / 2
+			shifted_x, 
+			shifted_y
 		);
 		dom.canvas.rotate(data.ships[i].box.dir);
 		dom.canvas.drawImage(
@@ -107,6 +109,17 @@ Render.prototype.drawScreen = function(data) {
 			shifted_h
 		);
 		dom.canvas.restore();
+		
+		// Draw bounding box
+		var verts = s.box.verts;
+		dom.canvas.beginPath();
+		dom.canvas.moveTo((verts[0].x - cam_x) * cell_w, (verts[0].y - cam_y) * cell_h);
+		for(var j = 1; j < verts.length; j++) {
+			dom.canvas.lineTo((verts[j].x - cam_x) * cell_w, (verts[j].y - cam_y) * cell_h);
+		}
+		dom.canvas.lineTo((verts[0].x - cam_x) * cell_w, (verts[0].y - cam_y) * cell_h);
+		dom.canvas.stroke();
+		
 		// Draw name
 		dom.canvas.fillText(data.ships[i].name, 
 			shifted_x - 10, shifted_y - 10);
