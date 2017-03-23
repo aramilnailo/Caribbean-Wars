@@ -47,8 +47,10 @@ var Player = function(name) {
 		},
 		prevX:5,
 		prevY:5,
-		numCannons:10,
-		firepower:0.5,
+		numCannons:50,
+		reloadCount:0,
+		reloadRate:1,
+		firepower:0.25,
 		projectiles:[],
 		active:true,
 		name:name

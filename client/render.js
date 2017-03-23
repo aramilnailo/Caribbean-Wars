@@ -124,24 +124,45 @@ Render.prototype.drawScreen = function(data) {
 		}
 		
 		// Draw name
-		dom.canvas.fillText(data.ships[i].name, 
+		if(data.ships[i].name === client.username) {
+			dom.canvas.fillText(">" + data.ships[i].name + "<", 
 			shifted_x - 10, shifted_y - 10);
+		} else {
+			dom.canvas.fillText(data.ships[i].name, 
+				shifted_x - 10, shifted_y - 10);
+		}
     }
 	
 	// Render projectiles
 	for(var i in data.projectiles) {
+		var p = data.projectiles[i];
+		
 		// Transform coordinates
-		var shifted_x = (data.projectiles[i].box.x - cam_x) * cell_w;
-		var shifted_y = (data.projectiles[i].box.y - cam_y) * cell_h;
-		var shifted_w = data.projectiles[i].box.w * cell_w;
-		var shifted_h = data.projectiles[i].box.h * cell_h;
+		var shifted_x = (p.box.x - cam_x) * cell_w;
+		var shifted_y = (p.box.y - cam_y) * cell_h;
+		var shifted_w = p.box.w * cell_w;
+		var shifted_h = p.box.h * cell_h;
+		
+		if(debug) {
 		// Draw bounding box
-		dom.canvas.strokeRect(shifted_x, shifted_y, shifted_w, shifted_h);
+		var verts = p.box.verts;
+		dom.canvas.beginPath();
+		dom.canvas.moveTo((verts[0].x - cam_x) * cell_w, (verts[0].y - cam_y) * cell_h);
+		for(var j = 1; j < verts.length; j++) {
+			dom.canvas.lineTo((verts[j].x - cam_x) * cell_w, (verts[j].y - cam_y) * cell_h);
+		}
+		dom.canvas.lineTo((verts[0].x - cam_x) * cell_w, (verts[0].y - cam_y) * cell_h);
+		dom.canvas.lineTo((p.box.x - cam_x) * cell_w, (p.box.y - cam_y) * cell_h);
+		dom.canvas.stroke();
+		}
+		
 		// Draw image
 		dom.canvas.save();
 		dom.canvas.translate(
 			shifted_x, 
-			shifted_y);
+			shifted_y
+		);
+		dom.canvas.rotate(p.box.dir);
 		dom.canvas.drawImage(
 			cannonballImage,
 			-shifted_w / 2, 

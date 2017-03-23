@@ -79,7 +79,7 @@ Game.prototype.update = function() {
 			for(var j in session.game.players) {
 				var p = session.game.players[j];
 				if(p.active) {
-					pack.ships.push({name:p.name, box:p.box});
+					pack.ships.push({name:p.name, box:p.box });
 				}
 			}
 			// Add projectile data to the packet
@@ -190,6 +190,7 @@ function updatePhysics(session) {
 		var dx = proj.box.dx, dy = proj.box.dy;
 		proj.range -= Math.sqrt(dx * dx + dy * dy);
 		if(proj.range < 0) proj.active = false;
+		if(proj.box.stuck) proj.active = false;
 		// Remove if proj is out of map bounds
 		if(proj.box.x < 0 || proj.box.x > map.width ||
 			proj.box.y < 0 || proj.box.y > map.height)
@@ -218,6 +219,7 @@ function handleCollisions(box, map) {
 			v[i].hit = (ch !== "0");
 		}
 	}
+	
 	// Calculate force from collisions, update stuck / hit
 	box.stuck = true;
 	box.hit = false;
@@ -228,8 +230,8 @@ function handleCollisions(box, map) {
 			if(!box.hit) {
 				box.hit = true;
 				box.forces.push({
-					x:-box.dx,
-					y:-box.dy
+					x:-box.dx * 2,
+					y:-box.dy * 2
 				});
 			}
 		}
@@ -245,8 +247,7 @@ function handleCollisions(box, map) {
 	}
 }
 
-function updateBox(box, map) {
-	log(box);
+function updateBox(box) {
 	// Calculate acceleration based on forces
 	while(box.forces.length > 0) {
 		var force = box.forces.pop();
@@ -336,9 +337,10 @@ function fireProjectile(player, list) {
 	}
 	proj = new projectile(player);
 	proj.box.forces.push({
-		x:player.box.dx + player.firepower * Math.cos(proj.box.dir),
-		y:player.box.dy + player.firepower * Math.sin(proj.box.dir)
+		x:player.firepower * Math.cos(proj.box.dir),
+		y:player.firepower * Math.sin(proj.box.dir)
 	});
+	proj.box.ddir = proj.box.dir;
 	list.push(proj);
 	player.diff.shotsFired++;
 }
@@ -346,7 +348,12 @@ function fireProjectile(player, list) {
 function loadProjectile(player) {
 	if(player.input.firing) return;
 	if(player.projectiles.length < player.numCannons) {
-		player.projectiles.push({});	// Placeholder object
+		if(player.reloadCount > 1) {
+			player.projectiles.push({});
+			player.reloadCount = 0;
+		} else {
+	   		player.reloadCount += player.reloadRate;
+	   	}
 	}
 }
 

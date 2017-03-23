@@ -8,7 +8,7 @@ var Projectile = function(player) {
 		box:{
 			x:0,
 			y:0,
-			w:0.2,
+			w:1,
 			h:0.2,
 			dir:0,
 			ddir:0,
@@ -17,8 +17,8 @@ var Projectile = function(player) {
 			dy:0,
 			ddx:0,
 			ddy:0,
-			dx_max:10,
-			dy_max:10,
+			dx_max:100,
+			dy_max:100,
 			mass:0.1,
 			
 			hit:false,
