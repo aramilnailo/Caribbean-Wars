@@ -3,39 +3,62 @@
 <html>
   <head>
     <title>SR_5_CaribbeanWars</title>
+	<link rel="stylesheet" type="text/css" href="client/styles.css">
   </head>
   <body>
-    <center>
-    <h1>SR_5_Caribbean Wars</h1>
-    
-    <style> th, td { border : 1px solid black; } </style>   
+    <h1 id="site-header">SR_5_Caribbean Wars</h1>
 	
 	<!--LOGIN SCREEN-->
-	<div id="login-screen">
+	<div id="login-screen" class="clear-menu">
 	  
-	    <img src="client/imgs/Confiance_Kent_fight.jpg" width="500"><br>
-	    Username: <input id="login-username" type="text"></input><br>
-	    Password: <input id="login-password" type="password"></input><br>
-	    <form id="login-usertype-radiobox" checked="player">
-	      Role: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
-	      <input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
-	      <input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
-	    </form>
-	    <button id="login-btn">Log in</button>
-	    <button id="signup-btn">Sign up</button>
+	    <img id="login-img" src="client/imgs/Confiance_Kent_fight.jpg"><br>
+		<div id="login-forms" class="white-menu">
+		    Username: <input id="login-username" type="text"></input><br>
+		    Password: <input id="login-password" type="password"></input><br>
+		    <form id="login-usertype-radiobox" checked="player">
+		      Role: <input type="radio" name="usertype" id="usertype-player" value="player">player</input>
+		      <input type="radio" name="usertype" id="usertype-editor" value="editor">editor</input>
+		      <input type="radio" name="usertype" id="usertype-admin" value="admin">admin</input>
+		    </form>
+		    <button id="login-btn">Log in</button>
+		    <button id="signup-btn">Sign up</button>
+		</div>
 		
     </div>
 	
 	<!--UPPER MENU-->
-	<div id="upper-menu" style="display:none;">
-  	  	<div id="username-label"></div>
-  	  	<div id="usertype-label"></div>
+	<div id="upper-menu" class="clear-menu" style="display:none;">
+		<div id="upper-menu-content">
+  	  	<span id="username-label"></span>
+  	  	<span id="usertype-label"></span>
 	    <button id="logout-btn">Log out</button>
 	    <button id="delete-account-btn">Delete Account</button>
 	    <button id="saved-games-menu-btn">Show saved games</button>
 	    <button id="stats-menu-btn">Show stats</button>
+		</div>
 	</div>
+
+	<!--SAVED GAMES MENU-->
+    <div id="saved-games-menu" class="white-menu" style="display:none;">
+	  <span class="menu-title">Saved Games</span>
+	  <div id="saved-games-list" style="display:table;"></div>
+	  <div id="saved-games-menu-btns">
+	    <button id="save-game-btn">Save</button>
+	    <button id="load-game-btn" class="host">Load</button>
+	    <button id="delete-game-btn">Delete</button>
+	  </div>
+    </div>
+
+	<!--STATS MENU-->
+    <div id="stats-menu" class="white-menu" style="display:none;">
+	  <span class="menu-title">Stats</span>
+	  <div id="stats-list" style="display:table;"></div>
+	  <div id="stats-menu-btns">
+        <button id="clear-stats-btn">Clear stats</button>
+	  </div>
+    </div>
 	
+	<div id="upper-game-screen">
 	<!--IN-GAME MENU-->
 	<div id="in-game-menu" style="display:none;">
 	  <div id="in-game-menu-btns">
@@ -52,24 +75,7 @@
 			<button id="promote-btn">Promote</button>
 		</div>
 	</div>
-
-	<!--SAVED GAMES MENU-->
-    <div id="saved-games-menu" style="display:none;">	  
-	  <div id="saved-games-list" style="display:table;"></div>
-	  <div id="saved-games-menu-btns">
-	    <button id="save-game-btn">Save</button>
-	    <button id="load-game-btn" class="host">Load</button>
-	    <button id="delete-game-btn">Delete</button>
-	  </div>
-    </div>
-
-	<!--STATS MENU-->
-    <div id="stats-menu" style="display:none;">
-	  <div id="stats-list" style="display:table;"></div>
-	  <div id="stats-menu-btns">
-        <button id="clear-stats-btn">Clear stats</button>
-	  </div>
-    </div>
+	</div>
 	
     <!--GAME SCREEN-->
     <div id="game-screen" style="display:none;">
@@ -78,46 +84,51 @@
   		  style="border:1px solid black;"></canvas>
         </div>
     </div>
-	
+		
 	<!--ADMIN SCREEN-->
-	<div id="admin-screen" style="display:none;">
+	<div id="admin-screen" class="white-menu" style="display:none;">
+	  <span>Admin Screen</span>
 	  <div id="admin-screen-btns">
 	    <button id="user-menu-btn">Show Users</button>
   	  </div>
+	  
+  	<!--USER MENU-->
+    	<div id="user-menu" style="display:none;">
+	  	  <div id="user-list" style="display:table;"></div>
+	  	  <div id="user-menu-btns">
+	  		<button id="add-user-btn" class="admin">Add User</button>
+	  		<button id="delete-user-btn" class="admin">Delete User</button>
+	  		<button id="user-type-btn" class="admin">Change User Type</button>
+	  	  </div>
+    	</div>
 	</div>
 	
-	<!--USER MENU-->
-  	<div id="user-menu" style="display:none;">
-	  <div id="user-list" style="display:table;"></div>
-	  <div id="user-menu-btns">
-		<button id="add-user-btn" class="admin">Add User</button>
-		<button id="delete-user-btn" class="admin">Delete User</button>
-		<button id="user-type-btn" class="admin">Change User Type</button>
-	  </div>
-  	</div>
-	
 	<!--SESSION BROWSER-->
-	<div id="session-browser" style="display:none;">
+	<div id="session-browser" class="white-menu" style="display:none;">
+		<span class="menu-title">Session Browser</span>
 		<div id="session-browser-btns">
 			<button id="session-menu-btn">Show Sessions</button>
 		</div>
-	</div>
-	
-	<!--SESSION MENU-->
-	<div id="session-menu" style="display:none;">
-		<div id="session-list"></div>
-		<div id="session-menu-btns">
-			<button id="join-session-btn">Join Session</button>
-			<button id="new-session-btn">Start Session</button>
+		
+		<!--SESSION MENU-->
+		<div id="session-menu" style="display:none;">
+			<div id="session-list"></div>
+			<div id="session-menu-btns">
+				<button id="join-session-btn">Join Session</button>
+				<button id="new-session-btn">Start Session</button>
+			</div>
 		</div>
+		
 	</div>
+
 	
 	<!--LOBBY SCREEN-->
-	<div id="lobby-screen" style="display:none;">
+	<div id="lobby-screen" class="white-menu" style="display:none;">
+		<span class="menu-title">Session Lobby</span>
 		<div id="lobby-player-list"></div>
 		<div id="host-lobby-btns">
 			<button id="new-game-btn" class="host">Start new game</button>
-			<button id="resume-game-btn" class="host">Start game from file</button>
+			<button id="resume-game-btn" class="host">Start game from save</button>
 			<button id="end-session-btn" class="host">End Session</button>
 		</div>
 		<div id="lobby-btns">
@@ -127,28 +138,67 @@
 	</div>
 	
 	<!--OPTIONS MENU-->
-    <div id="options-menu" style="display:none;">
+    <div id="options-menu" class="clear-menu" style="display:none;">
       <div id="options-menu-btns">
-  	    <button id="chat-toggle-btn">Show chat</div>
+  	    <button id="chat-toggle-btn">Show chat</button>
   	  </div>
+	  	<!--CHAT WINDOW-->
+	  	<div id="chat-window" style="display:none;">
+	    	  <div id="chat-log">
+	    	  </div>
+	    	  <form id="chat-form">
+	      	<input id="chat-input" type="text" style="width:500px"></input>
+	      	<input id="chat-submit-btn" type="submit"></input>
+	    	  </form>
+	  	</div>
+	  
     </div>
 	
-	<!--CHAT WINDOW-->
-	<div id="chat-window" style="display:none;">
-  	  <div id="chat-log" style="border:1px solid black;width:500px;height:100px;overflow-y:scroll">
-  	  </div>
-  	  <form id="chat-form">
-    	<input id="chat-input" type="text" style="width:500px"></input>
-    	<input id="chat-submit-btn" type="submit"></input>
-  	  </form>
-	</div>
-
 	<!--MAP EDITOR SCREEN-->
 	<div id="map-editor-screen" style="display:none;">
-	  <table id="map-editor-organizer" style="inline-block; border:collapse">
-	    <tr><td style="border:none">
-	    </td></tr>
-	    <tr><td style="border:none">
+		
+		<div id="map-editor-textbox" class="clear-menu">
+			<div id="map-editor-textbox-msg"><p style="font:12px Arial;color:white;">Map edit mode</p></div>
+			<div id="map-editor-btns">
+				<button id="map-editor-logout-btn">logout</button>
+				<button id="map-editor-saved-maps-btn">saved maps</button>
+				<button id="map-editor-save-map-btn">save as</button>
+				<button id="map-editor-load-map-btn">load</button>
+				<button id="map-editor-undo-btn">undo</button>
+				<button id="map-editor-redo-btn">redo</button>
+				<button id="map-editor-zoom-btn">zoom</button>
+				<button id="map-editor-clear-map-btn">clear</button>
+				<button id="map-editor-resize-btn">resize</button>
+		  	</div>
+			<center>
+			<div id="map-editor-textbox-resize-form" style="display:none">
+				<table><tr><td style="border:none">
+					<form style="font:12px Arial;color:white;">
+						H: <input id="map-editor-new-ly" type="text"></input>
+						W: <input id="map-editor-new-lx" type="text"></input>
+					</form>
+					</td></tr>
+					<tr><td style="border:none">
+						<button id="map-editor-resize-submit-btn">submit</button>
+					</td></tr>
+				</table>
+			</div>
+			<div id="map-editor-textbox-zoom-form" style="display:none">
+				<table><tr><td style="border:none">
+					<form style="font:12px Arial;color:white;">
+						Zoom: <input id="map-editor-new-zoom" type="text"></input>
+					</form>
+					</td></tr>
+					<tr><td style="border:none">
+						<button id="map-editor-zoom-submit-btn">submit</button>
+					</td></tr>
+				</table>
+			</div>
+			<div id="map-editor-saved-maps-list" display="display:none;"></div>
+			</center>
+		</div>
+		
+		<div id="map-editor-organizer">
 		    <table id="map-editor-brush-panel" style="inline-block; border:collapse">
 		      <tr><td style="border:none">
 			  <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
@@ -174,51 +224,11 @@
 		      <tr><td style="border:none"><img id="map-editor-brush-02" title="2px" src="client/imgs/mapeditorbrush02up.png"></td></tr>
 		      <tr><td style="border:none"><img id="map-editor-brush-01" title="1px" src="client/imgs/mapeditorbrush01down.png"></td></tr>
 		    </table>
-		  </td>
-		  <td style="border:none">
 		    <canvas id="map-editor-canvas" width="600" height="500"
 			    style="inline-block; border:1px solid black;"></canvas>
-	    </td></tr>
-	  </table>
+	  	</div>
 	  
-	  <div id="map-editor-textbox">
-	    <div id="map-editor-textbox-msg"><p style="font:12px Arial">Map edit mode</p></div>
-	    <div id="map-editor-textbox-resize-form" style="display:none">
-	      <table><tr><td style="border:none">
-		    <form style="font:12px Arial">
-		      H: <input id="map-editor-new-ly" type="text"></input>
-		      W: <input id="map-editor-new-lx" type="text"></input>
-		    </form>
-		  </td><td style="border:none">
-		    <button id="map-editor-resize-submit-btn">submit</button>
-		</td></tr>
-	      </table>
-	    </div>
-	    <div id="map-editor-textbox-zoom-form" style="display:none">
-	      <table><tr><td style="border:none">
-		    <form style="font:12px Arial">
-		      Zoom: <input id="map-editor-new-zoom" type="text"></input>
-		    </form>
-              </td></tr>
-		  <tr><td style="border:none">
-		    <button id="map-editor-zoom-submit-btn">submit</button>
-                  </td></tr>
-               </table>
-	    </div>
-	  </div>
-	  <button id="map-editor-undo-btn">undo</button>
-	  <button id="map-editor-redo-btn">redo</button>
-	  <button id="map-editor-zoom-btn">zoom</button>
-	  <button id="map-editor-clear-map-btn">clear</button>
-	  <button id="map-editor-resize-btn">resize</button><br>
-	  <button id="map-editor-logout-btn">logout</button>
-	  <button id="map-editor-saved-maps-btn">saved maps</button>
-	  <button id="map-editor-save-map-btn">save as</button>
-	  <button id="map-editor-load-map-btn">load</button><br>
-	  <div id="map-editor-saved-maps-list"></div>
 	</div>
-	
-	</center>
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script data-main="./client/main.js" src="./client/require.js"></script>
