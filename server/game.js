@@ -283,6 +283,12 @@ function updateBox(box, map) {
 	box.y += box.dy;
 	// Update verts
 	var verts = box.verts;
+	// Apply position shift
+	for(var i in verts) {
+		verts[i].x += box.dx;
+		verts[i].y += box.dy;
+	}
+	// Apply rotation
 	for(var i in verts) {
 		verts[i].x -= box.x;
 		verts[i].y -= box.y;
@@ -292,8 +298,6 @@ function updateBox(box, map) {
 		var y_new = verts[i].x * sin + verts[i].y * cos;
 		verts[i].x = x_new + box.x;
 		verts[i].y = y_new + box.y;
-		verts[i].x += box.dx;
-		verts[i].y += box.dy;
 	}
 	box.ddir = 0;
 }

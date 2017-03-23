@@ -103,13 +103,14 @@ Render.prototype.drawScreen = function(data) {
 		dom.canvas.rotate(data.ships[i].box.dir);
 		dom.canvas.drawImage(
 			shipImage, 
-			-shifted_w / 2, 
-			-shifted_h / 2, 
-			shifted_w, 
+			-shifted_w/2, 
+			-shifted_h/2, 
+			shifted_w,
 			shifted_h
 		);
 		dom.canvas.restore();
 		
+		if(debug) {
 		// Draw bounding box
 		var verts = s.box.verts;
 		dom.canvas.beginPath();
@@ -118,7 +119,9 @@ Render.prototype.drawScreen = function(data) {
 			dom.canvas.lineTo((verts[j].x - cam_x) * cell_w, (verts[j].y - cam_y) * cell_h);
 		}
 		dom.canvas.lineTo((verts[0].x - cam_x) * cell_w, (verts[0].y - cam_y) * cell_h);
+		dom.canvas.lineTo((s.box.x - cam_x) * cell_w, (s.box.y - cam_y) * cell_h);
 		dom.canvas.stroke();
+		}
 		
 		// Draw name
 		dom.canvas.fillText(data.ships[i].name, 
@@ -137,8 +140,8 @@ Render.prototype.drawScreen = function(data) {
 		// Draw image
 		dom.canvas.save();
 		dom.canvas.translate(
-			shifted_x + shifted_w / 2, 
-			shifted_y + shifted_h / 2);
+			shifted_x, 
+			shifted_y);
 		dom.canvas.drawImage(
 			cannonballImage,
 			-shifted_w / 2, 
