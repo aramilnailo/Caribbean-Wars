@@ -79,7 +79,8 @@ Game.prototype.update = function() {
 			for(var j in session.game.players) {
 				var p = session.game.players[j];
 				if(p.active) {
-					pack.ships.push({name:p.name, box:p.box });
+					pack.ships.push({name:p.name, box:p.box, 
+						health:p.health});
 				}
 			}
 			// Add projectile data to the packet
@@ -128,10 +129,14 @@ Game.prototype.updateStats = function() {
 					diff:p.diff.distanceSailed
 				});
 				arr.push({name:"ships_sunk", diff:0});
-				arr.push({name:"ships_lost", diff:0});
+				arr.push({
+					name:"ships_lost", 
+					diff:p.diff.shipsLost
+				});
 				stats.push(arr);
 				p.diff.distanceSailed = 0;
 				p.diff.shotsFired = 0;
+				p.diff.shipsLost = 0;
 			}
 		}
 		if(send) {
@@ -169,7 +174,7 @@ function updatePhysics(session) {
 		// Handle input
 		handleInput(player, session.game.projectiles);
 		// Handle player collisions
-		handleCollisions(player.box, map);
+		handleCollisions(player.box, session);
 		// Update player boxes
 		updateBox(player.box, map);
 	}
@@ -177,10 +182,17 @@ function updatePhysics(session) {
 	for(var i in session.game.players) {
 		var player = session.game.players[i];
 		if(!player.active) continue;
-		var dx = player.box.x - player.prevX;
-		var dy = player.box.y - player.prevY;
-		player.diff.distanceSailed += 
-			Math.sqrt(dx * dx + dy * dy);
+		if(player.health < 0) {
+			player.health = 0;
+			player.alive = false;
+			player.active = false;
+			player.diff.shipsLost++;
+		} else {
+			var dx = player.box.x - player.prevX;
+			var dy = player.box.y - player.prevY;
+			player.diff.distanceSailed += 
+				Math.sqrt(dx * dx + dy * dy);
+		}
 	}
 	// Move projectiles / handle projectile collisions
 	for(var i in session.game.projectiles) {
@@ -190,6 +202,7 @@ function updatePhysics(session) {
 		var dx = proj.box.dx, dy = proj.box.dy;
 		proj.range -= Math.sqrt(dx * dx + dy * dy);
 		if(proj.range < 0) proj.active = false;
+		// Remove if proj is stopped completely
 		if(proj.box.stuck) proj.active = false;
 		// Remove if proj is out of map bounds
 		if(proj.box.x < 0 || proj.box.x > map.width ||
@@ -197,7 +210,7 @@ function updatePhysics(session) {
 				proj.active = false;
 		if(proj.active) {
 			// Handle projectile collision
-			handleCollisions(proj.box, map);
+			handleCollisions(proj.box, session);
 			// Update projectile boxes
 			updateBox(proj.box, map);
 		}
@@ -206,7 +219,8 @@ function updatePhysics(session) {
 
 // Checks each vert in the box for collisions, returns
 // the net force applied to the box
-function handleCollisions(box, map) {
+function handleCollisions(box, session) {
+	var map = session.mapData;
 	// Check verts against map data
 	var v = box.verts;
 	for(var i in v) {
@@ -219,7 +233,20 @@ function handleCollisions(box, map) {
 			v[i].hit = (ch !== "0");
 		}
 	}
-	
+	// Check verts against other boxes
+	for(var i in v) {
+		for(var j in session.game.players) {
+			var p = session.game.players[j];
+			if(!p.active || 
+				p.name === box.name ||
+				p.box === box) continue;
+			if((Math.abs(v[i].x - p.box.x) < p.box.w) &&
+				(Math.abs(v[i].y - p.box.y) < p.box.h)) {
+					v[i].hit = true;
+					p.health -= 1;
+			}
+		}
+	}
 	// Calculate force from collisions, update stuck / hit
 	box.stuck = true;
 	box.hit = false;

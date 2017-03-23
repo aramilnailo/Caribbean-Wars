@@ -31,7 +31,8 @@ var Player = function(name) {
 			hit:false,
 			stuck:false,
 			verts:[],
-			forces:[]
+			forces:[],
+			name:name
 		},
 		input:{
 			right:false,
@@ -53,7 +54,9 @@ var Player = function(name) {
 		firepower:0.25,
 		projectiles:[],
 		active:true,
-		name:name
+		name:name,
+		health:100,
+		alive:true
     }
 	
 	var x1 = player.box.x - player.box.w / 2,

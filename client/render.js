@@ -125,7 +125,8 @@ Render.prototype.drawScreen = function(data) {
 		
 		// Draw name
 		if(data.ships[i].name === client.username) {
-			dom.canvas.fillText(">" + data.ships[i].name + "<", 
+			dom.canvas.fillText(data.ships[i].name + 
+				": " + data.ships[i].health, 
 			shifted_x - 10, shifted_y - 10);
 		} else {
 			dom.canvas.fillText(data.ships[i].name, 

@@ -8,7 +8,7 @@ var Projectile = function(player) {
 		box:{
 			x:0,
 			y:0,
-			w:1,
+			w:0.2,
 			h:0.2,
 			dir:0,
 			ddir:0,
@@ -24,10 +24,11 @@ var Projectile = function(player) {
 			hit:false,
 			stuck:false,
 			verts:[],
-			forces:[]
+			forces:[],
+			name:player.name
 		},
 		range:10,
-		active:true
+		active:true,
 	};
 	
 	proj.box.dir = player.box.dir + (3 * Math.PI / 2);
