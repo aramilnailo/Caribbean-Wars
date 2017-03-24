@@ -22,6 +22,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 
     var brushSize = 1;
 	
+	var activeArea = null;
+	
     /**
      * 
      * @memberof client/MapEditor
@@ -117,6 +119,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		var max_h = 20 / client.map.height;
 		client.camera.zoom = max_w < max_h ? max_w : max_h;
 		mapUndoStack.push(copyOfMap(client.map));
+		setCameraActive();
     }
 
     /**
@@ -135,6 +138,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		while(client.map.data.length < client.map.height) {
 			client.map.data.push(line);
 		}
+		setCameraActive();
     }
     
     /**
@@ -142,10 +146,14 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
      * @memberof client/MapEditor
      */
     MapEditor.prototype.drawEditScreen = function(event) {
-		if(debug.mapeditor) debug.log("client/mapeditor.js: drawEditScreen");
+		if(client.camera.moved)	{
+			setCameraActive();
+			client.camera.moved = false;
+		}	
+		if(!activeArea) return;
 		if(!client.map) return;
+		
 		var map = client.map.data;
-	
 		// camera position in cells
 		var cam_x = client.camera.x;
 		var cam_y = client.camera.y;
@@ -153,6 +161,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		// camera dimensions in cells
 		var cam_w = 20 / client.camera.zoom;
 		var cam_h = 20 / client.camera.zoom;
+
 	
 		// camera dimensions in pixels
 		var width = 500;
@@ -162,19 +171,24 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		var cell_w = width / cam_w;
 		var cell_h = height / cam_h;
 		
+		debug.log(activeArea);
+		
 		if(debug.mapeditor) debug.log("cam_x: " + cam_x + 
 										"\ncam_y: " + cam_y +
 										"\ncam_w: " + cam_w +
 										"\ncam_h: " + cam_h + 
 										"\ncell_w: " + cell_w +
 										"\ncell_h: " + cell_h);
-		
-		// Draw camera
-		for(var i = 0; i < cam_h; i++) {
-			var line = map[i + cam_y];
-			for(var j = 0; j < cam_w; j++) {
+		var x = activeArea.x,
+		y = activeArea.y,
+		w = activeArea.w,
+		h = activeArea.h;
+		// Draw active area that is inside camera
+		for(var i = y; i < y + h; i++) {
+			var line = map[i];
+			for(var j = x; j < x + w; j++) {
 				var ch, color;
-				if(line) ch = line.charAt(j + cam_x);
+				if(line) ch = line.charAt(j);
 			    switch(ch) {
 			    	case "0": 
 						color = "#42C5F4";
@@ -189,9 +203,14 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 						color = "#000000";
 			    }
 			    dom.mapEditorCanvasContext.fillStyle = color;
-			    dom.mapEditorCanvasContext.fillRect(j * cell_w, i * cell_h, cell_w, cell_h);
+			    dom.mapEditorCanvasContext.fillRect(
+					(j - cam_x) * cell_w, 
+					(i - cam_y) * cell_h, 
+					cell_w, 
+					cell_h);
 			}
 		}
+		activeArea = null;
 	
 		// In the upper left corner, draw camera's position in world map
 		dom.mapEditorCanvasContext.clearRect(500, 0, 100, 500);
@@ -319,6 +338,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		if(mapUndoStack.length > 0) {
 			mapRedoStack.push(copyOfMap(client.map));
 			client.map = mapUndoStack.pop();
+			setCameraActive();
 		} else {
 			alert("Undo limit reached");
 		}
@@ -334,39 +354,11 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		if(mapRedoStack.length > 0) {
 			mapUndoStack.push(copyOfMap(client.map));
 		    client.map = mapRedoStack.pop();
+			setCameraActive();
 		} else {
 			alert("Redo limit reached");
 		}
     };
-
-    
-    /**
-     * 
-     * @memberof client/MapEditor
-     */
-    MapEditor.prototype.zoom = function () {
-		if (debug.mapeditor) debug.log("client/mapeditor.js: zoom()");
-    };
-    
-    /**
-     * Loads initial map editor view into index.html.
-     *
-     * Default map: All water.
-     * @memberof client/MapEditor
-     */
-    MapEditor.prototype.load = function () {
-		if (debug.mapeditor) debug.log("client/mapeditor.js: load()");
-		this.clear();
-    };
-    
-
-    /*
-    function clearMapEditorMessageBox() {
-	if (debug.mapeditor) debug.log("client/mapeditor.js: clearMapEditorMessageBox()");
-	//dom.mapEditorTextboxMessage.innerHTML = "";
-	dom.mapEditorTextboxResizeForm.style.display = "none";
-    }
-*/
 
     /**
      *
@@ -389,6 +381,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		if (val.length > 0 && val > 0.1 && val < 4.0) {
 			client.camera.zoom = val;
 		}
+		setCameraActive();
 		dom.mapEditorNewZoom.value = "";
     };
     
@@ -468,6 +461,8 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	    //post-processing
 	    dom.mapEditorTextboxMessage.innerHTML = "<p style=\"font:12px Arial\">Map edit mode</p>";
 	    dom.mapEditorTextboxResizeForm.style.display="none";
+		
+		setCameraActive();
     }
     
     /*
@@ -512,9 +507,14 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		if(!client.map) return;
 		if (paintMove) {
 		    if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasMouseMove()");
-		    var rect = event.target.getBoundingClientRect();
-		    var a = Math.floor(client.map.height * (event.clientX - rect.left) / rect.height);
-		    var b = Math.floor(client.map.width * (event.clientY - rect.top) / rect.width);
+			// Coordinates in pixels of the mouse movement
+		    var x = event.clientX - dom.mapEditorCanvas.offsetLeft;
+		    var y = event.clientY - dom.mapEditorCanvas.offsetTop;
+			// Coordinates in cells of the mouse movement
+			// Find x * cam_w / 500, + cam_x
+			debug.log(client.camera.zoom);
+			var a = Math.round((x / 500) * (20 / client.camera.zoom)) + client.camera.x;
+			var b = Math.round((y / 500) * (20 / client.camera.zoom)) + client.camera.y;
 		    var change = false;
 		    var ch;
 		    if (paintingWater) { ch = "0"; change = true; }
@@ -551,6 +551,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 					    }
 					}
 				}
+				activeArea = {x:pmin, y:qmin, w:pmax-pmin, h:qmax-qmin};
 		    }
 		}
     };          
@@ -605,6 +606,7 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		} else {
 			client.map = data;
 			client.loading = false;
+			setCameraActive();
 		}
 	}
 
@@ -683,6 +685,16 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 	brushSize = 1;
     }
     
+	function setCameraActive() {
+		activeArea = {
+				x:client.camera.x,
+				y:client.camera.y,
+				w:20/client.camera.zoom,
+				h:20/client.camera.zoom
+		};
+	}
+	
+	
     return new MapEditor();
 
 });
