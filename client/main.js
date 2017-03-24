@@ -28,7 +28,8 @@ setInterval(function() {
 	if(client.inGame) {
 		if(!client.loading && !client.drawing) {
 			if(client.gameState && client.map) {
-				render.drawScreen({map:client.map, state:client.gameState});
+				render.drawCamera(client.map);
+				render.drawGameState({map:client.map, state:client.gameState});
 			}
 		}
 	}

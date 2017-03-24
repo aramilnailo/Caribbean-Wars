@@ -44,6 +44,7 @@ View.prototype.setClientInfo = function(data) {
 
 View.prototype.setClientZoom = function(data) {
 	client.camera.zoom = data;
+	client.camera.moved = true;
 }
 
 View.prototype.setMap = function(data) {
@@ -123,6 +124,12 @@ View.prototype.keyPressed = function(event) {
 		//for compatability with firefox
 		var keycode = event.which || event.keyCode;
 		
+		var old_cam = {
+			x:client.camera.x, 
+			y:client.camera.y,
+			zoom:client.camera.zoom
+		};
+		
 		if(keycode === 68) {
 		    client.emit("gameInput", {inputId:"right", state:true});	
 		} else if(keycode === 83) {
@@ -157,7 +164,7 @@ View.prototype.keyPressed = function(event) {
 		
 		// Correct camera
 		if(client.map) {
-			if(client.camera.zoom < 0.1) client.camera.zoom = 0.1;
+			if(client.camera.zoom < 0.05) client.camera.zoom = 0.05;
 			if(client.camera.zoom > 3.0) client.camera.zoom = 3.0;
 			if(20 / client.camera.zoom > client.map.width) {
 				client.camera.zoom = 20 / client.map.width;
@@ -174,6 +181,13 @@ View.prototype.keyPressed = function(event) {
 			if(client.camera.y > client.map.height - cam_h)
 				client.camera.y = client.map.height - cam_h;
 		}
+		
+		// Detect camera movement
+		client.camera.moved = (
+			client.camera.x !== old_cam.x	||
+			client.camera.y !== old_cam.y ||
+			client.camera.zoom !== old_cam.zoom
+		);
 	}
 }
 

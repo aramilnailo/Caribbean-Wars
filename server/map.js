@@ -8,13 +8,13 @@
 */
 var Map = function() {
     var map = {
-	width:0,
-	height:0,
-	path:"",
-	author:"",
-	name:"",
-	data:[],
-	ports:[]
+		width:0,
+		height:0,
+		path:"",
+		author:"",
+		name:"",
+		data:[],
+		ports:[]
     };
 
     return map;
