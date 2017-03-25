@@ -18,7 +18,7 @@ var Stats = function() {};
 * @param router The class that manages listen requests
 */
 Stats.prototype.listen = function(router) {
-	router.listen("statsMenuResponse", this.displayStatsMenu);
+	router.listen("statsMenuResponse", this.displayStatsList);
 	router.listen("statsMenuToggle", this.toggleStatsMenu);	
 	router.listen("clearStatsClick", this.clearStatsClick);
 }
@@ -55,7 +55,7 @@ Stats.prototype.toggleStatsMenu = function() {
 *              ships_lot:<int>}
 *              
 */
-Stats.prototype.displayStatsMenu = function(data) {
+Stats.prototype.displayStatsList = function(data) {
     var i;
     var html = "<table>" +
 	"<tr>" +

@@ -5,8 +5,6 @@ var log = require("./debug.js").log;
 var server = require("./server.js");
 var dbi = require("./dbi.js");
 
-var clients = require("./router.js").client_list;
-
 /**
 * The Maps namespace contains functions relating to loading
 * map data from the database and emitting it to clients.
@@ -39,6 +37,12 @@ Maps.prototype.saveEditMap = function(param) {
 			function(resp) {
 			    if(resp) {
 					server.emit(client.socket, "alert", "Saved " + filename);
+				    dbi.getSavedMapsList(function(data) {
+						for(var i in param.clients) {
+							var c = param.clients[i];
+							server.emit(c.socket,"savedMapsListResponse",data);
+						}
+				    });
 			    } else {
 					server.emit(client.socket, 
 						"alert", "Could not save " + filename);
@@ -104,6 +108,12 @@ Maps.prototype.deleteMap = function(param) {
 		dbi.removeSavedMap(filename, client.username, function(resp) {
 			if(resp) {
 				server.emit(client.socket, "alert", "Deleted " + filename);
+			    dbi.getSavedMapsList(function(data) {
+					for(var i in param.clients) {
+						var c = param.clients[i];
+						server.emit(c.socket,"savedMapsListResponse",data);
+					}
+			    });
 			} else {
 				server.emit(client.socket, "alert", "Could not delete " + filename);
 			}

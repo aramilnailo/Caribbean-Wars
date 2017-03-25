@@ -15,7 +15,7 @@ var Saves = function() {};
 * @memberof module:client/Saves
 */
 Saves.prototype.listen = function(router) {
-	router.listen("savedGamesListResponse", this.displaySavedGamesMenu);
+	router.listen("savedGamesListResponse", this.displaySavedGamesList);
 	router.listen("savedGamesMenuToggle", this.toggleSavedGamesMenu);
 	router.listen("saveGameClick", this.saveGameClick);
 	router.listen("loadGameClick", this.loadGameClick);
@@ -49,7 +49,7 @@ Saves.prototype.toggleSavedGamesMenu = function() {
 *                 {author:a,file_name:f,map_file_path:p}.
 * @memberof module:client/Saves
 */
-Saves.prototype.displaySavedGamesMenu = function(data) {
+Saves.prototype.displaySavedGamesList = function(data) {
 // Format the saved_games table into HTML
     var i;
     var html = "<table>" +

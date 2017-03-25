@@ -1,5 +1,5 @@
 
-define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client, mapeditorfiles) {
+define(["debug", "dom", "client"], function(debug, dom, client) {
        
     /**
      * Map editor class
@@ -34,7 +34,6 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
     var porticonupimg = "client/imgs/mapeditorporticonup.png";
 	
     MapEditor.prototype.listen = function(router) {
-		router.listen("mapEditorLogoutButtonClick",this.mapEditorLogoutButtonClick);
 		router.listen("mapEditorClearMapButtonClick",this.clearMapButtonClick);
 		router.listen("mapEditorResizeButtonClick",this.mapEditorResizeButtonClick);
 		router.listen("mapEditorResizeSubmitButtonClick",this.mapEditorResizeSubmitButtonClick);
@@ -82,13 +81,6 @@ define(["debug", "dom", "client", "mapeditorfiles"], function(debug, dom, client
 		router.listen("mapEditorPaintGrassIconClick",this.raiseWaterIcon);
 		router.listen("mapEditorPaintGrassIconClick",this.raisePortIcon);
 		router.listen("mapEditorPaintGrassIconClick",this.lowerGrassIcon);
-    };
-
-    MapEditor.prototype.mapEditorLogoutButtonClick = function() {
-		dom.mapEditorScreen.style.display="none";
-		dom.mapEditorSavedMapsList.style.display="none";
-		dom.mapEditorSavedMapsListHidden = true;
-		client.emit("logout",null);
     };
 	
     MapEditor.prototype.clearMapButtonClick = function(event) {

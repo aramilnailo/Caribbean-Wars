@@ -31,7 +31,7 @@ View.prototype.listen = function(router) {
 	router.listen("keyPressed", this.keyPressed);
 	router.listen("keyReleased", this.keyReleased);
 	
-    router.listen("newGameMapResponse", this.setMap); 
+    router.listen("newGameMapResponse", this.setMap);
 	router.listen("gameUpdate", this.setGameState);
 }
 
@@ -101,7 +101,7 @@ View.prototype.gameScreen = function(data) {
 View.prototype.mapEditorScreen = function(data) {
 	hideAll();
 	client.emit("loadEditMap", "default");
-	show(["mapEditorScreen"]);
+	show(["upperMenu", "mapEditorScreen"]);
 	client.inGame = false;
 }
 
@@ -250,11 +250,13 @@ function expand(data) {
 }
 
 function hideAll() {
-	collapse(["statsMenu", "savedGamesMenu", 
-	"userMenu", "sessionMenu", "chatWindow"]);
+	
+	collapse(["statsMenu", "savedGamesMenu", "userMenu", 
+	"sessionMenu", "savedMapsMenu", "chatWindow"]);
+	
 	hide(["loginScreen", "gameScreen", "adminScreen", 
-	"lobbyScreen", "sessionBrowser", "upperMenu", 
-	"inGameMenu", "optionsMenu", "hostMenu"]);
+	"lobbyScreen", "sessionBrowser", "mapEditorScreen",
+	"upperMenu", "inGameMenu", "optionsMenu", "hostMenu"]);
 }
 
 return new View();

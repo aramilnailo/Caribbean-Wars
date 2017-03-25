@@ -34,6 +34,7 @@
 	    <button id="logout-btn">Log out</button>
 	    <button id="delete-account-btn">Delete Account</button>
 	    <button id="saved-games-menu-btn">Show saved games</button>
+		<button id="saved-maps-menu-btn">Show saved maps</button>
 	    <button id="stats-menu-btn">Show stats</button>
 		</div>
 	</div>
@@ -49,6 +50,17 @@
 	  </div>
     </div>
 
+	<!--SAVED MAPS MENU-->
+	<div id="saved-maps-menu" class="white-menu" style="display:none;">
+		<span class="menu-title">Saved Maps</span>
+		<div id="saved-maps-list" style="display:table;"></div>
+		<div id="saved-maps-menu-btns">
+			<button id="save-map-btn">Save</button>
+			<button id="load-map-btn">Load</button>
+			<button id="delete-map-btn">Delete</button>
+		</div>
+	</div>
+
 	<!--STATS MENU-->
     <div id="stats-menu" class="white-menu" style="display:none;">
 	  <span class="menu-title">Stats</span>
@@ -59,22 +71,22 @@
     </div>
 	
 	<div id="upper-game-screen">
-	<!--IN-GAME MENU-->
-	<div id="in-game-menu" style="display:none;">
-	  <div id="in-game-menu-btns">
-		<button id="leave-game-btn">Leave game</button>
-		<button id="stop-game-btn" class="host">End game</button>
-	  </div>
-    </div>
+		<!--IN-GAME MENU-->
+		<div id="in-game-menu" style="display:none;">
+		  <div id="in-game-menu-btns">
+			<button id="leave-game-btn">Leave game</button>
+			<button id="stop-game-btn" class="host">End game</button>
+		  </div>
+	    </div>
 
-	<!--HOST MENU-->
-	<div id="host-menu" style="display:none;">
-		<div id="host-menu-btns" class="host">
-			<button id="invite-btn">Invite</button>
-			<button id="kick-btn">Kick</button>
-			<button id="promote-btn">Promote</button>
+		<!--HOST MENU-->
+		<div id="host-menu" style="display:none;">
+			<div id="host-menu-btns" class="host">
+				<button id="invite-btn">Invite</button>
+				<button id="kick-btn">Kick</button>
+				<button id="promote-btn">Promote</button>
+			</div>
 		</div>
-	</div>
 	</div>
 	
     <!--GAME SCREEN-->
@@ -159,11 +171,6 @@
 		<div id="map-editor-textbox">
 			<div id="map-editor-textbox-msg"><p style="font:12px Arial;color:white;">Map edit mode</p></div>
 			<div id="map-editor-btns">
-				<button id="map-editor-logout-btn">logout</button>
-				<button id="map-editor-saved-maps-btn">saved maps</button>
-				<button id="map-editor-save-map-btn">save as</button>
-				<button id="map-editor-load-map-btn">load</button>
-				<button id="map-editor-delete-map-btn">delete</button>
 				<button id="map-editor-undo-btn">undo</button>
 				<button id="map-editor-redo-btn">redo</button>
 				<button id="map-editor-zoom-btn">zoom</button>

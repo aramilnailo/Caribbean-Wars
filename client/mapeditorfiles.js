@@ -17,23 +17,22 @@ var MapEditorFiles = function() {};
 MapEditorFiles.prototype.listen = function(router) {
     if(debug.mapeditorsavedlist) debug.log("client/mapeditorlistmenu.js: listen()");
     router.listen("savedMapsListResponse", this.displaySavedMapsList);
-    router.listen("toggleSavedMapsList", this.toggleSavedMapsList);
-    router.listen("mapEditorSaveMapClick", this.saveMapClick);
-    router.listen("mapEditorLoadMapClick", this.loadMapClick);
-    router.listen("mapEditorDeleteMapClick", this.deleteMapClick);
-}
+    router.listen("savedMapsMenuToggle", this.toggleSavedMapsMenu);
+    router.listen("saveMapClick", this.saveMapClick);
+    router.listen("loadMapClick", this.loadMapClick);
+    router.listen("deleteMapClick", this.deleteMapClick);
+};
 
-MapEditorFiles.prototype.toggleSavedMapsList = function() {
-    if(dom.mapEditorMapsListHidden) {
+MapEditorFiles.prototype.toggleSavedMapsMenu = function() {
+    if(dom.savedMapsMenu.style.display === "none") {
 		client.emit("savedMapsListRequest", null);
-		dom.mapEditorSavedMapsListButton.innerHTML = "Hide saved maps";
-		dom.mapEditorMapsListHidden = false;
+		dom.savedMapsMenu.style.display = "block";
+		dom.savedMapsMenuButton.innerHTML = "Hide saved maps";
     } else {
-		dom.mapEditorSavedMapsList.style.display = "none";
-		dom.mapEditorSavedMapsListButton.innerHTML = "Saved maps";
-		dom.mapEditorMapsListHidden = true;
+		dom.savedMapsMenu.style.display = "none";
+		dom.savedMapsMenuButton.innerHTML = "Show saved maps";
     }
-}
+};
 
 MapEditorFiles.prototype.displaySavedMapsList = function(data) {
 	// Format the saved_games table into HTML
@@ -50,11 +49,14 @@ MapEditorFiles.prototype.displaySavedMapsList = function(data) {
 	    "</tr>";
     }
     html += "</table>";
-    dom.mapEditorSavedMapsList.innerHTML = html;
-    dom.mapEditorSavedMapsList.style.display = "inline-block";
-}
+    dom.savedMapsList.innerHTML = html;
+};
 
 MapEditorFiles.prototype.saveMapClick = function() {
+	if(client.usertype !== "editor" && !client.inGame) {
+		alert("Can only save in game or editor");
+		return;
+	}
 	var filename = window.prompt("Save as: ","filename");
 	if(filename) {
 	    client.emit("saveEditMap", {filename:filename, map:client.map});
@@ -62,6 +64,10 @@ MapEditorFiles.prototype.saveMapClick = function() {
 };
 
 MapEditorFiles.prototype.loadMapClick= function() {
+	if(client.usertype !== "editor") {
+		alert("Cannot load maps outside of editor");
+		return;
+	}
 	var filename = window.prompt("Load file: ","filename");
 	if (filename) {
 		client.loading = true;
