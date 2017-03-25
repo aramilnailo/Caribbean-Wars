@@ -56,13 +56,11 @@ Saves.prototype.displaySavedGamesMenu = function(data) {
 	"<tr>" +
 	"<th>Author</th>" +
 	"<th>File Name</th>" +
-	"<th>File Path</th>" +
 	"</tr>";
     for(i = 0; i < data.length; i++) {	
 	html += "<tr>" +
 	    "<td>"+ data[i].author+"</td>" +
 	    "<td>" + data[i].file_name + "</td>" +
-	    "<td>" + data[i].file_path + "</td>" +
 	    "</tr>";
     }
     html += "</table>";

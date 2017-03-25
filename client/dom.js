@@ -118,15 +118,9 @@ var dom = {
     mapEditorResizedLX:document.getElementById("map-editor-new-lx"),
     mapEditorResizedLY:document.getElementById("map-editor-new-ly"),
     mapEditorResizeSubmitButton:document.getElementById("map-editor-resize-submit-btn"),
-    mapEditorResizeButton:document.getElementById("map-editor-resize-btn"),
     mapEditorTextboxZoomForm:document.getElementById("map-editor-textbox-zoom-form"),
     mapEditorNewZoom:document.getElementById("map-editor-new-zoom"),
-    mapEditorZoomButton:document.getElementById("map-editor-zoom-btn"),
     mapEditorZoomSubmitButton:document.getElementById("map-editor-zoom-submit-btn"),
-
-    mapEditorClearMapButton:document.getElementById("map-editor-clear-map-btn"),
-    mapEditorUndoChangeButton:document.getElementById("map-editor-undo-btn"),
-    mapEditorRedoChangeButton:document.getElementById("map-editor-redo-btn"),
     
     // MapEditor brush button panel
     mapEditorBrush20:document.getElementById("map-editor-brush-20"),
@@ -144,11 +138,19 @@ var dom = {
     // MapEditor saved maps list
     mapEditorSavedMapsListButton:document.getElementById("map-editor-saved-maps-btn"),
     mapEditorSavedMapsList:document.getElementById("map-editor-saved-maps-list"),
+	
+	// MapEditor buttons
     mapEditorMapResizeButton:document.getElementById("map-editor-resize-btn"),
     mapEditorSaveMapButton:document.getElementById("map-editor-save-map-btn"),
     mapEditorLoadMapButton:document.getElementById("map-editor-load-map-btn"),
-    mapEditorSavedMapsListHidden:true,
+	mapEditorDeleteMapButton:document.getElementById("map-editor-delete-map-btn"),
+	mapEditorResizeButton:document.getElementById("map-editor-resize-btn"),
+	mapEditorZoomButton:document.getElementById("map-editor-zoom-btn"),
+    mapEditorClearMapButton:document.getElementById("map-editor-clear-map-btn"),
+    mapEditorUndoChangeButton:document.getElementById("map-editor-undo-btn"),
+    mapEditorRedoChangeButton:document.getElementById("map-editor-redo-btn"),
 	
+    mapEditorSavedMapsListHidden:true
 }
 
 // Login screen
@@ -210,23 +212,21 @@ dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", d
 dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
 dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:event}); }
 
-
-
-
-
     // map editor event handling
     dom.mapEditorSavedMapsListButton.onclick =
-	function() { router.route({name:"mapEditorSavedMapsListButtonClick", data:null}); }
+	function() { router.route({name:"toggleSavedMapsList", data:null}); }
     dom.mapEditorSaveMapButton.onclick =
-	function() { router.route({name:"mapEditorSaveMapButtonClick", data:null}); }
+	function() { router.route({name:"mapEditorSaveMapClick", data:null}); }
     dom.mapEditorLoadMapButton.onclick = 
-	function() { router.route({name:"mapEditorLoadMapButtonClick", data:null}); }
+	function() { router.route({name:"mapEditorLoadMapClick", data:null}); }
+	dom.mapEditorDeleteMapButton.onclick =
+	function() { router.route({name:"mapEditorDeleteMapClick", data:null}); }
     dom.mapEditorLogoutButton.onclick =
-	function() { router.route({name:"mapEditorLogoutButtonClick", data:null}) };
+	function() { router.route({name:"mapEditorLogoutButtonClick", data:null}); }
     dom.mapEditorResizeButton.onclick = 
 	function() { router.route({name:"mapEditorResizeButtonClick", data:null}); }
     dom.mapEditorResizeSubmitButton.onclick=
-	function() { router.route({name:"mapEditorResizeSubmitButtonClick", data:null}) };
+	function() { router.route({name:"mapEditorResizeSubmitButtonClick", data:null}); }
     dom.mapEditorClearMapButton.onclick =
 	function() { router.route({name:"mapEditorClearMapButtonClick", data:null}) };
     dom.mapEditorUndoChangeButton.onclick =
@@ -237,19 +237,8 @@ dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:
     dom.mapEditorZoomButton.onclick = 
 	function() { router.route({name:"mapEditorZoomButtonClick", data:null}); }
     dom.mapEditorZoomSubmitButton.onclick=
-	function() { router.route({name:"mapEditorZoomSubmitButtonClick", data:null}) };
+	function() { router.route({name:"mapEditorZoomSubmitButtonClick", data:null}); }
 
-    
-    // MapEditor textbox
-    /*
-    mapEditorTextbox:document.getElementById("map-editor-textbox"),
-    mapEditorTextboxMessage:document.getElementById("map-editor-textbox-msg"),
-    mapEditorTextboxResizeForm:document.getElementById("map-editor-textbox-resize-form"),
-    mapEditorResizedLX:document.getElementById("map-editor-new-lx"),
-    mapEditorResizedLY:document.getElementById("map-editor-new-ly"),
-    mapEditorResizeSubmitButton:document.getElementById("map-editor-resize-submit-btn"),
-    */
-    
     //map editor canvas
     dom.mapEditorCanvas.onmousedown =
 	function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
@@ -301,7 +290,6 @@ dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:
 	function(event) { router.route({name:"mapEditorBrush02Click", data:null}); }
     dom.mapEditorBrush01.onclick = 
 	function(event) { router.route({name:"mapEditorBrush01Click", data:null}); }
-    //zoom icon
 
 return dom;
 

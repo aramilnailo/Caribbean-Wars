@@ -4,7 +4,6 @@ var log = require("./debug.js").log;
 
 var server = require("./server.js");
 var dbi = require("./dbi.js");
-var files = require("./files.js");
 var player = require("./player.js");
 
 /**
@@ -309,8 +308,12 @@ Session.prototype.startGame = function(param) {
 	var id = param.client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
-	var mapFile = "assets/" + param.data + ".map";
-	session.game = {map:mapFile, players:[], projectiles:[], running:false};
+	session.game = {
+		map:param.data, 
+		players:[], 
+		projectiles:[], 
+		running:false
+	};
 	loadMap(session, function(resp) {
 		if(!resp) {
 			server.emit(param.client.socket, "alert", 
@@ -479,7 +482,7 @@ Session.prototype.getGameMap = function(param) {
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
 	if(!session.game.running) return;
-    files.readFile(session.game.map, function(data) {
+    dbi.getSavedMap(session.game.map, function(data) {
 		if(data) {
 			var zoom = Math.max(20 / data.width, 20 / data.height);
 			server.emit(client.socket, "setClientZoom", zoom);
@@ -493,28 +496,20 @@ Session.prototype.getGameMap = function(param) {
 Session.prototype.saveGameState = function(param) {
 	var client = param.client;
 	var filename = param.data;
-	var path = "./assets/" + filename + ".game";
 	var id = client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
-	// Write the game state to the file system
-	files.saveFile(session.game, path, function(resp) {
-		if(resp) {
-			server.emit(client.socket, "alert", "Could not save game");
+	// Write the game state to the database
+	dbi.addSavedGame(client.username, filename, session.game, function(resp) {
+		if(!resp) {
+			server.emit(client.socket, "alert", "Could not save to database");
 		} else {
-			// Add the saved game to the database
-			dbi.saveGameFilename(client.username, filename, path, function(resp) {
-				if(!resp) {
-					server.emit(client.socket, "alert", "Could not save to database");
-				} else {
-					server.emit(client.socket, "alert", "Saved " + filename);
-					// Push the changes to all clients
-					dbi.getSavedGamesList(function(data) {
-						for(var i in param.clients) {
-							server.emit(param.clients[i].socket, 
-								"savedGamesListResponse", data);
-						}
-					});
+			server.emit(client.socket, "alert", "Saved " + filename);
+			// Push the changes to all clients
+			dbi.getSavedGamesList(function(data) {
+				for(var i in param.clients) {
+					server.emit(param.clients[i].socket, 
+						"savedGamesListResponse", data);
 				}
 			});
 		}
@@ -589,24 +584,16 @@ Session.prototype.loadGameState = function(param) {
 
 //====== HELPERS ====================================
 
-// Looks up the path for a given filename, reads the
-// game data from that path, and associates it with
-// the given session
+// Reads save from database and returns it
 function loadSave(filename, session, cb) {
-	dbi.getSavedGameFilePath(filename, function(path) {
-		if(!path) {
-			cb(null);
-		} else {
-			files.readFile(path, function(data) {
-				cb(data);
-			});
-		}
+	dbi.getSavedGame(filename, function(data) {
+		cb(data);
 	});
 }
 
 // Emits the session's current game map to its clients
 function loadMap(session, cb) {
-	files.readFile(session.game.map, function(data) {
+	dbi.getSavedMap(session.game.map, function(data) {
 		if(!data) { 
 			cb(false);
 		} else {

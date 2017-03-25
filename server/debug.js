@@ -15,7 +15,6 @@ module.exports.log = function(msg) {
 module.exports.accounts = true; 
 module.exports.chat = true; 
 module.exports.dbi = true; 
-module.exports.files = true; 
 module.exports.game = true; 
 module.exports.session = true; 
 module.exports.maps = true; 

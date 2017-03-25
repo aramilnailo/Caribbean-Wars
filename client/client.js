@@ -19,7 +19,7 @@ Client.prototype.inGame = false;
 Client.prototype.gameState = null;
 Client.prototype.map = null;
 
-/**
+/**cd 
 * Registers all gui event messages associated with client state
 * transistions.
 *

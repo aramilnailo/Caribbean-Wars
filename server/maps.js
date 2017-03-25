@@ -4,13 +4,12 @@ var log = require("./debug.js").log;
 
 var server = require("./server.js");
 var dbi = require("./dbi.js");
-var files = require("./files.js");
 
 var clients = require("./router.js").client_list;
 
 /**
 * The Maps namespace contains functions relating to loading
-* map data from the file system and emitting it to clients.
+* map data from the database and emitting it to clients.
 * @module server/Maps
 */
 var Maps = function() {};
@@ -23,10 +22,93 @@ var Maps = function() {};
 */
 Maps.prototype.listen = function(router) {
     if(debug) log("[Maps] listen()");
-    router.listen("getEditMap", this.getEditMap);
-    router.listen("saveMapRequest",this.saveMap);
-    router.listen("loadSavedMap",this.loadSavedEditMap); // jtjudge: loadMapCopy ??
+    router.listen("saveEditMap",this.saveEditMap);
+    router.listen("loadEditMap",this.loadEditMap);
+	router.listen("deleteMap", this.deleteMap);
     router.listen("savedMapsListRequest",this.savedMapsListRequest);
+}
+
+Maps.prototype.saveEditMap = function(param) {
+    var client = param.client;
+    var filename = param.data.filename;
+    if(debug) log("server/maps.js, saveEditMap(): filename="+filename);
+    if(client.usertype !== "editor") {
+		server.emit(client.socket, "alert", "Map access restricted to map editors.");
+    } else {
+		dbi.addSavedMap({author:client.username, file_name:filename, map:param.data.map}, 
+			function(resp) {
+			    if(resp) {
+					server.emit(client.socket, "alert", "Saved " + filename);
+			    } else {
+					server.emit(client.socket, 
+						"alert", "Could not save " + filename);
+			    }
+		});
+    }
+}
+
+Maps.prototype.loadEditMap = function(param) {
+    var client = param.client;
+    var filename = param.data;
+	if(debug) log("server/maps.js, loadEditMap(): filename="+filename);
+    if(client.usertype !== "editor") {
+		server.emit(client.socket, "alert", "Map access restricted to map editors.");
+    } else {
+		dbi.getSavedMap(filename, function(data) {
+			if(data) {
+				//Send copy data to client
+				server.emit(client.socket, "loadEditMapResponse", data);
+				server.emit(client.socket, "alert", "Loaded " + filename);
+			} else if(filename === "default") {
+				// Ensure that a map called "default" is always in the db
+				var map = {
+					width:100,
+					height:100,
+					author:"admin",
+					name:"default",
+					data:[],
+					ports:[]
+				};
+				var line = "";
+				for(var i = 0; i < 10; i++) line += "0000000000";
+				for(var i = 0; i < 100; i++) map.data.push(line);
+				var pack = {
+					author:map.author, 
+					file_name:map.name,
+					map:map
+				}; 
+				dbi.addSavedMap(pack, function(resp) {
+					if(resp) {
+						server.emit(client.socket, "loadEditMapResponse", map);
+						server.emit(client.socket, 
+							"alert", "Re-added and loaded default");
+					} else {
+						server.emit(client.socket, 
+							"alert", "Database failure");
+					}
+				});
+			} else {
+			   	server.emit(client.socket, "alert", "Could not load " + filename);
+			}
+		});
+    }
+}  
+
+Maps.prototype.deleteMap = function(param) {
+    var client = param.client;
+    var filename = param.data;
+	if(debug) log("server/maps.js, deleteMap(): filename="+filename);
+    if(client.usertype !== "editor") {
+		server.emit(client.socket, "alert", "Map access restricted to map editors.");
+    } else {
+		dbi.removeSavedMap(filename, client.username, function(resp) {
+			if(resp) {
+				server.emit(client.socket, "alert", "Deleted " + filename);
+			} else {
+				server.emit(client.socket, "alert", "Could not delete " + filename);
+			}
+		});
+    }
 }
 
 Maps.prototype.savedMapsListRequest = function(param) {
@@ -36,110 +118,5 @@ Maps.prototype.savedMapsListRequest = function(param) {
 		server.emit(client.socket,"savedMapsListResponse",data);
     });
 }
-
-Maps.prototype.getEditMap = function(param) {
-    if (debug) log("server/maps: getEditMap()");
-    var filename = param.data.filename;
-    var client = param.client;
-    if(client.usertype != "editor") {
-		server.emit(client.socket, "alert", "Map write access restricted to map editors.");
-    } else {
-		dbi.getMapFilePath(filename, function(path) {
-		    if(debug) log("server/maps.js, getEditMap(): path = "+path);
-		    if(path) {
-				files.readFile(path, function(data) {	
-				    if(data) {
-						server.emit(client.socket, "getEditMapResponse", data);
-				    } else {
-						server.emit(client.socket, "alert", "Could not load " + filename);
-				    }
-				});
-		    } else {
-		    	server.emit(client.socket, "alert", "Could not read from filepath");
-		    }
-		});
-    }
-}
-
-Maps.prototype.loadMapCopy = function(param) {
-    var client = param.client;
-    var filename = param.data.filename;
-    if(debug) log("server/maps.js, loadMapCopy(): filename="+filename);
-    if(client.usertype != "editor") {
-		server.emit(client.socket, "alert", "Map write access restricted to map editors.");
-    } else {
-		var i;
-		dbi.getMapFilePath(filename, function(path) {
-		    if(debug) log("maps.js: path="+path);
-		    if(path) {
-				files.readFile(path, function(data) {
-				    if(data) {
-						// Make a copy
-						var newpath = path + ".copy";
-						if(debug) log("maps.js: copy; newpath=" + newpath);
-						files.saveFile(data, newpath, function(err) {
-						    if(err) {
-								server.emit(client.socket, "alert", "Could not write map copy.");
-						    } else {
-								//Save copy name to database
-								dbi.saveGameFilename({author:client.username, file_name:filename, map_file_path:newpath},
-									function(valid) {
-										if(!valid) {
-											server.emit(client.socket, "alert", "Could not write map path to database.");
-										}
-								});
-						    }
-						});
-						//Send copy data to client
-						client.socket.emit("mapEditCopyResponse", data);
-				    } else {
-				    	server.emit(client.socket, "alert", "Could not read from map file.");
-				    }
-				});
-		    } else {
-				server.emit(client.socket, "alert", "Could not read from file path.");
-		    }
-		});
-    }
-}  
-
-Maps.prototype.saveMap = function(param) {
-    var client = param.client;
-    var filename = param.data.filename;
-    if(debug) log("server/maps.js, loadMapCopy(): filename="+filename);
-    if(client.usertype != "editor") {
-		server.emit(client.socket, "alert", "Map read/write access restricted to map editors.");
-    } else {
-		var path = "./assets/" + filename + ".map";
-		dbi.saveMapFilename({author:client.username, filename:filename, map_file_path:path}, 
-			function(err) {
-			    if(err) {
-					server.emit(client.socket, 
-						"alert", "Could not save " + filename);
-			    } else {
-					files.saveFile(param.data.map, path, function(err) {
-					    if(err) {
-							//should delete filename from db as well, if stored.
-							server.emit(client.socket, "alert", "Could not save " + filename);
-							dbi.removeSavedMap({author:client.username, filename:filename}, function(err) {});
-					    } else {
-					    	server.emit(client.socket, "alert", "Saved " + filename);
-					    }
-					});
-			    }
-		});
-    }
-}
-
-// Refreshes the map editor screen
-Maps.prototype.updateEditor = function() {
-	for(var i in clients) {
-		var c = clients[i];
-		if(c.usertype === "editor") {
-			server.emit(c.socket, "refreshEditScreen", null);
-		}
-	}
-}
-    
 
 module.exports = new Maps();

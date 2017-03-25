@@ -15,23 +15,14 @@ var MapEditorFiles = function() {};
 * @memberof module:client/MapEditorFiles
 */
 MapEditorFiles.prototype.listen = function(router) {
-
     if(debug.mapeditorsavedlist) debug.log("client/mapeditorlistmenu.js: listen()");
     router.listen("savedMapsListResponse", this.displaySavedMapsList);
-    router.listen("toggleMapEditorFiles", this.toggleSavedMapsList);
-    router.listen("mapEditorSaveMapButtonClick", this.saveMapClick);
+    router.listen("toggleSavedMapsList", this.toggleSavedMapsList);
+    router.listen("mapEditorSaveMapClick", this.saveMapClick);
     router.listen("mapEditorLoadMapClick", this.loadMapClick);
-    router.listen("deleteSavedMapClick", this.deleteMapClick);
-
+    router.listen("mapEditorDeleteMapClick", this.deleteMapClick);
 }
 
-/**
-* If the saved maps menu is currently hidden, a current saved games map list
-* is requested from the server and displayed. If it is currently displayed,
-* the list is hidden.
-*
-* @memberof module:client/MapEditorFiles
-*/
 MapEditorFiles.prototype.toggleSavedMapsList = function() {
     if(dom.mapEditorMapsListHidden) {
 		client.emit("savedMapsListRequest", null);
@@ -44,17 +35,8 @@ MapEditorFiles.prototype.toggleSavedMapsList = function() {
     }
 }
 
-/**
-* Formats a given saved maps list object into html and
-* inserts into the current document html.
-*
-* @param data A list of currently saved maps. Elements of
-*             this list are of the form 
-*                 {author:a,file_name:f}.
-* @memberof module:client/MapEditorMapsList
-*/
 MapEditorFiles.prototype.displaySavedMapsList = function(data) {
-// Format the saved_games table into HTML
+	// Format the saved_games table into HTML
     var i;
     var html = "<table>" +
 	"<tr>" +
@@ -72,55 +54,28 @@ MapEditorFiles.prototype.displaySavedMapsList = function(data) {
     dom.mapEditorSavedMapsList.style.display = "inline-block";
 }
 
-/**
-* Prompts the user for a file name and requests to save
-* the current game (currently just the map, not an entire
-* game object) under this file name on the server, with 
-* the requesting user listed as its author.
-*
-* @memberof module:client/MapEditorFiles
-*/
 MapEditorFiles.prototype.saveMapClick = function() {
-    if(debug.mapeditorfiles) debug.log("saveMapClick: author="+dom.loginUsername.value);
-    var filename = window.prompt("Save as: ","filename");
-    if(filename) {
-		var path = "./assets/" + filename + ".map";
-        client.emit("saveMapRequest",
-		    {filename:filename,
-			 path:path,
-		     username:client.username,
-		     usertype:client.usertype});
-    }
-}
+	var filename = window.prompt("Save as: ","filename");
+	if(filename) {
+	    client.emit("saveEditMap", {filename:filename, map:client.map});
+	}
+};
 
+MapEditorFiles.prototype.loadMapClick= function() {
+	var filename = window.prompt("Load file: ","filename");
+	if (filename) {
+		client.loading = true;
+	    client.emit("loadEditMap", filename);
+	}
+};
 
-/**
-* Prompts the user for a file name and attempts to load
-* this file from the server.
-*
-* @memberof module:client/MapEditorFiles
-*/
-MapEditorFiles.prototype.loadMapClick = function() {
-    var filename = window.prompt("Load map:", "filename");
-    if(filename) {
-        client.emit("getEditMap", {filename:filename, 
-				   username:client.username,
-				   usertype:client.usertype});
-    }
-}
-
-/**
-* Prompts the user for a file name and attempts to
-* delete this file from the server.
-*
-* @memberof module:client/MapEditorFiles
-*/
 MapEditorFiles.prototype.deleteMapClick = function() {
     var filename = window.prompt("Delete map:", "filename");
     if(filename) {
-        client.emit("deleteSavedMap", filename);
+        client.emit("deleteMap", filename);
     }
-}
+};
+
 
 return new MapEditorFiles();
 

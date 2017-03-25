@@ -138,19 +138,22 @@ dbi.prototype.setUserOnlineStatus = function(username, val) {
  * @param cb - callback function. returns true if successful with no errors, false otherwise
  * @memberof module:server/dbi
  */
-dbi.prototype.saveGameFilename = function(author, file_name, file_path, cb) {
-	db.query("INSERT INTO saved_games SET ?;",
-		 {author:author,
-		  file_name:file_name,
-		  file_path:file_path}, 
-		 function(err) {
+dbi.prototype.addSavedGame = function(author, file_name, game, cb) {
+	db.query(
+		"REPLACE INTO saved_games SET ?;",
+	 	{
+			author:author,
+	  	  	file_name:file_name,
+	  	 	data:JSON.stringify(game)
+		}, 
+		function(err) {
 		    if(err) {
-				if (debug) log(err.message);
 				cb(false);
 		    } else {
 			   cb(true);
 		    }
-	});
+		}
+	);
 }
 
 
@@ -163,23 +166,23 @@ dbi.prototype.saveGameFilename = function(author, file_name, file_path, cb) {
  * @param cb - callback function. returns true if successful with no errors, false otherwise
  * @memberof module:server/dbi
  */
-dbi.prototype.saveMapFilename = function(data,cb) {
-    if (data.filename && data.author) {
-	db.query("INSERT INTO saved_maps SET ?;",
-		 {author:data.author,
-		  file_name:data.filename,
-		  path:data.map_file_path},
-		 function(err) {
-		     if(err) {
-			 if (debug) log(err.message);
-			 cb(true);
-		     } else {
-			 cb(false);
-		     }
-		 });
-    } else {
-	cb(true);
-    }
+dbi.prototype.addSavedMap = function(data,cb) {
+	db.query(
+		"REPLACE INTO saved_maps SET ?;",
+		{
+		author:data.author,
+		file_name:data.file_name,
+		data:JSON.stringify(data.map)
+		},
+		function(err) {
+			if(err) {
+				if(debug) log(err.message);
+				cb(false);
+			} else {
+				cb(true);
+			}
+		}
+	);
 }
 
 
@@ -240,10 +243,10 @@ dbi.prototype.removeSavedGame = function(file_name, author, cb) {
  * @param cb - callback function. returns true if succeeded with no errors, false if otherwise 
  * @memberof module:server/dbi
  */
-dbi.prototype.removeSavedMap = function(data, cb) {
+dbi.prototype.removeSavedMap = function(file_name, author, cb) {
     var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
-    var inserts = ["saved_maps", "file_name", data.file_name,
-		   "author", data.author, data.author, "admin"];
+    var inserts = ["saved_maps", "file_name", file_name,
+		   "author", author, author, "admin"];
     db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
 		    if (debug) log(err.message);
@@ -258,6 +261,30 @@ dbi.prototype.removeSavedMap = function(data, cb) {
 
 
 //=================== RETRIEVAL =================================================
+
+dbi.prototype.getSavedGame = function(filename, cb) {
+	var sql = "SELECT data FROM saved_games WHERE file_name=?";
+	var inserts = [filename];
+	db.query(mysql.format(sql, inserts), function(err, rows) {
+		if(!err && rows.length > 0) {
+			cb(JSON.parse(rows[0].data));
+		} else {
+			cb(null);
+		}
+	});
+}
+
+dbi.prototype.getSavedMap = function(filename, cb) {
+	var sql = "SELECT data FROM saved_maps WHERE file_name=?";
+	var inserts = [filename];
+	db.query(mysql.format(sql, inserts), function(err, rows) {
+		if(!err && rows.length > 0) {
+			cb(JSON.parse(rows[0].data));
+		} else {
+			cb(null);
+		}
+	});
+}
 
 // Retrieves all the table data, and passes it to the callback as an array of rows
 
@@ -284,7 +311,8 @@ dbi.prototype.getAllUserInfo = function(cb) {
  * @memberof module:server/dbi
  */
 dbi.prototype.getSavedGamesList = function(cb) {
-    db.query("SELECT * FROM saved_games;", function(err, rows) {
+    db.query("SELECT file_name, author FROM saved_games;", 
+	function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);
 	    cb(null);
@@ -301,61 +329,16 @@ dbi.prototype.getSavedGamesList = function(cb) {
  * @memberof module:server/dbi
  */
 dbi.prototype.getSavedMapsList = function(cb) {
-    db.query("SELECT * FROM saved_maps;", function(err, rows) {
-	if(err) {
-	    if (debug) log(err.message);
-	    cb(null);
-	} else {
-	    cb(rows);
-	}
+    db.query("SELECT file_name, author FROM saved_maps;", 
+	function(err, rows) {
+		if(err) {
+		    if (debug) log(err.message);
+		    cb(null);
+		} else {
+		    cb(rows);
+		}
     });
 }
-
-
-/**
- * Retrieves the file path for the given map from the saved_games table on the database
- * @param file_name - the name of the file to be located
- * @param cb - callback function. returns the file path if succeeded with no errors, null otherwise
- * @memberof module:server/dbi
- */
-dbi.prototype.getSavedGameFilePath = function(file_name, cb) {
-    if (debug) log("dbi.js: getSavedGameFilePath("+file_name+")");
-    var sql = "SELECT * FROM ?? WHERE ??=?";
-    var inserts = ["saved_games", "file_name", file_name];
-    db.query(mysql.format(sql, inserts), function(err, rows) {
-	if(err) {
-	    if (debug) log(err.message);
-	    cb(null);
-	} else if(rows.length > 0) {
-	    cb(rows[0].file_path);
-	} else {
-	    cb(null);
-	}
-    });
-}
-
-/**
- * Retrieves the file path for the given map from the saved_games table on the database
- * @param file_name - the name of the file to be located
- * @param cb - callback function. returns the file path if succeeded with no errors, null otherwise
- * @memberof module:server/dbi
- */
-dbi.prototype.getMapFilePath = function(file_name, cb) {
-    if (debug) log("dbi.js: getMapFilePath("+file_name+")");
-    var sql = "SELECT * FROM ?? WHERE ??=?";
-    var inserts = ["saved_maps", "file_name", file_name];
-    db.query(mysql.format(sql, inserts), function(err, rows) {
-	if(err) {
-	    if (debug) log(err.message);
-	    cb(null);
-	} else if(rows.length > 0) {
-	    cb(rows[0].path);
-	} else {
-	    cb(null);
-	}
-    });
-}
-
 
 //============================= STATS ===================================
 
@@ -483,9 +466,8 @@ dbi.prototype.updateStats = function(users, stats, cb) {
  * @memberof module:server/dbi
  */
 dbi.prototype.getAllStats = function(cb) {
-    var sql = "SELECT * FROM ??";
-    var inserts = ["user_stats"];
-    db.query(mysql.format(sql, inserts), function(err, rows) {
+ 	var sql = "SELECT * FROM user_stats";
+    db.query(sql, function(err, rows) {
 	if(err) {
 	    if (debug) log(err.message);
 	    cb(null);
