@@ -196,34 +196,30 @@ Accounts.prototype.deleteAccount = function deleteAccount(param) {
 
 Accounts.prototype.changeUserType = function(param) {
 	var username = param.data.username;
-	// Find the client with that username
-    var client;
-	for(var i in param.clients) {
-		current = param.clients[i];
-		if(current.username === username) {
-			client = current;
-			break;
-		}
-	}
 	var type = param.data.type;
+	// Find the client with that username, if any
+    var client = param.clients.find(function (c) {
+    	return c.username === username;
+    });
 	dbi.setUsertype(username, type, function(resp) {
 		if(resp) {
 			server.emit(param.client.socket, "alert", "Type change successful.");
-			if(client) server.emit(client.socket, "alert", "Your type is now \"" +
-				type + "\"");
 			// Change the type on the server
-			client.usertype = type;
-			// Exit game
-			require("./session.js").exitGameSession({client:client});
-			// Change screens
-			server.emit(client.socket, "setClientInfo", {username:client.username, 
-				usertype:client.usertype});
-			if(type === "admin") {
-				server.emit(client.socket, "adminScreen", null);
-			} else if(type === "editor") {
-				server.emit(client.socket, "mapEditorScreen", null);
-			} else {
-				server.emit(client.socket, "sessionBrowser", null);
+			if(client) {
+				server.emit(client.socket, "alert", "Your type is now \"" + type + "\"");
+				client.usertype = type;
+				// Exit game
+				require("./session.js").exitGameSession({client:client});
+				// Change screens
+				server.emit(client.socket, "setClientInfo", {username:client.username, 
+					usertype:client.usertype});
+				if(type === "admin") {
+					server.emit(client.socket, "adminScreen", null);
+				} else if(type === "editor") {
+					server.emit(client.socket, "mapEditorScreen", null);
+				} else {
+					server.emit(client.socket, "sessionBrowser", null);
+				}
 			}
 		} else {
 			server.emit(param.client.socket, "alert", "Could not change type.");
