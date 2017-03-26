@@ -161,6 +161,32 @@ Game.prototype.updateStats = function() {
 	}
 }
 
+Game.prototype.updateOnlineStatus = function() {
+	dbi.getAllUserInfo(function(data) {
+		if(data) {
+			for(var i in data) {
+				var client = CLIENT_LIST.find(function(c) {
+					return c.username === data[i].username;
+				});
+				if(client) {
+					dbi.setUserOnlineStatus(data[i].username, true, function(resp) {});
+					if(client.player) {
+						dbi.setUserInGameStatus(data[i].username, true, function(resp) {});
+					} else {
+						dbi.setUserInGameStatus(data[i].username, false, function(resp) {});
+					}
+				} else {
+					dbi.setUserOnlineStatus(data[i].username, false, function(resp) {});
+					dbi.setUserInGameStatus(data[i].username, false, function(resp) {});
+				}
+			}
+			for(var i in CLIENT_LIST) {
+				server.emit(CLIENT_LIST[i].socket, "userListResponse", data);
+			}
+		}
+	});
+} 
+
 // Physics engine
 function updatePhysics(session) {
 	var map = session.mapData;

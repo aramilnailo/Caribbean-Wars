@@ -35,9 +35,10 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	    var html = "<table>" +
 		"<tr>" +
 		"<th>Username</th>" +
-		"<th>Account type</th>" +
+		"<th>Usertype</th>" +
 		"<th>Password</th>" +
 		"<th>Online</th>" +
+		"<th>In Game</th>" +
 		"</tr>";
 	    for(i = 0; i < data.length; i++) {	
 		html += "<tr>" +
@@ -45,6 +46,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		    "<td>"+ data[i].usertype + "</td>" +
 		    "<td>" + data[i].password + "</td>" +
 		    "<td>" + data[i].online + "</td>" +
+			"<td>" + data[i].in_game + "</td>" +
 		    "</tr>";
 	    }
 	    html += "</table>";

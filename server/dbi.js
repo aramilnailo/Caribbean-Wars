@@ -118,12 +118,31 @@ dbi.prototype.setUsertype = function(username, usertype, cb) {
  * @param val - the new value for online status
  * @memberof module:server/dbi
  */
-dbi.prototype.setUserOnlineStatus = function(username, val) {
+dbi.prototype.setUserOnlineStatus = function(username, val, cb) {
     var boolStr = "" + (val ? 1 : 0);
     var sql = "UPDATE ?? SET ??=? WHERE ??=?";
     var inserts = ["user_info", "online", boolStr, "username", username];
     db.query(mysql.format(sql, inserts), function(err) {
-	if(err && debug) log(err.message);
+		if(err && debug) {
+			log(err.message);
+			cb(false);
+		} else {
+			cb(true);
+		}
+    });
+}
+
+dbi.prototype.setUserInGameStatus = function(username, val, cb) {
+    var boolStr = "" + (val ? 1 : 0);
+    var sql = "UPDATE ?? SET ??=? WHERE ??=?";
+    var inserts = ["user_info", "in_game", boolStr, "username", username];
+    db.query(mysql.format(sql, inserts), function(err) {
+		if(err && debug) {
+			log(err.message);
+			cb(false);
+		} else {
+			cb(true);
+		}
     });
 }
 

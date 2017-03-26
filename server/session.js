@@ -91,7 +91,6 @@ Session.prototype.deleteGameSession = function(param) {
 	// Kick everyone out to the session browser
     for(var i in session.clients) {
 		var c = session.clients[i];
-		dbi.setUserOnlineStatus(c.username, false);
 		server.emit(c.socket, "sessionBrowser", null);
 		c.player = null;
 		c.id = -1;
@@ -156,8 +155,6 @@ Session.prototype.exitGameSession = function(param) {
     // Remove the client from the game session list
     var index = session.clients.indexOf(client);
     if(index > -1) session.clients.splice(index, 1);
-    // Turn the client offline in the database
-    dbi.setUserOnlineStatus(client.username, false);
 	// Send the client out of the lobby
 	server.emit(client.socket, "sessionBrowser", null);
 	// Update the lobbies of everyone else
@@ -224,8 +221,6 @@ Session.prototype.kickUser = function(param) {
 		var index = session.clients.indexOf(target);
 		// Remove from session list
 		session.clients.splice(index, 1);
-		// Set offline in database
-		dbi.setUserOnlineStatus(targetName, false);
 		// Disable in game if needed
 		for(var i in session.game.players) {
 			if(session.game.players[i] === target.player) {
@@ -324,8 +319,6 @@ Session.prototype.startGame = function(param) {
 				// Assign a new player to the client
 				c.player = new player.Player(c.username);
 				session.game.players.push(c.player);
-			    // Turn the client online in the database
-			    dbi.setUserOnlineStatus(c.username, true);
 				server.emit(c.socket, "gameScreen", 
 				{isHost:(c === session.host)});
 				server.emit(c.socket, "alert", "Game started");
@@ -353,7 +346,6 @@ Session.prototype.stopGame = function(param) {
 	for(var i in session.clients) {
 		var c = session.clients[i];
 		c.player = null;
-		dbi.setUserOnlineStatus(c.username, false);
 		server.emit(c.socket, "lobbyScreen", 
 			{isHost:(c === session.host)});
 		server.emit(c.socket, "alert", "The game is over");
@@ -412,7 +404,6 @@ Session.prototype.resumeGame = function(param) {
 							}
 							server.emit(c.socket, "gameScreen", 
 							{isHost:(c === session.host)});
-							dbi.setUserOnlineStatus(c.username, true);
 						}
 						session.game.running = true;
 					}
@@ -445,7 +436,6 @@ Session.prototype.enterGame = function(param) {
 		server.emit(client.socket, "alert", "Joining as new player");
 		session.game.players.push(client.player);
 	}
-	dbi.setUserOnlineStatus(client.username, true);
 	server.emit(client.socket, "gameScreen", {isHost:false});
 	pushSessionTable(param.clients);
 }
@@ -473,8 +463,6 @@ Session.prototype.exitGame = function(param) {
 		client.player = null;
 		// Move back to lobby
 		server.emit(client.socket, "lobbyScreen", {isHost:false});
-		// Set offline in the database
-		dbi.setUserOnlineStatus(client.username, false);
 		pushSessionTable(param.clients);
 	}
 }
@@ -642,7 +630,6 @@ function pushSessionTable(clients) {
 			"sessionListResponse", getSessionTable());
 	}
 }
-
 
 module.exports = new Session();
 module.exports.GAME_SESSIONS = GAME_SESSIONS;

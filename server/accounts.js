@@ -119,6 +119,12 @@ Accounts.prototype.signup = function signup(param) {
             	dbi.addUserStats(data.username, function(resp) {});
 				dbi.setUsertype(data.username, data.usertype, function(resp) {});
 				server.emit(client.socket, "alert", "Signup successful!");
+				dbi.getAllUserInfo(function(data) {
+					for(var i in param.clients) {
+						var c = param.clients[i];
+				    	server.emit(c.socket, "userListResponse", data);
+					}
+				});
         	} else {
         		server.emit(client.socket, "alert", "Signup unsuccessful")
         	}
@@ -184,6 +190,12 @@ Accounts.prototype.deleteAccount = function deleteAccount(param) {
 			server.emit(client.socket, "alert", "Your account has been deleted.");
 		}
 		if(param.client !== client) server.emit(param.client.socket, "alert", "Account deleted.");
+		dbi.getAllUserInfo(function(data) {
+			for(var i in param.clients) {
+				var c = param.clients[i];
+		    	server.emit(c.socket, "userListResponse", data);
+			}
+		});
 	} else {
 		server.emit(param.client.socket, "alert", "Could not delete account");
 	}
@@ -221,6 +233,12 @@ Accounts.prototype.changeUserType = function(param) {
 					server.emit(client.socket, "sessionBrowser", null);
 				}
 			}
+			dbi.getAllUserInfo(function(data) {
+				for(var i in param.clients) {
+					var c = param.clients[i];
+			    	server.emit(c.socket, "userListResponse", data);
+				}
+			});
 		} else {
 			server.emit(param.client.socket, "alert", "Could not change type.");
 		}

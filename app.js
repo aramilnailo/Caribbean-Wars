@@ -36,8 +36,11 @@ saves.listen(router);
 
 server.run(io);
 
-// Update the game at 60 fps
+// Update the games at 60 fps
 setInterval(game.update, 1000/30);
 
 // Update stats once per second
 setInterval(game.updateStats, 1000);
+
+// Update in-game/online once per second
+setInterval(game.updateOnlineStatus, 1000);
