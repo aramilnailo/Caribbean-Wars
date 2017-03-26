@@ -53,19 +53,12 @@ Render.prototype.drawCamera = function(map) {
 	var cam_x = client.camera.x;
 	var cam_y = client.camera.y;
 	// camera dimensions in cells
-	var cam_w = CELL_W / client.camera.zoom;
-	var cam_h = CELL_H / client.camera.zoom;
+	var min = Math.min(client.map.width, client.map.height);
+	var cam_w = Math.floor(min / client.camera.zoom);
+	var cam_h = Math.floor(min / client.camera.zoom);
 	// cell dimensions in pixels
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;
-	log("\ncam_x: " + cam_x + 
-		"\ncam_y: " + cam_y +
-		"\ncam_w: " + cam_w +
-		"\ncam_h: " + cam_h +
-		"\ncell_w: " + cell_w +
-		"\ncell_h: " + cell_h
-	);
-	
 	// Draw camera
 	for(var i = 0; i < cam_h; i++) {
 		var line = map.data[i + cam_y];
@@ -95,8 +88,9 @@ Render.prototype.drawGameState = function(data) {
 	var cam_x = client.camera.x;
 	var cam_y = client.camera.y;
 	// camera dimensions in cells
-	var cam_w = CELL_W / client.camera.zoom;
-	var cam_h = CELL_H / client.camera.zoom;
+	var min = Math.min(client.map.width, client.map.height);
+	var cam_w = Math.floor(min / client.camera.zoom);
+	var cam_h = Math.floor(min / client.camera.zoom);
 	// cell dimensions in pixels
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;

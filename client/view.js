@@ -47,9 +47,9 @@ View.prototype.setMap = function(data) {
         alert(data.err);
 	} else {
 		client.map = data;
-		var max_w = 20 / client.map.width;
-		var max_h = 20 / client.map.height;
-		client.camera.zoom = max_w < max_h ? max_w : max_h;
+		client.camera.zoom = 1.0;
+		client.camera.x = 0;
+		client.camera.y = 0;
 		client.camera.moved = true;
 		client.loading = false;
 	}
@@ -162,16 +162,11 @@ View.prototype.keyPressed = function(event) {
 		
 		// Correct camera
 		if(client.map) {
-			if(client.camera.zoom < 0.05) client.camera.zoom = 0.05;
-			if(client.camera.zoom > 3.0) client.camera.zoom = 3.0;
-			if(20 / client.camera.zoom > client.map.width) {
-				client.camera.zoom = 20 / client.map.width;
-			}
-			if(20 / client.camera.zoom > client.map.height) {
-				client.camera.zoom = 20 / client.map.height;
-			}
-			var cam_w = Math.floor(20 / client.camera.zoom);
-			var cam_h = Math.floor(20 / client.camera.zoom);
+			if(client.camera.zoom < 1) client.camera.zoom = 1;
+			if(client.camera.zoom > 20) client.camera.zoom = 20;
+			var min = Math.min(client.map.width, client.map.height);
+			var cam_w = Math.floor(min / client.camera.zoom);
+			var cam_h = Math.floor(min / client.camera.zoom);
 			if(client.camera.x < 0) client.camera.x = 0;
 			if(client.camera.y < 0) client.camera.y = 0;
 			if(client.camera.x > client.map.width - cam_w)

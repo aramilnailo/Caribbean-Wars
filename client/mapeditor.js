@@ -89,10 +89,10 @@ MapEditor.prototype.setEditMap = function(data) {
 		client.map = data;
 		mapUndoStack=[];
 		mapRedoStack=[];
-		// Set to max zoom
-		var max_w = 20 / client.map.width;
-		var max_h = 20 / client.map.height;
-		client.camera.zoom = max_w < max_h ? max_w : max_h;
+		// Reset zoom
+		client.camera.zoom = 1.0;
+		client.camera.x = 0;
+		client.camera.y = 0;
 		setCameraActive();
 		client.loading = false;
 	}
@@ -110,14 +110,13 @@ MapEditor.prototype.drawEditScreen = function(event) {
 	var cam_x = client.camera.x;
 	var cam_y = client.camera.y;
 	// camera dimensions in cells
-	var cam_w = 20 / client.camera.zoom;
-	var cam_h = 20 / client.camera.zoom;
-	// camera dimensions in pixels
-	var width = 500;
-	var height = 500;
+	var min = Math.min(client.map.width, client.map.height);
+	var cam_w = Math.floor(min / client.camera.zoom);
+	var cam_h = Math.floor(min / client.camera.zoom);
 	// cell dimensions in pixels
-	var cell_w = width / cam_w;
-	var cell_h = height / cam_h;
+	var cell_w = 500 / cam_w;
+	var cell_h = 500 / cam_h;
+	// active area dimensions in cells
 	var x = activeArea.x,
 	y = activeArea.y,
 	w = activeArea.w,
@@ -203,7 +202,7 @@ MapEditor.prototype.resize = function(event) {
 	lx = window.prompt("New width?", "100");
 	if(lx) ly = window.prompt("New height?", "100");
 	if(!lx || !ly) return;
-	if (lx < 2 || ly < 2 || lx > 600 || ly > 600) {
+	if (lx < 2 || ly < 2 || lx > 500 || ly > 500) {
 		alert("Invalid map size");
 		return;
 	}
@@ -240,10 +239,10 @@ MapEditor.prototype.resize = function(event) {
 		}
 	}
 	client.map = newMap;
-	// reset zoom to max
-	var max_w = 20 / client.map.width;
-	var max_h = 20 / client.map.height;
-	client.camera.zoom = max_w < max_h ? max_w : max_h;
+	// reset zoom
+	client.camera.zoom = 1.0;
+	client.camera.x = 0;
+	client.camera.y = 0;
 	setCameraActive();
 };
 
@@ -273,23 +272,22 @@ MapEditor.prototype.onCanvasMouseLeave = function (event) {
 MapEditor.prototype.onCanvasMouseMove = function (event) {
 	if(!client.map) return;
 	if (paintMove) {
-	    if (debug.mapeditor) debug.log("client/mapeditor.js: onCanvasMouseMove()");
 		// Coordinates in pixels of the mouse movement
 	    var x = event.clientX - dom.mapEditorCanvas.offsetLeft;
 	    var y = event.clientY - dom.mapEditorCanvas.offsetTop;
 		// Coordinates in cells of the mouse movement
 		// Find x * cam_w / 500, + cam_x
-		debug.log(client.camera.zoom);
-		var a = Math.round((x / 500) * (20 / client.camera.zoom)) + client.camera.x;
-		var b = Math.round((y / 500) * (20 / client.camera.zoom)) + client.camera.y;
+		var min = Math.min(client.map.width, client.map.height);
+		var a = Math.round((x / 500) * Math.floor(min / client.camera.zoom)) + client.camera.x;
+		var b = Math.round((y / 500) * Math.floor(min / client.camera.zoom)) + client.camera.y;
+		debug.log("("+x+", "+y+")-->("+a+", "+b+")");
+		
 	    var change = false;
 	    var ch;
 	    if (paintingWater) { ch = "0"; change = true; }
 	    if (paintingSand) { ch = "1"; change = true; }
 	    if (paintingGrass) { ch = "2"; change = true; }
 	    if (paintingPort) { ch = "3"; change = true; }
-
-		 if (debug.mapeditor) debug.log("client/mapeditor.js: ch: " + ch);
 
 	    var bsq = brushSize * brushSize / 4;
 	    var lim = Math.floor(brushSize / 2) + 1;
@@ -430,11 +428,12 @@ MapEditor.prototype.raisePortIcon = function() {
 };
 
 function setCameraActive() {
+	var min = Math.min(client.map.width, client.map.height);
 	activeArea = {
 			x:client.camera.x,
 			y:client.camera.y,
-			w:20/client.camera.zoom,
-			h:20/client.camera.zoom
+			w:Math.floor(min / client.camera.zoom),
+			h:Math.floor(min / client.camera.zoom)
 	};
 };
 
