@@ -97,6 +97,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		if(window.confirm(username + 
 			" has invited you to lobby " 
 			+ id + ". Accept?")) {
+			client.emit("exitGameSession", null);
 			client.emit("enterGameSession", id);
 		}
 	}
