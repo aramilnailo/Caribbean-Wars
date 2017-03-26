@@ -27,15 +27,15 @@
     </div>
 	
 	<!--UPPER MENU-->
-	<div id="upper-menu" class="clear-menu" style="display:none;">
-		<div id="upper-menu-content">
+	<div id="upper-menu" style="display:none;">
   	  	<span id="username-label"></span>
   	  	<span id="usertype-label"></span>
-	    <button id="logout-btn">Log out</button>
-	    <button id="delete-account-btn">Delete Account</button>
-	    <button id="saved-games-menu-btn">Show saved games</button>
-		<button id="saved-maps-menu-btn">Show saved maps</button>
-	    <button id="stats-menu-btn">Show stats</button>
+		<div id="upper-menu-btns" style="display:inline-block;">
+	    	<button id="logout-btn">Log out</button>
+	    	<button id="delete-account-btn">Delete Account</button>
+	    	<button id="saved-games-menu-btn">Show saved games</button>
+			<button id="saved-maps-menu-btn">Show saved maps</button>
+	    	<button id="stats-menu-btn">Show stats</button>
 		</div>
 	</div>
 
@@ -87,6 +87,16 @@
 				<button id="promote-btn">Promote</button>
 			</div>
 		</div>
+		
+		<!--MAP EDITOR MENU-->
+		<div id="map-editor-menu" style="display:none;">
+			<div id="map-editor-menu-btns">
+				<button id="undo-btn">Undo</button>
+				<button id="redo-btn">Redo</button>
+				<button id="clear-btn">Clear</button>
+				<button id="resize-btn">Resize</button>
+			</div>
+	  	</div>
 	</div>
 	
     <!--GAME SCREEN-->
@@ -132,9 +142,8 @@
 		
 	</div>
 
-	
 	<!--LOBBY SCREEN-->
-	<div id="lobby-screen" class="white-menu" style="display:none;">
+	<div id="lobby-screen" style="display:none;">
 		<span class="menu-title">Session Lobby</span>
 		<div id="lobby-player-list"></div>
 		<div id="host-lobby-btns">
@@ -167,45 +176,6 @@
 	
 	<!--MAP EDITOR SCREEN-->
 	<div id="map-editor-screen" style="display:none;">
-		
-		<div id="map-editor-textbox">
-			<div id="map-editor-textbox-msg"><p style="font:12px Arial;color:white;">Map edit mode</p></div>
-			<div id="map-editor-btns">
-				<button id="map-editor-undo-btn">undo</button>
-				<button id="map-editor-redo-btn">redo</button>
-				<button id="map-editor-zoom-btn">zoom</button>
-				<button id="map-editor-clear-map-btn">clear</button>
-				<button id="map-editor-resize-btn">resize</button>
-		  	</div>
-			<center>
-			<div id="map-editor-textbox-resize-form" style="display:none">
-				<table><tr><td style="border:none">
-					<form style="font:12px Arial;color:white;">
-						H: <input id="map-editor-new-ly" type="text"></input>
-						W: <input id="map-editor-new-lx" type="text"></input>
-					</form>
-					</td></tr>
-					<tr><td style="border:none">
-						<button id="map-editor-resize-submit-btn">submit</button>
-					</td></tr>
-				</table>
-			</div>
-			<div id="map-editor-textbox-zoom-form" style="display:none">
-				<table><tr><td style="border:none">
-					<form style="font:12px Arial;color:white;">
-						Zoom: <input id="map-editor-new-zoom" type="text"></input>
-					</form>
-					</td></tr>
-					<tr><td style="border:none">
-						<button id="map-editor-zoom-submit-btn">submit</button>
-					</td></tr>
-				</table>
-			</div>
-			<div id="map-editor-saved-maps-list" display="display:none;"></div>
-			</center>
-		</div>
-		
-		<div id="map-editor-organizer">
 	    <table id="map-editor-brush-panel" style="inline-block; border:collapse">
 	      <tr><td style="border:none">
 		  <img id="map-editor-paint-water-img" alt="h2o" src="client/imgs/mapeditorwatericonup.png">
@@ -233,8 +203,6 @@
 	    </table>
 	    <canvas id="map-editor-canvas" width="600" height="500"
 		    style="inline-block; border:1px solid black;"></canvas>
-	  	</div>
-	  
 	</div>
 
 	<script src="/socket.io/socket.io.js"></script>

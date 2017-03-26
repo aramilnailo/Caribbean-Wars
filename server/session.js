@@ -62,7 +62,7 @@ Session.prototype.newGameSession = function(param) {
 			map:"", 
 			players:[], 
 			projectiles:[], 
-			running:false
+			running:false,
 		}, 
 		mapData:null
 	};
@@ -314,7 +314,7 @@ Session.prototype.startGame = function(param) {
 		projectiles:[], 
 		running:false
 	};
-	loadMap(session, function(resp) {
+	loadMap(param.data, session, function(resp) {
 		if(!resp) {
 			server.emit(param.client.socket, "alert", 
 			"Could not read from map file");
@@ -349,6 +349,7 @@ Session.prototype.stopGame = function(param) {
 		return;
 	}
 	if(!session.game.running) return;
+	session.game.running = false;
 	for(var i in session.clients) {
 		var c = session.clients[i];
 		c.player = null;
@@ -357,7 +358,12 @@ Session.prototype.stopGame = function(param) {
 			{isHost:(c === session.host)});
 		server.emit(c.socket, "alert", "The game is over");
 	}
-	session.game = {map:"", players:[], projectiles:[], running:false};
+	session.game = {
+		map:"", 
+		players:[], 
+		projectiles:[], 
+		running:false
+	};
 	pushSessionTable(param.clients);
 }
 
@@ -371,42 +377,45 @@ Session.prototype.resumeGame = function(param) {
 		server.emit(client.socket, 
 			"alert", "Only host can load saves.");
     } else {
-		loadSave(filename, session, function(data) {
+		loadSave(filename, function(data) {
 			if(!data) {
 				server.emit(client.socket, 
 				"alert", "Could not read from save file");
 			} else {
-				for(var i in data.players) {
-					data.players[i].active = false;
-				}
-				data.running = false;
-				session.game = data;
-				for(var i in session.clients) {
-					var c = session.clients[i];
-					// Locate any former player of the client
-					var p = session.game.players.find(function(pl) {
-						return pl.name === c.username;
-					});
-					if(p) {
-						c.player = p;
-						c.player.active = true;
-						server.emit(c.socket, "alert", 
-						"Game started on saved game " + filename);
-					} else {
-						c.player = new player.Player(c.username);
-						session.game.players.push(c.player);
-						server.emit(c.socket, "alert", 
-						"Game started on saved game " + filename +
-						". Spawning as new player");
-					}
-					server.emit(c.socket, "gameScreen", 
-					{isHost:(c === session.host)});
-					dbi.setUserOnlineStatus(c.username, true);
-				}
-				session.game.running = true;
-				loadMap(session, function(resp) {
-					if(!resp) server.emit(client.socket, 
+				loadMap(data.map, session, function(resp) {
+					if(!resp) {
+						server.emit(client.socket, 
 						"alert", "Could not read from map file.");
+					} else {
+						data.running = false;
+						for(var i in data.players) {
+							data.players[i].active = false;
+						}
+						session.game = data;
+						for(var i in session.clients) {
+							var c = session.clients[i];
+							// Locate any former player of the client
+							var p = session.game.players.find(function(pl) {
+								return pl.name === c.username;
+							});
+							if(p) {
+								c.player = p;
+								c.player.active = true;
+								server.emit(c.socket, "alert", 
+								"Game started on saved game " + filename);
+							} else {
+								c.player = new player.Player(c.username);
+								session.game.players.push(c.player);
+								server.emit(c.socket, "alert", 
+								"Game started on saved game " + filename +
+								". Spawning as new player");
+							}
+							server.emit(c.socket, "gameScreen", 
+							{isHost:(c === session.host)});
+							dbi.setUserOnlineStatus(c.username, true);
+						}
+						session.game.running = true;
+					}
 				});
 			}
 		});
@@ -482,15 +491,7 @@ Session.prototype.getGameMap = function(param) {
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
 	if(!session.game.running) return;
-    dbi.getSavedMap(session.game.map, function(data) {
-		if(data) {
-			var zoom = Math.max(20 / data.width, 20 / data.height);
-			server.emit(client.socket, "setClientZoom", zoom);
-	    	server.emit(client.socket, "newGameMapResponse", data);
-		} else {
-	    	server.emit(client.socket, "alert", "Could not read from map file");
-		}
-    });
+	server.emit(client.socket, "newGameMapResponse", session.mapData);
 }
 
 Session.prototype.saveGameState = function(param) {
@@ -534,45 +535,48 @@ Session.prototype.loadGameState = function(param) {
     if(client !== session.host) {
 		server.emit(client.socket, "alert", "Only host can load saves.");
     } else {
-		loadSave(filename, session, function(data) {
+		loadSave(filename, function(data) {
 			if(!data) {
 				server.emit(client.socket, 
 				"alert", "Could not read from save file");
 			} else {
-				for(var i in data.players) {
-					data.players[i].active = false;
-				}
-				data.running = false;
-				session.game = data;
-				for(var i in session.clients) {
-					var c = session.clients[i];
-					// Locate any former player of the client
-					var p = session.game.players.find(function(pl) {
-						return pl.name === c.username;
-					});
-					if(p) {
-						// If the client is in-game, reassign and activate
-						// else wait for them to rejoin
-						if(c.player) {
-							c.player = p;
-							c.player.active = true;
-							server.emit(c.socket, "alert", "Playing on saved game " + filename);
-						}
-					} else {
-						// If the client is in-game, assign new active player
-						// Else wait for them to join
-						if(c.player) {
-							c.player = new player.Player(c.username);
-							session.game.players.push(c.player);
-							server.emit(c.socket, "alert", "Playing on saved game " + filename +
-							" as new player");
-						}
-					}
-				}
-				session.game.running = true;
-				loadMap(session, function(resp) {
-					if(!resp) server.emit(client.socket, 
+				loadMap(data.map, session, function(resp) {
+					if(!resp) {
+						server.emit(client.socket, 
 						"alert", "Could not read from map file.");
+					} else {
+						data.running = false;
+						for(var i in data.players) {
+							data.players[i].active = false;
+						}
+						session.game = data;
+						for(var i in session.clients) {
+							var c = session.clients[i];
+							// Locate any former player of the client
+							var p = session.game.players.find(function(pl) {
+								return pl.name === c.username;
+							});
+							if(p) {
+								// If the client is in-game, reassign and activate
+								// else wait for them to rejoin
+								if(c.player) {
+									c.player = p;
+									c.player.active = true;
+									server.emit(c.socket, "alert", "Playing on saved game " + filename);
+								}
+							} else {
+								// If the client is in-game, assign new active player
+								// Else wait for them to join
+								if(c.player) {
+									c.player = new player.Player(c.username);
+									session.game.players.push(c.player);
+									server.emit(c.socket, "alert", "Playing on saved game " + filename +
+									" as new player");
+								}
+							}
+						}
+						session.game.running = true;	
+					}			
 				});
 			}
 		});
@@ -585,15 +589,15 @@ Session.prototype.loadGameState = function(param) {
 //====== HELPERS ====================================
 
 // Reads save from database and returns it
-function loadSave(filename, session, cb) {
+function loadSave(filename, cb) {
 	dbi.getSavedGame(filename, function(data) {
 		cb(data);
 	});
 }
 
 // Emits the session's current game map to its clients
-function loadMap(session, cb) {
-	dbi.getSavedMap(session.game.map, function(data) {
+function loadMap(map, session, cb) {
+	dbi.getSavedMap(map, function(data) {
 		if(!data) { 
 			cb(false);
 		} else {
@@ -601,8 +605,6 @@ function loadMap(session, cb) {
 			// Emit new map data to session clients
 			for(var i in session.clients) {
 				var c = session.clients[i];
-				var zoom = Math.max(20 / data.width, 20 / data.height);
-				server.emit(c.socket, "setClientZoom", zoom);
 				server.emit(c.socket, "newGameMapResponse", data);
 			}
 			cb(true);

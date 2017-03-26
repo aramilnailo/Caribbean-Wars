@@ -30,95 +30,83 @@ Maps.prototype.saveEditMap = function(param) {
     var client = param.client;
     var filename = param.data.filename;
     if(debug) log("server/maps.js, saveEditMap(): filename="+filename);
-    if(client.usertype !== "editor") {
-		server.emit(client.socket, "alert", "Map access restricted to map editors.");
-    } else {
-		dbi.addSavedMap({author:client.username, file_name:filename, map:param.data.map}, 
-			function(resp) {
-			    if(resp) {
-					server.emit(client.socket, "alert", "Saved " + filename);
-				    dbi.getSavedMapsList(function(data) {
-						for(var i in param.clients) {
-							var c = param.clients[i];
-							server.emit(c.socket,"savedMapsListResponse",data);
-						}
-				    });
-			    } else {
-					server.emit(client.socket, 
-						"alert", "Could not save " + filename);
-			    }
-		});
-    }
-}
-
-Maps.prototype.loadEditMap = function(param) {
-    var client = param.client;
-    var filename = param.data;
-	if(debug) log("server/maps.js, loadEditMap(): filename="+filename);
-    if(client.usertype !== "editor") {
-		server.emit(client.socket, "alert", "Map access restricted to map editors.");
-    } else {
-		dbi.getSavedMap(filename, function(data) {
-			if(data) {
-				//Send copy data to client
-				server.emit(client.socket, "loadEditMapResponse", data);
-				server.emit(client.socket, "alert", "Loaded " + filename);
-			} else if(filename === "default") {
-				// Ensure that a map called "default" is always in the db
-				var map = {
-					width:100,
-					height:100,
-					author:"admin",
-					name:"default",
-					data:[],
-					ports:[]
-				};
-				var line = "";
-				for(var i = 0; i < 10; i++) line += "0000000000";
-				for(var i = 0; i < 100; i++) map.data.push(line);
-				var pack = {
-					author:map.author, 
-					file_name:map.name,
-					map:map
-				}; 
-				dbi.addSavedMap(pack, function(resp) {
-					if(resp) {
-						server.emit(client.socket, "loadEditMapResponse", map);
-						server.emit(client.socket, 
-							"alert", "Re-added and loaded default");
-					} else {
-						server.emit(client.socket, 
-							"alert", "Database failure");
-					}
-				});
-			} else {
-			   	server.emit(client.socket, "alert", "Could not load " + filename);
-			}
-		});
-    }
-}  
-
-Maps.prototype.deleteMap = function(param) {
-    var client = param.client;
-    var filename = param.data;
-	if(debug) log("server/maps.js, deleteMap(): filename="+filename);
-    if(client.usertype !== "editor") {
-		server.emit(client.socket, "alert", "Map access restricted to map editors.");
-    } else {
-		dbi.removeSavedMap(filename, client.username, function(resp) {
-			if(resp) {
-				server.emit(client.socket, "alert", "Deleted " + filename);
+	dbi.addSavedMap({author:client.username, file_name:filename, map:param.data.map}, 
+		function(resp) {
+		    if(resp) {
+				server.emit(client.socket, "alert", "Saved " + filename);
 			    dbi.getSavedMapsList(function(data) {
 					for(var i in param.clients) {
 						var c = param.clients[i];
 						server.emit(c.socket,"savedMapsListResponse",data);
 					}
 			    });
-			} else {
-				server.emit(client.socket, "alert", "Could not delete " + filename);
-			}
-		});
-    }
+		    } else {
+				server.emit(client.socket, 
+					"alert", "Could not save " + filename);
+		    }
+	});
+}
+
+Maps.prototype.loadEditMap = function(param) {
+    var client = param.client;
+    var filename = param.data;
+	if(debug) log("server/maps.js, loadEditMap(): filename="+filename);
+	dbi.getSavedMap(filename, function(data) {
+		if(data) {
+			//Send copy data to client
+			server.emit(client.socket, "loadEditMapResponse", data);
+			server.emit(client.socket, "alert", "Loaded " + filename);
+		} else if(filename === "default") {
+			// Ensure that a map called "default" is always in the db
+			var map = {
+				width:100,
+				height:100,
+				author:"admin",
+				name:"default",
+				data:[],
+				ports:[]
+			};
+			var line = "";
+			for(var i = 0; i < 10; i++) line += "0000000000";
+			for(var i = 0; i < 100; i++) map.data.push(line);
+			var pack = {
+				author:map.author, 
+				file_name:map.name,
+				map:map
+			}; 
+			dbi.addSavedMap(pack, function(resp) {
+				if(resp) {
+					server.emit(client.socket, "loadEditMapResponse", map);
+					server.emit(client.socket, 
+						"alert", "Re-added and loaded default");
+				} else {
+					server.emit(client.socket, 
+						"alert", "Database failure");
+				}
+			});
+		} else {
+		   	server.emit(client.socket, "alert", "Could not load " + filename);
+		}
+	});
+}  
+
+Maps.prototype.deleteMap = function(param) {
+    var client = param.client;
+    var filename = param.data;
+	if(debug) log("server/maps.js, deleteMap(): filename="+filename);
+	dbi.removeSavedMap(filename, client.username, function(resp) {
+		if(resp) {
+			server.emit(client.socket, "alert", "Deleted " + filename);
+		    dbi.getSavedMapsList(function(data) {
+				for(var i in param.clients) {
+					var c = param.clients[i];
+					server.emit(c.socket,"savedMapsListResponse",data);
+				}
+		    });
+		} else {
+			server.emit(client.socket, "alert", "Could not delete " + filename);
+		}
+	});
 }
 
 Maps.prototype.savedMapsListRequest = function(param) {

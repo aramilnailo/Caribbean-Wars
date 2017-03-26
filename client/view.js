@@ -21,7 +21,6 @@ View.prototype.listen = function(router) {
     if (debug.view) debug.log("client/view.js: listen()");
 	mrouter = router;
 	router.listen("setClientInfo", this.setClientInfo);
-	router.listen("setClientZoom", this.setClientZoom);
 	router.listen("loginScreen", this.loginScreen);
 	router.listen("sessionBrowser", this.sessionBrowser);
 	router.listen("lobbyScreen", this.lobbyScreen);
@@ -42,17 +41,16 @@ View.prototype.setClientInfo = function(data) {
 	dom.usernameLabel.innerHTML = data.username;
 }
 
-View.prototype.setClientZoom = function(data) {
-	client.camera.zoom = data;
-	client.camera.moved = true;
-}
-
 View.prototype.setMap = function(data) {
     if(debug.client) debug.log("client/client.js: setMap()");
     if(data.err) {
         alert(data.err);
 	} else {
 		client.map = data;
+		var max_w = 20 / client.map.width;
+		var max_h = 20 / client.map.height;
+		client.camera.zoom = max_w < max_h ? max_w : max_h;
+		client.camera.moved = true;
 		client.loading = false;
 	}
 }
@@ -101,7 +99,7 @@ View.prototype.gameScreen = function(data) {
 View.prototype.mapEditorScreen = function(data) {
 	hideAll();
 	client.emit("loadEditMap", "default");
-	show(["upperMenu", "mapEditorScreen"]);
+	show(["upperMenu", "mapEditorMenu", "mapEditorScreen"]);
 	client.inGame = false;
 }
 
@@ -256,7 +254,8 @@ function hideAll() {
 	
 	hide(["loginScreen", "gameScreen", "adminScreen", 
 	"lobbyScreen", "sessionBrowser", "mapEditorScreen",
-	"upperMenu", "inGameMenu", "optionsMenu", "hostMenu"]);
+	"upperMenu", "inGameMenu", "hostMenu", "mapEditorMenu",
+	"optionsMenu"]);
 }
 
 return new View();

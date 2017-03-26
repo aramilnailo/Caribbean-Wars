@@ -144,7 +144,8 @@ dbi.prototype.addSavedGame = function(author, file_name, game, cb) {
 	 	{
 			author:author,
 	  	  	file_name:file_name,
-	  	 	data:JSON.stringify(game)
+	  	 	data:JSON.stringify(game),
+			map:game.map
 		}, 
 		function(err) {
 		    if(err) {

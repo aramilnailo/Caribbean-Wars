@@ -88,16 +88,18 @@ th, td {
 }
 
 #upper-menu {
-	margin-top:1em;
-}
-
-#upper-menu-content {
-	width:80%;
 	margin:auto;
+	margin-top:1em;
+	width:510px;
 }
 
 #lobby-screen {
-	width:600px;
+	margin:auto;
+	padding:10px;
+	width:580px;
+	color:black;
+	background-color:white;
+	border:2pt solid black;
 }
 
 #game-screen {
@@ -132,6 +134,10 @@ th, td {
 	width:25%;
 }
 
+#map-editor-menu {
+	width:100%;
+}
+
 #session-list {
 	margin-top:1em;
 	margin-bottom:1em;
@@ -141,6 +147,29 @@ th, td {
 	margin-top:1em;
 	margin-bottom:1em;
 	color:green;
+}
+
+#map-editor-screen {
+	width:650px;
+	margin:auto;
+}
+
+#map-editor-screen::after {
+    content: "";
+    clear: both;
+    display: table;
+	margin-bottom:3em;
+}
+
+#map-editor-brush-panel {
+	float:left;
+	background-color:white;
+}
+
+#map-editor-canvas {
+	float:right;
+	margin-right:20px;
+	background-color:white;
 }
 
 #options-menu {
@@ -174,47 +203,4 @@ th, td {
 	width:10%;
 	margin-left:auto;
 }
-
-#map-editor-screen {
-	width:650px;
-	margin:auto;
-}
-
-#map-editor-organizer {
-	width:100%;
-}
-
-#map-editor-organizer::after {
-    content: "";
-    clear: both;
-    display: table;
-	margin-bottom:3em;
-}
-
-#map-editor-brush-panel {
-	float:left;
-	width:5%;
-	background-color:white;
-}
-
-#map-editor-canvas {
-	background-color:white;
-	float:right;
-}
-
-#map-editor-textbox {
-	width:90%;
-	margin-left:auto;
-}
-
-#map-editor-textbox-msg,
-#map-editor-btns {
-	width:100%;
-	margin:auto;
-}
-
-#map-editor-saved-maps-list {
-	background-color:white;
-}
-
 
