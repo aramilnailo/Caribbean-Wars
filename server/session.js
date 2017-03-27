@@ -392,9 +392,15 @@ Session.prototype.resumeGame = function(param) {
 							});
 							if(p) {
 								c.player = p;
-								c.player.active = true;
-								server.emit(c.socket, "alert", 
-								"Game started on saved game " + filename);
+								if(p.alive) {
+									c.player.active = true;
+									server.emit(c.socket, "alert", 
+									"Game started on saved game " + filename);
+								} else {
+									server.emit(c.socket, "alert", 
+									"Game started on saved game " + filename +
+									". You are spectating");
+								}
 							} else {
 								c.player = new player.Player(c.username);
 								session.game.players.push(c.player);
@@ -428,9 +434,13 @@ Session.prototype.enterGame = function(param) {
 		return pl.name === client.username;
 	});
 	if(p) {
-		p.active = true;
 		client.player = p;
-		server.emit(client.socket, "alert", "Rejoining game");
+		if(p.alive) {
+			p.active = true;
+			server.emit(client.socket, "alert", "Rejoining game");
+		} else {
+			server.emit(client.socket, "alert", "Spectating game");
+		}
 	} else {
 		client.player = new player.Player(client.username);
 		server.emit(client.socket, "alert", "Joining as new player");
@@ -549,8 +559,12 @@ Session.prototype.loadGameState = function(param) {
 								// else wait for them to rejoin
 								if(c.player) {
 									c.player = p;
-									c.player.active = true;
-									server.emit(c.socket, "alert", "Playing on saved game " + filename);
+									if(c.player.alive) {
+										c.player.active = true;
+										server.emit(c.socket, "alert", "Playing on saved game " + filename);
+									} else {
+										server.emit(c.socket, "alert", "Spectating on saved game " + filename);
+									}
 								}
 							} else {
 								// If the client is in-game, assign new active player

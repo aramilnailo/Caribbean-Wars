@@ -21,6 +21,8 @@ var projectile = require("./projectile.js");
 */
 var Game = function() {}
 
+var losers = [];
+
 /**
 * Registers functions in the namespace with the given
 * message router.
@@ -97,6 +99,15 @@ Game.prototype.update = function() {
 					server.emit(c.socket, "gameUpdate", pack);
 				}
 			}
+		}
+	}
+	while(losers.length > 0) {
+		var l = losers.pop();
+		client = CLIENT_LIST.find(function(c) {
+			return c.player === l.player;
+		});
+		if(client) {
+			server.emit(client.socket, "alert", "You have been defeated by " + l.killer);
 		}
 	}
 }
@@ -203,10 +214,15 @@ function updatePhysics(session) {
 		handleCollisions(player.box, session);
 		// Update player boxes
 		var dmg = updateBox(player.box, map);
-		player.health -= dmg;
+		player.health -= dmg.mag;
 		if(player.health < 0) {
 			player.health = 0;
 			player.alive = false;
+			player.active = false;
+			losers.push({
+				player:player, 
+				killer:dmg.source
+			});
 		}
 	}
 	// Calculate the diffs with the corrected boxes
@@ -263,7 +279,10 @@ function handleCollisions(box, session) {
 		}
 		if(v[i].hit) {
 			box.forces.push(vect);
-			box.damage.push(1);
+			box.damage.push({
+				mag:1, 
+				source:"the map"
+			});
 		}
 	}
 	// Check verts against other boxes
@@ -286,7 +305,10 @@ function handleCollisions(box, session) {
 					v[i].hit = true;
 					box.forces.push(vect);
 					p.box.forces.push(opp_vect);
-					p.box.damage.push(5);
+					p.box.damage.push({
+						mag:5,
+						source:box.name
+					});
 			}
 		}
 	}
@@ -315,9 +337,11 @@ function handleCollisions(box, session) {
 
 function updateBox(box) {
 	// Calculate damage
-	var dmg = 0;
+	var dmg = {mag:0, source:""};
 	while(box.damage.length > 0) {
-		dmg += box.damage.pop();
+		var d = box.damage.pop();
+		dmg.mag += d.mag;
+		dmg.source = d.source;
 	}
 	
 	// Calculate acceleration based on forces
