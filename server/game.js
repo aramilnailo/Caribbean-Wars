@@ -416,16 +416,25 @@ function updateBox(box) {
 }
 
 function handleInput(player, list) {
-	var mag = 0.01;
-	// Apply force
-	if(player.input.up) 
-		player.box.forces.push({x:0 , y:-mag});
-	if(player.input.down)
-		player.box.forces.push({x:0 , y:mag});
-	if(player.input.left)
-		player.box.forces.push({x:-mag , y:0});
-	if(player.input.right)
-		player.box.forces.push({x:mag , y:0});
+	var wind = {
+		x:0,
+		y:0
+	};
+	var ship = {
+		x:Math.cos(player.box.dir),
+		y:Math.sin(player.box.dir)
+	};
+	// Find wind vector
+	if(player.input.up) wind.y -= 1;
+	if(player.input.down) wind.y += 1;
+	if(player.input.left) wind.x -= 1;
+	if(player.input.right) wind.x += 1;
+	// Find dot product between ship heading and wind
+	var dp = wind.x * ship.x + wind.y * ship.y;
+	var mag = 0.01 * dp;
+	ship.x *= mag;
+	ship.y *= mag;
+	player.box.forces.push(ship);
 	// Rotate
 	if(player.input.rotating) {
 		player.box.dir += 0.1;
