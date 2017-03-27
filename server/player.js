@@ -32,6 +32,7 @@ var Player = function(name) {
 			stuck:false,
 			verts:[],
 			forces:[],
+			damage:[],
 			name:name
 		},
 		input:{

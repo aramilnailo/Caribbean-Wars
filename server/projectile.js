@@ -25,6 +25,7 @@ var Projectile = function(player) {
 			stuck:false,
 			verts:[],
 			forces:[],
+			damage:[],
 			name:player.name
 		},
 		range:10,

@@ -202,23 +202,21 @@ function updatePhysics(session) {
 		// Handle player collisions
 		handleCollisions(player.box, session);
 		// Update player boxes
-		updateBox(player.box, map);
+		var dmg = updateBox(player.box, map);
+		player.health -= dmg;
+		if(player.health < 0) {
+			player.health = 0;
+			player.alive = false;
+		}
 	}
 	// Calculate the diffs with the corrected boxes
 	for(var i in session.game.players) {
 		var player = session.game.players[i];
 		if(!player.active) continue;
-		if(player.health < 0) {
-			player.health = 0;
-			player.alive = false;
-			player.active = false;
-			player.diff.shipsLost++;
-		} else {
-			var dx = player.box.x - player.prevX;
-			var dy = player.box.y - player.prevY;
-			player.diff.distanceSailed += 
-				Math.sqrt(dx * dx + dy * dy);
-		}
+		var dx = player.box.x - player.prevX;
+		var dy = player.box.y - player.prevY;
+		player.diff.distanceSailed += 
+			Math.sqrt(dx * dx + dy * dy);
 	}
 	// Move projectiles / handle projectile collisions
 	for(var i in session.game.projectiles) {
@@ -250,6 +248,11 @@ function handleCollisions(box, session) {
 	// Check verts against map data
 	var v = box.verts;
 	for(var i in v) {
+		// Force vector of any collision on this vert
+		var vect = {
+			x:box.x - v[i].x,
+			y:box.y - v[i].y
+		};
 		var cell_x = Math.floor(v[i].x);
 		var cell_y = Math.floor(v[i].y);
 		if(!map.data[cell_y]) {
@@ -258,9 +261,21 @@ function handleCollisions(box, session) {
 			var ch = map.data[cell_y].charAt(cell_x);
 			v[i].hit = (ch !== "0");
 		}
+		if(v[i].hit) {
+			box.forces.push(vect);
+			box.damage.push(1);
+		}
 	}
 	// Check verts against other boxes
 	for(var i in v) {
+		var vect = {
+			x:box.x - v[i].x,
+			y:box.y - v[i].y
+		};
+		var opp_vect = {
+			x:v[i].x - box.x,
+			y:v[i].y - box.y
+		};
 		for(var j in session.game.players) {
 			var p = session.game.players[j];
 			if(!p.active || 
@@ -269,7 +284,9 @@ function handleCollisions(box, session) {
 			if((Math.abs(v[i].x - p.box.x) < p.box.w) &&
 				(Math.abs(v[i].y - p.box.y) < p.box.h)) {
 					v[i].hit = true;
-					p.health -= 1;
+					box.forces.push(vect);
+					p.box.forces.push(opp_vect);
+					p.box.damage.push(5);
 			}
 		}
 	}
@@ -282,10 +299,6 @@ function handleCollisions(box, session) {
 		} else {
 			if(!box.hit) {
 				box.hit = true;
-				box.forces.push({
-					x:-box.dx * 2,
-					y:-box.dy * 2
-				});
 			}
 		}
 	}
@@ -301,6 +314,12 @@ function handleCollisions(box, session) {
 }
 
 function updateBox(box) {
+	// Calculate damage
+	var dmg = 0;
+	while(box.damage.length > 0) {
+		dmg += box.damage.pop();
+	}
+	
 	// Calculate acceleration based on forces
 	while(box.forces.length > 0) {
 		var force = box.forces.pop();
@@ -354,6 +373,8 @@ function updateBox(box) {
 		verts[i].y = y_new + box.y;
 	}
 	box.ddir = 0;
+	
+	return dmg;
 }
 
 function handleInput(player, list) {
