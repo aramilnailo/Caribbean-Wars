@@ -45,22 +45,10 @@ Game.prototype.listen = function(router) {
 Game.prototype.input = function (param) {
     if (debug) log("server/game.js: input()");
     var client = param.client;
-    var data = param.data;
 	// If the client is in control of a player
 	if(client.player) {
-	    // Assign booleans for each direction
-	    if(data.inputId === "left")
-		  	client.player.input.left = data.state;
-	    else if(data.inputId === "right")
-		  	client.player.input.right = data.state;
-	    else if(data.inputId === "up")
-		  	client.player.input.up = data.state;
-	    else if(data.inputId === "down")
-		  	client.player.input.down = data.state;
-		else if(data.inputId === "firing")
-			client.player.input.firing = data.state;
-		else if(data.inputId === "rotating")
-			client.player.input.rotating = data.state;
+	    // Assign input data
+		client.player.input = param.data;
 	}
 }
 
@@ -416,29 +404,31 @@ function updateBox(box) {
 }
 
 function handleInput(player, list) {
-	var wind = {
-		x:0,
-		y:0
-	};
-	var ship = {
-		x:Math.cos(player.box.dir),
-		y:Math.sin(player.box.dir)
-	};
-	// Find wind vector
-	if(player.input.up) wind.y -= 1;
-	if(player.input.down) wind.y += 1;
-	if(player.input.left) wind.x -= 1;
-	if(player.input.right) wind.x += 1;
-	// Find dot product between ship heading and wind
-	var dp = wind.x * ship.x + wind.y * ship.y;
-	var mag = 0.01 * dp;
-	ship.x *= mag;
-	ship.y *= mag;
-	player.box.forces.push(ship);
+	if(player.input.sails) {
+		// wind vector
+		var wind = {
+			x:1,
+			y:0
+		};
+		var ship = {
+			x:Math.cos(player.box.dir),
+			y:Math.sin(player.box.dir)
+		};
+		// Find dot product between ship heading and wind
+		var dp = wind.x * ship.x + wind.y * ship.y;
+		var mag = 0.01 * dp;
+		ship.x *= mag;
+		ship.y *= mag;
+		player.box.forces.push(ship);
+	}
 	// Rotate
-	if(player.input.rotating) {
-		player.box.dir += 0.1;
-		player.box.ddir = 0.1;
+	if(player.input.right) {
+		player.box.dir += 0.05;
+		player.box.ddir = 0.05;
+	}
+	if(player.input.left) {
+		player.box.dir -= 0.05;
+		player.box.ddir = -0.05;
 	}
 	// Fire / load projectiles
 	if(player.input.firing) {

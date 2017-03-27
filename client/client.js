@@ -12,6 +12,14 @@ Client.prototype.usertype = "";
 Client.prototype.socket = null;
 
 Client.prototype.camera = {x:0, y:0, zoom:1.0};
+Client.prototype.input = {
+	up:false,
+	down:false,
+	left:false,
+	right:false,
+	firing:false,
+	sails:false
+};
 Client.prototype.loading = false;
 Client.prototype.drawing = false;
 Client.prototype.inGame = false;

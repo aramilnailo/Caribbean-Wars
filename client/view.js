@@ -128,36 +128,52 @@ View.prototype.keyPressed = function(event) {
 			zoom:client.camera.zoom
 		};
 		
-		if(keycode === 68) {
-		    client.emit("gameInput", {inputId:"right", state:true});	
-		} else if(keycode === 83) {
-		    client.emit("gameInput", {inputId:"down", state:true});
-		} else if(keycode === 65) {
-		    client.emit("gameInput", {inputId:"left", state:true});
-		} else if(keycode === 87) {
-		    client.emit("gameInput", {inputId:"up", state:true});
-		} else if(keycode === 70) {
-			client.emit("gameInput", {inputId:"firing", state:true});
-		} else if(keycode === 82) {
-			client.emit("gameInput", {inputId:"rotating", state:true});
+		switch(keycode) {
+			// Game input
+			case 68: // d
+		    	client.input.right = true;
+				break;
+			case 83: // s
+		    	client.input.down = true;
+				break;
+			case 65: // a
+		    	client.input.left = true;
+				break;
+			case 87: // w
+		    	client.input.up = true;
+				break;
+			case 70: // f
+				client.input.firing = true;
+				break;
+			case 82: // r
+				client.input.sails = !client.input.sails;
+				break;
 			
-		// Camera controls
-	    } else if(keycode === 37) {
-			client.camera.x--;
-			if(event.shiftKey) client.camera.x -= 4;
-		} else if(keycode === 38) {
-			client.camera.y--;
-			if(event.shiftKey) client.camera.y -= 4;
-		} else if(keycode === 39) {
-			client.camera.x++;
-			if(event.shiftKey) client.camera.x += 4;
-		} else if(keycode === 40) {
-			client.camera.y++;
-			if(event.shiftKey) client.camera.y += 4;
-		} else if(keycode === 187) {	// "=/+"
-			client.camera.zoom += 0.2;
-		} else if(keycode === 189) {	// "-/_"
-			client.camera.zoom -= 0.2;
+			// Camera controls
+			case 37:
+				client.camera.x--;
+				if(event.shiftKey) client.camera.x -= 4;
+				break;
+			case 38:
+				client.camera.y--;
+				if(event.shiftKey) client.camera.y -= 4;
+				break;
+			case 39:
+				client.camera.x++;
+				if(event.shiftKey) client.camera.x += 4;
+				break;
+			case 40:
+				client.camera.y++;
+				if(event.shiftKey) client.camera.y += 4;
+				break;
+			case 187: // "=/+"
+				client.camera.zoom += 0.2;
+				break;
+			case 189: // "-/_"
+				client.camera.zoom -= 0.2;
+				break;
+			default:
+				break;
 		}
 		
 		// Correct camera
@@ -181,6 +197,9 @@ View.prototype.keyPressed = function(event) {
 			client.camera.y !== old_cam.y ||
 			client.camera.zoom !== old_cam.zoom
 		);
+		
+		// Emit input
+		client.emit("gameInput", client.input);
 	}
 }
 
@@ -192,19 +211,27 @@ View.prototype.keyPressed = function(event) {
 */
 View.prototype.keyReleased = function(event) {
     if(dom.chatInput !== dom.document.activeElement) {
-	var keycode = event.which || event.keyCode;
-	if(keycode === 68)
-	    client.emit("gameInput", {inputId:"right", state:false});	
-	else if(keycode === 83)
-	    client.emit("gameInput", {inputId:"down", state:false});
-	else if(keycode === 65)
-	    client.emit("gameInput", {inputId:"left", state:false});
-	else if(keycode === 87)
-	    client.emit("gameInput", {inputId:"up", state:false});
-	else if(keycode === 70)
-		client.emit("gameInput", {inputId:"firing", state:false});
-	else if(keycode === 82)
-		client.emit("gameInput", {inputId:"rotating", state:false});
+		var keycode = event.which || event.keyCode;
+		switch(keycode) {
+			case 68:
+		    	client.input.right = false;
+				break;
+			case 83:
+		    	client.input.down = false;
+				break;
+			case 65:
+		    	client.input.left = false;
+				break;
+			case 87:
+		    	client.input.up = false;
+				break;
+			case 70:
+				client.input.firing = false;
+				break;
+			default:
+				break;
+		}
+		client.emit("gameInput", client.input);
 	}
 }
 
