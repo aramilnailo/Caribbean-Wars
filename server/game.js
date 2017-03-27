@@ -103,11 +103,19 @@ Game.prototype.update = function() {
 	}
 	while(losers.length > 0) {
 		var l = losers.pop();
-		client = CLIENT_LIST.find(function(c) {
+		var killer = CLIENT_LIST.find(function(c) {
+			return c.username === l.killer;
+		});
+		var client = CLIENT_LIST.find(function(c) {
 			return c.player === l.player;
 		});
 		if(client) {
-			server.emit(client.socket, "alert", "You have been defeated by " + l.killer);
+			server.emit(client.socket, "alert", "Your ship has been destroyed by " + l.killer);
+			client.player.diff.shipsLost = 1;
+		}
+		if(killer) {
+			server.emit(killer.socket, "alert", "You have destroyed " + l.player.name);
+			killer.player.diff.shipsSunk = 1;
 		}
 	}
 }
@@ -130,7 +138,9 @@ Game.prototype.updateStats = function() {
 				send = true;
 				users.push(p);
 				var arr = [];
-				arr.push({name:"seconds_played", diff:1});
+				arr.push({
+					name:"seconds_played", 
+					diff:1});
 				arr.push({
 					name:"shots_fired", 
 					diff:p.diff.shotsFired
@@ -139,7 +149,10 @@ Game.prototype.updateStats = function() {
 					name:"distance_sailed", 
 					diff:p.diff.distanceSailed
 				});
-				arr.push({name:"ships_sunk", diff:0});
+				arr.push({
+					name:"ships_sunk", 
+					diff:p.diff.shipsSunk
+				});
 				arr.push({
 					name:"ships_lost", 
 					diff:p.diff.shipsLost
@@ -148,6 +161,8 @@ Game.prototype.updateStats = function() {
 				p.diff.distanceSailed = 0;
 				p.diff.shotsFired = 0;
 				p.diff.shipsLost = 0;
+				p.diff.shipsSunk = 0;
+				if(!p.alive) p.active = false;
 			}
 		}
 		if(send) {
@@ -204,7 +219,7 @@ function updatePhysics(session) {
 	// Move players / handle player collisions / handle input
 	for(var i in session.game.players) {
 		var player = session.game.players[i];
-		if(!player.active) continue;
+		if(!player.active || !player.alive) continue;
 		// Store x and y for stats tracking
 		player.prevX = player.box.x;
 		player.prevY = player.box.y;
@@ -218,7 +233,6 @@ function updatePhysics(session) {
 		if(player.health < 0) {
 			player.health = 0;
 			player.alive = false;
-			player.active = false;
 			losers.push({
 				player:player, 
 				killer:dmg.source

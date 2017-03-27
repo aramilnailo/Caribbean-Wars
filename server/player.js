@@ -45,7 +45,9 @@ var Player = function(name) {
 		},
 		diff:{
 			distanceSailed:0,
-			shotsFired:0
+			shotsFired:0,
+			shipsSunk:0,
+			shipsLost:0
 		},
 		prevX:5,
 		prevY:5,
