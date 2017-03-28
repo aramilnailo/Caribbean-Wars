@@ -24,8 +24,8 @@ var Player = function(name) {
 			dy:0,
 			ddx:0,
 			ddy:0,
-			dx_max:0.15,
-			dy_max:0.15,
+			dx_max:0.30,
+			dy_max:0.30,
 			mass:1,
 			
 			hit:false,

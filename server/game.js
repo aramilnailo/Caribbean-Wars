@@ -352,11 +352,10 @@ function updateBox(box) {
 		box.ddx += force.x / box.mass;
 		box.ddy += force.y / box.mass;
 	}
-
+	
 	// Apply acceleration to velocity
 	box.dx += box.ddx;
 	box.dy += box.ddy;
-	
 	box.ddx = 0;
 	box.ddy = 0;
 
@@ -399,37 +398,55 @@ function updateBox(box) {
 		verts[i].y = y_new + box.y;
 	}
 	box.ddir = 0;
-	
 	return dmg;
 }
 
 function handleInput(player, list) {
+	var ship = {
+		x:Math.cos(player.box.dir),
+		y:Math.sin(player.box.dir)
+	};
+	// Apply force from water resistance
+	// Find dot product of ship normal and ship velocity, this will
+	// apply drag when drifting side-to-side
+	var dot = Math.abs(-ship.y * player.box.dx + ship.x * player.box.dy);
+	// Add the dot product of ship negative and ship velocity, this
+	// will apply drag when sailing backwards
+	dot += (-ship.x * player.box.dx + -ship.y * player.box.dy);
+	if(dot < 0.001) dot = 0.001;
+	var water = {
+		x:-0.75 * dot * player.box.dx,
+		y:-0.75 * dot * player.box.dy
+	};
+	player.box.forces.push(water);
+	// Apply force from wind
 	if(player.input.sails) {
 		// wind vector
 		var wind = {
 			x:1,
-			y:0
+			y:1
 		};
-		var ship = {
-			x:Math.cos(player.box.dir),
-			y:Math.sin(player.box.dir)
-		};
-		// Find dot product between ship heading and wind
-		var dp = wind.x * ship.x + wind.y * ship.y;
-		var mag = 0.01 * dp;
-		ship.x *= mag;
-		ship.y *= mag;
-		player.box.forces.push(ship);
+		// Find dot product of ship heading and wind
+		dot = wind.x * ship.x + wind.y * ship.y;
+		wind.x = ship.x * dot * 0.01;
+		wind.y = ship.y * dot * 0.01;
+		player.box.forces.push(wind);
 	}
 	// Rotate
 	if(player.input.right) {
-		player.box.dir += 0.05;
-		player.box.ddir = 0.05;
+		player.box.dir += 0.03;
+		player.box.ddir = 0.03;
 	}
 	if(player.input.left) {
-		player.box.dir -= 0.05;
-		player.box.ddir = -0.05;
+		player.box.dir -= 0.03;
+		player.box.ddir = -0.03;
 	}
+	var mag = Math.sin(player.box.ddir);
+	// Apply centrifugal force
+	player.box.forces.push({
+		x:-player.box.dy * mag,
+		y:player.box.dx * mag
+	});
 	// Fire / load projectiles
 	if(player.input.firing) {
 		fireProjectile(player, list);
