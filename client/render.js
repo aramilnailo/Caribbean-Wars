@@ -83,6 +83,7 @@ Render.prototype.drawGameState = function(data) {
 	var map = data.map;
 	var ships = data.state.ships;
 	var projectiles = data.state.projectiles;
+	var wind = data.state.wind;
 	
 	// camera position in cells
 	var cam_x = client.camera.x;
@@ -334,6 +335,21 @@ Render.prototype.drawGameState = function(data) {
 			p_rel_h
 		);
     }
+	
+	// Draw the wind direction
+	var dir = Math.atan2(wind.y, wind.x).toFixed(2);
+	dom.canvas.save();
+	dom.canvas.translate(
+		MENU_X + 20, 
+		MENU_Y + 20
+	);
+	dom.canvas.rotate(dir);
+	dom.canvas.drawImage(
+		shipImage, 
+		-10, -5, 
+		20, 10
+	);
+	dom.canvas.restore();
 	
 	client.drawing = false;
 }

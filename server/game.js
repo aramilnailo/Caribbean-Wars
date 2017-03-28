@@ -62,15 +62,23 @@ Game.prototype.update = function() {
     for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
 		if(session.game.running) {
-			var pack = {ships:[], projectiles:[]};
+			var pack = {
+				ships:[], 
+				projectiles:[], 
+				wind:session.game.wind
+			};
 			// Run the physics engine
 			updatePhysics(session);
 			// Add the player data to the packet
 			for(var j in session.game.players) {
 				var p = session.game.players[j];
 				if(p.active) {
-					pack.ships.push({name:p.name, box:p.box, 
-						health:p.health, ammo:p.projectiles.length});
+					pack.ships.push({
+						name:p.name, 
+						box:p.box, 
+						health:p.health, 
+						ammo:p.projectiles.length
+					});
 				}
 			}
 			// Add projectile data to the packet
@@ -203,6 +211,11 @@ Game.prototype.updateOnlineStatus = function() {
 
 // Physics engine
 function updatePhysics(session) {
+	// Update wind
+	if(!session.game.wind) {
+		session.game.wind = {x:1, y:1};
+	}
+	changeWind(session.game.wind);
 	var map = session.mapData;
 	// Move players / handle player collisions / handle input
 	for(var i in session.game.players) {
@@ -212,7 +225,7 @@ function updatePhysics(session) {
 		player.prevX = player.box.x;
 		player.prevY = player.box.y;
 		// Handle input
-		handleInput(player, session.game.projectiles);
+		handleInput(player, session);
 		// Handle player collisions
 		handleCollisions(player.box, session);
 		// Update player boxes
@@ -255,6 +268,28 @@ function updatePhysics(session) {
 			handleCollisions(proj.box, session);
 			// Update projectile boxes
 			updateBox(proj.box, map);
+		}
+	}
+}
+
+function changeWind(wind) {
+	if(Math.random() * 100 === 0) {
+		// 1/1000 chance of changing direction
+		wind = {
+			x:Math.random() - Math.random(),
+			y:Math.random() - Math.random()
+		};
+	} else {
+		// Mild fluctuations
+		if(Math.random() > 0.5) {
+			wind.x += 0.01;
+		} else {
+			wind.x -= 0.01;
+		}
+		if(Math.random() > 0.5) {
+			wind.y += 0.01;
+		} else {
+			wind.y -= 0.01;
 		}
 	}
 }
@@ -401,7 +436,9 @@ function updateBox(box) {
 	return dmg;
 }
 
-function handleInput(player, list) {
+function handleInput(player, session) {
+	var wind = session.game.wind;
+	var list = session.game.projectiles;
 	var ship = {
 		x:Math.cos(player.box.dir),
 		y:Math.sin(player.box.dir)
@@ -414,23 +451,18 @@ function handleInput(player, list) {
 	// will apply drag when sailing backwards
 	dot += (-ship.x * player.box.dx + -ship.y * player.box.dy);
 	if(dot < 0.001) dot = 0.001;
-	var water = {
-		x:-0.75 * dot * player.box.dx,
-		y:-0.75 * dot * player.box.dy
-	};
-	player.box.forces.push(water);
+	player.box.forces.push({
+		x:dot * -player.box.dx,
+		y:dot * -player.box.dy
+	});
 	// Apply force from wind
 	if(player.input.sails) {
-		// wind vector
-		var wind = {
-			x:1,
-			y:1
-		};
 		// Find dot product of ship heading and wind
 		dot = wind.x * ship.x + wind.y * ship.y;
-		wind.x = ship.x * dot * 0.01;
-		wind.y = ship.y * dot * 0.01;
-		player.box.forces.push(wind);
+		player.box.forces.push({
+			x:ship.x * dot * 0.01,
+			y:ship.y * dot * 0.01
+		});
 	}
 	// Rotate
 	if(player.input.right) {

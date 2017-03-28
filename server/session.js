@@ -61,7 +61,8 @@ Session.prototype.newGameSession = function(param) {
 		game:{
 			map:"", 
 			players:[], 
-			projectiles:[], 
+			projectiles:[],
+			wind:null,
 			running:false,
 		}, 
 		mapData:null
@@ -307,6 +308,7 @@ Session.prototype.startGame = function(param) {
 		map:param.data, 
 		players:[], 
 		projectiles:[], 
+		wind:null,
 		running:false
 	};
 	loadMap(param.data, session, function(resp) {
@@ -354,6 +356,7 @@ Session.prototype.stopGame = function(param) {
 		map:"", 
 		players:[], 
 		projectiles:[], 
+		wind:null,
 		running:false
 	};
 	pushSessionTable(param.clients);
