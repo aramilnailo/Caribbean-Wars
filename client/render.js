@@ -116,6 +116,8 @@ Render.prototype.drawGameState = function(data) {
 	dom.canvas.font = "10px Arial";
     for(var i in ships) {
 		var s = ships[i];
+		log(s.box.x + ", " + s.box.y);
+		
 		// Transform the coordinates
 		var shifted_x = (s.box.x - cam_x) * cell_w;
 		var shifted_y = (s.box.y - cam_y) * cell_h;

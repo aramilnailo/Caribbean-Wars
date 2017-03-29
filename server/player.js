@@ -6,15 +6,15 @@
 * single player's state.
 * @module server/Player
 */
-var Player = function(name) {
+var Player = function(name, x, y) {
     /**
      * Player object
      * @memberof module:server/Player
      */
     var player = {
 		box:{
-			x:5, 
-			y:5, 
+			x:x, 
+			y:y, 
 			w:2, 
 			h:1,
 			dir:0,
@@ -47,8 +47,8 @@ var Player = function(name) {
 			shipsSunk:0,
 			shipsLost:0
 		},
-		prevX:5,
-		prevY:5,
+		prevX:x,
+		prevY:y,
 		numCannons:50,
 		reloadCount:0,
 		reloadRate:1,

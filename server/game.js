@@ -312,7 +312,7 @@ function handleCollisions(box, session) {
 			v[i].hit = true;
 		} else {
 			var ch = map.data[cell_y].charAt(cell_x);
-			v[i].hit = (ch !== "0");
+			v[i].hit = (ch !== "0" && ch !== "3");
 		}
 		if(v[i].hit) {
 			box.collisions.push({

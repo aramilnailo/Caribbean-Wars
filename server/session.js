@@ -316,16 +316,7 @@ Session.prototype.startGame = function(param) {
 			server.emit(param.client.socket, "alert", 
 			"Could not read from map file");
 		} else {
-			for(var i in session.clients) {
-				var c = session.clients[i];
-				// Assign a new player to the client
-				c.player = new player(c.username);
-				session.game.players.push(c.player);
-				server.emit(c.socket, "gameScreen", 
-				{isHost:(c === session.host)});
-				server.emit(c.socket, "alert", "Game started");
-			}
-			session.game.running = true;
+			setGame(session, session.game);
 		}
 	});
 	pushSessionTable(param.clients);
@@ -382,39 +373,7 @@ Session.prototype.resumeGame = function(param) {
 						server.emit(client.socket, 
 						"alert", "Could not read from map file.");
 					} else {
-						data.running = false;
-						for(var i in data.players) {
-							data.players[i].active = false;
-						}
-						session.game = data;
-						for(var i in session.clients) {
-							var c = session.clients[i];
-							// Locate any former player of the client
-							var p = session.game.players.find(function(pl) {
-								return pl.name === c.username;
-							});
-							if(p) {
-								c.player = p;
-								if(p.alive) {
-									c.player.active = true;
-									server.emit(c.socket, "alert", 
-									"Game started on saved game " + filename);
-								} else {
-									server.emit(c.socket, "alert", 
-									"Game started on saved game " + filename +
-									". You are spectating");
-								}
-							} else {
-								c.player = new player(c.username);
-								session.game.players.push(c.player);
-								server.emit(c.socket, "alert", 
-								"Game started on saved game " + filename +
-								". Spawning as new player");
-							}
-							server.emit(c.socket, "gameScreen", 
-							{isHost:(c === session.host)});
-						}
-						session.game.running = true;
+						setGame(session, data);
 					}
 				});
 			}
@@ -445,7 +404,7 @@ Session.prototype.enterGame = function(param) {
 			server.emit(client.socket, "alert", "Spectating game");
 		}
 	} else {
-		client.player = new player(client.username);
+		client.player = new player(client.username, 5, 5);
 		server.emit(client.socket, "alert", "Joining as new player");
 		session.game.players.push(client.player);
 	}
@@ -546,41 +505,7 @@ Session.prototype.loadGameState = function(param) {
 						server.emit(client.socket, 
 						"alert", "Could not read from map file.");
 					} else {
-						data.running = false;
-						for(var i in data.players) {
-							data.players[i].active = false;
-						}
-						session.game = data;
-						for(var i in session.clients) {
-							var c = session.clients[i];
-							// Locate any former player of the client
-							var p = session.game.players.find(function(pl) {
-								return pl.name === c.username;
-							});
-							if(p) {
-								// If the client is in-game, reassign and activate
-								// else wait for them to rejoin
-								if(c.player) {
-									c.player = p;
-									if(c.player.alive) {
-										c.player.active = true;
-										server.emit(c.socket, "alert", "Playing on saved game " + filename);
-									} else {
-										server.emit(c.socket, "alert", "Spectating on saved game " + filename);
-									}
-								}
-							} else {
-								// If the client is in-game, assign new active player
-								// Else wait for them to join
-								if(c.player) {
-									c.player = new player(c.username);
-									session.game.players.push(c.player);
-									server.emit(c.socket, "alert", "Playing on saved game " + filename +
-									" as new player");
-								}
-							}
-						}
-						session.game.running = true;	
+						setGame(session, data);
 					}			
 				});
 			}
@@ -646,6 +571,74 @@ function pushSessionTable(clients) {
 		server.emit(clients[i].socket, 
 			"sessionListResponse", getSessionTable());
 	}
+}
+
+function setGame(session, other) {
+	var start = !session.game.running;
+	// Freeze both games
+	session.game.running = false;
+	other.running = false;
+	for(var i in session.players) {
+		session.game.players[i].active = false;
+	}
+	for(var i in other.players) {
+		other.players[i].active = false;
+	}
+	
+	// Set game
+	session.game = other;
+
+	// Find all spawns in the new map
+	var map = session.mapData;
+	var spawns = [];
+	for(var i = 0; i < map.data.length; i++) {
+		for(var j = 0; j < map.data[i].length; j++) {
+			var ch = map.data[i].charAt(j);
+			if(ch === "3") { // Port
+				spawns.push({x:j, y:i});
+			}
+		}
+	}
+	
+	log(spawns);
+	
+	// Port all players over
+	for(var i in session.clients) {
+		var c = session.clients[i];
+		// Locate any former player of the client
+		var p = session.game.players.find(function(pl) {
+			return pl.name === c.username;
+		});
+		if(p) {
+			// If the client is in-game, reassign and activate
+			// else just wait for them to rejoin
+			if(c.player || start) {
+				c.player = p;
+				if(c.player.alive) {
+					c.player.active = true;
+					server.emit(c.socket, "alert", "Resuming play");
+				} else {
+					server.emit(c.socket, "alert", "Spectating");
+				}
+			}
+		} else {
+			// If the client is in-game, assign new active player
+			// Else wait for them to join
+			if(c.player || start) {
+				if(spawns.length > 0) {
+					var coords = spawns.pop();
+					c.player = new player(c.username, coords.x, coords.y);
+					session.game.players.push(c.player);
+					server.emit(c.socket, "alert", "Spawning as new player");
+				} else {
+					server.emit(c.socket, "alert", "Not enough room for you");
+				}
+			}
+		}
+		if(start) server.emit(c.socket, 
+			"gameScreen", {isHost:(c === session.host)});
+	}
+	session.game.running = true;
 }
 
 module.exports = new Session();
