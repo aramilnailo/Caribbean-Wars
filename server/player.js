@@ -22,17 +22,15 @@ var Player = function(name) {
 			
 			dx:0,
 			dy:0,
-			ddx:0,
-			ddy:0,
-			dx_max:0.2,
-			dy_max:0.2,
+
+			dx_max:1,
+			dy_max:1,
 			mass:1,
 			
 			hit:false,
 			stuck:false,
 			verts:[],
-			forces:[],
-			damage:[],
+			collisions:[],
 			name:name
 		},
 		input:{
@@ -54,7 +52,7 @@ var Player = function(name) {
 		numCannons:50,
 		reloadCount:0,
 		reloadRate:1,
-		firepower:0.25,
+		firepower:1.5,
 		projectiles:[],
 		active:true,
 		name:name,
@@ -78,4 +76,4 @@ var Player = function(name) {
     return player;
 }
 
-module.exports.Player = Player;
+module.exports = Player;

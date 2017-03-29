@@ -315,10 +315,16 @@ function handleCollisions(box, session) {
 			v[i].hit = (ch !== "0");
 		}
 		if(v[i].hit) {
-			box.forces.push(vect);
-			box.damage.push({
-				mag:1, 
-				source:"the map"
+			box.collisions.push({
+				vector:vect,
+				mass:box.mass,
+				source:"the map", 
+				damage:Math.round(
+					20 * box.mass * 
+					Math.sqrt(
+					box.dx * box.dx + 
+					box.dy * box.dy
+					))
 			});
 		}
 	}
@@ -339,13 +345,24 @@ function handleCollisions(box, session) {
 				p.box === box) continue;
 			if((Math.abs(v[i].x - p.box.x) < p.box.w) &&
 				(Math.abs(v[i].y - p.box.y) < p.box.h)) {
-					v[i].hit = true;
-					box.forces.push(vect);
-					p.box.forces.push(opp_vect);
-					p.box.damage.push({
-						mag:5,
-						source:box.name
-					});
+				v[i].hit = true;
+				box.collisions.push({
+					vector:vect,
+					mass:p.box.mass,
+					source:p.box.name,
+					damage:0
+				});
+				p.box.collisions.push({
+					vector:opp_vect,
+					mass:box.mass,
+					source:box.name,
+					damage:Math.round(
+						20 * box.mass * 
+						Math.sqrt(
+						box.dx * box.dx + 
+						box.dy * box.dy
+						))
+				});
 			}
 		}
 	}
@@ -373,26 +390,19 @@ function handleCollisions(box, session) {
 }
 
 function updateBox(box) {
-	// Calculate damage
+	// For each collision
 	var dmg = {mag:0, source:""};
-	while(box.damage.length > 0) {
-		var d = box.damage.pop();
-		dmg.mag += d.mag;
-		dmg.source = d.source;
+	while(box.collisions.length > 0){
+		var c = box.collisions.pop();
+		// Apply damage
+		if(c.damage > 0) {
+			dmg.mag += c.damage;
+			dmg.source = c.source;
+		}
+		// Apply impulse
+		box.dx += c.vector.x / c.mass;
+		box.dy += c.vector.y / c.mass;
 	}
-	
-	// Calculate acceleration based on forces
-	while(box.forces.length > 0) {
-		var force = box.forces.pop();
-		box.ddx += force.x / box.mass;
-		box.ddy += force.y / box.mass;
-	}
-	
-	// Apply acceleration to velocity
-	box.dx += box.ddx;
-	box.dy += box.ddy;
-	box.ddx = 0;
-	box.ddy = 0;
 
 	// Apply velocity bounds
 	if(box.dx > box.dx_max) 
@@ -403,6 +413,7 @@ function updateBox(box) {
 		box.dy = box.dy_max;
 	else if(box.dy < -box.dy_max)
 		box.dy = -box.dy_max;
+	
 	// Apply velocity to position
 	if(box.hit) {
 		box.dx *= 0.1;
@@ -437,33 +448,15 @@ function updateBox(box) {
 }
 
 function handleInput(player, session) {
-	var wind = session.game.wind;
 	var list = session.game.projectiles;
+	var wind = session.game.wind;
 	var ship = {
 		x:Math.cos(player.box.dir),
 		y:Math.sin(player.box.dir)
 	};
-	// Apply force from water resistance
-	// Find dot product of ship normal and ship velocity, this will
-	// apply drag when drifting side-to-side
-	var dot = Math.abs(-ship.y * player.box.dx + ship.x * player.box.dy);
-	// Add the dot product of ship negative and ship velocity, this
-	// will apply drag when sailing backwards
-	dot += (-ship.x * player.box.dx + -ship.y * player.box.dy);
-	if(dot < 0.001) dot = 0.001;
-	player.box.forces.push({
-		x:dot * -player.box.dx,
-		y:dot * -player.box.dy
-	});
-	// Apply force from wind
-	if(player.input.sails) {
-		// Find dot product of ship heading and wind
-		dot = wind.x * ship.x + wind.y * ship.y;
-		player.box.forces.push({
-			x:ship.x * dot * 0.01,
-			y:ship.y * dot * 0.01
-		});
-	}
+	var vect;
+	var dot;
+	
 	// Rotate
 	if(player.input.right) {
 		player.box.dir += 0.03;
@@ -473,18 +466,44 @@ function handleInput(player, session) {
 		player.box.dir -= 0.03;
 		player.box.ddir = -0.03;
 	}
-	var mag = Math.sin(player.box.ddir);
-	// Apply centrifugal force
-	player.box.forces.push({
-		x:-player.box.dy * mag,
-		y:player.box.dx * mag
-	});
+	
 	// Fire / load projectiles
 	if(player.input.firing) {
 		fireProjectile(player, list);
 	} else {
 		loadProjectile(player);
 	}
+	
+	// Apply wind collision
+	if(player.input.sails && player.box.ddir === 0) {
+		dot = ship.x * wind.x + ship.y * wind.y;
+		vect = {
+			x:dot * ship.x * 0.01,
+			y:dot * ship.y * 0.01
+		}
+		player.box.collisions.push({
+			vector:vect,
+			mass:1,
+			source:"the wind",
+			damage:0
+		});
+	}
+	
+	// Apply water resistance
+	vect = {
+		x:0.005 * -player.box.dx,
+		y:0.005 * -player.box.dy
+	};
+	player.box.collisions.push({
+		vector:vect,
+		mass:1,
+		source:"the sea",
+		damage:0
+	});
+
+	// Apply force from turning
+	player.box.dx += -player.box.dy * Math.sin(player.box.ddir);
+	player.box.dy += player.box.dx * Math.sin(player.box.ddir);
 }
 
 // Fire all projectiles the player has
@@ -496,9 +515,14 @@ function fireProjectile(player, list) {
 		return;
 	}
 	proj = new projectile(player);
-	proj.box.forces.push({
-		x:player.firepower * Math.cos(proj.box.dir),
-		y:player.firepower * Math.sin(proj.box.dir)
+	proj.box.collisions.push({
+		vector:{
+			x:player.firepower * Math.cos(proj.box.dir),
+			y:player.firepower * Math.sin(proj.box.dir)
+		},
+		mass:player.box.mass,
+		source:player.name,
+		damage:0
 	});
 	proj.box.ddir = proj.box.dir;
 	list.push(proj);

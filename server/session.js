@@ -319,7 +319,7 @@ Session.prototype.startGame = function(param) {
 			for(var i in session.clients) {
 				var c = session.clients[i];
 				// Assign a new player to the client
-				c.player = new player.Player(c.username);
+				c.player = new player(c.username);
 				session.game.players.push(c.player);
 				server.emit(c.socket, "gameScreen", 
 				{isHost:(c === session.host)});
@@ -405,7 +405,7 @@ Session.prototype.resumeGame = function(param) {
 									". You are spectating");
 								}
 							} else {
-								c.player = new player.Player(c.username);
+								c.player = new player(c.username);
 								session.game.players.push(c.player);
 								server.emit(c.socket, "alert", 
 								"Game started on saved game " + filename +
@@ -445,7 +445,7 @@ Session.prototype.enterGame = function(param) {
 			server.emit(client.socket, "alert", "Spectating game");
 		}
 	} else {
-		client.player = new player.Player(client.username);
+		client.player = new player(client.username);
 		server.emit(client.socket, "alert", "Joining as new player");
 		session.game.players.push(client.player);
 	}
@@ -573,7 +573,7 @@ Session.prototype.loadGameState = function(param) {
 								// If the client is in-game, assign new active player
 								// Else wait for them to join
 								if(c.player) {
-									c.player = new player.Player(c.username);
+									c.player = new player(c.username);
 									session.game.players.push(c.player);
 									server.emit(c.socket, "alert", "Playing on saved game " + filename +
 									" as new player");

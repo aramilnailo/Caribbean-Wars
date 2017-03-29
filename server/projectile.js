@@ -12,11 +12,8 @@ var Projectile = function(player) {
 			h:0.2,
 			dir:0,
 			ddir:0,
-			
 			dx:0,
 			dy:0,
-			ddx:0,
-			ddy:0,
 			dx_max:100,
 			dy_max:100,
 			mass:0.1,
@@ -24,11 +21,10 @@ var Projectile = function(player) {
 			hit:false,
 			stuck:false,
 			verts:[],
-			forces:[],
-			damage:[],
+			collisions:[],
 			name:player.name
 		},
-		range:10,
+		range:20,
 		active:true,
 	};
 	
