@@ -288,9 +288,10 @@ MapEditor.prototype.onCanvasMouseLeave = function (event) {
 MapEditor.prototype.onCanvasMouseMove = function (event) {
 	if(!client.map) return;
 	if (paintMove) {
-		// Coordinates in pixels of the mouse movement
-	    var x = event.clientX - dom.mapEditorCanvas.offsetLeft;
-	    var y = event.clientY - dom.mapEditorCanvas.offsetTop;
+		// Get the coordinates in pixels of the mouse movement
+	    var rect = dom.mapEditorCanvas.getBoundingClientRect();
+	    var x = event.clientX - rect.left;
+	    var y = event.clientY - rect.top;
 		// Coordinates in cells of the mouse movement
 		// Find x * cam_w / 500, + cam_x
 		var min = Math.min(client.map.width, client.map.height);
@@ -327,9 +328,10 @@ MapEditor.prototype.onCanvasMouseMove = function (event) {
 };
 
 function clickButton(event) {
-	// Coordinates in pixels of the mouse click
-    var x = event.clientX - dom.mapEditorCanvas.offsetLeft;
-    var y = event.clientY - dom.mapEditorCanvas.offsetTop;
+	// Get the coordinates in pixels of the mouse movement
+    var rect = dom.mapEditorCanvas.getBoundingClientRect();
+    var x = event.clientX - rect.left;
+    var y = event.clientY - rect.top;
 	for(var i in paintButtons) {
 		var b = paintButtons[i];
 		// Check button bounds against click coords
