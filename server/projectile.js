@@ -16,7 +16,7 @@ var Projectile = function(player) {
 			dy:0,
 			dx_max:100,
 			dy_max:100,
-			mass:0.1,
+			mass:0.3,
 			
 			hit:false,
 			stuck:false,

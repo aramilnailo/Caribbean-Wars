@@ -181,7 +181,7 @@ Render.prototype.drawGameState = function(data) {
 		// Draw name
 		if(ships[i].name === client.username) {
 			txt += ships[i].name + 
-			": " + ships[i].health + 
+			": " + ships[i].health.toFixed(1) + 
 			", " + ships[i].ammo;
 			dom.canvas.fillStyle = "#00ff00"; // Green
 		} else {

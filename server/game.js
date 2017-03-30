@@ -246,8 +246,9 @@ function updatePhysics(session) {
 		if(!player.active) continue;
 		var dx = player.box.x - player.prevX;
 		var dy = player.box.y - player.prevY;
-		player.diff.distanceSailed += 
-			Math.sqrt(dx * dx + dy * dy);
+		var dist = Math.sqrt(dx * dx + dy * dy);
+		player.diff.distanceSailed += dist;
+			
 	}
 	// Move projectiles / handle projectile collisions
 	for(var i in session.game.projectiles) {
@@ -255,7 +256,8 @@ function updatePhysics(session) {
 		if(!proj.active) continue;
 		// Remove if proj has travelled its range
 		var dx = proj.box.dx, dy = proj.box.dy;
-		proj.range -= Math.sqrt(dx * dx + dy * dy);
+		var dist = Math.sqrt(dx * dx + dy * dy);
+		proj.range -= dist;
 		if(proj.range < 0) proj.active = false;
 		// Remove if proj is stopped completely
 		if(proj.box.stuck) proj.active = false;
@@ -273,8 +275,8 @@ function updatePhysics(session) {
 }
 
 function changeWind(wind) {
-	if(Math.random() * 100 === 0) {
-		// 1/1000 chance of changing direction
+	if(Math.random() > 0.99) {
+		// 1/100 chance of changing direction
 		wind = {
 			x:Math.random() - Math.random(),
 			y:Math.random() - Math.random()
@@ -300,6 +302,7 @@ function handleCollisions(box, session) {
 	var map = session.mapData;
 	// Check verts against map data
 	var v = box.verts;
+	var v_mag = Math.sqrt(box.dx * box.dx + box.dy * box.dy);
 	for(var i in v) {
 		// Force vector of any collision on this vert
 		var vect = {
@@ -319,12 +322,7 @@ function handleCollisions(box, session) {
 				vector:vect,
 				mass:box.mass,
 				source:"the map", 
-				damage:Math.round(
-					20 * box.mass * 
-					Math.sqrt(
-					box.dx * box.dx + 
-					box.dy * box.dy
-					))
+				damage:box.mass * v_mag
 			});
 		}
 	}
@@ -346,22 +344,19 @@ function handleCollisions(box, session) {
 			if((Math.abs(v[i].x - p.box.x) < p.box.w) &&
 				(Math.abs(v[i].y - p.box.y) < p.box.h)) {
 				v[i].hit = true;
+				// Impulse of p.box on box
 				box.collisions.push({
 					vector:vect,
 					mass:p.box.mass,
 					source:p.box.name,
 					damage:0
 				});
+				// Impulse of box on p.box
 				p.box.collisions.push({
 					vector:opp_vect,
-					mass:box.mass,
+					mass:box.mass * 0.05,
 					source:box.name,
-					damage:Math.round(
-						20 * box.mass * 
-						Math.sqrt(
-						box.dx * box.dx + 
-						box.dy * box.dy
-						))
+					damage:box.mass * v_mag
 				});
 			}
 		}
@@ -400,8 +395,8 @@ function updateBox(box) {
 			dmg.source = c.source;
 		}
 		// Apply impulse
-		box.dx += c.vector.x / c.mass;
-		box.dy += c.vector.y / c.mass;
+		box.dx += c.vector.x * c.mass / box.mass;
+		box.dy += c.vector.y * c.mass / box.mass;
 	}
 
 	// Apply velocity bounds
@@ -423,6 +418,7 @@ function updateBox(box) {
 		box.dx = 0;
 		box.dy = 0;
 	}
+	
 	box.x += box.dx;
 	box.y += box.dy;
 	// Update verts
@@ -478,12 +474,12 @@ function handleInput(player, session) {
 	if(player.input.sails && player.box.ddir === 0) {
 		dot = ship.x * wind.x + ship.y * wind.y;
 		vect = {
-			x:dot * ship.x * 0.01,
-			y:dot * ship.y * 0.01
+			x:dot * ship.x,
+			y:dot * ship.y
 		}
 		player.box.collisions.push({
 			vector:vect,
-			mass:1,
+			mass:0.01 * player.box.mass,
 			source:"the wind",
 			damage:0
 		});
@@ -509,24 +505,29 @@ function handleInput(player, session) {
 // Fire all projectiles the player has
 function fireProjectile(player, list) {
 	if(!player.input.firing) return;
-	var proj = player.projectiles.pop();
-	if(!proj) {
-		player.input.firing = false;
-		return;
+	if(player.firingCount < 1) {
+		player.firingCount += player.firingRate;
+	} else {
+		var proj = player.projectiles.pop();
+		if(!proj) {
+			player.input.firing = false;
+			return;
+		}
+		proj = new projectile(player);
+		proj.box.collisions.push({
+			vector:{
+				x:player.firepower * Math.cos(proj.box.dir),
+				y:player.firepower * Math.sin(proj.box.dir)
+			},
+			mass:proj.box.mass,
+			source:proj.box.mass,
+			damage:0
+		});
+		proj.box.ddir = proj.box.dir;
+		list.push(proj);
+		player.diff.shotsFired++;
+		player.firingCount = player.firingRate;
 	}
-	proj = new projectile(player);
-	proj.box.collisions.push({
-		vector:{
-			x:player.firepower * Math.cos(proj.box.dir),
-			y:player.firepower * Math.sin(proj.box.dir)
-		},
-		mass:player.box.mass,
-		source:player.name,
-		damage:0
-	});
-	proj.box.ddir = proj.box.dir;
-	list.push(proj);
-	player.diff.shotsFired++;
 }
 
 function loadProjectile(player) {

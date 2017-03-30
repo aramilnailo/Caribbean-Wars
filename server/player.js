@@ -25,7 +25,7 @@ var Player = function(name, x, y) {
 
 			dx_max:1,
 			dy_max:1,
-			mass:1,
+			mass:20,
 			
 			hit:false,
 			stuck:false,
@@ -49,11 +49,15 @@ var Player = function(name, x, y) {
 		},
 		prevX:x,
 		prevY:y,
+		
 		numCannons:50,
 		reloadCount:0,
-		reloadRate:1,
+		firingCount:0,
+		reloadRate:0.3,
+		firingRate:1,
 		firepower:1.5,
 		projectiles:[],
+		
 		active:true,
 		name:name,
 		health:100,
