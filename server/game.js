@@ -315,7 +315,8 @@ function handleCollisions(box, session) {
 			v[i].hit = true;
 		} else {
 			var ch = map.data[cell_y].charAt(cell_x);
-			v[i].hit = (ch !== "0" && ch !== "3");
+			// Cannot collide with water, resource, or spawn
+			v[i].hit = (ch !== "0" && ch !== "4" && ch !== "5");
 		}
 		if(v[i].hit) {
 			box.collisions.push({

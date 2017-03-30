@@ -594,7 +594,7 @@ function setGame(session, other) {
 	for(var i = 0; i < map.data.length; i++) {
 		for(var j = 0; j < map.data[i].length; j++) {
 			var ch = map.data[i].charAt(j);
-			if(ch === "3") { // Port
+			if(ch === "5") { // Spawn
 				spawns.push({x:j, y:i});
 			}
 		}

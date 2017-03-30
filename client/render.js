@@ -359,20 +359,23 @@ Render.prototype.drawGameState = function(data) {
 function getColor(ch) {
 	var color;
     switch(ch) {
-    	case "0": 
+		case "0": // Water
 			color = "#42C5F4";
 			break;
-    	case "1": 
+    	case "1": // Sand
 			color = "#C19E70";
 			break;
-    	case "2":
+    	case "2": // Grass
 			color = "#2A8C23";
 			break;
-		case "3":
+		case "3": // Port
 			color = "#696969";
 			break;
-		case "4":
-			color = "#a52a2a";
+		case "4": // Resource spawn -- invisible
+			color = "#42C5F4";
+			break;
+		case "5": // Player spawn -- invisible
+			color = "#42C5F4";
 			break;
     	default: 
 			color = "#000000";
