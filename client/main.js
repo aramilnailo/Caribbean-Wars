@@ -21,6 +21,8 @@ socket.on("message", function(message) {
 	router.route(message);
 });
 
+mapeditor.initButtons();
+
 setInterval(function() { 
 	if(!client.loading && client.usertype === "editor") {
 		mapeditor.drawEditScreen(); 

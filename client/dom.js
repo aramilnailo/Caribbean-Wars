@@ -113,23 +113,6 @@ var dom = {
 	mapEditorBrushPanel:document.getElementById("map-editor-brush-panel"),
 	mapEditorCanvas:document.getElementById("map-editor-canvas"),
     mapEditorCanvasContext:document.getElementById("map-editor-canvas").getContext("2d"),
-	
-	// Brush panel
-    mapEditorPaintSandIcon:document.getElementById("map-editor-paint-sand-img"),
-    mapEditorPaintGrassIcon:document.getElementById("map-editor-paint-grass-img"),
-    mapEditorPaintWaterIcon:document.getElementById("map-editor-paint-water-img"),
-    mapEditorPaintPortIcon:document.getElementById("map-editor-paint-port-img"),
-    mapEditorBrush20:document.getElementById("map-editor-brush-20"),
-    mapEditorBrush18:document.getElementById("map-editor-brush-18"),
-    mapEditorBrush16:document.getElementById("map-editor-brush-16"),
-    mapEditorBrush14:document.getElementById("map-editor-brush-14"),
-    mapEditorBrush12:document.getElementById("map-editor-brush-12"),
-    mapEditorBrush10:document.getElementById("map-editor-brush-10"),
-    mapEditorBrush08:document.getElementById("map-editor-brush-08"),
-    mapEditorBrush06:document.getElementById("map-editor-brush-06"),
-    mapEditorBrush04:document.getElementById("map-editor-brush-04"),
-    mapEditorBrush02:document.getElementById("map-editor-brush-02"),
-    mapEditorBrush01:document.getElementById("map-editor-brush-01")
 		
 }
 
@@ -218,44 +201,6 @@ dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:
     dom.mapEditorCanvas.onmouseleave =
 	function(event) { router.route({name:"mapEditorCanvasMouseLeave", data:event}); }
     
-    //map editor paint icons
-    dom.mapEditorPaintSandIcon.onclick =
-	function() { router.route({name:"mapEditorPaintSandIconClick", data:null}); }
-    dom.mapEditorPaintSandIcon.title = "sand";
-    dom.mapEditorPaintGrassIcon.onclick =
-	function() { router.route({name:"mapEditorPaintGrassIconClick", data:null}); }
-    dom.mapEditorPaintGrassIcon.title = "grass";
-    dom.mapEditorPaintWaterIcon.onclick =
-	function() { router.route({name:"mapEditorPaintWaterIconClick", data:null}); }
-    dom.mapEditorPaintWaterIcon.title = "water";
-    dom.mapEditorPaintPortIcon.onclick =
-	function() { router.route({name:"mapEditorPaintPortIconClick", data:null}); }
-    dom.mapEditorPaintPortIcon.title = "port";
-
-    //map editor brush icons
-    dom.mapEditorBrush20.onclick = 
-	function(event) { router.route({name:"mapEditorBrush20Click", data:null}); }
-    dom.mapEditorBrush18.onclick = 
-	function(event) { router.route({name:"mapEditorBrush18Click", data:null}); }
-    dom.mapEditorBrush16.onclick = 
-	function(event) { router.route({name:"mapEditorBrush16Click", data:null}); }
-    dom.mapEditorBrush14.onclick = 
-	function(event) { router.route({name:"mapEditorBrush14Click", data:null}); }
-    dom.mapEditorBrush12.onclick = 
-	function(event) { router.route({name:"mapEditorBrush12Click", data:null}); }
-    dom.mapEditorBrush10.onclick = 
-	function(event) { router.route({name:"mapEditorBrush10Click", data:null}); }
-    dom.mapEditorBrush08.onclick = 
-	function(event) { router.route({name:"mapEditorBrush08Click", data:null}); }
-    dom.mapEditorBrush06.onclick = 
-	function(event) { router.route({name:"mapEditorBrush06Click", data:null}); }
-    dom.mapEditorBrush04.onclick = 
-	function(event) { router.route({name:"mapEditorBrush04Click", data:null}); }
-    dom.mapEditorBrush02.onclick = 
-	function(event) { router.route({name:"mapEditorBrush02Click", data:null}); }
-    dom.mapEditorBrush01.onclick = 
-	function(event) { router.route({name:"mapEditorBrush01Click", data:null}); }
-
 return dom;
 
 });

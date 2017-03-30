@@ -13,6 +13,8 @@ var Render = function() {};
 // loading images to be displayed
 var shipImage = new Image();
 var cannonballImage = new Image();
+shipImage.src = "client/imgs/shipImage.png";
+cannonballImage.src = "client/imgs/cannonballImage.png";
 
 var render_next = [];
 
@@ -22,9 +24,6 @@ var CANVAS_W = 500, CANVAS_H = 500,
 	MINI_W = 100, MINI_H = 100,
 	MENU_X = 500, MENU_Y = 100,
 	MENU_W = 100, MENU_H = 400;
-
-shipImage.src = "client/imgs/shipImage.png";
-cannonballImage.src = "client/imgs/cannonballImage.png";
 
 /**
 * Register gui events implemented by this

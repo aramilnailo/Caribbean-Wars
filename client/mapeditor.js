@@ -15,23 +15,23 @@ var mapUndoStack=[];
 var mapRedoStack=[];
 
 var paintMove = false;
-var paintingSand = false;
-var paintingWater = false;
-var paintingPort = false;
-var paintingGrass = false;
-
+var paint = "";
 var brushSize = 1;
 
 var activeArea = null;
 
-var sandicondownimg = "client/imgs/mapeditorsandicondown.png";
-var sandiconupimg = "client/imgs/mapeditorsandiconup.png";
-var watericondownimg = "client/imgs/mapeditorwatericondown.png";
-var watericonupimg = "client/imgs/mapeditorwatericonup.png";
-var grassicondownimg = "client/imgs/mapeditorgrassicondown.png";
-var grassiconupimg = "client/imgs/mapeditorgrassiconup.png";
-var porticondownimg = "client/imgs/mapeditorporticondown.png";
-var porticonupimg = "client/imgs/mapeditorporticonup.png";
+var paintButtons = [
+	{name:"water"}, {name:"sand"},
+	{name:"grass"}, {name:"port"}
+];
+var brushButtons = [
+	{name:"brush1"}, {name:"brush2"},
+	{name:"brush4"}, {name:"brush6"},
+	{name:"brush8"}, {name:"brush10"},
+	{name:"brush12"}, {name:"brush14"},
+	{name:"brush16"}, {name:"brush18"},
+	{name:"brush20"}
+];
 
 MapEditor.prototype.listen = function(router) {
 	router.listen("undoClick", this.undo);
@@ -46,38 +46,6 @@ MapEditor.prototype.listen = function(router) {
 	router.listen("mapEditorCanvasMouseMove", this.onCanvasMouseMove);
 	router.listen("mapEditorCanvasMouseUp", this.onCanvasMouseUp);
 	router.listen("mapEditorCanvasMouseLeave", this.onCanvasMouseLeave);
-	
-	router.listen("mapEditorBrush20Click", this.mapEditorSwitchBrush20Click);
-	router.listen("mapEditorBrush18Click", this.mapEditorSwitchBrush18Click);
-	router.listen("mapEditorBrush16Click", this.mapEditorSwitchBrush16Click);
-	router.listen("mapEditorBrush14Click", this.mapEditorSwitchBrush14Click);
-	router.listen("mapEditorBrush12Click", this.mapEditorSwitchBrush12Click);
-	router.listen("mapEditorBrush10Click", this.mapEditorSwitchBrush10Click);
-	router.listen("mapEditorBrush08Click", this.mapEditorSwitchBrush08Click);
-	router.listen("mapEditorBrush06Click", this.mapEditorSwitchBrush06Click);
-	router.listen("mapEditorBrush04Click", this.mapEditorSwitchBrush04Click);
-	router.listen("mapEditorBrush02Click", this.mapEditorSwitchBrush02Click);
-	router.listen("mapEditorBrush01Click", this.mapEditorSwitchBrush01Click);
-	
-	router.listen("mapEditorPaintSandIconClick",this.lowerSandIcon);
-	router.listen("mapEditorPaintSandIconClick",this.raiseWaterIcon);
-	router.listen("mapEditorPaintSandIconClick",this.raisePortIcon);
-	router.listen("mapEditorPaintSandIconClick",this.raiseGrassIcon);
-
-	router.listen("mapEditorPaintWaterIconClick",this.raiseSandIcon);
-	router.listen("mapEditorPaintWaterIconClick",this.lowerWaterIcon);
-	router.listen("mapEditorPaintWaterIconClick",this.raisePortIcon);
-	router.listen("mapEditorPaintWaterIconClick",this.raiseGrassIcon);
-
-	router.listen("mapEditorPaintPortIconClick",this.raiseSandIcon);
-	router.listen("mapEditorPaintPortIconClick",this.raiseWaterIcon);
-	router.listen("mapEditorPaintPortIconClick",this.lowerPortIcon);
-	router.listen("mapEditorPaintPortIconClick",this.raiseGrassIcon);
-
-	router.listen("mapEditorPaintGrassIconClick",this.raiseSandIcon);
-	router.listen("mapEditorPaintGrassIconClick",this.raiseWaterIcon);
-	router.listen("mapEditorPaintGrassIconClick",this.raisePortIcon);
-	router.listen("mapEditorPaintGrassIconClick",this.lowerGrassIcon);
 };
 	
 MapEditor.prototype.setEditMap = function(data) {
@@ -102,7 +70,7 @@ MapEditor.prototype.drawEditScreen = function(event) {
 	if(client.camera.moved)	{
 		setCameraActive();
 		client.camera.moved = false;
-	}	
+	}
 	if(!activeArea) return;
 	if(!client.map) return;
 	var map = client.map.data;
@@ -150,7 +118,7 @@ MapEditor.prototype.drawEditScreen = function(event) {
 	}
 	activeArea = null;
 	// In the upper left corner, draw camera's position in world map
-	dom.mapEditorCanvasContext.clearRect(500, 0, 100, 500);
+	dom.mapEditorCanvasContext.clearRect(500, 0, 100, 100);
 	dom.mapEditorCanvasContext.strokeStyle = "#000000"; // Black
 	dom.mapEditorCanvasContext.strokeRect(500, 0, 100, 100);
 	var rel_x = Math.floor(100 * cam_x / client.map.width);
@@ -158,7 +126,40 @@ MapEditor.prototype.drawEditScreen = function(event) {
 	var rel_w = Math.floor(100 * cam_w / client.map.width);
 	var rel_h = Math.floor(100 * cam_h / client.map.height);
 	dom.mapEditorCanvasContext.strokeStyle = "#ff0000"; // Red
-	dom.mapEditorCanvasContext.strokeRect(500 + rel_x, 0 + rel_y, rel_w, rel_h);	
+	dom.mapEditorCanvasContext.strokeRect(500 + rel_x, 0 + rel_y, rel_w, rel_h);
+	
+	// Draw the buttons
+	drawButtons();	
+};
+
+MapEditor.prototype.initButtons = function() {
+	var i;
+	for(i = 0; i < paintButtons.length; i++) {
+		var b = {
+			name:paintButtons[i].name,
+			x:540, y:20 * i + 110, w:20, h:20,
+			up:new Image(),
+			down:new Image(),
+			ch:"" + i,
+			clicked:false
+		};
+		b.up.src = "client/imgs/paint-" + b.name + "-up.png";
+		b.down.src = "client/imgs/paint-" + b.name + "-down.png";
+		paintButtons[i] = b;
+	}
+	for(var j = 0; j < brushButtons.length; j++, i++) {
+		var b = {
+			name:brushButtons[j].name,
+			x:540, y:20 * i + 110, w:20, h:20,
+			up:new Image(),
+			down:new Image(),
+			size:parseInt(brushButtons[j].name.replace("brush", "")),
+			clicked:false
+		};
+		b.up.src = "client/imgs/" + b.name.replace("brush", "brush-") + "-up.png";
+		b.down.src = "client/imgs/" + b.name.replace("brush", "brush-") + "-down.png";
+		brushButtons[j] = b;
+	}
 };
 
 MapEditor.prototype.undo = function () {
@@ -182,7 +183,6 @@ MapEditor.prototype.redo = function () {
 };
 
 MapEditor.prototype.clear = function(event) {
-	if (debug.mapeditor) debug.log("client/mapeditor.js:ClearMapButtonClick");
 	mapUndoStack.push(copyOfMap(client.map));
 	// Zero out the data of the new map
 	var line = "";
@@ -197,7 +197,6 @@ MapEditor.prototype.clear = function(event) {
 };
 
 MapEditor.prototype.resize = function(event) {
-	if (debug.mapeditor) debug.log("client/mapeditor.js: mapEditorResizeSubmitButtonClick()");
 	var lx, ly;
 	lx = window.prompt("New width?", "100");
 	if(lx) ly = window.prompt("New height?", "100");
@@ -250,15 +249,21 @@ MapEditor.prototype.onKeyPress = function (event) {
 	var keycode = event.which || event.keyCode;
 	if (keycode === 90 && event.ctrlKey) {
 	    // Ctrl-Z; backtrack
-	    MapEditor.prototype.backtrack();
+	    MapEditor.prototype.undo();
 	}
 };
 
 MapEditor.prototype.onCanvasMouseDown = function (event) {
-	paintMove = true;
-    mapUndoStack.push(copyOfMap(client.map));
-	mapRedoStack = [];
-	MapEditor.prototype.onCanvasMouseMove(event);
+	// Handle UI button clicks
+	var clicked = clickButton(event);
+	if(clicked) {
+	} else {
+		paintMove = true;
+	    mapUndoStack.push(copyOfMap(client.map));
+		mapRedoStack = [];
+		MapEditor.prototype.onCanvasMouseMove(event);
+	}
+	drawButtons();
 };
 
 MapEditor.prototype.onCanvasMouseUp = function (event) {
@@ -280,37 +285,26 @@ MapEditor.prototype.onCanvasMouseMove = function (event) {
 		var min = Math.min(client.map.width, client.map.height);
 		var a = Math.round((x / 500) * Math.floor(min / client.camera.zoom)) + client.camera.x;
 		var b = Math.round((y / 500) * Math.floor(min / client.camera.zoom)) + client.camera.y;
-		debug.log("("+x+", "+y+")-->("+a+", "+b+")");
 		
-	    var change = false;
-	    var ch;
-	    if (paintingWater) { ch = "0"; change = true; }
-	    if (paintingSand) { ch = "1"; change = true; }
-	    if (paintingGrass) { ch = "2"; change = true; }
-	    if (paintingPort) { ch = "3"; change = true; }
+	    if (paint !== "") {
+		    var bsq = brushSize * brushSize / 4;
+		    var lim = Math.floor(brushSize / 2) + 1;
 
-	    var bsq = brushSize * brushSize / 4;
-	    var lim = Math.floor(brushSize / 2) + 1;
-
-	    var pmin = a - lim;
-	    if (pmin < 0) pmin = 0;
-	    var pmax = a + lim;
-	    if (pmax >= client.map.width) 
-			pmax = client.map.width;
-
-	    var qmin = b - lim;
-	    if (qmin < 0) qmin = 0;
-	    var qmax = b + lim;
-	    if (qmax >= client.map.height) 
-			qmax = client.map.height;
-
-	    if (change) {
-			var p,q;
-			for (p = pmin; p < pmax; p++) {
-				for (q = qmin; q < qmax; q++) {
-				    if ((p-a)*(p-a)+(q-b)*(q-b) < bsq) {
+		    var pmin = a - lim;
+			var qmin = b - lim;
+			var pmax = a + lim;
+			var qmax = b + lim;
+			
+		    if (pmin < 0) pmin = 0;
+			if (qmin < 0) qmin = 0;
+		    if (pmax >= client.map.width) pmax = client.map.width;
+		    if (qmax >= client.map.height) qmax = client.map.height;
+			
+			for (var p = pmin; p < pmax; p++) {
+				for (var q = qmin; q < qmax; q++) {
+				    if ((p - a) * (p - a) + (q - b) * (q - b) < bsq) {
 						var line = client.map.data[q];
-						line = line.substring(0, p) + ch + 
+						line = line.substring(0, p) + paint + 
 								line.substring(p + 1);
 						client.map.data[q] = line;
 				    }
@@ -321,110 +315,66 @@ MapEditor.prototype.onCanvasMouseMove = function (event) {
 	}
 };
 
-MapEditor.prototype.mapEditorSwitchBrush20Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush20.src="client/imgs/mapeditorbrush20down.png";
-	brushSize = 20;
+function clickButton(event) {
+	// Coordinates in pixels of the mouse click
+    var x = event.clientX - dom.mapEditorCanvas.offsetLeft;
+    var y = event.clientY - dom.mapEditorCanvas.offsetTop;
+	for(var i in paintButtons) {
+		var b = paintButtons[i];
+		// Check button bounds against click coords
+		if(b.x < x && b.y < y && b.x + b.w > x && b.y + b.h > y) {
+			if(b.clicked) {
+				// If already clicked, toggle
+				b.clicked = false;
+				paint = "";
+			} else {
+				// Find and unclick any previous paint button
+				var prev = paintButtons.find(function(btn) {
+					return btn.ch === paint;
+				});
+				if(prev) prev.clicked = false;
+				// Click the current button
+				b.clicked = true;
+				paint = b.ch;
+			}
+			return true;
+		}
+	}
+	for(var i in brushButtons) {
+		var b = brushButtons[i];
+		if(b.x < x && b.y < y && b.x + b.w > x && b.y + b.h > y) {
+			if(b.clicked) {
+				// If already clicked, toggle
+				b.clicked = false;
+				brushSize = 1;
+			} else {
+				// Find and unclick any previous paint button
+				var prev = brushButtons.find(function(btn) {
+					return btn.size === brushSize;
+				});
+				if(prev) prev.clicked = false;
+				// Click the current button
+				b.clicked = true;
+				brushSize = b.size;
+			}
+			return true;
+		}
+	}
+	return false;
 };
 
-MapEditor.prototype.mapEditorSwitchBrush18Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush18.src="client/imgs/mapeditorbrush18down.png";
-	brushSize = 18;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush16Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush16.src="client/imgs/mapeditorbrush16down.png";
-	brushSize = 16;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush14Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush14.src="client/imgs/mapeditorbrush14down.png";
-	brushSize = 14;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush12Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush12.src="client/imgs/mapeditorbrush12down.png";
-	brushSize = 12;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush10Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush10.src="client/imgs/mapeditorbrush10down.png";
-	brushSize = 10;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush08Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush08.src="client/imgs/mapeditorbrush08down.png";
-	brushSize = 8;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush06Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush06.src="client/imgs/mapeditorbrush06down.png";
-	brushSize = 6;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush04Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush04.src="client/imgs/mapeditorbrush04down.png";
-	brushSize = 4;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush02Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush02.src="client/imgs/mapeditorbrush02down.png";
-	brushSize = 2;
-};
-
-MapEditor.prototype.mapEditorSwitchBrush01Click = function (event) {
-	flipAllBrushButtonsUp();
-	dom.mapEditorBrush01.src="client/imgs/mapeditorbrush01down.png";
-	brushSize = 1;
-};
-
-MapEditor.prototype.lowerSandIcon = function() {
-	dom.mapEditorPaintSandIcon.src = sandicondownimg;
-	paintingSand = true;
-};
-
-MapEditor.prototype.raiseSandIcon = function() {
-	dom.mapEditorPaintSandIcon.src = sandiconupimg;
-	paintingSand = false;
-};
-
-MapEditor.prototype.lowerWaterIcon = function() {
-	dom.mapEditorPaintWaterIcon.src = watericondownimg;
-	paintingWater = true;
-};
-
-MapEditor.prototype.raiseWaterIcon = function() {
-	dom.mapEditorPaintWaterIcon.src = watericonupimg;
-	paintingWater = false;
-};
-
-MapEditor.prototype.lowerGrassIcon = function() {
-	dom.mapEditorPaintGrassIcon.src = grassicondownimg;
-	paintingGrass = true;
-};
-
-MapEditor.prototype.raiseGrassIcon = function() {
-	dom.mapEditorPaintGrassIcon.src = grassiconupimg;
-	paintingGrass = false;
-};
-
-MapEditor.prototype.lowerPortIcon = function() {
-	dom.mapEditorPaintPortIcon.src = porticondownimg;
-	paintingPort = true;
-};
-
-MapEditor.prototype.raisePortIcon = function() {
-	dom.mapEditorPaintPortIcon.src = porticonupimg;
-	paintingPort = false;
+function drawButtons() {
+	// Wipe the button menu
+	for(var i in paintButtons) {
+		var b = paintButtons[i];
+		var img = b.clicked ? b.down : b.up;
+		dom.mapEditorCanvasContext.drawImage(img, b.x, b.y);
+	}
+	for(var i in brushButtons) {
+		var b = brushButtons[i];
+		var img = b.clicked ? b.down : b.up;
+		dom.mapEditorCanvasContext.drawImage(img, b.x, b.y);
+	}
 };
 
 function setCameraActive() {
@@ -440,20 +390,6 @@ function setCameraActive() {
 function copyOfMap(oldmap) {
 	// deep copy
 	return JSON.parse(JSON.stringify(oldmap));
-};
-
-function flipAllBrushButtonsUp() {
-	dom.mapEditorBrush20.src="client/imgs/mapeditorbrush20up.png";
-	dom.mapEditorBrush18.src="client/imgs/mapeditorbrush18up.png";
-	dom.mapEditorBrush16.src="client/imgs/mapeditorbrush16up.png";
-	dom.mapEditorBrush14.src="client/imgs/mapeditorbrush14up.png";
-	dom.mapEditorBrush12.src="client/imgs/mapeditorbrush12up.png";
-	dom.mapEditorBrush10.src="client/imgs/mapeditorbrush10up.png";
-	dom.mapEditorBrush08.src="client/imgs/mapeditorbrush08up.png";
-	dom.mapEditorBrush06.src="client/imgs/mapeditorbrush06up.png";
-	dom.mapEditorBrush04.src="client/imgs/mapeditorbrush04up.png";
-	dom.mapEditorBrush02.src="client/imgs/mapeditorbrush02up.png";
-	dom.mapEditorBrush01.src="client/imgs/mapeditorbrush01up.png";	
 };
 
 return new MapEditor();
