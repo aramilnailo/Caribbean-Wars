@@ -22,7 +22,8 @@ var activeArea = null;
 
 var paintButtons = [
 	{name:"water"}, {name:"sand"},
-	{name:"grass"}, {name:"port"}
+	{name:"grass"}, {name:"port"},
+	{name:"resource"}
 ];
 var brushButtons = [
 	{name:"brush1"}, {name:"brush2"},
@@ -105,8 +106,15 @@ MapEditor.prototype.drawEditScreen = function(event) {
 		    	case "2":
 					color = "#2A8C23";
 					break;
+				case "3":
+					color = "#696969";
+					break;
+				case "4":
+					color = "#a52a2a";
+					break;
 		    	default: 
 					color = "#000000";
+					break;
 		    }
 		    dom.mapEditorCanvasContext.fillStyle = color;
 		    dom.mapEditorCanvasContext.fillRect(

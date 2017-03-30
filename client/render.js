@@ -368,8 +368,15 @@ function getColor(ch) {
     	case "2":
 			color = "#2A8C23";
 			break;
+		case "3":
+			color = "#696969";
+			break;
+		case "4":
+			color = "#a52a2a";
+			break;
     	default: 
 			color = "#000000";
+			break;
     }
 	return color;
 }
