@@ -131,39 +131,42 @@ View.prototype.keyPressed = function(event) {
 		
 		switch(keycode) {
 			// Game input
+			case 65: // a
+		    	client.input.left = true;
+				break;
 			case 68: // d
 		    	client.input.right = true;
 				break;
 			case 83: // s
-		    	client.input.down = true;
-				break;
-			case 65: // a
-		    	client.input.left = true;
+		    	client.input.sails = false;
 				break;
 			case 87: // w
-		    	client.input.up = true;
+		    	client.input.sails = true;
 				break;
-			case 70: // f
-				client.input.firing = true;
+			case 81: // q
+				client.input.firingLeft = true;
+				break;
+			case 69: // e
+				client.input.firingRight = true;
 				break;
 			case 82: // r
-				client.input.sails = !client.input.sails;
+				client.input.anchor = !client.input.anchor;
 				break;
 			
 			// Camera controls
-			case 37:
+			case 37: // left arrow
 				client.camera.x--;
 				if(event.shiftKey) client.camera.x -= 4;
 				break;
-			case 38:
+			case 38: // up arrow
 				client.camera.y--;
 				if(event.shiftKey) client.camera.y -= 4;
 				break;
-			case 39:
+			case 39: // right arrow
 				client.camera.x++;
 				if(event.shiftKey) client.camera.x += 4;
 				break;
-			case 40:
+			case 40: // down arrow
 				client.camera.y++;
 				if(event.shiftKey) client.camera.y += 4;
 				break;
@@ -214,20 +217,17 @@ View.prototype.keyReleased = function(event) {
     if(dom.chatInput !== dom.document.activeElement) {
 		var keycode = event.which || event.keyCode;
 		switch(keycode) {
-			case 68:
-		    	client.input.right = false;
-				break;
-			case 83:
-		    	client.input.down = false;
-				break;
-			case 65:
+			case 65: // a
 		    	client.input.left = false;
 				break;
-			case 87:
-		    	client.input.up = false;
+			case 68: // d
+		    	client.input.right = false;
 				break;
-			case 70:
-				client.input.firing = false;
+			case 81: // q
+				client.input.firingLeft = false;
+				break;
+			case 69: // e
+				client.input.firingRight = false;
 				break;
 			default:
 				break;

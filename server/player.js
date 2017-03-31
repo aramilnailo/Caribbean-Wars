@@ -34,12 +34,12 @@ var Player = function(name, x, y) {
 			name:name
 		},
 		input:{
-			right:false,
 			left:false,
-			up:false,
-			down:false,
-			firing:false,
-			sails:false
+			right:false,
+			firingLeft:false,
+			firingRight:false,
+			sails:false,
+			anchor:false
 		},
 		diff:{
 			distanceSailed:0,

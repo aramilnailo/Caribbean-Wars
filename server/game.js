@@ -386,7 +386,7 @@ function handleCollisions(box, session) {
 		} else {
 			var ch = map.data[cell_y].charAt(cell_x);
 			// Cannot collide with water or spawners
-			v[i].hit = (ch === "1" || ch === "2" || ch === "3");
+			v[i].hit = (!ch || ch === "1" || ch === "2" || ch === "3");
 			if(!v[i].hit) {
 				if(ch === "4") {
 					var spawn = session.game.resourceSpawns.find(function(s) {
@@ -572,74 +572,99 @@ function handleInput(player, session) {
 	}
 	
 	// Fire / load projectiles
-	if(player.input.firing) {
+	if(player.input.firingLeft || player.input.firingRight) {
 		fireProjectile(player, list);
 	} else {
 		loadProjectile(player);
 	}
 	
-	// Apply wind collision
-	if(player.input.sails && player.box.ddir === 0) {
-		dot = ship.x * wind.x + ship.y * wind.y;
-		vect = {
-			x:dot * ship.x,
-			y:dot * ship.y
+	if(player.input.anchor) {
+		player.box.dx = player.box.dy = 0;
+	} else {
+		// Apply wind collision
+		if(player.input.sails && player.box.ddir === 0) {
+			dot = ship.x * wind.x + ship.y * wind.y;
+			vect = {
+				x:dot * ship.x,
+				y:dot * ship.y
+			}
+			player.box.collisions.push({
+				vector:vect,
+				mass:0.01 * player.box.mass,
+				source:"the wind",
+				damage:0
+			});
 		}
+		// Apply water resistance
+		vect = {
+			x:0.005 * -player.box.dx,
+			y:0.005 * -player.box.dy
+		};
 		player.box.collisions.push({
 			vector:vect,
-			mass:0.01 * player.box.mass,
-			source:"the wind",
+			mass:player.box.mass,
+			source:"the sea",
 			damage:0
 		});
+		// Apply force from turning
+		player.box.dx += -player.box.dy * Math.sin(player.box.ddir);
+		player.box.dy += player.box.dx * Math.sin(player.box.ddir);
 	}
-	
-	// Apply water resistance
-	vect = {
-		x:0.005 * -player.box.dx,
-		y:0.005 * -player.box.dy
-	};
-	player.box.collisions.push({
-		vector:vect,
-		mass:player.box.mass,
-		source:"the sea",
-		damage:0
-	});
-
-	// Apply force from turning
-	player.box.dx += -player.box.dy * Math.sin(player.box.ddir);
-	player.box.dy += player.box.dx * Math.sin(player.box.ddir);
 }
 
 // Fire all projectiles the player has
 function fireProjectile(player, list) {
-	if(!player.input.firing) return;
 	if(player.firingCount < 1) {
 		player.firingCount += player.firingRate;
 	} else {
-		var proj = player.projectiles.pop();
-		if(!proj) {
-			player.input.firing = false;
-			return;
-		}
+		var proj = player.projectiles.pop(), proj2;
+		if(!proj) return; // Cannons need to be reloaded
 		proj = new projectile(player);
+		if(player.input.firingLeft && player.input.firingRight) {
+			proj2 = player.projectiles.pop();
+			if(proj2) proj2 = new projectile(player);
+		}
+		var vect = {
+			x:player.firepower * Math.cos(proj.box.dir),
+			y:player.firepower * Math.sin(proj.box.dir)
+		};
+		// if firing left, fire proj out the left side
+		// if also firing right, try to fire proj2 out right side
+		// if only firing right, fire proj out right side
+		if(player.input.firingLeft) {
+			if(player.input.firingRight && proj2) {
+				proj2.box.collisions.push({
+					vector:{
+						x:-vect.x,
+						y:-vect.y
+					},
+					mass:proj2.box.mass,
+					source:proj2.box.mass,
+					damage:0
+				});
+				list.push(proj2);
+				proj2.box.ddir = proj2.box.dir;
+				player.diff.shotsFired++;
+			}
+		} else {
+			vect.x = -vect.x;
+			vect.y = -vect.y;
+		}
 		proj.box.collisions.push({
-			vector:{
-				x:player.firepower * Math.cos(proj.box.dir),
-				y:player.firepower * Math.sin(proj.box.dir)
-			},
+			vector:vect,
 			mass:proj.box.mass,
 			source:proj.box.mass,
 			damage:0
 		});
-		proj.box.ddir = proj.box.dir;
 		list.push(proj);
+		proj.box.ddir = proj.box.dir;
 		player.diff.shotsFired++;
 		player.firingCount = player.firingRate;
 	}
 }
 
 function loadProjectile(player) {
-	if(player.input.firing) return;
+	if(player.input.firingLeft || player.input.firingRight) return;
 	if(player.projectiles.length < player.numCannons &&
 		player.currentAmmo > 0) {
 		if(player.reloadCount > 1) {
