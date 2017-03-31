@@ -386,17 +386,21 @@ function handleCollisions(box, session) {
 		} else {
 			var ch = map.data[cell_y].charAt(cell_x);
 			// Cannot collide with water or spawners
-			v[i].hit = (ch !== "0" && ch !== "4" && ch !== "5");
-			if(ch === "4") {
-				var spawn = session.game.resourceSpawns.find(function(s) {
-					return s.x === cell_x && s.y === cell_y;
-				});
-				if(spawn) spawn.blocked = true;
-			} else if(ch === "5") {
-				var spawn = session.game.shipSpawns.find(function(s) {
-					return s.x === cell_x && s.y === cell_y;
-				});
-				if(spawn) spawn.blocked = true;
+			v[i].hit = (ch === "1" || ch === "2" || ch === "3");
+			if(!v[i].hit) {
+				if(ch === "4") {
+					var spawn = session.game.resourceSpawns.find(function(s) {
+						return s.x === cell_x && s.y === cell_y;
+					});
+					if(spawn) spawn.blocked = true;
+				} else if(ch === "5") {
+					var spawn = session.game.shipSpawns.find(function(s) {
+						return s.x === cell_x && s.y === cell_y;
+					});
+					if(spawn) spawn.blocked = true;
+				} else if(ch === "6") {
+					log("DOCKED");
+				}
 			}
 		}
 		if(v[i].hit) {

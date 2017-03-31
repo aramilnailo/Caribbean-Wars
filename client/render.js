@@ -342,16 +342,16 @@ function renderBoxes(list, imgData, renderStack) {
 function getColor(ch) {
 	var color;
     switch(ch) {
-		case "0": // Water
+		case "0": // Water -- blue
 			color = "#42C5F4";
 			break;
-    	case "1": // Sand
+    	case "1": // Sand -- tan
 			color = "#C19E70";
 			break;
-    	case "2": // Grass
+    	case "2": // Grass -- green
 			color = "#2A8C23";
 			break;
-		case "3": // Port
+		case "3": // Port -- gray
 			color = "#696969";
 			break;
 		case "4": // Resource spawn -- invisible
@@ -360,7 +360,10 @@ function getColor(ch) {
 		case "5": // Player spawn -- invisible
 			color = "#42C5F4";
 			break;
-    	default: 
+		case "6": // Dock -- invisible
+			color = "#42C5F4";
+			break;
+    	default: // Invalid -- black
 			color = "#000000";
 			break;
     }

@@ -23,7 +23,8 @@ var activeArea = null;
 var paintButtons = [
 	{name:"water"}, {name:"sand"},
 	{name:"grass"}, {name:"port"},
-	{name:"resource"}, {name:"spawn"}
+	{name:"resource"}, {name:"spawn"},
+	{name:"dock"}
 ];
 var brushButtons = [
 	{name:"brush1"}, {name:"brush2"},
@@ -97,25 +98,28 @@ MapEditor.prototype.drawEditScreen = function(event) {
 			var ch, color;
 			if(line) ch = line.charAt(j);
 		    switch(ch) {
-				case "0": // Water
+				case "0": // Water -- blue
 					color = "#42C5F4";
 					break;
-		    	case "1": // Sand
+		    	case "1": // Sand -- tan
 					color = "#C19E70";
 					break;
-		    	case "2": // Grass
+		    	case "2": // Grass -- green
 					color = "#2A8C23";
 					break;
-				case "3": // Port
+				case "3": // Port -- gray
 					color = "#696969";
 					break;
-				case "4": // Resource
+				case "4": // Resource -- maroon
 					color = "#a52a2a";
 					break;
-				case "5": // Spawn point
+				case "5": // Spawn point -- yellow
 					color = "#ffff00";
 					break;
-		    	default: 
+				case "6": // Dock -- pink
+					color = "#f241a5";
+					break;
+		    	default: // Invalid -- black
 					color = "#000000";
 					break;
 		    }
