@@ -22,7 +22,8 @@ var resource = require("./resource.js");
 */
 var Game = function() {}
 
-var losers = [];
+// Event queues
+var deaths = [];
 var transfers = [];
 var docks = [];
 var undocks = [];
@@ -39,17 +40,16 @@ Game.prototype.listen = function(router) {
 }
 
 /**
-* Updates the client's player according to which
-* keys the client is pressing.
+* Updates the client's player input
 * @param param - data passed by the router
 * @param param.client - the client pressing keys
-* @param param.data - the keys being pressed
+* @param param.data - the input object
 * @memberof module:server/Game
 */
 Game.prototype.input = function (param) {
     if (debug) log("server/game.js: input()");
     var client = param.client;
-	// If the client is in control of a player
+	// If the client is in control of a ship
 	if(client.player) {
 	    // Assign input data
 		client.player.input = param.data;
@@ -57,12 +57,12 @@ Game.prototype.input = function (param) {
 }
 
 /**
-* The core game loop. Updates the player positions
+* The core game loop. Updates the ship positions
 * and emits them to all clients.
 * @memberof module:server/Game
 */
 Game.prototype.update = function() {
-    // Generate object with all player positions
+    // Generate object with all ship positions
     for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
 		if(session.game.running) {
@@ -76,17 +76,17 @@ Game.prototype.update = function() {
 			updatePhysics(session);
 			// Spawn new entities
 			updateSpawners(session);
-			// Add the player data to the packet
-			for(var j in session.game.players) {
-				var p = session.game.players[j];
-				if(p.active) {
+			// Add the ship data to the packet
+			for(var j in session.game.ships) {
+				var s = session.game.ships[j];
+				if(s.active) {
 					pack.ships.push({
-						name:p.name, 
-						box:p.box, 
-						health:p.health, 
+						name:s.name, 
+						box:s.box, 
+						health:s.health, 
 						ammo:{
-							loaded:p.projectiles.length,
-							unloaded:p.currentAmmo
+							loaded:s.projectiles.length,
+							unloaded:s.currentAmmo
 						}
 					});
 				}
@@ -115,38 +115,40 @@ Game.prototype.update = function() {
 		}
 	}
 	// Handle death events
-	while(losers.length > 0) {
-		var l = losers.pop();
+	while(deaths.length > 0) {
+		var d = deaths.pop();
+		var victim = CLIENT_LIST.find(function(c) {
+			return c.username === d.victim;
+		});
 		var killer = CLIENT_LIST.find(function(c) {
-			return c.username === l.killer;
+			return c.username === d.killer;
 		});
-		var client = CLIENT_LIST.find(function(c) {
-			return c.player === l.player;
-		});
-		if(client) {
-			server.emit(client.socket, "alert", "Your ship has been destroyed by " + l.killer);
-			client.player.diff.shipsLost = 1;
+		if(victim && victim.player) {
+			server.emit(victim.socket, 
+				"alert", "Your ship has been destroyed by " + d.killer);
+			victim.player.diff.shipsLost = 1;
 		}
 		if(killer && killer.player) {
-			server.emit(killer.socket, "alert", "You have destroyed " + l.player.name);
+			server.emit(killer.socket, 
+				"alert", "You have destroyed " + d.victim);
 			killer.player.diff.shipsSunk = 1;
 		}
 	}
 	// Handle resource pickup events
 	while(transfers.length > 0) {
 		var t = transfers.pop();
-		var recip = CLIENT_LIST.find(function(c) {
+		var client = CLIENT_LIST.find(function(c) {
 			return c.username === t.recipient;
 		});
-		if(recip && recip.player) {
+		if(client && client.player) {
 			while(t.items.length > 0) {
 				var item = t.items.pop();
 				if(item.name === "ammo") {
-					recip.player.currentAmmo += item.amount;
-					server.emit(recip.socket, "alert", 
+					client.player.activeShip.currentAmmo += item.amount;
+					server.emit(client.socket, "alert", 
 					"+ " + item.amount + " ammo");
 				}
-				// Add more resource types here
+				// TO DO: Add more resource types here
 			}
 		}
 	}
@@ -154,20 +156,21 @@ Game.prototype.update = function() {
 	while(docks.length > 0) {
 		var d = docks.pop();
 		var client = CLIENT_LIST.find(function(c) {
-			return c.username === d.ship;
+			return c.username === d.name;
 		});
-		if(client && client.player && client.player.active && 
-			!client.player.docked && client.player.input.anchor) {
-			server.emit(client.socket, "alert", "You are now docked at a port");
+		if(client && client.player && client.player.activeShip && 
+			!client.player.activeShip.docked && client.player.input.anchor) {
+			server.emit(client.socket, "alert", "You are now docked at (" + 
+				d.coords.x + ", " + d.coords.y + ")");
+			client.player.activeShip.docked = true;
 			// TO DO: more complex docking response
-			client.player.docked = true;
 		}
 	}
 	// Handle undocking events
 	while(undocks.length > 0) {
 		var d = undocks.pop();
 		var client = CLIENT_LIST.find(function(c) {
-			return c.player === d;
+			return c.username === d.name;
 		});
 		if(client) {
 			server.emit(client.socket, "alert", "You have undocked from a port");
@@ -177,7 +180,7 @@ Game.prototype.update = function() {
 
 /**
 * Updates the "seconds played" and "distance sailed" stats
-* for every player currently in a game.
+* for every ship currently in a game.
 * @memberof module:server/Game
 */
 Game.prototype.updateStats = function() {
@@ -185,60 +188,58 @@ Game.prototype.updateStats = function() {
 	var send = false;
 	for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
+		if(!session.game.running) continue;
 		var users = [];
 		var stats = [];
 		for(var j in session.game.players) {
+			send = true;
 			var p = session.game.players[j];
-			if(p.active) {
-				send = true;
-				users.push(p);
-				var arr = [];
-				arr.push({
-					name:"seconds_played", 
-					diff:1});
-				arr.push({
-					name:"shots_fired", 
-					diff:p.diff.shotsFired
-				});
-				arr.push({
-					name:"distance_sailed", 
-					diff:p.diff.distanceSailed
-				});
-				arr.push({
-					name:"ships_sunk", 
-					diff:p.diff.shipsSunk
-				});
-				arr.push({
-					name:"ships_lost", 
-					diff:p.diff.shipsLost
-				});
-				stats.push(arr);
-				p.diff.distanceSailed = 0;
-				p.diff.shotsFired = 0;
-				p.diff.shipsLost = 0;
-				p.diff.shipsSunk = 0;
-				if(!p.alive) p.active = false;
-			}
-		}
-		if(send) {
-			dbi.updateStats(users, stats, function(resp) {
-				if(!resp && debug) {
-					log("Failed to update stats");
-				}
+			// Add all ship diffs to player diff
+			computePlayerDiff(p);
+			users.push(p);
+			var arr = [];
+			arr.push({
+				name:"seconds_played", 
+				diff:1});
+			arr.push({
+				name:"shots_fired", 
+				diff:p.diff.shotsFired
 			});
+			arr.push({
+				name:"distance_sailed", 
+				diff:p.diff.distanceSailed
+			});
+			arr.push({
+				name:"ships_sunk", 
+				diff:p.diff.shipsSunk
+			});
+			arr.push({
+				name:"ships_lost", 
+				diff:p.diff.shipsLost
+			});
+			stats.push(arr);
+			p.diff.distanceSailed = 0;
+			p.diff.shotsFired = 0;
+			p.diff.shipsLost = 0;
+			p.diff.shipsSunk = 0;
 		}
+		dbi.updateStats(users, stats, function(resp) {
+			if(!resp && debug) {
+				log("Failed to update stats");
+			}
+		});
 	}
-	// If any of the players are in game
+	// If any clients are in game
 	// Push the stats changes to all clients
 	if(send) {
-	dbi.getAllStats(function(data) {
-	    if(data) {
-			for(var i in CLIENT_LIST) {
-				server.emit(CLIENT_LIST[i].socket, 
-					"statsMenuResponse", data);
-			}
-	    }
-	});
+		dbi.getAllStats(function(data) {
+		    if(data) {
+				for(var i in CLIENT_LIST) {
+					server.emit(CLIENT_LIST[i].socket, 
+						"statsMenuResponse", data);
+				}
+		    }
+		});
 	}
 }
 
@@ -276,37 +277,30 @@ function updatePhysics(session) {
 	}
 	changeWind(session.game.wind);
 	var map = session.mapData;
-	// Move players / handle player collisions / handle input
-	for(var i in session.game.players) {
-		var player = session.game.players[i];
-		if(!player.active || !player.alive) continue;
+	// Move ships / handle ship collisions / handle input
+	for(var i in session.game.ships) {
+		var ship = session.game.ships[i];
+		if(!ship.active) continue;
 		// Store x and y for stats tracking
-		player.prevX = player.box.x;
-		player.prevY = player.box.y;
-		// Handle input
-		handleInput(player, session);
-		// Handle player collisions
-		handleCollisions(player.box, session);
-		// Update player boxes
-		var dmg = updateBox(player.box, map);
-		player.health -= dmg.mag;
-		if(player.health < 0) {
-			player.health = 0;
-			player.alive = false;
-			losers.push({
-				player:player, 
-				killer:dmg.source
-			});
-		}
+		ship.prevX = ship.box.x;
+		ship.prevY = ship.box.y;
+		// Handle input from the ship's owner
+		handleInput(ship.player, session);
+		// Handle ship collisions
+		handleCollisions(ship.box, session);
+		// Update ship boxes
+		var dmg = updateBox(ship.box, map);
+		ship.health -= dmg.mag;
+		if(ship.health < 0) handleDeath(ship, dmg.source);
 	}
 	// Calculate the diffs with the corrected boxes
-	for(var i in session.game.players) {
-		var player = session.game.players[i];
-		if(!player.active) continue;
-		var dx = player.box.x - player.prevX;
-		var dy = player.box.y - player.prevY;
+	for(var i in session.game.ships) {
+		var ship = session.game.ships[i];
+		if(!ship.active) continue;
+		var dx = ship.box.x - ship.prevX;
+		var dy = ship.box.y - ship.prevY;
 		var dist = Math.sqrt(dx * dx + dy * dy);
-		player.diff.distanceSailed += dist;
+		ship.diff.distanceSailed += dist;
 			
 	}
 	// Move projectiles / handle projectile collisions
@@ -366,7 +360,7 @@ function updateSpawners(session) {
 	}
 	for(var i in session.game.shipSpawns) {
 		var s = session.game.shipSpawns[i];
-		s.blocked = true;
+		s.blocked = false;
 		// To do -- implement random enemy ship spawns
 	}
 }
@@ -446,7 +440,7 @@ function handleCollisions(box, session) {
 	// handle the event
 	if(dock) {
 		docks.push({
-			ship:box.name, 
+			name:box.name, 
 			coords:dock
 		});
 	}
@@ -460,23 +454,23 @@ function handleCollisions(box, session) {
 			x:v[i].x - box.x,
 			y:v[i].y - box.y
 		};
-		for(var j in session.game.players) {
-			var p = session.game.players[j];
-			if(!p.active || 
-				p.name === box.name ||
-				p.box === box) continue;
-			if((Math.abs(v[i].x - p.box.x) < p.box.w) &&
-				(Math.abs(v[i].y - p.box.y) < p.box.h)) {
+		for(var j in session.game.ships) {
+			var s = session.game.ships[j];
+			if(!s.active || 
+				s.name === box.name ||
+				s.box === box) continue;
+			if((Math.abs(v[i].x - s.box.x) < s.box.w) &&
+				(Math.abs(v[i].y - s.box.y) < s.box.h)) {
 				v[i].hit = true;
-				// Impulse of p.box on box
+				// Impulse of s.box on box
 				box.collisions.push({
 					vector:vect,
-					mass:p.box.mass,
-					source:p.box.name,
+					mass:s.box.mass,
+					source:s.box.name,
 					damage:0
 				});
-				// Impulse of box on p.box
-				p.box.collisions.push({
+				// Impulse of box on s.box
+				s.box.collisions.push({
 					vector:opp_vect,
 					mass:box.mass * 0.05,
 					source:box.name,
@@ -528,6 +522,17 @@ function handleCollisions(box, session) {
 		}
 		log("[" + box.x + ", " + box.y + "]" + out);
 	}
+}
+
+// Takes ship victim and string killer
+function handleDeath(victim, killer) {
+	victim.health = 0;
+	victim.alive = false;
+	victim.active = false;	// STATS TRACKING BUG <----
+	deaths.push({
+		victim:victim.name, 
+		killer:killer
+	});
 }
 
 function updateBox(box) {
@@ -592,90 +597,96 @@ function updateBox(box) {
 function handleInput(player, session) {
 	var list = session.game.projectiles;
 	var wind = session.game.wind;
-	var ship = {
-		x:Math.cos(player.box.dir),
-		y:Math.sin(player.box.dir)
-	};
-	var vect;
-	var dot;
-	
+	var ship = player.activeShip;
+	if(!ship) return;
+
 	// Rotate
 	if(player.input.right) {
-		player.box.dir += 0.03;
-		player.box.ddir = 0.03;
+		ship.box.dir += 0.03;
+		ship.box.ddir = 0.03;
 	}
 	if(player.input.left) {
-		player.box.dir -= 0.03;
-		player.box.ddir = -0.03;
+		ship.box.dir -= 0.03;
+		ship.box.ddir = -0.03;
 	}
 	
 	// Fire / load projectiles
 	if(player.input.firingLeft || player.input.firingRight) {
-		fireProjectile(player, list);
+		fireProjectile(
+			ship, list,
+			player.input.firingLeft, 
+			player.input.firingRight
+		);
 	} else {
-		loadProjectile(player);
+		loadProjectile(ship);
 	}
 	
+	// Weigh / drop anchor
 	if(player.input.anchor) {
-		player.box.dx = player.box.dy = 0;
+		ship.box.dx = ship.box.dy = 0;
 	} else {
 		// Handle undocking event
-		if(player.docked) {
-			player.docked = false;
-			undocks.push(player);
+		if(ship.docked) {
+			ship.docked = false;
+			undocks.push({name:ship.name});
 		}
+		// Apply water resistance
+		var vect = {
+			x:0.005 * -ship.box.dx,
+			y:0.005 * -ship.box.dy
+		};
+		ship.box.collisions.push({
+			vector:vect,
+			mass:ship.box.mass,
+			source:"the sea",
+			damage:0
+		});
 		// Apply wind collision
-		if(player.input.sails && player.box.ddir === 0) {
-			dot = ship.x * wind.x + ship.y * wind.y;
+		if(player.input.sails && ship.box.ddir === 0) {
+			var ship_dir = {
+				x:Math.cos(ship.box.dir),
+				y:Math.sin(ship.box.dir)
+			};
+			var dot = ship_dir.x * wind.x + ship_dir.y * wind.y;
 			vect = {
-				x:dot * ship.x,
-				y:dot * ship.y
+				x:dot * ship_dir.x,
+				y:dot * ship_dir.y
 			}
-			player.box.collisions.push({
+			ship.box.collisions.push({
 				vector:vect,
-				mass:0.01 * player.box.mass,
+				mass:0.01 * ship.box.mass,
 				source:"the wind",
 				damage:0
 			});
 		}
-		// Apply water resistance
-		vect = {
-			x:0.005 * -player.box.dx,
-			y:0.005 * -player.box.dy
-		};
-		player.box.collisions.push({
-			vector:vect,
-			mass:player.box.mass,
-			source:"the sea",
-			damage:0
-		});
 		// Apply force from turning
-		player.box.dx += -player.box.dy * Math.sin(player.box.ddir);
-		player.box.dy += player.box.dx * Math.sin(player.box.ddir);
+		ship.box.dx += -ship.box.dy * Math.sin(ship.box.ddir);
+		ship.box.dy += ship.box.dx * Math.sin(ship.box.ddir);
 	}
 }
 
-// Fire all projectiles the player has
-function fireProjectile(player, list) {
-	if(player.firingCount < 1) {
-		player.firingCount += player.firingRate;
+// Create new projectiles, push to list, launch left or right or both
+function fireProjectile(ship, list, left, right) {
+	if(!ship) return;
+	if(ship.firingCount < 1) {
+		ship.firingCount += ship.firingRate;
 	} else {
-		var proj = player.projectiles.pop(), proj2;
+		var proj = ship.projectiles.pop(), proj2;
 		if(!proj) return; // Cannons need to be reloaded
-		proj = new projectile(player);
-		if(player.input.firingLeft && player.input.firingRight) {
-			proj2 = player.projectiles.pop();
-			if(proj2) proj2 = new projectile(player);
+		proj = new projectile(ship);
+		if(left && right) {
+			proj2 = ship.projectiles.pop();
+			if(proj2) proj2 = new projectile(ship);
 		}
 		var vect = {
-			x:player.firepower * Math.cos(proj.box.dir),
-			y:player.firepower * Math.sin(proj.box.dir)
+			x:ship.firepower * Math.cos(proj.box.dir),
+			y:ship.firepower * Math.sin(proj.box.dir)
 		};
 		// if firing left, fire proj out the left side
 		// if also firing right, try to fire proj2 out right side
 		// if only firing right, fire proj out right side
-		if(player.input.firingLeft) {
-			if(player.input.firingRight && proj2) {
+		if(left) {
+			if(right && proj2) {
 				proj2.box.collisions.push({
 					vector:{
 						x:-vect.x,
@@ -687,7 +698,7 @@ function fireProjectile(player, list) {
 				});
 				list.push(proj2);
 				proj2.box.ddir = proj2.box.dir;
-				player.diff.shotsFired++;
+				ship.diff.shotsFired++;
 			}
 		} else {
 			vect.x = -vect.x;
@@ -701,22 +712,32 @@ function fireProjectile(player, list) {
 		});
 		list.push(proj);
 		proj.box.ddir = proj.box.dir;
-		player.diff.shotsFired++;
-		player.firingCount = player.firingRate;
+		ship.diff.shotsFired++;
+		ship.firingCount = ship.firingRate;
 	}
 }
 
-function loadProjectile(player) {
-	if(player.input.firingLeft || player.input.firingRight) return;
-	if(player.projectiles.length < player.numCannons &&
-		player.currentAmmo > 0) {
-		if(player.reloadCount > 1) {
-			player.projectiles.push({});
-			player.currentAmmo--;
-			player.reloadCount = 0;
+function loadProjectile(ship) {
+	if(ship.projectiles.length < ship.numCannons &&
+		ship.currentAmmo > 0) {
+		if(ship.reloadCount > 1) {
+			ship.projectiles.push({});
+			ship.currentAmmo--;
+			ship.reloadCount = 0;
 		} else {
-	   		player.reloadCount += player.reloadRate;
+	   		ship.reloadCount += ship.reloadRate;
 	   	}
+	}
+}
+
+// Sums the diffs of all ships owned by player
+// and adds to player's diff
+function computePlayerDiff(player) {
+	for(var i in player.ships) {
+		var s = player.ships[i];
+		player.diff.distanceSailed += s.diff.distanceSailed;
+		player.diff.shotsFired += s.diff.shotsFired;
+		player.diff.shipsSunk += s.diff.shipsSunk;
 	}
 }
 

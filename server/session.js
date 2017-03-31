@@ -5,6 +5,7 @@ var log = require("./debug.js").log;
 var server = require("./server.js");
 var dbi = require("./dbi.js");
 var player = require("./player.js");
+var ship = require("./ship.js");
 
 /**
 * The session namespace controls the current game session
@@ -53,14 +54,14 @@ var GAME_SESSIONS = [];
 Session.prototype.newGameSession = function(param) {
 	var client = param.client;
 	var id = GAME_SESSIONS.length;
-	log(id);
 	// Create new session with client.player as host
 	GAME_SESSIONS[id] = {
 		host:client, 
 		clients:[client],
 		game:{
-			map:"", 
+			map:"",
 			players:[], 
+			ships:[], 
 			projectiles:[],
 			resources:[],
 			shipSpawns:[],
@@ -170,13 +171,6 @@ Session.prototype.exitGameSession = function(param) {
     // If client is host, kick everyone out
     if(client === session.host) {
 		Session.prototype.deleteGameSession({client:client});
-	} else {
-		for(var i in session.game.players) {
-			if(session.game.players[i] === client.player) {
-				session.game.players[i].active = false;
-				break;
-			}
-		}
 	}
 	client.player = null;
 	client.id = -1;
@@ -225,13 +219,6 @@ Session.prototype.kickUser = function(param) {
 		var index = session.clients.indexOf(target);
 		// Remove from session list
 		session.clients.splice(index, 1);
-		// Disable in game if needed
-		for(var i in session.game.players) {
-			if(session.game.players[i] === target.player) {
-				session.game.players[i].active = false;
-				break;
-			}
-		}
 		// Move target out of the lobby
 		server.emit(target.socket, "sessionBrowser", null);
 		server.emit(target.socket, "alert", 
@@ -309,7 +296,8 @@ Session.prototype.startGame = function(param) {
 	var session = GAME_SESSIONS[id];
 	session.game = {
 		map:param.data, 
-		players:[], 
+		players:[],
+		ships:[], 
 		projectiles:[], 
 		resources:[],
 		shipSpawns:[],
@@ -351,7 +339,8 @@ Session.prototype.stopGame = function(param) {
 	}
 	session.game = {
 		map:"", 
-		players:[], 
+		players:[],
+		ships:[], 
 		projectiles:[], 
 		resources:[],
 		shipSpawns:[],
@@ -401,23 +390,7 @@ Session.prototype.enterGame = function(param) {
 		server.emit(client.socket, "alert", "Game is not currently active");
 		return;
 	}
-	var p = session.game.players.find(function(pl) {
-		return pl.name === client.username;
-	});
-	if(p) {
-		client.player = p;
-		if(p.alive) {
-			p.active = true;
-			server.emit(client.socket, "alert", "Rejoining game");
-		} else {
-			server.emit(client.socket, "alert", "Spectating game");
-		}
-	} else {
-		client.player = new player(client.username, 5, 5);
-		server.emit(client.socket, "alert", "Joining as new player");
-		session.game.players.push(client.player);
-	}
-	server.emit(client.socket, "gameScreen", {isHost:false});
+	spawnInGame(client, session, true);
 	pushSessionTable(param.clients);
 }
 
@@ -435,12 +408,6 @@ Session.prototype.exitGame = function(param) {
 		Session.prototype.stopGame({client:client});
 	} else {
 		// Disable in game
-		for(var i in session.game.players) {
-			if(session.game.players[i] === client.player) {
-				session.game.players[i].active = false;
-				break;
-			}
-		}
 		client.player = null;
 		// Move back to lobby
 		server.emit(client.socket, "lobbyScreen", {isHost:false});
@@ -551,7 +518,7 @@ function loadMap(map, session, cb) {
 	});
 }
 
-
+// Returns the array of usernames of all clients
 function getNames(clients) {
 	var names = [];
 	for(var i in clients) {
@@ -560,6 +527,8 @@ function getNames(clients) {
 	return names;
 }
 
+// Returns a formatted table representation of
+// all active game sessions
 function getSessionTable() {
 	var table = [];
 	for(var i in GAME_SESSIONS) {
@@ -574,26 +543,23 @@ function getSessionTable() {
 	return table;
 }
 
+// Pushes the session list to all clients
 function pushSessionTable(clients) {
-	// Send the changes to all clients
 	for(var i in clients) {
 		server.emit(clients[i].socket, 
 			"sessionListResponse", getSessionTable());
 	}
 }
 
+// Assigns the given game state other to the given session.
+// Also takes boolean "enter" to force all clients in the
+// lobby into the game
 function setGame(session, other) {
-	var start = !session.game.running;
+	var enter = !session.game.running;
 	// Freeze both games
 	session.game.running = false;
 	other.running = false;
-	for(var i in session.players) {
-		session.game.players[i].active = false;
-	}
-	for(var i in other.players) {
-		other.players[i].active = false;
-	}
-	
+
 	// Set game
 	session.game = other;
 	var map = session.mapData;
@@ -618,47 +584,15 @@ function setGame(session, other) {
 			}
 		}
 	}
-	
-	// Port all players over
+	// Spawn all clients into the game
 	for(var i in session.clients) {
-		var c = session.clients[i];
-		// Locate any former player of the client
-		var p = session.game.players.find(function(pl) {
-			return pl.name === c.username;
-		});
-		if(p) {
-			// If the client is in-game, reassign and activate
-			// else just wait for them to rejoin
-			if(c.player || start) {
-				c.player = p;
-				if(c.player.alive) {
-					c.player.active = true;
-					server.emit(c.socket, "alert", "Resuming play");
-				} else {
-					server.emit(c.socket, "alert", "Spectating");
-				}
-			}
-		} else {
-			// If the client is in-game, assign new active player
-			// Else wait for them to join
-			if(c.player || start) {
-				var coords = getSpawn(session.game.shipSpawns);
-				c.player = new player(c.username, coords.x, coords.y);
-				session.game.players.push(c.player);
-				if(coords) {
-					server.emit(c.socket, "alert", "Spawning as new player");
-				} else {
-					c.player.active = false;
-					server.emit(c.socket, "alert", "No available spawns--spectating");
-				}
-			}
-		}
-		if(start) server.emit(c.socket, 
-			"gameScreen", {isHost:(c === session.host)});
+		spawnInGame(session.clients[i], session, enter);
 	}
 	session.game.running = true;
 }
 
+// Finds and returns an x, y coordinate of an
+// available ship spawn point
 function getSpawn(list) {
 	for(var i in list) {
 		if(!list[i].blocked) {
@@ -671,6 +605,52 @@ function getSpawn(list) {
 	}
 	return null;
 }
+
+// Takes a given client, session, and whether or not
+// clients should be forced to enter the game. Spawns
+// clients in according to various criteria
+function spawnInGame(c, session, enter) {
+	// Locate any former player of the client
+	var p = session.game.players.find(function(pl) {
+		return pl.name === c.username;
+	});
+	if(p) {
+		// If the client is in-game or forced to enter, 
+		// reassign and activate
+		// else just wait for them to rejoin
+		if(c.player || enter) {
+			c.player = p;
+			if(!c.player.out) {
+				server.emit(c.socket, "alert", "Resuming play");
+			} else {
+				server.emit(c.socket, "alert", "Spectating");
+			}
+		}
+	} else {
+		// If the client is in-game or forced to enter, 
+		// assign new active player and ship
+		// Else wait for them to join
+		if(c.player || enter) {
+			c.player = new player(c.username);
+			session.game.players.push(c.player);
+			var coords = getSpawn(session.game.shipSpawns);
+			if(coords) {
+				c.player.activeShip = new ship(
+					c.player, c.username, 
+					coords.x, coords.y
+				);
+				c.player.ships.push(c.player.activeShip);
+				session.game.ships.push(c.player.activeShip);
+				server.emit(c.socket, "alert", "Spawning with new ship");
+			} else {
+				server.emit(c.socket, "alert", "No available spawns--spectating");
+			}
+		}
+	}
+	if(enter) server.emit(c.socket, 
+		"gameScreen", {isHost:(c === session.host)});
+}
+
 
 module.exports = new Session();
 module.exports.GAME_SESSIONS = GAME_SESSIONS;
