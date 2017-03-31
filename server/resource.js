@@ -24,7 +24,7 @@ var Resource = function(x, y) {
 		},
 		contents:[],
 		active:true,
-		health:20
+		health:5
 	};
 	
 	var x1 = res.box.x - res.box.w / 2,

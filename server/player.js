@@ -50,7 +50,8 @@ var Player = function(name, x, y) {
 		prevX:x,
 		prevY:y,
 		
-		numCannons:50,
+		numCannons:20,
+		currentAmmo:20,
 		reloadCount:0,
 		firingCount:0,
 		reloadRate:0.3,

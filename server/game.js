@@ -82,7 +82,10 @@ Game.prototype.update = function() {
 						name:p.name, 
 						box:p.box, 
 						health:p.health, 
-						ammo:p.projectiles.length
+						ammo:{
+							loaded:p.projectiles.length,
+							unloaded:p.currentAmmo
+						}
 					});
 				}
 			}
@@ -121,14 +124,27 @@ Game.prototype.update = function() {
 			server.emit(client.socket, "alert", "Your ship has been destroyed by " + l.killer);
 			client.player.diff.shipsLost = 1;
 		}
-		if(killer) {
+		if(killer && killer.player) {
 			server.emit(killer.socket, "alert", "You have destroyed " + l.player.name);
 			killer.player.diff.shipsSunk = 1;
 		}
 	}
 	while(transfers.length > 0) {
 		var t = transfers.pop();
-		log(t.recipient + " destroyed a barrel");
+		var recip = CLIENT_LIST.find(function(c) {
+			return c.username === t.recipient;
+		});
+		if(recip && recip.player) {
+			while(t.items.length > 0) {
+				var item = t.items.pop();
+				if(item.name === "ammo") {
+					recip.player.currentAmmo += item.amount;
+					server.emit(recip.socket, "alert", 
+					"+ " + item.amount + " ammo");
+				}
+				// Add more resource types here
+			}
+		}
 	}
 }
 
@@ -620,9 +636,11 @@ function fireProjectile(player, list) {
 
 function loadProjectile(player) {
 	if(player.input.firing) return;
-	if(player.projectiles.length < player.numCannons) {
+	if(player.projectiles.length < player.numCannons &&
+		player.currentAmmo > 0) {
 		if(player.reloadCount > 1) {
 			player.projectiles.push({});
+			player.currentAmmo--;
 			player.reloadCount = 0;
 		} else {
 	   		player.reloadCount += player.reloadRate;

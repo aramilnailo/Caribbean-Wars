@@ -152,7 +152,8 @@ Render.prototype.drawGameState = function(data) {
 		if(ships[i].name === client.username) {
 			txt += s.name + 
 			": " + s.health.toFixed(1) + 
-			", " + s.ammo;
+			", " + s.ammo.loaded + 
+			" / " + s.ammo.unloaded;
 			dom.canvas.fillStyle = "#00ff00"; // Green
 		} else {
 			txt += s.name;
