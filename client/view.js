@@ -99,7 +99,8 @@ View.prototype.gameScreen = function(data) {
 View.prototype.mapEditorScreen = function(data) {
 	hideAll();
 	client.emit("loadEditMap", "default");
-	show(["upperMenu", "mapEditorMenu", "mapEditorScreen"]);
+	show(["upperMenu", "mapEditorMenu", 
+	"mapEditorScreen", "optionsMenu"]);
 	client.inGame = false;
 }
 

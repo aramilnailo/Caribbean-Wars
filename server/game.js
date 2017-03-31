@@ -493,7 +493,7 @@ function handleInput(player, session) {
 	};
 	player.box.collisions.push({
 		vector:vect,
-		mass:1,
+		mass:player.box.mass,
 		source:"the sea",
 		damage:0
 	});

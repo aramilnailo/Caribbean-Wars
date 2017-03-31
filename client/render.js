@@ -11,10 +11,12 @@ var log = debug.log;
 var Render = function() {};
 
 // loading images to be displayed
-var shipImage = new Image();
-var cannonballImage = new Image();
-shipImage.src = "client/imgs/shipImage.png";
-cannonballImage.src = "client/imgs/cannonballImage.png";
+var arrow = new Image();
+var ball = new Image();
+var ship = new Image();
+arrow.src = "client/imgs/arrow.png";
+ball.src = "client/imgs/ball.png";
+ship.src = "client/imgs/ship.png";
 
 var render_next = [];
 
@@ -130,11 +132,11 @@ Render.prototype.drawGameState = function(data) {
 		);
 		dom.canvas.rotate(ships[i].box.dir);
 		dom.canvas.drawImage(
-			shipImage, 
-			-shifted_w/2, 
-			-shifted_h/2, 
-			shifted_w,
-			shifted_h
+			ship, 
+			-shifted_w * 0.5, 
+			-shifted_h * 0.75, 
+			shifted_w * 1.5,
+			shifted_h * 1.5
 		);
 		dom.canvas.restore();
 		// Store coords affected by bounding box
@@ -157,7 +159,7 @@ Render.prototype.drawGameState = function(data) {
 				}
 			}
 		}
-		if(debug) {
+		if(false) {
 			var verts = s.box.verts;
 			// Draw bounding box
 			dom.canvas.beginPath();
@@ -231,7 +233,7 @@ Render.prototype.drawGameState = function(data) {
 		);
 		dom.canvas.rotate(p.box.dir);
 		dom.canvas.drawImage(
-			cannonballImage,
+			ball,
 			-shifted_w / 2, 
 			-shifted_h / 2,
 			shifted_w,
@@ -239,7 +241,6 @@ Render.prototype.drawGameState = function(data) {
 		);
 		dom.canvas.restore();
 		// Add verts for next screen refresh
-
 		var bx = Math.floor(p.box.x), 
 			by = Math.floor(p.box.y), 
 			val = 3 * Math.max(
@@ -258,7 +259,7 @@ Render.prototype.drawGameState = function(data) {
 				}
 			}
 		}
-		if(debug) {
+		if(false) {
 			// Draw bounding box
 			var verts = p.box.verts;
 			dom.canvas.beginPath();
@@ -346,7 +347,7 @@ Render.prototype.drawGameState = function(data) {
 	);
 	dom.canvas.rotate(dir);
 	dom.canvas.drawImage(
-		shipImage, 
+		arrow, 
 		-10, -5, 
 		20, 10
 	);

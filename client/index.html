@@ -157,6 +157,12 @@
 		</div>
 	</div>
 	
+	<!--MAP EDITOR SCREEN-->
+	<div id="map-editor-screen" style="display:none;">
+	    <canvas id="map-editor-canvas" width="600" height="500"
+		    style="inline-block; border:1px solid black;"></canvas>
+	</div>
+	
 	<!--OPTIONS MENU-->
     <div id="options-menu" class="clear-menu" style="display:none;">
 	<center>
@@ -173,12 +179,6 @@
 	  	</div>
 	</center>
     </div>
-	
-	<!--MAP EDITOR SCREEN-->
-	<div id="map-editor-screen" style="display:none;">
-	    <canvas id="map-editor-canvas" width="600" height="500"
-		    style="inline-block; border:1px solid black;"></canvas>
-	</div>
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script data-main="./client/main.js" src="./client/require.js"></script>

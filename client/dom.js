@@ -187,19 +187,13 @@ dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", d
 dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
 dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:event}); }
 
-    //map editor canvas
-    dom.mapEditorCanvas.onmousedown =
-	function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
-    dom.mapEditorCanvas.onclick =
-	function(event) { router.route({name:"mapEditorCanvasClick", data:event}); }
-    dom.mapEditorCanvas.onmouseup =
-	function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
-    dom.mapEditorCanvas.onmousemove =
-	function(event) { router.route({name:"mapEditorCanvasMouseMove", data:event}); }
-    dom.mapEditorCanvas.onmouseup =
-	function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
-    dom.mapEditorCanvas.onmouseleave =
-	function(event) { router.route({name:"mapEditorCanvasMouseLeave", data:event}); }
+// Map editor mouse events
+dom.mapEditorCanvas.onmousedown = function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
+dom.mapEditorCanvas.onclick = function(event) { router.route({name:"mapEditorCanvasClick", data:event}); }
+dom.mapEditorCanvas.onmouseup = function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
+dom.mapEditorCanvas.onmousemove = function(event) { router.route({name:"mapEditorCanvasMouseMove", data:event}); }
+dom.mapEditorCanvas.onmouseup = function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
+dom.mapEditorCanvas.onmouseleave = function(event) { router.route({name:"mapEditorCanvasMouseLeave", data:event}); }
     
 return dom;
 
