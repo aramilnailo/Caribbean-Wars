@@ -24,6 +24,8 @@ var Game = function() {}
 
 var losers = [];
 var transfers = [];
+var docks = [];
+var undocks = [];
 
 /**
 * Registers functions in the namespace with the given
@@ -112,6 +114,7 @@ Game.prototype.update = function() {
 			}
 		}
 	}
+	// Handle death events
 	while(losers.length > 0) {
 		var l = losers.pop();
 		var killer = CLIENT_LIST.find(function(c) {
@@ -129,6 +132,7 @@ Game.prototype.update = function() {
 			killer.player.diff.shipsSunk = 1;
 		}
 	}
+	// Handle resource pickup events
 	while(transfers.length > 0) {
 		var t = transfers.pop();
 		var recip = CLIENT_LIST.find(function(c) {
@@ -144,6 +148,29 @@ Game.prototype.update = function() {
 				}
 				// Add more resource types here
 			}
+		}
+	}
+	// Handle docking events
+	while(docks.length > 0) {
+		var d = docks.pop();
+		var client = CLIENT_LIST.find(function(c) {
+			return c.username === d.ship;
+		});
+		if(client && client.player && client.player.active && 
+			!client.player.docked && client.player.input.anchor) {
+			server.emit(client.socket, "alert", "You are now docked at a port");
+			// TO DO: more complex docking response
+			client.player.docked = true;
+		}
+	}
+	// Handle undocking events
+	while(undocks.length > 0) {
+		var d = undocks.pop();
+		var client = CLIENT_LIST.find(function(c) {
+			return c.player === d;
+		});
+		if(client) {
+			server.emit(client.socket, "alert", "You have undocked from a port");
 		}
 	}
 }
@@ -373,6 +400,8 @@ function handleCollisions(box, session) {
 	// Check verts against map data
 	var v = box.verts;
 	var v_mag = Math.sqrt(box.dx * box.dx + box.dy * box.dy);
+	// Track whether this box has hit a docking area
+	var dock;
 	for(var i in v) {
 		// Force vector of any collision on this vert
 		var vect = {
@@ -399,7 +428,8 @@ function handleCollisions(box, session) {
 					});
 					if(spawn) spawn.blocked = true;
 				} else if(ch === "6") {
-					log("DOCKED");
+					// Save the dock coords
+					dock = {x:cell_x, y:cell_y};
 				}
 			}
 		}
@@ -411,6 +441,14 @@ function handleCollisions(box, session) {
 				damage:box.mass * v_mag
 			});
 		}
+	}
+	// If the box is in contact with a docking area,
+	// handle the event
+	if(dock) {
+		docks.push({
+			ship:box.name, 
+			coords:dock
+		});
 	}
 	// Check verts against other boxes
 	for(var i in v) {
@@ -581,6 +619,11 @@ function handleInput(player, session) {
 	if(player.input.anchor) {
 		player.box.dx = player.box.dy = 0;
 	} else {
+		// Handle undocking event
+		if(player.docked) {
+			player.docked = false;
+			undocks.push(player);
+		}
 		// Apply wind collision
 		if(player.input.sails && player.box.ddir === 0) {
 			dot = ship.x * wind.x + ship.y * wind.y;

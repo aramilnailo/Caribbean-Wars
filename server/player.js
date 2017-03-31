@@ -59,6 +59,7 @@ var Player = function(name, x, y) {
 		firepower:1.5,
 		projectiles:[],
 		
+		docked:false,
 		active:true,
 		name:name,
 		health:100,
