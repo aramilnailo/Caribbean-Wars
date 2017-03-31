@@ -62,6 +62,9 @@ Session.prototype.newGameSession = function(param) {
 			map:"", 
 			players:[], 
 			projectiles:[],
+			resources:[],
+			shipSpawns:[],
+			resourceSpawns:[],
 			wind:null,
 			running:false,
 		}, 
@@ -308,6 +311,9 @@ Session.prototype.startGame = function(param) {
 		map:param.data, 
 		players:[], 
 		projectiles:[], 
+		resources:[],
+		shipSpawns:[],
+		resourceSpawns:[],
 		wind:null,
 		running:false
 	};
@@ -347,6 +353,9 @@ Session.prototype.stopGame = function(param) {
 		map:"", 
 		players:[], 
 		projectiles:[], 
+		resources:[],
+		shipSpawns:[],
+		resourceSpawns:[],
 		wind:null,
 		running:false
 	};
@@ -587,20 +596,28 @@ function setGame(session, other) {
 	
 	// Set game
 	session.game = other;
-
-	// Find all spawns in the new map
 	var map = session.mapData;
-	var spawns = [];
+	
+	// Scan for ship spawns and resource spawns in the new map
+	session.game.shipSpawns = [];
+	session.game.resourceSpawns = [];
 	for(var i = 0; i < map.data.length; i++) {
 		for(var j = 0; j < map.data[i].length; j++) {
 			var ch = map.data[i].charAt(j);
-			if(ch === "5") { // Spawn
-				spawns.push({x:j, y:i});
+			if(ch === "4") { // Resource
+				session.game.resourceSpawns.push({
+					x:j, y:i, 
+					blocked:false,
+					counter:999
+				});
+			} else if(ch === "5") { // Spawn
+				session.game.shipSpawns.push({
+					x:j, y:i, 
+					blocked:false
+				});
 			}
 		}
 	}
-	
-	log(spawns);
 	
 	// Port all players over
 	for(var i in session.clients) {
@@ -625,13 +642,14 @@ function setGame(session, other) {
 			// If the client is in-game, assign new active player
 			// Else wait for them to join
 			if(c.player || start) {
-				if(spawns.length > 0) {
-					var coords = spawns.pop();
-					c.player = new player(c.username, coords.x, coords.y);
-					session.game.players.push(c.player);
+				var coords = getSpawn(session.game.shipSpawns);
+				c.player = new player(c.username, coords.x, coords.y);
+				session.game.players.push(c.player);
+				if(coords) {
 					server.emit(c.socket, "alert", "Spawning as new player");
 				} else {
-					server.emit(c.socket, "alert", "Not enough room for you");
+					c.player.active = false;
+					server.emit(c.socket, "alert", "No available spawns--spectating");
 				}
 			}
 		}
@@ -639,6 +657,19 @@ function setGame(session, other) {
 			"gameScreen", {isHost:(c === session.host)});
 	}
 	session.game.running = true;
+}
+
+function getSpawn(list) {
+	for(var i in list) {
+		if(!list[i].blocked) {
+			list[i].blocked = true;
+			return {
+				x:list[i].x,
+				y:list[i].y
+			};
+		}
+	}
+	return null;
 }
 
 module.exports = new Session();

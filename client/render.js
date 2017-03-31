@@ -14,9 +14,11 @@ var Render = function() {};
 var arrow = new Image();
 var ball = new Image();
 var ship = new Image();
+var barrel = new Image();
 arrow.src = "client/imgs/arrow.png";
 ball.src = "client/imgs/ball.png";
 ship.src = "client/imgs/ship.png";
+barrel.src = "client/imgs/barrel.png";
 
 var render_next = [];
 
@@ -80,12 +82,15 @@ Render.prototype.drawCamera = function(map) {
 }
 
 Render.prototype.drawGameState = function(data) {
+	// Starting
 	client.drawing = true;
+	
+	// Extract data sent from server
 	var map = data.map;
 	var ships = data.state.ships;
 	var projectiles = data.state.projectiles;
+	var resources = data.state.resources;
 	var wind = data.state.wind;
-	
 	// camera position in cells
 	var cam_x = client.camera.x;
 	var cam_y = client.camera.y;
@@ -97,6 +102,7 @@ Render.prototype.drawGameState = function(data) {
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;
 	
+	// === GAME SCREEN ===
 	// Re-render any map cells affected last round
 	while(render_next.length > 0) {
 		var coords = render_next.pop(),
@@ -110,84 +116,46 @@ Render.prototype.drawGameState = function(data) {
 			cell_h
 		);
 	}
-	
-	// Render the ships
 	dom.canvas.fillStyle = "#000000";
 	dom.canvas.strokeStyle = "#000000";
 	dom.canvas.font = "10px Arial";
+	// Render the ships
+	var imgData = {
+		img:ship,
+		x:-0.5,
+		y:-0.75,
+		w:1.5,
+		h:1.5
+	};
+	renderBoxes(ships, imgData, render_next);
+	// Render projectiles
+	imgData = {
+		img:ball,
+		x:-0.5,
+		y:-0.5,
+		w:1,
+		h:1
+	}
+	renderBoxes(projectiles, imgData, render_next);
+	// Render resources
+	imgData.img = barrel;
+	renderBoxes(resources, imgData, render_next);
+	// Render ship info, floating name
     for(var i in ships) {
 		var s = ships[i];
-		log(s.box.x + ", " + s.box.y);
-		
-		// Transform the coordinates
 		var shifted_x = (s.box.x - cam_x) * cell_w;
 		var shifted_y = (s.box.y - cam_y) * cell_h;
 		var shifted_w = s.box.w * cell_w;
 		var shifted_h = s.box.h * cell_h;
-		// Draw image
-		dom.canvas.save();
-		dom.canvas.translate(
-			shifted_x, 
-			shifted_y
-		);
-		dom.canvas.rotate(ships[i].box.dir);
-		dom.canvas.drawImage(
-			ship, 
-			-shifted_w * 0.5, 
-			-shifted_h * 0.75, 
-			shifted_w * 1.5,
-			shifted_h * 1.5
-		);
-		dom.canvas.restore();
-		// Store coords affected by bounding box
-		// to render next round
-		var bx = Math.floor(s.box.x), 
-			by = Math.floor(s.box.y), 
-			val = 3 * Math.max(
-				Math.ceil(s.box.w), 
-				Math.ceil(s.box.h)
-			);
-		// Refresh the surrounding 3x3
-		for(var j = -val; j < val; j++) {
-			for(var k = -val; k < val; k++) {
-				var coords = {
-					x:bx + k,
-					y:by + j
-				};
-				if(render_next.indexOf(coords) === -1) {
-					render_next.push(coords);
-				}
-			}
-		}
-		if(false) {
-			var verts = s.box.verts;
-			// Draw bounding box
-			dom.canvas.beginPath();
-			dom.canvas.moveTo(
-				(verts[0].x - cam_x) * cell_w, 
-				(verts[0].y - cam_y) * cell_h
-			);
-			for(var j = 1; j < verts.length; j++) {
-				dom.canvas.lineTo(
-					(verts[j].x - cam_x) * cell_w, 
-					(verts[j].y - cam_y) * cell_h
-				);
-			}
-			dom.canvas.lineTo(
-				(verts[0].x - cam_x) * cell_w, 
-				(verts[0].y - cam_y) * cell_h
-			);
-			dom.canvas.stroke();
-		}
 		var txt = "";
 		// Draw name
 		if(ships[i].name === client.username) {
-			txt += ships[i].name + 
-			": " + ships[i].health.toFixed(1) + 
-			", " + ships[i].ammo;
+			txt += s.name + 
+			": " + s.health.toFixed(1) + 
+			", " + s.ammo;
 			dom.canvas.fillStyle = "#00ff00"; // Green
 		} else {
-			txt += ships[i].name;
+			txt += s.name;
 			dom.canvas.fillStyle = "#ff0000"; // Red
 		}
 		dom.canvas.fillText(txt, 
@@ -217,71 +185,7 @@ Render.prototype.drawGameState = function(data) {
 		
     }
 	
-	// Render projectiles
-	for(var i in projectiles) {
-		var p = projectiles[i];
-		// Transform coordinates
-		var shifted_x = (p.box.x - cam_x) * cell_w;
-		var shifted_y = (p.box.y - cam_y) * cell_h;
-		var shifted_w = p.box.w * cell_w;
-		var shifted_h = p.box.h * cell_h;
-		// Draw image
-		dom.canvas.save();
-		dom.canvas.translate(
-			shifted_x, 
-			shifted_y
-		);
-		dom.canvas.rotate(p.box.dir);
-		dom.canvas.drawImage(
-			ball,
-			-shifted_w / 2, 
-			-shifted_h / 2,
-			shifted_w,
-			shifted_h
-		);
-		dom.canvas.restore();
-		// Add verts for next screen refresh
-		var bx = Math.floor(p.box.x), 
-			by = Math.floor(p.box.y), 
-			val = 3 * Math.max(
-				Math.ceil(p.box.w), 
-				Math.ceil(p.box.h)
-			);
-		// Refresh the surrounding 3x3
-		for(var j = -val; j < val; j++) {
-			for(var k = -val; k < val; k++) {
-				var coords = {
-					x:bx + k,
-					y:by + j
-				};
-				if(render_next.indexOf(coords) === -1) {
-					render_next.push(coords);
-				}
-			}
-		}
-		if(false) {
-			// Draw bounding box
-			var verts = p.box.verts;
-			dom.canvas.beginPath();
-			dom.canvas.moveTo(
-				(verts[0].x - cam_x) * cell_w, 
-				(verts[0].y - cam_y) * cell_h
-			);
-			for(var j = 1; j < verts.length; j++) {
-				dom.canvas.lineTo(
-					(verts[j].x - cam_x) * cell_w, 
-					(verts[j].y - cam_y) * cell_h
-				);
-			}
-			dom.canvas.lineTo(
-				(verts[0].x - cam_x) * cell_w, 
-				(verts[0].y - cam_y) * cell_h
-			);
-			dom.canvas.stroke();
-		}
-	}
-	
-	
+	// === MINI MAP AND MENU ===
 	// Clear the menu and minimap
 	dom.canvas.clearRect(
 		MENU_X, MENU_Y, 
@@ -337,7 +241,6 @@ Render.prototype.drawGameState = function(data) {
 			p_rel_h
 		);
     }
-	
 	// Draw the wind direction
 	var dir = Math.atan2(wind.y, wind.x).toFixed(2);
 	dom.canvas.save();
@@ -353,7 +256,85 @@ Render.prototype.drawGameState = function(data) {
 	);
 	dom.canvas.restore();
 	
+	// Finishing
 	client.drawing = false;
+}
+
+// Helper method renders the list of boxes with given
+// image data, and pushes affected cells to render stack
+function renderBoxes(list, imgData, renderStack) {
+	// camera position in cells
+	var cam_x = client.camera.x;
+	var cam_y = client.camera.y;
+	// camera dimensions in cells
+	var min = Math.min(client.map.width, client.map.height);
+	var cam_w = Math.floor(min / client.camera.zoom);
+	var cam_h = Math.floor(min / client.camera.zoom);
+	// cell dimensions in pixels
+	var cell_w = CANVAS_W / cam_w;
+	var cell_h = CANVAS_H / cam_h;
+	for(var i in list) {
+		var b = list[i];
+		// Transform coordinates
+		var shifted_x = (b.box.x - cam_x) * cell_w;
+		var shifted_y = (b.box.y - cam_y) * cell_h;
+		var shifted_w = b.box.w * cell_w;
+		var shifted_h = b.box.h * cell_h;
+		// Draw image
+		dom.canvas.save();
+		dom.canvas.translate(
+			shifted_x, 
+			shifted_y
+		);
+		dom.canvas.rotate(b.box.dir);
+		dom.canvas.drawImage(
+			imgData.img,
+			shifted_w * imgData.x, 
+			shifted_h * imgData.y, 
+			shifted_w * imgData.w, 
+			shifted_h * imgData.h
+		);
+		dom.canvas.restore();
+		// Add verts for next screen refresh
+		var bx = Math.floor(b.box.x), 
+			by = Math.floor(b.box.y), 
+			val = 3 * Math.max(
+				Math.ceil(b.box.w), 
+				Math.ceil(b.box.h)
+			);
+		// Refresh the surrounding 3x3
+		for(var j = -val; j < val; j++) {
+			for(var k = -val; k < val; k++) {
+				var coords = {
+					x:bx + k,
+					y:by + j
+				};
+				if(renderStack.indexOf(coords) === -1) {
+					renderStack.push(coords);
+				}
+			}
+		}
+		if(debug) {
+			// Draw bounding box
+			var verts = b.box.verts;
+			dom.canvas.beginPath();
+			dom.canvas.moveTo(
+				(verts[0].x - cam_x) * cell_w, 
+				(verts[0].y - cam_y) * cell_h
+			);
+			for(var j = 1; j < verts.length; j++) {
+				dom.canvas.lineTo(
+					(verts[j].x - cam_x) * cell_w, 
+					(verts[j].y - cam_y) * cell_h
+				);
+			}
+			dom.canvas.lineTo(
+				(verts[0].x - cam_x) * cell_w, 
+				(verts[0].y - cam_y) * cell_h
+			);
+			dom.canvas.stroke();
+		}
+	}
 }
 
 

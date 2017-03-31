@@ -9,6 +9,7 @@ var GAME_SESSIONS = require("./session.js").GAME_SESSIONS;
 var dbi = require("./dbi.js");
 
 var projectile = require("./projectile.js");
+var resource = require("./resource.js");
 
 //============== GAME LOGIC =========================================
 
@@ -22,6 +23,7 @@ var projectile = require("./projectile.js");
 var Game = function() {}
 
 var losers = [];
+var transfers = [];
 
 /**
 * Registers functions in the namespace with the given
@@ -65,10 +67,13 @@ Game.prototype.update = function() {
 			var pack = {
 				ships:[], 
 				projectiles:[], 
+				resources:[],
 				wind:session.game.wind
 			};
 			// Run the physics engine
 			updatePhysics(session);
+			// Spawn new entities
+			updateSpawners(session);
 			// Add the player data to the packet
 			for(var j in session.game.players) {
 				var p = session.game.players[j];
@@ -86,6 +91,13 @@ Game.prototype.update = function() {
 				var p = session.game.projectiles[j];
 				if(p.active) {
 					pack.projectiles.push({box:p.box});
+				}
+			}
+			// Add resource data to the packet
+			for(var j in session.game.resources) {
+				var r = session.game.resources[j];
+				if(r.active) {
+					pack.resources.push({box:r.box});
 				}
 			}
 			// Send the packet to each client in the game session
@@ -113,6 +125,10 @@ Game.prototype.update = function() {
 			server.emit(killer.socket, "alert", "You have destroyed " + l.player.name);
 			killer.player.diff.shipsSunk = 1;
 		}
+	}
+	while(transfers.length > 0) {
+		var t = transfers.pop();
+		log(t.recipient + " destroyed a barrel");
 	}
 }
 
@@ -255,22 +271,60 @@ function updatePhysics(session) {
 		var proj = session.game.projectiles[i];
 		if(!proj.active) continue;
 		// Remove if proj has travelled its range
-		var dx = proj.box.dx, dy = proj.box.dy;
-		var dist = Math.sqrt(dx * dx + dy * dy);
-		proj.range -= dist;
+		proj.range -= Math.sqrt(
+			proj.box.dx * proj.box.dx + 
+			proj.box.dy * proj.box.dy
+		);
 		if(proj.range < 0) proj.active = false;
 		// Remove if proj is stopped completely
 		if(proj.box.stuck) proj.active = false;
-		// Remove if proj is out of map bounds
-		if(proj.box.x < 0 || proj.box.x > map.width ||
-			proj.box.y < 0 || proj.box.y > map.height)
-				proj.active = false;
 		if(proj.active) {
 			// Handle projectile collision
 			handleCollisions(proj.box, session);
 			// Update projectile boxes
 			updateBox(proj.box, map);
 		}
+	}
+	// Move resources / handle resource collisions
+	for(var i in session.game.resources) {
+		var res = session.game.resources[i];
+		if(!res.active) continue;
+		handleCollisions(res.box, session);
+		var dmg = updateBox(res.box, map);
+		res.health -= dmg.mag;
+		if(res.health < 0) {
+			res.health = 0;
+			res.active = false;
+			transfers.push({
+				items:res.contents, 
+				recipient:dmg.source
+			});
+		}
+	}
+}
+
+// Loop through the resource spawners
+function updateSpawners(session) {
+	for(var i in session.game.resourceSpawns) {
+		var r = session.game.resourceSpawns[i];
+		r.counter++;
+		if(r.counter > 1000) {
+			r.counter = 0;
+			if(!r.blocked) {
+				var res = new resource(r.x, r.y);
+				res.contents.push({
+					name:"ammo", 
+					amount:10
+				});
+				session.game.resources.push(res);
+			}
+		}
+		r.blocked = false; // Reset for collision detect
+	}
+	for(var i in session.game.shipSpawns) {
+		var s = session.game.shipSpawns[i];
+		s.blocked = true;
+		// To do -- implement random enemy ship spawns
 	}
 }
 
@@ -315,8 +369,19 @@ function handleCollisions(box, session) {
 			v[i].hit = true;
 		} else {
 			var ch = map.data[cell_y].charAt(cell_x);
-			// Cannot collide with water, resource, or spawn
+			// Cannot collide with water or spawners
 			v[i].hit = (ch !== "0" && ch !== "4" && ch !== "5");
+			if(ch === "4") {
+				var spawn = session.game.resourceSpawns.find(function(s) {
+					return s.x === cell_x && s.y === cell_y;
+				});
+				if(spawn) spawn.blocked = true;
+			} else if(ch === "5") {
+				var spawn = session.game.shipSpawns.find(function(s) {
+					return s.x === cell_x && s.y === cell_y;
+				});
+				if(spawn) spawn.blocked = true;
+			}
 		}
 		if(v[i].hit) {
 			box.collisions.push({
@@ -354,6 +419,28 @@ function handleCollisions(box, session) {
 				});
 				// Impulse of box on p.box
 				p.box.collisions.push({
+					vector:opp_vect,
+					mass:box.mass * 0.05,
+					source:box.name,
+					damage:box.mass * v_mag
+				});
+			}
+		}
+		for(var j in session.game.resources) {
+			var r = session.game.resources[j];
+			if(!r.active || r.box === box) continue;
+			if((Math.abs(v[i].x - r.box.x) < r.box.w) &&
+				(Math.abs(v[i].y - r.box.y) < r.box.h)) {
+				v[i].hit = true;
+				// Impulse of r.box on box
+				box.collisions.push({
+					vector:vect,
+					mass:r.box.mass,
+					source:r.box.name,
+					damage:0
+				});
+				// Impulse of box on r.box
+				r.box.collisions.push({
 					vector:opp_vect,
 					mass:box.mass * 0.05,
 					source:box.name,
