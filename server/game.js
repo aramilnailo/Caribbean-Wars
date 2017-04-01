@@ -11,6 +11,7 @@ var dbi = require("./dbi.js");
 var projectile = require("./projectile.js");
 var resource = require("./resource.js");
 var ship = require("./ship.js");
+var autopilot = require("./autopilot.js");
 
 //============== GAME LOGIC =========================================
 
@@ -624,31 +625,35 @@ function handleInput(ship, session) {
 	var wind = session.game.wind;
 	var player = ship.player;
 	
-	if(ship !== player.activeShip) return;
+	var input = player.input;
+	if(ship !== player.activeShip) {
+		// Run autopilot
+		input = autopilot.getInput(ship, session);
+	};
 	
 	// Rotate
-	if(player.input.right) {
+	if(input.right) {
 		ship.box.dir += 0.03;
 		ship.box.ddir = 0.03;
 	}
-	if(player.input.left) {
+	if(input.left) {
 		ship.box.dir -= 0.03;
 		ship.box.ddir = -0.03;
 	}
 	
 	// Fire / load projectiles
-	if(player.input.firingLeft || player.input.firingRight) {
+	if(input.firingLeft || input.firingRight) {
 		fireProjectile(
 			ship, list,
-			player.input.firingLeft, 
-			player.input.firingRight
+			input.firingLeft, 
+			input.firingRight
 		);
 	} else {
 		loadProjectile(ship);
 	}
 	
 	// Weigh / drop anchor
-	if(player.input.anchor) {
+	if(input.anchor) {
 		ship.box.dx = ship.box.dy = 0;
 	} else {
 		// Handle undocking event
@@ -668,7 +673,7 @@ function handleInput(ship, session) {
 			damage:0
 		});
 		// Apply wind collision
-		if(player.input.sails && ship.box.ddir === 0) {
+		if(input.sails && ship.box.ddir === 0) {
 			var ship_dir = {
 				x:Math.cos(ship.box.dir),
 				y:Math.sin(ship.box.dir)
@@ -766,7 +771,5 @@ function computePlayerDiff(player) {
 		player.diff.shipsSunk += s.diff.shipsSunk;
 	}
 }
-
-
 
 module.exports = new Game();
