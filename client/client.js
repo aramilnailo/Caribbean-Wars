@@ -18,7 +18,8 @@ Client.prototype.input = {
 	firingLeft:false,
 	firingRight:false,
 	sails:false,
-	anchor:false
+	anchor:false,
+	swap:false
 };
 Client.prototype.loading = false;
 Client.prototype.drawing = false;

@@ -10,6 +10,7 @@ var dbi = require("./dbi.js");
 
 var projectile = require("./projectile.js");
 var resource = require("./resource.js");
+var ship = require("./ship.js");
 
 //============== GAME LOGIC =========================================
 
@@ -53,6 +54,15 @@ Game.prototype.input = function (param) {
 	if(client.player) {
 	    // Assign input data
 		client.player.input = param.data;
+		
+		if(client.player.input.swap) {
+			// Change ships
+			var index = client.player.ships.indexOf(client.player.activeShip);
+			if(index > -1) {
+				if(++index >= client.player.ships.length) index = 0;
+				client.player.activeShip = client.player.ships[index];
+			}
+		}
 	}
 }
 
@@ -87,7 +97,8 @@ Game.prototype.update = function() {
 						ammo:{
 							loaded:s.projectiles.length,
 							unloaded:s.currentAmmo
-						}
+						},
+						activeShip:(s === s.player.activeShip)
 					});
 				}
 			}
@@ -284,8 +295,8 @@ function updatePhysics(session) {
 		// Store x and y for stats tracking
 		ship.prevX = ship.box.x;
 		ship.prevY = ship.box.y;
-		// Handle input from the ship's owner
-		handleInput(ship.player, session);
+		// Handle input if needed
+		handleInput(ship, session);
 		// Handle ship collisions
 		handleCollisions(ship.box, session);
 		// Update ship boxes
@@ -360,8 +371,22 @@ function updateSpawners(session) {
 	}
 	for(var i in session.game.shipSpawns) {
 		var s = session.game.shipSpawns[i];
+		s.counter++;
+		if(s.counter > 1000) {
+			s.counter = 0;
+			if(!s.blocked) {
+				// Only first player for now -- TO DO
+				var p = session.game.players[0];
+				if(p.ships.length < 5) {
+					var sh = new ship(p, p.name, s.x, s.y);
+					p.ships.push(sh);
+					if(!p.activeShip.active) p.activeShip = sh;
+					session.game.ships.push(sh);
+				}
+			}
+		}
 		s.blocked = false;
-		// To do -- implement random enemy ship spawns
+		
 	}
 }
 
@@ -594,12 +619,13 @@ function updateBox(box) {
 	return dmg;
 }
 
-function handleInput(player, session) {
+function handleInput(ship, session) {
 	var list = session.game.projectiles;
 	var wind = session.game.wind;
-	var ship = player.activeShip;
-	if(!ship) return;
-
+	var player = ship.player;
+	
+	if(ship !== player.activeShip) return;
+	
 	// Rotate
 	if(player.input.right) {
 		ship.box.dir += 0.03;

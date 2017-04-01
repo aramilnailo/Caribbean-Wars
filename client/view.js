@@ -152,6 +152,9 @@ View.prototype.keyPressed = function(event) {
 			case 82: // r
 				client.input.anchor = !client.input.anchor;
 				break;
+			case 70: // f
+				client.input.swap = true;
+				break;
 			
 			// Camera controls
 			case 37: // left arrow
@@ -228,6 +231,9 @@ View.prototype.keyReleased = function(event) {
 				break;
 			case 69: // e
 				client.input.firingRight = false;
+				break;
+			case 70: // f
+				client.input.swap = false;
 				break;
 			default:
 				break;

@@ -149,11 +149,14 @@ Render.prototype.drawGameState = function(data) {
 		var shifted_h = s.box.h * cell_h;
 		var txt = "";
 		// Draw name
-		if(ships[i].name === client.username) {
-			txt += s.name + 
-			": " + s.health.toFixed(1) + 
-			", " + s.ammo.loaded + 
-			" / " + s.ammo.unloaded;
+		if(s.name === client.username) {
+			txt += s.name;
+			if(s.activeShip) {
+				txt +=
+				": " + s.health.toFixed(1) + 
+				", " + s.ammo.loaded + 
+				" / " + s.ammo.unloaded;
+			}
 			dom.canvas.fillStyle = "#00ff00"; // Green
 		} else {
 			txt += s.name;

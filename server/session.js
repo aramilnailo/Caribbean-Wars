@@ -579,7 +579,8 @@ function setGame(session, other) {
 			} else if(ch === "5") { // Spawn
 				session.game.shipSpawns.push({
 					x:j, y:i, 
-					blocked:false
+					blocked:false,
+					counter:500
 				});
 			}
 		}
