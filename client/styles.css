@@ -176,17 +176,13 @@ th, td {
 	margin-bottom:3em;
 }
 
-#chat-toggle-btn {
-	width:100%;
-}
-
 #chat-window {
 	width:100%;
 }
 
 #chat-log {
 	border:2px solid white;
-	width:95%;
+	width:100%;
 	height:100px;
 	overflow-y:scroll;
 	background-color:black;
@@ -194,13 +190,27 @@ th, td {
 }
 
 #chat-input {
-	width:85%;
+	width:100%;
 	background-color:black;
 	color:white;
 }
 
-#chat-submit-btn {
-	width:10%;
-	margin-left:auto;
+#console-window {
+	width:100%;
+}
+
+#console-log {
+	border:2px solid white;
+	width:100%;
+	height:100px;
+	overflow-y:scroll;
+	background-color:black;
+	color:white;
+}
+
+#console-input {
+	width:100%;
+	background-color:black;
+	color:white;
 }
 

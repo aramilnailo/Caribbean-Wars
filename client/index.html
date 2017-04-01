@@ -168,15 +168,22 @@
 	<center>
       <div id="options-menu-btns">
   	    <button id="chat-toggle-btn">Show chat</button>
+		<button id="console-toggle-btn">Show console</button>
   	  </div>
 	  	<!--CHAT WINDOW-->
 	  	<div id="chat-window" style="display:none;">
-	    	  <div id="chat-log"></div>
-	    	  <form id="chat-form">
-	      	<input id="chat-input" type="text"></input>
-	      	<input id="chat-submit-btn" type="submit" style="display:inline-block;"></input>
-	    	  </form>
+	    	<div id="chat-log"></div>
+			<form id="chat-form">
+				<input id="chat-input" type="text"></input>
+			</form>
 	  	</div>
+		<!--CONSOLE WINDOW-->
+		<div id="console-window" style="display:none;">
+			<div id="console-log"></div>
+			<form id="console-form">
+				<input id="console-input" type="text"></input>
+			</form>
+		</div>
 	</center>
     </div>
 

@@ -29,7 +29,7 @@ Chat.prototype.listen = function(router) {
 * @param data The string to insert into the chat board
 */
 Chat.prototype.logToChat = function(data) {
-    dom.chatLog.innerHTML += "<div>" + data + "<\div>";
+    dom.chatLog.innerHTML += "<div>" + data + "</div>";
 }
 
 /**
@@ -41,6 +41,8 @@ Chat.prototype.toggleChatWindow = function() {
     if(dom.chatWindow.style.display === "none") {
 		dom.chatWindow.style.display = "block";
 		dom.chatToggleButton.innerHTML = "Hide chat";
+		dom.consoleWindow.style.display = "none";
+		dom.consoleToggleButton.innerHTML = "Show console";
     } else {
 		dom.chatWindow.style.display = "none";
 		dom.chatToggleButton.innerHTML = "Show chat";
@@ -58,9 +60,7 @@ Chat.prototype.toggleChatWindow = function() {
 Chat.prototype.chatFormSubmit = function(event) {
     event.preventDefault();
     var input = dom.chatInput.value;
-    if(input[0] === "/") {
-		client.emit("evalExpression", input.slice(1));
-    } else if(input[0] === "@") {
+    if(input[0] === "@") {
 	// Extract the username from the string
 	var user = input.split(" ")[0].slice(1);
 	// Extract the message from the string

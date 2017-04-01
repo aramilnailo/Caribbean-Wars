@@ -279,7 +279,7 @@ function expand(data) {
 function hideAll() {
 	
 	collapse(["statsMenu", "savedGamesMenu", "userMenu", 
-	"sessionMenu", "savedMapsMenu", "chatWindow"]);
+	"sessionMenu", "savedMapsMenu", "chatWindow", "consoleWindow"]);
 	
 	hide(["loginScreen", "gameScreen", "adminScreen", 
 	"lobbyScreen", "sessionBrowser", "mapEditorScreen",

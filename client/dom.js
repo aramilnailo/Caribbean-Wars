@@ -100,13 +100,19 @@ var dom = {
 	// Options menu
 	optionsMenu:document.getElementById("options-menu"),
 	chatToggleButton:document.getElementById("chat-toggle-btn"),
+	consoleToggleButton:document.getElementById("console-toggle-btn"),
 
 	// Chat window
 	chatWindow:document.getElementById("chat-window"),
 	chatLog:document.getElementById("chat-log"),
 	chatForm:document.getElementById("chat-form"),
 	chatInput:document.getElementById("chat-input"),
-	chatSubmitButton:document.getElementById("chat-submit-btn"),
+	
+	// Console window
+	consoleWindow:document.getElementById("console-window"),
+	consoleLog:document.getElementById("console-log"),
+	consoleForm:document.getElementById("console-form"),
+	consoleInput:document.getElementById("console-input"),
 	
     // Map editor screen
     mapEditorScreen:document.getElementById("map-editor-screen"),
@@ -179,9 +185,13 @@ dom.clearButton.onclick = function() { router.route({name:"clearClick", data:nul
 
 // Options menu
 dom.chatToggleButton.onclick = function() { router.route({name:"chatWindowToggle", data:null}); }
+dom.consoleToggleButton.onclick = function() { router.route({name:"consoleWindowToggle", data:null}); }
 
 // Chat window
 dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", data:event}); }
+
+// Console window
+dom.consoleForm.onsubmit = function(event) { router.route({name:"consoleFormSubmit", data:event}); }
 
 // Input
 dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }

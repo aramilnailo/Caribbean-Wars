@@ -22,7 +22,7 @@ Chat.prototype.listen = function(router) {
 	if(debug) log("[Chat] listen()");
     router.listen("chatPost",this.chatPost);
     router.listen("privateMessage",this.privateMessage);
-    router.listen("evalExpression",this.evalExpression);
+	router.listen("evalExpression", this.evalExpression);	// Wrong place for this
 }
 
 /**
@@ -83,9 +83,9 @@ Chat.prototype.evalExpression = function(param) {
 	    resp = eval(data);
 	} catch (error) {
 	    log("Error: " + error.message);
-	    server.emit(client.socket, "addToChat", "Command Syntax Error." )
+	    server.emit(client.socket, "alert", "Command syntax error." )
 	}
-	server.emit(client.socket, "evalResponse", resp);
+	server.emit(client.socket, "log", resp);
 }
 
 module.exports = new Chat();
