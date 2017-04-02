@@ -29,7 +29,7 @@ Saves.prototype.listen = function(router) {
 *
 * @memberof module:client/Saves
 */
-Saves.prototype.toggleSavedGamesMenu = function() {
+Saves.prototype.toggleSavedGamesMenu = function(data) {
     if(dom.savedGamesMenu.style.display === "none") {
 		client.emit("savedGamesListRequest", null);
 		dom.savedGamesMenu.style.display = "block";
@@ -75,15 +75,14 @@ Saves.prototype.displaySavedGamesList = function(data) {
 *
 * @memberof module:client/Saves
 */
-Saves.prototype.saveGameClick = function() {
+Saves.prototype.saveGameClick = function(data) {
 	if(!client.inGame) {
 		alerts.pushAlert("Cannot save outside of game");
 		return;
 	}
-    var filename = window.prompt("Save as: ","filename");
-    if(filename) {
-        client.emit("saveGameState", filename);
-    }
+    alerts.showPrompt("Save as: ", function(resp) {
+	    if(resp) client.emit("saveGameState", resp);
+    });
 }
 
 /**
@@ -92,16 +91,15 @@ Saves.prototype.saveGameClick = function() {
 *
 * @memberof module:client/Saves
 */
-Saves.prototype.loadGameClick = function() {
+Saves.prototype.loadGameClick = function(data) {
 	if(!client.inGame) {
 		alerts.pushAlert("Cannot load outside of game");
 		return;
 	}
-    var filename = window.prompt("Load game:", "filename");
-    if(filename) {
-        client.emit("loadGameState", filename);
-    }
-	client.loading = true;
+    alerts.showPrompt("Load game: ", function(resp) {
+   		if(resp) client.emit("loadGameState", resp);
+		client.loading = true;
+    });
 }
 
 /**
@@ -110,11 +108,10 @@ Saves.prototype.loadGameClick = function() {
 *
 * @memberof module:client/Saves
 */
-Saves.prototype.deleteGameClick = function() {
-    var filename = window.prompt("Delete game:", "filename");
-    if(filename) {
-        client.emit("deleteSavedGame", filename);
-    }
+Saves.prototype.deleteGameClick = function(data) {
+    alerts.showPrompt("Delete game:", function(resp) {
+	    if(resp) client.emit("deleteSavedGame", resp);
+	});
 }
 
 return new Saves();

@@ -85,6 +85,40 @@ th, td {
 	width:30%;
 }
 
+#prompt-box {
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:30%;
+	font-family:Courier;
+	color:white;
+	background-color:black;
+	border:1px solid white;
+	padding:5px;
+}
+
+#prompt-box:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#prompt-text {
+	float:left;
+	width:90%;
+}
+
+#prompt-input {
+	color:white;
+	background-color:black;
+	width:100%;
+}
+
+#prompt-close-btn {
+	float:right;
+	width:10%;
+}
+
 #alert-text {
 	font-family:Courier;
 	color:white;

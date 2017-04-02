@@ -1,4 +1,4 @@
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts) {
 
 	var Lobby = function() {}
 	
@@ -23,10 +23,9 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
 	Lobby.prototype.joinSessionClick = function(data) {
 		debug.log("[Lobby] joinGameClick");
-		var id = window.prompt("Which game session?", "0");
-		if(id) {
-			client.emit("enterGameSession", id);
-		}
+		alerts.showPrompt("Which game session?", function(resp) {
+			if(resp) client.emit("enterGameSession", resp);
+		});
 	}
 
 	Lobby.prototype.newSessionClick = function(data) {
@@ -83,53 +82,49 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 	Lobby.prototype.inviteClick = function(data) {
 		debug.log("[Lobby] inviteClick");
-		var target = window.prompt("Invite who?", "user");
-		if(target) {
-			client.emit("inviteUser", target);
-		}
+		alerts.showPrompt("Invite which user?", function(resp) {
+			if(resp) client.emit("inviteUser", resp);
+		});
 	}
 	
 	Lobby.prototype.inviteResponse = function(data) {
-		var id = data.id;
-		var username = data.username;
-		if(window.confirm(username + 
-			" has invited you to lobby " 
-			+ id + ". Accept?")) {
-			client.emit("exitGameSession", null);
-			client.emit("enterGameSession", id);
-		}
+		var text = data.username + 
+		" has invited you to lobby " + 
+		data.id + ". Accept?";
+		alerts.confirm(text, function(resp) {
+			if(resp) {
+				client.emit("exitGameSession", null);
+				client.emit("enterGameSession", data.id);
+			}
+		});
 	}
 	
 	Lobby.prototype.kickClick = function(data) {
 		debug.log("[Lobby] kickClick");
-		var target = window.prompt("Kick which player?", "user");
-		if(target) {
-			client.emit("kickUser", target);
-		}
+		alerts.showPrompt("Kick which player?", function(resp) {
+			if(resp) client.emit("kickUser", resp);
+		});
 	}
 	
 	Lobby.prototype.promoteClick = function(data) {
 		debug.log("[Lobby] promoteClick");
-		var target = window.prompt("Promote which player to host?", "user");
-		if(target) {
-			client.emit("setHost", target);
-		}
+		alerts.showPrompt("Promote which player?", function(resp) {
+			if(resp) client.emit("setHost", resp);
+		});
 	}
 	
 	Lobby.prototype.newGameClick = function(data) {
 		debug.log("[Lobby] newGameClick");
-		var filename = window.prompt("Which map?", "map");
-		if(filename) {
-			client.emit("startGame", filename);
-		}
+		alerts.showPrompt("Which map?", function(resp) {
+			if(resp) client.emit("startGame", resp);
+		});
 	}
 	
 	Lobby.prototype.resumeGameClick = function(data) {
 		debug.log("[Lobby] resumeGameClick");
-		var filename = window.prompt("Load from which save?", "save");
-		if(filename) {
-			client.emit("resumeGame", filename);
-		}
+		alerts.showPrompt("Use which save?", function(resp) {
+			if(resp) client.emit("resumeGame", resp);
+		});
 	}
 
 	Lobby.prototype.endSessionClick = function(data) {

@@ -23,7 +23,7 @@ MapEditorFiles.prototype.listen = function(router) {
     router.listen("deleteMapClick", this.deleteMapClick);
 };
 
-MapEditorFiles.prototype.toggleSavedMapsMenu = function() {
+MapEditorFiles.prototype.toggleSavedMapsMenu = function(data) {
     if(dom.savedMapsMenu.style.display === "none") {
 		client.emit("savedMapsListRequest", null);
 		dom.savedMapsMenu.style.display = "block";
@@ -52,34 +52,33 @@ MapEditorFiles.prototype.displaySavedMapsList = function(data) {
     dom.savedMapsList.innerHTML = html;
 };
 
-MapEditorFiles.prototype.saveMapClick = function() {
+MapEditorFiles.prototype.saveMapClick = function(data) {
 	if(client.usertype !== "editor" && !client.inGame) {
 		alerts.pushAlert("Can only save in game or editor");
 		return;
 	}
-	var filename = window.prompt("Save as: ","filename");
-	if(filename) {
-	    client.emit("saveEditMap", {filename:filename, map:client.map});
-	}
+	alerts.showPrompt("Save as: ", function(resp) {
+		if(resp) client.emit("saveEditMap", {filename:resp, map:client.map});
+	});
 };
 
-MapEditorFiles.prototype.loadMapClick= function() {
+MapEditorFiles.prototype.loadMapClick= function(data) {
 	if(client.usertype !== "editor") {
 		alerts.pushAlert("Cannot load maps outside of editor");
 		return;
 	}
-	var filename = window.prompt("Load file: ","filename");
-	if (filename) {
-		client.loading = true;
-	    client.emit("loadEditMap", filename);
-	}
+	alerts.showPrompt("Load map: ", function(resp) {
+		if(resp) {
+	    	client.emit("loadEditMap", resp);
+			client.loading = true;
+		}
+	});
 };
 
-MapEditorFiles.prototype.deleteMapClick = function() {
-    var filename = window.prompt("Delete map:", "filename");
-    if(filename) {
-        client.emit("deleteMap", filename);
-    }
+MapEditorFiles.prototype.deleteMapClick = function(data) {
+	alerts.showPrompt("deleteMap", function(resp) {
+		if(resp) client.emit("deleteMap", resp);
+	});
 };
 
 

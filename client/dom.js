@@ -5,10 +5,16 @@ var dom = {
 	// Document
 	document:document,
 
-	// Alert menu
+	// Alert box
 	alertBox:document.getElementById("alert-box"),
 	alertText:document.getElementById("alert-text"),
-	alertForms:document.getElementById("alert-forms"),
+
+	// Prompt box
+	promptBox:document.getElementById("prompt-box"),
+	promptText:document.getElementById("prompt-text"),
+	promptCloseButton:document.getElementById("prompt-close-btn"),
+	promptForm:document.getElementById("prompt-form"),
+	promptInput:document.getElementById("prompt-input"),
 
 	// Login page
 	loginScreen:document.getElementById("login-screen"),

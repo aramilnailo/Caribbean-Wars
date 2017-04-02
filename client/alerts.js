@@ -15,6 +15,33 @@ Alerts.prototype.pushAlert = function(data) {
 	messages.push({text:data, count:20});
 };
 
+Alerts.prototype.showPrompt = function(data, cb) {
+	dom.promptBox.style.display = "block";
+	dom.promptText.innerHTML = data;
+	dom.promptInput.value = "";
+	dom.promptInput.focus();
+	dom.promptCloseButton.onclick = function() {
+		cb(null);
+		dom.promptInput.blur();
+		dom.promptBox.style.display = "none";
+	};
+	dom.promptForm.onsubmit = function(event) {
+		event.preventDefault();
+		var value = dom.promptInput.value;
+		if(value && value.length > 0) {
+			cb(value);
+		} else {
+			cb(null);
+		}
+		dom.promptInput.blur();
+		dom.promptBox.style.display = "none";
+	};
+};
+
+Alerts.prototype.confirm = function(data, cb) {
+	cb(confirm(data));
+};
+
 // Refreshes at 10 fps
 Alerts.prototype.displayMessages = function(data) {
 	if(messages.length === 0) {
@@ -37,7 +64,7 @@ Alerts.prototype.displayMessages = function(data) {
 	}
 };
 
-Alerts.prototype.handleInput = function(data) {
+Alerts.prototype.handleInput = function(event) {
     event.preventDefault();
     var input = dom.consoleInput.value;
 	client.emit("evalExpression", input);
@@ -48,7 +75,7 @@ Alerts.prototype.logToConsole = function(data) {
 	dom.consoleLog.innerHTML += "<div>" + data + "</div>";
 };
 
-Alerts.prototype.consoleWindowToggle = function() {
+Alerts.prototype.consoleWindowToggle = function(data) {
     if(dom.consoleWindow.style.display === "none") {
 		dom.consoleWindow.style.display = "block";
 		dom.consoleToggleButton.innerHTML = "Hide console";

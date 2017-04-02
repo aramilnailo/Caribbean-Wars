@@ -73,9 +73,13 @@ Login.prototype.deleteAccountClick = function() {
     if (debug.login) log("client/login.js:deleteAccountClick()");
 	if(client.username === "admin") {
 		alerts.pushAlert("Cannot delete admin");
-	} else if(confirm("Are you sure you want to delete this account?")) {
-		client.emit("exitGameSession", client.username);
-	    client.emit("deleteAccount", client.username);
+	} else {
+		alerts.confirm("Are you sure you want to delete this account?", function(resp) {
+			if(resp) {
+				client.emit("exitGameSession", client.username);
+			    client.emit("deleteAccount", client.username);
+			}
+		});
     }
 }
 

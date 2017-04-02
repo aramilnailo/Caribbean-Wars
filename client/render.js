@@ -246,20 +246,21 @@ Render.prototype.drawGameState = function(data) {
 		);
     }
 	// Draw the wind direction
-	var dir = Math.atan2(wind.y, wind.x).toFixed(2);
-	dom.canvas.save();
-	dom.canvas.translate(
-		MENU_X + 20, 
-		MENU_Y + 20
-	);
-	dom.canvas.rotate(dir);
-	dom.canvas.drawImage(
-		arrow, 
-		-10, -5, 
-		20, 10
-	);
-	dom.canvas.restore();
-	
+	if(wind) {
+		var dir = Math.atan2(wind.y, wind.x).toFixed(2);
+		dom.canvas.save();
+		dom.canvas.translate(
+			MENU_X + 20, 
+			MENU_Y + 20
+		);
+		dom.canvas.rotate(dir);
+		dom.canvas.drawImage(
+			arrow, 
+			-10, -5, 
+			20, 10
+		);
+		dom.canvas.restore();
+	}
 	// Finishing
 	client.drawing = false;
 }
