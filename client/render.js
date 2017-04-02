@@ -151,7 +151,7 @@ Render.prototype.drawGameState = function(data) {
 		// Draw name
 		if(s.name === client.username) {
 			txt += s.name;
-			if(s.activeShip) {
+			if(s.selected) {
 				txt +=
 				": " + s.health.toFixed(1) + 
 				", " + s.ammo.loaded + 

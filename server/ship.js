@@ -6,7 +6,7 @@
 * single ship's state
 * @module server/Ship
 */
-var Ship = function(player, name, x, y) {
+var Ship = function(name, x, y) {
     /**
      * Ship object
      * @memberof module:server/Ship
@@ -55,8 +55,7 @@ var Ship = function(player, name, x, y) {
 		active:true,
 		health:100,
 		alive:true,
-		
-		player:player
+		selected:false
     }
 	
 	var x1 = ship.box.x - ship.box.w / 2,
