@@ -15,11 +15,20 @@ var arrow = new Image();
 var ball = new Image();
 var ship = new Image();
 var barrel = new Image();
+var sand = new Image();
+var ocean = new Image();
+var grass = new Image();
+var port = new Image();
+var defaultCell = new Image();
 arrow.src = "client/imgs/arrow.png";
 ball.src = "client/imgs/ball.png";
 ship.src = "client/imgs/ship.png";
 barrel.src = "client/imgs/barrel.png";
-
+sand.src = "client/imgs/sand.png";
+ocean.src = "client/imgs/ocean.png";
+grass.src = "client/imgs/grass.png";
+port.src = "client/imgs/dock.png";
+defaultCell.src = "client/imgs/default.png";
 var render_next = [];
 
 var CANVAS_W = 500, CANVAS_H = 500,
@@ -67,9 +76,11 @@ Render.prototype.drawCamera = function(map) {
 		var line = map.data[i + cam_y];
 		for(var j = 0; j < cam_w; j++) {
 			var ch;
+			var printImage;
 			if(line) ch = line.charAt(j + cam_x);
-		    dom.canvas.fillStyle = getColor(ch);
-		    dom.canvas.fillRect(
+		    printImage = getCellImage(ch);
+		    dom.canvas.drawImage(
+				printImage,
 				j * cell_w, 
 				i * cell_h, 
 				cell_w, 
@@ -108,8 +119,9 @@ Render.prototype.drawGameState = function(data) {
 		var coords = render_next.pop(),
 		line = map.data[coords.y], ch;
 		if(line) ch = line.charAt(coords.x);
-	    dom.canvas.fillStyle = getColor(ch);
-	    dom.canvas.fillRect(
+	    var printImage = getCellImage(ch);
+	    dom.canvas.drawImage(
+			printImage,
 			(coords.x - cam_x) * cell_w, 
 			(coords.y - cam_y) * cell_h, 
 			cell_w, 
@@ -372,6 +384,37 @@ function getColor(ch) {
 			break;
     }
 	return color;
+}
+
+function getCellImage(ch) {
+	var image;
+    switch(ch) {
+		case "0": // Water -- blue
+			image = ocean;
+			break;
+    	case "1": // Sand -- tan
+			image = sand;
+			break;
+    	case "2": // Grass -- green
+			image = grass;
+			break;
+		case "3": // Port -- gray
+			image = port;
+			break;
+		case "4": // Resource spawn -- invisible
+			image = ocean;
+			break;
+		case "5": // Player spawn -- invisible
+			image = ocean;
+			break;
+		case "6": // Dock -- invisible
+			image = ocean;
+			break;
+    	default: // Invalid -- black
+			image = defaultCell;
+			break;
+    }
+	return image;
 }
 
 return new Render();
