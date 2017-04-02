@@ -2,6 +2,8 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var Alerts = function() {};
 
+var messages = [];
+
 Alerts.prototype.listen = function(router) {
 	router.listen("alert", this.pushAlert);
 	router.listen("log", this.logToConsole);
@@ -10,13 +12,29 @@ Alerts.prototype.listen = function(router) {
 };
 
 Alerts.prototype.pushAlert = function(data) {
-	// Show options menu -> console
-	if(dom.optionsMenu.style.display === "none") 
-		dom.optionsMenu.style.display = "block";
-	if(dom.consoleWindow.style.display === "none") {
-		Alerts.prototype.consoleWindowToggle();
+	messages.push({text:data, count:20});
+};
+
+// Refreshes at 10 fps
+Alerts.prototype.displayMessages = function(data) {
+	if(messages.length === 0) {
+		dom.alertText.style.display = "none";
+	} else {
+		var newQ = [];
+		while(messages.length > 0) {
+			var m = messages.pop();
+			if(--m.count > 0) {
+				newQ.push(m);	// Leaking memory
+			}
+		}
+		messages = newQ;
+		var html = "";
+		for(var i in messages) {
+			html += "<div>" + messages[i].text + "</div>";
+		}
+		dom.alertText.innerHTML = html;
+		dom.alertText.style.display = "block";
 	}
-	dom.consoleLog.innerHTML += "<div>" + data + "</div>";
 };
 
 Alerts.prototype.handleInput = function(data) {

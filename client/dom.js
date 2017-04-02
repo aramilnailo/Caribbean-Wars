@@ -5,6 +5,11 @@ var dom = {
 	// Document
 	document:document,
 
+	// Alert menu
+	alertBox:document.getElementById("alert-box"),
+	alertText:document.getElementById("alert-text"),
+	alertForms:document.getElementById("alert-forms"),
+
 	// Login page
 	loginScreen:document.getElementById("login-screen"),
     loginUsername:document.getElementById("login-username"),

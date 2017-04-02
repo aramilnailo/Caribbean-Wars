@@ -43,9 +43,7 @@ View.prototype.setClientInfo = function(data) {
 
 View.prototype.setMap = function(data) {
     if(debug.client) debug.log("client/client.js: setMap()");
-    if(data.err) {
-        alert(data.err);
-	} else {
+    if(!data.err) {
 		client.map = data;
 		client.camera.zoom = 1.0;
 		client.camera.x = 0;

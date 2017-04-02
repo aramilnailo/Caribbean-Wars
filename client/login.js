@@ -1,4 +1,4 @@
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts) {
 
 var log = debug.log;
     
@@ -72,7 +72,7 @@ Login.prototype.mapEditorLogoutClick = function() {
 Login.prototype.deleteAccountClick = function() {
     if (debug.login) log("client/login.js:deleteAccountClick()");
 	if(client.username === "admin") {
-		alert("Cannot delete admin");
+		alerts.pushAlert("Cannot delete admin");
 	} else if(confirm("Are you sure you want to delete this account?")) {
 		client.emit("exitGameSession", client.username);
 	    client.emit("deleteAccount", client.username);
@@ -84,7 +84,7 @@ Login.prototype.deleteAccountClick = function() {
 Login.prototype.stopGameClick = function() {
 	if(debug.login) log("[Login] stopGameClick");
 	if(!client.inGame) {
-		alert("Game is not in progress");
+		alerts.pushAlert("Game is not in progress");
 		return;
 	}
 	client.emit("stopGame", null);
@@ -93,7 +93,7 @@ Login.prototype.stopGameClick = function() {
 Login.prototype.leaveGameClick = function() {
 	if(debug.login) log("[Login] leaveGameClick");
 	if(!client.inGame) {
-		alert("Game is not in progress");
+		alerts.pushAlert("Game is not in progress");
 		return;
 	}
 	client.emit("exitGame", null);

@@ -26,8 +26,6 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		var id = window.prompt("Which game session?", "0");
 		if(id) {
 			client.emit("enterGameSession", id);
-		} else {
-			alert("Invalid input");
 		}
 	}
 

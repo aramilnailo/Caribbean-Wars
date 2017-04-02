@@ -1,5 +1,5 @@
 
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts) {
    
 /**
  * Map editor class
@@ -53,7 +53,7 @@ MapEditor.prototype.listen = function(router) {
 MapEditor.prototype.setEditMap = function(data) {
     if(debug.client) debug.log("mapeditor: setMap()");
     if(data.err) {
-        alert(data.err);
+        alerts.pushAlert(data.err);
 	} else {
 		mapUndoStack.push(copyOfMap(client.map));
 		client.map = data;
@@ -183,7 +183,7 @@ MapEditor.prototype.undo = function () {
 		client.map = mapUndoStack.pop();
 		setCameraActive();
 	} else {
-		alert("Undo limit reached");
+		alerts.pushAlert("Undo limit reached");
 	}
 };
 
@@ -193,7 +193,7 @@ MapEditor.prototype.redo = function () {
 	    client.map = mapRedoStack.pop();
 		setCameraActive();
 	} else {
-		alert("Redo limit reached");
+		alerts.pushAlert("Redo limit reached");
 	}
 };
 
@@ -217,7 +217,7 @@ MapEditor.prototype.resize = function(event) {
 	if(lx) ly = window.prompt("New height?", "100");
 	if(!lx || !ly) return;
 	if (lx < 2 || ly < 2 || lx > 500 || ly > 500) {
-		alert("Invalid map size");
+		alerts.pushAlert("Invalid map size");
 		return;
 	}
     mapUndoStack.push(copyOfMap(client.map));

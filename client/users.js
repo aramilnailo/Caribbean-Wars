@@ -1,4 +1,4 @@
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts) {
 	
 	var log = debug.log;
 	
@@ -62,7 +62,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		if(username && username.length > 0 && password && password.length > 0) {
 			client.emit("signup", {username:username, password:password, usertype:"player"});
 		} else {
-			alert("Invalid input");
+			alerts.pushAlert("Invalid input");
 		}
 	}
 	
@@ -72,12 +72,12 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		var username = window.prompt("[Delete user] Username?", "user");
 		if(username) {
 			if(username === "admin") {
-				alert("Cannot delete admin");
+				alerts.pushAlert("Cannot delete admin");
 			} else {
 				client.emit("deleteAccount", username);
 			}
 		} else {
-			alert("Invalid input");
+			alerts.pushAlert("Invalid input");
 		}
 	}
 	
@@ -90,7 +90,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 		if(type === "admin" || type === "player" || type === "editor") {
 			client.emit("changeUserType", {username:username, type:type});
 		} else {
-			alert("Invalid input");
+			alerts.pushAlert("Invalid input");
 		}
 	}
 	

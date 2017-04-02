@@ -46,6 +46,10 @@ setInterval(function() {
 			}
 		}
 	}
-}, 1000/30);
+}, 1000 / 30);
+
+setInterval(function() {
+	alerts.displayMessages();
+}, 1000 / 10);
 
 });

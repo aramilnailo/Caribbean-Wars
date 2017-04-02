@@ -3,7 +3,7 @@
 *
 * @module client/Saves
 */
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts) {
 
 
 var Saves = function() {};
@@ -77,7 +77,7 @@ Saves.prototype.displaySavedGamesList = function(data) {
 */
 Saves.prototype.saveGameClick = function() {
 	if(!client.inGame) {
-		alert("Cannot save outside of game");
+		alerts.pushAlert("Cannot save outside of game");
 		return;
 	}
     var filename = window.prompt("Save as: ","filename");
@@ -94,7 +94,7 @@ Saves.prototype.saveGameClick = function() {
 */
 Saves.prototype.loadGameClick = function() {
 	if(!client.inGame) {
-		alert("Cannot load outside of game");
+		alerts.pushAlert("Cannot load outside of game");
 		return;
 	}
     var filename = window.prompt("Load game:", "filename");

@@ -3,7 +3,7 @@
 *
 * @module client/MapEditorFiles
 */
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts) {
 
 
 var MapEditorFiles = function() {};
@@ -54,7 +54,7 @@ MapEditorFiles.prototype.displaySavedMapsList = function(data) {
 
 MapEditorFiles.prototype.saveMapClick = function() {
 	if(client.usertype !== "editor" && !client.inGame) {
-		alert("Can only save in game or editor");
+		alerts.pushAlert("Can only save in game or editor");
 		return;
 	}
 	var filename = window.prompt("Save as: ","filename");
@@ -65,7 +65,7 @@ MapEditorFiles.prototype.saveMapClick = function() {
 
 MapEditorFiles.prototype.loadMapClick= function() {
 	if(client.usertype !== "editor") {
-		alert("Cannot load maps outside of editor");
+		alerts.pushAlert("Cannot load maps outside of editor");
 		return;
 	}
 	var filename = window.prompt("Load file: ","filename");
