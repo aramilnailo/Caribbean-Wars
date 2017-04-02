@@ -169,7 +169,7 @@ Render.prototype.drawGameState = function(data) {
 				", " + s.ammo.loaded + 
 				" / " + s.ammo.unloaded;
 			}
-			dom.canvas.fillStyle = "#00ff00"; // Green
+			dom.canvas.fillStyle = "#00a524"; // Green
 		} else {
 			txt += s.name;
 			dom.canvas.fillStyle = "#ff0000"; // Red
