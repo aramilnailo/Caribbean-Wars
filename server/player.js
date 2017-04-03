@@ -20,7 +20,6 @@ var Player = function(name) {
 			shipsLost:0
 		},
 		ships:[],
-		activeShip:null,
 		out:false
 	}
 return player;

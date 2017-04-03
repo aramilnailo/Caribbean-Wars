@@ -56,12 +56,14 @@ Game.prototype.input = function(param) {
 	p.input = param.data;
 	// Change ships if needed
 	if(p.input.swap) {
-		var index = p.ships.indexOf(p.activeShip);
+		var prev = p.ships.find(function(s) {
+			return s.selected;
+		});
+		var index = p.ships.indexOf(prev);
 		if(index > -1) {
-			p.activeShip.selected = false;
+			prev.selected = false;
 			if(++index >= p.ships.length) index = 0;
-			p.activeShip = p.ships[index];
-			p.activeShip.selected = true;
+			p.ships[index].selected = true;
 		}
 	}
 }
@@ -167,7 +169,10 @@ Game.prototype.update = function() {
 			while(t.items.length > 0) {
 				var item = t.items.pop();
 				if(item.name === "ammo") {
-					client.player.activeShip.currentAmmo += item.amount;
+					var ship = player.ships.find(function(s) {
+						return s.selected;
+					});
+					ship.currentAmmo += item.amount;
 					server.emit(client.socket, "alert", 
 					"+ " + item.amount + " ammo");
 				}
@@ -181,11 +186,16 @@ Game.prototype.update = function() {
 		var client = CLIENT_LIST.find(function(c) {
 			return c.username === d.name;
 		});
-		if(client && client.player && client.player.activeShip && 
-			!client.player.activeShip.docked && client.player.input.anchor) {
-			server.emit(client.socket, "alert", "You are now docked at (" + 
-				d.coords.x + ", " + d.coords.y + ")");
-			client.player.activeShip.docked = true;
+		var p = client.player;
+		if(client && p && p.input.anchor) {
+			var ship = p.ships.find(function(s) {
+				return s.selected;
+			});
+			if(ship && !ship.docked) {
+				server.emit(client.socket, "alert", "You are now docked at (" + 
+					d.coords.x + ", " + d.coords.y + ")");
+				ship.docked = true;
+			}
 			// TO DO: more complex docking response
 		}
 	}
@@ -387,10 +397,6 @@ function updateSpawners(session) {
 				if(p.ships.length < 5) {
 					var sh = new ship(p.name, s.x, s.y);
 					p.ships.push(sh);
-					if(!p.activeShip.active) {
-						p.activeShip = sh;
-						sh.selected = true;
-					}
 					session.game.ships.push(sh);
 				}
 			}
@@ -629,9 +635,6 @@ function handleInput(player, session) {
 	
 	for(var i in player.ships) {
 		var ship = player.ships[i];
-		
-		log(ship);
-		
 		// Get input from either the player or autopilot
 		var input = ship.selected ? 
 		player.input : 

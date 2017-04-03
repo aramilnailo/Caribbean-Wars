@@ -436,9 +436,6 @@ Session.prototype.saveGameState = function(param) {
 	var id = client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
-	
-	log(session.game);
-	
 	// Write the game state to the database
 	dbi.addSavedGame(client.username, filename, session.game, function(resp) {
 		if(!resp) {
@@ -485,9 +482,7 @@ Session.prototype.loadGameState = function(param) {
 						"alert", "Could not read from map file.");
 					} else {
 						setGame(session, data);
-						
-						log(data);
-					}			
+					}
 				});
 			}
 		});
@@ -591,6 +586,7 @@ function setGame(session, other) {
 		}
 	}
 	// Spawn all clients into the game
+	session.game.ships = [];
 	for(var i in session.clients) {
 		spawnInGame(session.clients[i], session, enter);
 	}
@@ -626,6 +622,10 @@ function spawnInGame(c, session, enter) {
 		// else just wait for them to rejoin
 		if(c.player || enter) {
 			c.player = p;
+			// Reinsert the ships, JSON broke the references
+			for(var i in c.player.ships) {
+				session.game.ships.push(c.player.ships[i]);
+			}
 			if(!c.player.out) {
 				server.emit(c.socket, "alert", "Resuming play");
 			} else {
@@ -641,12 +641,10 @@ function spawnInGame(c, session, enter) {
 			session.game.players.push(c.player);
 			var coords = getSpawn(session.game.shipSpawns);
 			if(coords) {
-				c.player.activeShip = new ship(
-					c.username, coords.x, coords.y
-				);
-				c.player.activeShip.selected = true;
-				c.player.ships.push(c.player.activeShip);
-				session.game.ships.push(c.player.activeShip);
+				var s = new ship(c.username, coords.x, coords.y);
+				c.player.ships.push(s);
+				session.game.ships.push(s);
+				s.selected = true;
 				server.emit(c.socket, "alert", "Spawning with new ship");
 			} else {
 				server.emit(c.socket, "alert", "No available spawns--spectating");

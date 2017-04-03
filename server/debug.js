@@ -1,11 +1,12 @@
 
+var util = require("util");
 /**
 * Handles debugging messages.
 * @param msg - message to be handled
 */
 module.exports.log = function(msg) {
     //output msg to console
-    console.log(msg);
+    console.log(util.inspect(msg, false, null));
     // todo: output msg to log file
 }
 
