@@ -475,11 +475,15 @@ Session.prototype.loadGameState = function(param) {
 			if(!data) {
 				server.emit(client.socket, 
 				"alert", "Could not read from save file");
+				// Unfreeze the client
+				server.emit(client.socket, "setLoadingFalse", null);
 			} else {
 				loadMap(data.map, session, function(resp) {
 					if(!resp) {
 						server.emit(client.socket, 
 						"alert", "Could not read from map file.");
+						// Unfreeze the client
+						server.emit(client.socket, "setLoadingFalse", null);
 					} else {
 						setGame(session, data);
 					}

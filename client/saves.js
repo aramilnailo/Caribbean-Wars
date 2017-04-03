@@ -20,6 +20,7 @@ Saves.prototype.listen = function(router) {
 	router.listen("saveGameClick", this.saveGameClick);
 	router.listen("loadGameClick", this.loadGameClick);
 	router.listen("deleteGameClick", this.deleteGameClick);
+	router.listen("setLoadingFalse", this.setLoadingFalse);
 }
 
 /**
@@ -112,6 +113,10 @@ Saves.prototype.deleteGameClick = function(data) {
     alerts.showPrompt("Delete game:", function(resp) {
 	    if(resp) client.emit("deleteSavedGame", resp);
 	});
+}
+
+Saves.prototype.setLoadingFalse = function(data) {
+	client.loading = false;
 }
 
 return new Saves();
