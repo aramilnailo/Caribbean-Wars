@@ -683,7 +683,8 @@ function handleInput(player, session) {
 					x:Math.cos(ship.box.dir),
 					y:Math.sin(ship.box.dir)
 				};
-				var dot = ship_dir.x * wind.x + ship_dir.y * wind.y;
+			    var dot = ship_dir.x * wind.x + ship_dir.y * wind.y;
+			    if (dot > 0) dot = 0;
 				vect = {
 					x:dot * ship_dir.x,
 					y:dot * ship_dir.y
@@ -694,6 +695,7 @@ function handleInput(player, session) {
 					source:"the wind",
 					damage:0
 				});
+			    
 			}
 			// Apply force from turning
 			ship.box.dx += -ship.box.dy * Math.sin(ship.box.ddir);
