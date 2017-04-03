@@ -436,6 +436,9 @@ Session.prototype.saveGameState = function(param) {
 	var id = client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
+	
+	log(session.game);
+	
 	// Write the game state to the database
 	dbi.addSavedGame(client.username, filename, session.game, function(resp) {
 		if(!resp) {
@@ -482,6 +485,8 @@ Session.prototype.loadGameState = function(param) {
 						"alert", "Could not read from map file.");
 					} else {
 						setGame(session, data);
+						
+						log(data);
 					}			
 				});
 			}
@@ -637,9 +642,9 @@ function spawnInGame(c, session, enter) {
 			var coords = getSpawn(session.game.shipSpawns);
 			if(coords) {
 				c.player.activeShip = new ship(
-					c.player, c.username, 
-					coords.x, coords.y
+					c.username, coords.x, coords.y
 				);
+				c.player.activeShip.selected = true;
 				c.player.ships.push(c.player.activeShip);
 				session.game.ships.push(c.player.activeShip);
 				server.emit(c.socket, "alert", "Spawning with new ship");

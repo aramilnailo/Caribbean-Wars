@@ -48,21 +48,20 @@ Game.prototype.listen = function(router) {
 * @param param.data - the input object
 * @memberof module:server/Game
 */
-Game.prototype.input = function (param) {
+Game.prototype.input = function(param) {
     if (debug) log("server/game.js: input()");
-    var client = param.client;
-	// If the client is in control of a ship
-	if(client.player) {
-	    // Assign input data
-		client.player.input = param.data;
-		
-		if(client.player.input.swap) {
-			// Change ships
-			var index = client.player.ships.indexOf(client.player.activeShip);
-			if(index > -1) {
-				if(++index >= client.player.ships.length) index = 0;
-				client.player.activeShip = client.player.ships[index];
-			}
+    var p = param.client.player;
+	if(!p) return;
+    // Assign input data
+	p.input = param.data;
+	// Change ships if needed
+	if(p.input.swap) {
+		var index = p.ships.indexOf(p.activeShip);
+		if(index > -1) {
+			p.activeShip.selected = false;
+			if(++index >= p.ships.length) index = 0;
+			p.activeShip = p.ships[index];
+			p.activeShip.selected = true;
 		}
 	}
 }
@@ -77,12 +76,24 @@ Game.prototype.update = function() {
     for(var i in GAME_SESSIONS) {
 		var session = GAME_SESSIONS[i];
 		if(session.game.running) {
+			// Init wind
+			if(!session.game.wind) {
+				session.game.wind = {
+					x:Math.random() - Math.random(), 
+					y:Math.random() - Math.random()
+				};
+			}
 			var pack = {
 				ships:[], 
 				projectiles:[], 
 				resources:[],
 				wind:session.game.wind
 			};
+			// Handle player inputs
+			for(var j in session.game.players) {
+				var p = session.game.players[j];
+				if(!p.out) handleInput(p, session);
+			}
 			// Run the physics engine
 			updatePhysics(session);
 			// Spawn new entities
@@ -99,7 +110,7 @@ Game.prototype.update = function() {
 							loaded:s.projectiles.length,
 							unloaded:s.currentAmmo
 						},
-						activeShip:(s === s.player.activeShip)
+						selected:s.selected
 					});
 				}
 			}
@@ -284,9 +295,6 @@ Game.prototype.updateOnlineStatus = function() {
 // Physics engine
 function updatePhysics(session) {
 	// Update wind
-	if(!session.game.wind) {
-		session.game.wind = {x:1, y:1};
-	}
 	changeWind(session.game.wind);
 	var map = session.mapData;
 	// Move ships / handle ship collisions / handle input
@@ -296,8 +304,6 @@ function updatePhysics(session) {
 		// Store x and y for stats tracking
 		ship.prevX = ship.box.x;
 		ship.prevY = ship.box.y;
-		// Handle input if needed
-		handleInput(ship, session);
 		// Handle ship collisions
 		handleCollisions(ship.box, session);
 		// Update ship boxes
@@ -379,9 +385,12 @@ function updateSpawners(session) {
 				// Only first player for now -- TO DO
 				var p = session.game.players[0];
 				if(p.ships.length < 5) {
-					var sh = new ship(p, p.name, s.x, s.y);
+					var sh = new ship(p.name, s.x, s.y);
 					p.ships.push(sh);
-					if(!p.activeShip.active) p.activeShip = sh;
+					if(!p.activeShip.active) {
+						p.activeShip = sh;
+						sh.selected = true;
+					}
 					session.game.ships.push(sh);
 				}
 			}
@@ -391,25 +400,18 @@ function updateSpawners(session) {
 	}
 }
 
+// Apply wind fluctuations
 function changeWind(wind) {
-	if(Math.random() > 0.99) {
-		// 1/100 chance of changing direction
-		wind = {
-			x:Math.random() - Math.random(),
-			y:Math.random() - Math.random()
-		};
+	var factor = 3 * Math.random();
+	if(Math.random() > 0.5) {
+		wind.x += 0.01 * factor;
 	} else {
-		// Mild fluctuations
-		if(Math.random() > 0.5) {
-			wind.x += 0.01;
-		} else {
-			wind.x -= 0.01;
-		}
-		if(Math.random() > 0.5) {
-			wind.y += 0.01;
-		} else {
-			wind.y -= 0.01;
-		}
+		wind.x -= 0.01 * factor;
+	}
+	if(Math.random() > 0.5) {
+		wind.y += 0.01 * factor;
+	} else {
+		wind.y -= 0.01 * factor;
 	}
 }
 
@@ -620,79 +622,84 @@ function updateBox(box) {
 	return dmg;
 }
 
-function handleInput(ship, session) {
+function handleInput(player, session) {
+	
 	var list = session.game.projectiles;
 	var wind = session.game.wind;
-	var player = ship.player;
 	
-	var input = player.input;
-	if(ship !== player.activeShip) {
-		// Run autopilot
-		input = autopilot.getInput(ship, session);
-	};
-	
-	// Rotate
-	if(input.right) {
-		ship.box.dir += 0.03;
-		ship.box.ddir = 0.03;
-	}
-	if(input.left) {
-		ship.box.dir -= 0.03;
-		ship.box.ddir = -0.03;
-	}
-	
-	// Fire / load projectiles
-	if(input.firingLeft || input.firingRight) {
-		fireProjectile(
-			ship, list,
-			input.firingLeft, 
-			input.firingRight
-		);
-	} else {
-		loadProjectile(ship);
-	}
-	
-	// Weigh / drop anchor
-	if(input.anchor) {
-		ship.box.dx = ship.box.dy = 0;
-	} else {
-		// Handle undocking event
-		if(ship.docked) {
-			ship.docked = false;
-			undocks.push({name:ship.name});
+	for(var i in player.ships) {
+		var ship = player.ships[i];
+		
+		log(ship);
+		
+		// Get input from either the player or autopilot
+		var input = ship.selected ? 
+		player.input : 
+		autopilot.getInput(ship, session);
+
+		// Rotate
+		if(input.right) {
+			ship.box.dir += 0.03;
+			ship.box.ddir = 0.03;
 		}
-		// Apply water resistance
-		var vect = {
-			x:0.005 * -ship.box.dx,
-			y:0.005 * -ship.box.dy
-		};
-		ship.box.collisions.push({
-			vector:vect,
-			mass:ship.box.mass,
-			source:"the sea",
-			damage:0
-		});
-		// Apply wind collision
-		if(input.sails && ship.box.ddir === 0) {
-			var ship_dir = {
-				x:Math.cos(ship.box.dir),
-				y:Math.sin(ship.box.dir)
-			};
-			var dot = ship_dir.x * wind.x + ship_dir.y * wind.y;
-			vect = {
-				x:dot * ship_dir.x,
-				y:dot * ship_dir.y
+		if(input.left) {
+			ship.box.dir -= 0.03;
+			ship.box.ddir = -0.03;
+		}
+	
+		// Fire / load projectiles
+		if(input.firingLeft || input.firingRight) {
+			fireProjectile(
+				ship, list,
+				input.firingLeft, 
+				input.firingRight
+			);
+		} else {
+			loadProjectile(ship);
+		}
+	
+		// Weigh / drop anchor
+		if(input.anchor) {
+			ship.box.dx = ship.box.dy = 0;
+		} else {
+			// Handle undocking event
+			if(ship.docked) {
+				ship.docked = false;
+				undocks.push({name:ship.name});
 			}
+			// Apply water resistance
+			var vect = {
+				x:0.005 * -ship.box.dx,
+				y:0.005 * -ship.box.dy
+			};
 			ship.box.collisions.push({
 				vector:vect,
-				mass:0.01 * ship.box.mass,
-				source:"the wind",
+				mass:ship.box.mass,
+				source:"the sea",
 				damage:0
 			});
+			// Apply wind collision
+			if(input.sails && ship.box.ddir === 0) {
+				var ship_dir = {
+					x:Math.cos(ship.box.dir),
+					y:Math.sin(ship.box.dir)
+				};
+				var dot = ship_dir.x * wind.x + ship_dir.y * wind.y;
+				vect = {
+					x:dot * ship_dir.x,
+					y:dot * ship_dir.y
+				}
+				ship.box.collisions.push({
+					vector:vect,
+					mass:0.01 * ship.box.mass,
+					source:"the wind",
+					damage:0
+				});
+			}
+			// Apply force from turning
+			ship.box.dx += -ship.box.dy * Math.sin(ship.box.ddir);
+			ship.box.dy += ship.box.dx * Math.sin(ship.box.ddir);
 		}
-		// Apply force from turning
-		ship.box.dx += -ship.box.dy * Math.sin(ship.box.ddir);
-		ship.box.dy += ship.box.dx * Math.sin(ship.box.ddir);
 	}
 }
 
