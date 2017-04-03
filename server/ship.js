@@ -6,7 +6,7 @@
 * single ship's state
 * @module server/Ship
 */
-var Ship = function(name, x, y) {
+var Ship = function(name, x, y, ruleset) {
     /**
      * Ship object
      * @memberof module:server/Ship
@@ -42,18 +42,18 @@ var Ship = function(name, x, y) {
 		prevX:x,
 		prevY:y,
 		
-		numCannons:20,
-		currentAmmo:20,
+		numCannons:ruleset.shipCannons,
+		currentAmmo:ruleset.shipAmmo,
 		reloadCount:0,
 		firingCount:0,
-		reloadRate:0.3,
-		firingRate:1,
-		firepower:1.5,
+		reloadRate:ruleset.shipReloadRate,
+		firingRate:ruleset.shipFiringRate,
+		firepower:ruleset.shipFirepower,
 		projectiles:[],
 		
 		docked:false,
 		active:true,
-		health:100,
+		health:ruleset.shipHealth,
 		alive:true,
 		selected:false
     }

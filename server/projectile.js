@@ -2,7 +2,7 @@
 //===== PROJECTILE OBJECT =======
 
 
-var Projectile = function(player) {
+var Projectile = function(ship, ruleset) {
 	
 	var proj = {
 		box:{
@@ -22,15 +22,15 @@ var Projectile = function(player) {
 			stuck:false,
 			verts:[],
 			collisions:[],
-			name:player.name
+			name:ship.name
 		},
-		range:20,
-		active:true,
+		range:ruleset.projectileRange,
+		active:true
 	};
 	
-	proj.box.dir = player.box.dir + (3 * Math.PI / 2);
+	proj.box.dir = ship.box.dir + (3 * Math.PI / 2);
 	
-	var v = player.box.verts;
+	var v = ship.box.verts;
 	var cannons = [
 		{ x:v[0].x, y:v[0].y },
 		{ x:v[1].x, y:v[1].y },

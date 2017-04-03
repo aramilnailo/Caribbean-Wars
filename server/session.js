@@ -4,6 +4,8 @@ var log = require("./debug.js").log;
 
 var server = require("./server.js");
 var dbi = require("./dbi.js");
+var rules = require("./rules.js");
+
 var player = require("./player.js");
 var ship = require("./ship.js");
 
@@ -69,6 +71,7 @@ Session.prototype.newGameSession = function(param) {
 			wind:null,
 			running:false,
 		}, 
+		ruleset:rules.getDefault(),
 		mapData:null
 	};
 	// Move the player into the game lobby
@@ -645,7 +648,8 @@ function spawnInGame(c, session, enter) {
 			session.game.players.push(c.player);
 			var coords = getSpawn(session.game.shipSpawns);
 			if(coords) {
-				var s = new ship(c.username, coords.x, coords.y);
+				var s = new ship(c.username, 
+					coords.x, coords.y, session.ruleset);
 				c.player.ships.push(s);
 				session.game.ships.push(s);
 				s.selected = true;

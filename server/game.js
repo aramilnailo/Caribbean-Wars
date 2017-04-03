@@ -376,11 +376,7 @@ function updateSpawners(session) {
 		if(r.counter > 1000) {
 			r.counter = 0;
 			if(!r.blocked) {
-				var res = new resource(r.x, r.y);
-				res.contents.push({
-					name:"ammo", 
-					amount:10
-				});
+				var res = new resource(r.x, r.y, "ammo", session.ruleset);
 				session.game.resources.push(res);
 			}
 		}
@@ -395,7 +391,7 @@ function updateSpawners(session) {
 				// Only first player for now -- TO DO
 				var p = session.game.players[0];
 				if(p.ships.length < 5) {
-					var sh = new ship(p.name, s.x, s.y);
+					var sh = new ship(p.name, s.x, s.y, session.ruleset);
 					p.ships.push(sh);
 					session.game.ships.push(sh);
 				}
@@ -653,7 +649,7 @@ function handleInput(player, session) {
 		// Fire / load projectiles
 		if(input.firingLeft || input.firingRight) {
 			fireProjectile(
-				ship, list,
+				ship, session,
 				input.firingLeft, 
 				input.firingRight
 			);
@@ -707,17 +703,17 @@ function handleInput(player, session) {
 }
 
 // Create new projectiles, push to list, launch left or right or both
-function fireProjectile(ship, list, left, right) {
+function fireProjectile(ship, session, left, right) {
 	if(!ship) return;
 	if(ship.firingCount < 1) {
 		ship.firingCount += ship.firingRate;
 	} else {
 		var proj = ship.projectiles.pop(), proj2;
 		if(!proj) return; // Cannons need to be reloaded
-		proj = new projectile(ship);
+		proj = new projectile(ship, session.ruleset);
 		if(left && right) {
 			proj2 = ship.projectiles.pop();
-			if(proj2) proj2 = new projectile(ship);
+			if(proj2) proj2 = new projectile(ship, session.ruleset);
 		}
 		var vect = {
 			x:ship.firepower * Math.cos(proj.box.dir),
@@ -737,7 +733,7 @@ function fireProjectile(ship, list, left, right) {
 					source:proj2.box.mass,
 					damage:0
 				});
-				list.push(proj2);
+				session.game.projectiles.push(proj2);
 				proj2.box.ddir = proj2.box.dir;
 				ship.diff.shotsFired++;
 			}
@@ -751,7 +747,7 @@ function fireProjectile(ship, list, left, right) {
 			source:proj.box.mass,
 			damage:0
 		});
-		list.push(proj);
+		session.game.projectiles.push(proj);
 		proj.box.ddir = proj.box.dir;
 		ship.diff.shotsFired++;
 		ship.firingCount = ship.firingRate;

@@ -1,4 +1,4 @@
-var Resource = function(x, y) {
+var Resource = function(x, y, type, ruleset) {
 	
 	var res = {
 		box:{
@@ -24,8 +24,13 @@ var Resource = function(x, y) {
 		},
 		contents:[],
 		active:true,
-		health:5
+		health:ruleset.resourceHealth
 	};
+	
+	res.contents.push({
+		name:type, 
+		amount:ruleset.resourceAmount
+	});
 	
 	var x1 = res.box.x - res.box.w / 2,
 	x2 = res.box.x + res.box.w / 2,
