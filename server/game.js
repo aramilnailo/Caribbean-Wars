@@ -169,7 +169,7 @@ Game.prototype.update = function() {
 			while(t.items.length > 0) {
 				var item = t.items.pop();
 				if(item.name === "ammo") {
-					var ship = player.ships.find(function(s) {
+					var ship = client.player.ships.find(function(s) {
 						return s.selected;
 					});
 					ship.currentAmmo += item.amount;

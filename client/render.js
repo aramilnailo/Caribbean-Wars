@@ -312,14 +312,13 @@ function renderBoxes(list, imgData, renderStack) {
 			shifted_h * imgData.h
 		);
 		dom.canvas.restore();
-		// Add verts for next screen refresh
+		// Add cells for next screen refresh
 		var bx = Math.floor(b.box.x), 
-			by = Math.floor(b.box.y), 
-			val = 3 * Math.max(
-				Math.ceil(b.box.w), 
-				Math.ceil(b.box.h)
-			);
-		// Refresh the surrounding 3x3
+		by = Math.floor(b.box.y), 
+		val = Math.max(
+			Math.ceil(b.box.w), 
+			Math.ceil(b.box.h)
+			) + 3;
 		for(var j = -val; j < val; j++) {
 			for(var k = -val; k < val; k++) {
 				var coords = {
