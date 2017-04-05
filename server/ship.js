@@ -56,7 +56,8 @@ var Ship = function(name, x, y, ruleset) {
 		health:ruleset.shipHealth,
 		alive:true,
 	        selected:false,
-         	target:null
+	
+        order:{name:"none"}
     }
 	
 	var x1 = ship.box.x - ship.box.w / 2,
