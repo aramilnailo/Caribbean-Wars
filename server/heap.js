@@ -15,7 +15,7 @@ var Heap = function() {
 * Push weighted elements into minheap.
 *
 * @memberof module:server/Heap
-* @param e : {obj:o,wt:w}
+* @param e : {obj:o,d:weight}
 */
 Heap.prototype.push = function(e) {
     this.array.push(e);
@@ -38,6 +38,29 @@ Heap.prototype.pop = function() {
     return rtn;
 }
 
+/**
+* Remove element from the heap
+* used in simple decreasekey 
+* 
+* @memberof module:server/Heap
+* @param 
+* 
+*/
+Heap.prototype.remove = function(n) {
+    var len = this.array.length;
+    var i;
+    var replace;
+    for (i = 0; i < len; i++) {
+	if (this.array[i] !== n) continue;
+	replace = this.array.pop();
+	if (i == len-1) break;
+	this.array[i] = replace;
+	this.bubbleup(i);
+	this.sink(i);
+	break;
+    }
+}
+
 
 /**
 * Restore minheap order
@@ -50,12 +73,12 @@ Heap.prototype.bubbleup = function(n) {
     var arr = this.array;
     
     var e = arr[n];
-    var wt = e.wt;
+    var wt = e.d;
     var p, pn, pwt;
     
     while (n > 0) {
 	pn = Math.floor((n+1)/2) - 1;
-	pwt = arr[pn].wt;
+	pwt = arr[pn].d;
 	if (wt >= pwt) break;
 	p = arr[pn];
 	arr[pn] = e;
@@ -76,7 +99,7 @@ Heap.prototype.sink = function(n) {
     var arr = this.array;
     var len = arr.length;
     var e = arr[n];
-    var ewt = e.wt;
+    var ewt = e.d;
 
     var left, l, lwt;
     var right, r, rwt;
@@ -89,7 +112,7 @@ Heap.prototype.sink = function(n) {
 	swap = null;
 	twt = ewt;
 	if (l < len) {
-	    lwt = arr[l].wt;
+	    lwt = arr[l].d;
 	    if (lwt < ewt) {
 		swap = l;
 		twt = lwt;
@@ -97,7 +120,7 @@ Heap.prototype.sink = function(n) {
 	}
 
 	if (r < len) {
-	    rwt = arr[r].wt;
+	    rwt = arr[r].d;
 	    if (rwt < twt) {
 		swap = r;
 	    }
