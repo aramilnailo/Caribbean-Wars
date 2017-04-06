@@ -47,11 +47,14 @@ Heap.prototype.pop = function() {
 * 
 */
 Heap.prototype.remove = function(n) {
-    var len = this.array.length;
+    var arr = this.array;
+    var len = arr.length;
+    
     var i;
     var replace;
     for (i = 0; i < len; i++) {
-	if (this.array[i] !== n) continue;
+	
+	if (arr[i].o !== n.o && arr[i].d !== n.d) continue;
 	replace = this.array.pop();
 	if (i == len-1) break;
 	this.array[i] = replace;
