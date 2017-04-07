@@ -20,14 +20,26 @@ AutoPilot.prototype.inside = function(ship,x,y) {
     var x0 = ship.box.x;
     var y0 = ship.box.y;
     var n;
-    for (n = 0; n < 5; n++) {
-	cross = (verts[pt[n+1]].x - x) * (verts[pt[n]].y - y)
-	    - (verts[pt[n]].x - x) * (verts[pt[n+1]].y - y);
-	if (cross > 0) wnum++;
-	else if (cross < 0) wnum--;
+    var ax = verts[pt[0]].x - x;
+    var ay = verts[pt[0]].y - y;
+    var bx,by;
+    var len;
+
+    for (n = 1; n < 6; n++) {
+	bx = verts[pt[n]].x - x;
+	by = verts[pt[n]].y - y;
+	if (ax*by > ay*bx) {
+	    lenx += verts[pt[n]].x - verts[pt[n-1]].x;
+	    leny += verts[pt[n]].y - verts[pt[n-1]].y;
+	} else {
+	    lenx -= verts[pt[n]].x - verts[pt[n-1]].x;
+	    leny -= verts[pt[n]].y - verts[pt[n-1]].y;
+	}
+	ax = bx;
+	ay = by;
     }
 
-    return (wnum == 0) ? true : false;
+    return (lenx*lenx + leny*leny < 0.00001) ? true : false;
 
 }
 
