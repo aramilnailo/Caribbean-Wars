@@ -5,41 +5,7 @@ var log = require("./debug.js").log;
 var easypilot = require("./autopilot/easypilot.js");
 
 
-var AutoPilot = function () {
-    //indicies required to properly
-    //cycle through ship points
-    this.pt = [3,2,4,0];
-}
-
-//winding number algorithm
-// assumes convex ship box
-AutoPilot.prototype.inside = function(ship,x,y) {
-
-    var wnum = 0;
-    var cross;
-    var verts = ship.box.verts;
-    var x0 = ship.box.x;
-    var y0 = ship.box.y;
-    var n;
-    var ax = verts[pt[0]].x - x;
-    var ay = verts[pt[0]].y - y;
-    var bx = verts[pt[1]].x - x;
-    var by = verts[pt[1]].y - y;
-    var sign = ax*by < ay*bx ? true : false;
-    ax = bx;
-    ay = by;
-    for (n = 0; n < 4; n++) {
-	bx = verts[pt[n]].x - x;
-	by = verts[pt[n]].y - y;
-	if (ax*by > ay*bx && sign) return false;
-	ax = bx;
-	ay = by;
-    }
-    return true;
-
-}
-
-
+var AutoPilot = function () {}
 
 // Decision making algorithm.
 // Takes a ship object and a given game session

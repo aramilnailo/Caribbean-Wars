@@ -6,18 +6,59 @@ var Heap = require("./heap.js");
 var BIG = 9999999;
 var SMALL = 0.01;
 
-function checkWater(x,y,session) {
-    
+function Dijkstra(ship,session) {
+    this.arr = [];
 }
 
-// check obvious straight-line solution
-// prior to call
 
-/**
-* 
-* @return path an array of points [{x,y}, ...]
-*/
-function Dijkstra(pos,target,bnds,session) {
+//winding number algorithm
+// assumes convex ship box
+function inside(ship,x,y) {
+
+    var verts = ship.box.verts;
+    var ax = verts[0].x - x;
+    var ay = verts[0].y - y;
+    var bx = verts[1].x - x;
+    var by = verts[1].y - y;
+    var sign = ax*by < ay*bx ? true : false;
+    ax = bx;
+    ay = by;
+
+    bx = verts[3].x - x;
+    by = verts[3].y - y;
+    if (ax*by > ay*bx && sign) return false;
+    ax = bx;
+    ay = by;
+
+    bx = verts[2].x - x;
+    by = verts[2].y - y;
+    if (ax*by > ay*bx && sign) return false;
+    ax = bx;
+    ay = by;
+
+    bx = verts[4].x - x;
+    by = verts[4].y - y;
+    if (ax*by > ay*bx && sign) return false;
+    ax = bx;
+    ay = by;
+
+    bx = verts[0].x - x;
+    by = verts[0].y - y;
+    if (ax*by > ay*bx && sign) return false;
+
+    return true;
+
+}
+
+
+//a,b in cell units
+function isWater(a,b,session) {
+    if (session.game.mapData.data[y].charAt(x) === "0") return true;
+    return false;
+}
+
+function initGraph(dx,session,graph) {
+    
     
     // create vertex array.
     var ux = (pos.x - target.x)*0.5 + (pos.y - target.y)*0.5;
@@ -48,7 +89,7 @@ function Dijkstra(pos,target,bnds,session) {
 		tx = r0.x + (i/nbox)*u.x + (j/nbox)*v.x;
 		ty = r0.y + (i/nbox)*u_y + (j/nbox)*v.y;
 		ind = (i-imin)*jnum+j-jmin;
-		if (checkWater(tx,ty)) {
+		if (isWater(tx,ty)) {
 		    arr[ind] = { x : tx, y : ty, d:distance};
 		} else {
 		    arr[ind] = null;
@@ -80,6 +121,24 @@ function Dijkstra(pos,target,bnds,session) {
 		    }
 		}
 	    }
+    
+}
+
+function checkLineOfSight(pos,target,session) {
+	
+}
+    
+/**
+* 
+* @return path an array of points [{x,y}, ...]
+*/
+function Dijkstra(pos,target,bnds,session) {
+    
+    // check obvious straight-line solution
+    if(clearLineOfSight(pos,target,session)) {
+	return [{pos.x,pos.y},{target.x,target.y}];
+    }
+
 
 	// minheap, ordered by distance d
 	var q = new Heap();
