@@ -4,20 +4,27 @@ var log = require("./debug.js").log;
 var Heap = require("./heap.js");
 
 var BIG = 9999999;
-
+var SMALL = 0.01;
 
 function checkWater(x,y,session) {
     
 }
 
-function Dijkstra(pos,target) {
+// check obvious straight-line solution
+// prior to call
 
+/**
+* 
+* @return path an array of points [{x,y}, ...]
+*/
+function Dijkstra(pos,target,bnds,session) {
+    
     // create vertex array.
     var ux = (pos.x - target.x)*0.5 + (pos.y - target.y)*0.5;
     var uy = (pos.y - target.y)*0.5 - (pos.x - target.x)*0.5;
     
     
-    if (ux*ux > delta) {
+    if (ux*ux > SMALL) {
 	
 	var vx = (pos.x - target.x)*0.5 - (pos.y - target.y)*0.5;
 	var vy = (pos.y - target.y)*0.5 + (pos.x - target.x)*0.5;
@@ -26,12 +33,12 @@ function Dijkstra(pos,target) {
 	// consttruct short array.
 	var i,j,ind;
 	var ipos = 0;
-	var imin = 0;
-	var imax = 10;
+	var imin = bnds.imin;
+	var imax = bnds.imax;
 	var inum = imax-imin;
 	var jpos = 0;
-	var jmin = 0;
-	var jmax = 10;
+	var jmin = bnds.jmin;
+	var jmax = bnds.jmax;
 	var jnum = jmax-jmin;
 	
 	var arr = [];
@@ -84,28 +91,40 @@ function Dijkstra(pos,target) {
 	}
 
 	// based on wikipedia pseudocode
-	var vert, edge,newdist;
+	var vert, edge, newdist;	
 	while (q.array.length > 0) {
 	    vert = q.pop();
+	    // note: vert holds target vert at loop exit
 	    if (vert.x == target.x && vert.y == target.y) break;
 	    dist = vert.d;
 	    for (n in vert.edgelist) {
 		edge = vert.edgelist[n];
 		newdist = dist + edge.wt;
 		if (newdist < edge.vert.d) {
-		    // note: remove does not seem to work yet
+		    //modify edge.vert.d; reinsert.
+		    //    note: there is probably a better
+		    //          way to implement decreaseKey
 		    r = q.remove(edge.vert);
 		    r.d = newdist;
 		    r.prev = vert;
 		    q.push(r);
-		    //modify edge.vert.d; reinsert.
 		}
 	    }
 	}
-
-	
-	
     }
 
+    var path = [];
+
+    if (vert.x == target.x && vert.y == target.y) {
+	while (vert.x != pos.x || vert.y != pos.y) {
+	    path.push({x:vert.x,y:vert.y});
+	    vert = vert.prev;
+	}
+	path.push({x:vert.x,y:vert.y});
+    }
+    
+    return path;
     
 }
+
+module.exports = Dikjstra;
