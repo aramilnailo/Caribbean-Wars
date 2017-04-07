@@ -8,10 +8,11 @@ var easypilot = require("./autopilot/easypilot.js");
 var AutoPilot = function () {
     //indicies required to properly
     //cycle through ship points
-    this.pt = [0,1,3,2,4,0];
+    this.pt = [3,2,4,0];
 }
 
 //winding number algorithm
+// assumes convex ship box
 AutoPilot.prototype.inside = function(ship,x,y) {
 
     var wnum = 0;
@@ -22,24 +23,19 @@ AutoPilot.prototype.inside = function(ship,x,y) {
     var n;
     var ax = verts[pt[0]].x - x;
     var ay = verts[pt[0]].y - y;
-    var bx,by;
-    var len;
-
-    for (n = 1; n < 6; n++) {
+    var bx = verts[pt[1]].x - x;
+    var by = verts[pt[1]].y - y;
+    var sign = ax*by < ay*bx ? true : false;
+    ax = bx;
+    ay = by;
+    for (n = 0; n < 4; n++) {
 	bx = verts[pt[n]].x - x;
 	by = verts[pt[n]].y - y;
-	if (ax*by > ay*bx) {
-	    lenx += verts[pt[n]].x - verts[pt[n-1]].x;
-	    leny += verts[pt[n]].y - verts[pt[n-1]].y;
-	} else {
-	    lenx -= verts[pt[n]].x - verts[pt[n-1]].x;
-	    leny -= verts[pt[n]].y - verts[pt[n-1]].y;
-	}
+	if (ax*by > ay*bx && sign) return false;
 	ax = bx;
 	ay = by;
     }
-
-    return (lenx*lenx + leny*leny < 0.00001) ? true : false;
+    return true;
 
 }
 
