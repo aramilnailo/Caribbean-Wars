@@ -91,13 +91,30 @@ Game.prototype.update = function() {
 				resources:[],
 				wind:session.game.wind
 			};
+			// Reset collision data for this loop
+			resetCollisionData(session);
+			
 			// Handle player inputs
 			for(var j in session.game.players) {
 				var p = session.game.players[j];
 				if(!p.out) handleInput(p, session);
 			}
+			
 			// Run the physics engine
 			updatePhysics(session);
+			// Print the collision map
+			var txt = "";
+			for(var i = 0; i < session.collisionData.length; i++) {
+				for(var j = 0; j < session.collisionData[i].length; j++) {
+					if(!!session.collisionData[i][j]) {
+						txt += "1";
+					} else {
+						txt += "0";
+					}
+				}
+				txt += "\n";
+			}
+			console.log(txt);
 			// Spawn new entities
 			updateSpawners(session);
 			// Add the ship data to the packet
@@ -450,6 +467,8 @@ function handleCollisions(box, session) {
 		};
 		var cell_x = Math.floor(v[i].x);
 		var cell_y = Math.floor(v[i].y);
+		// Mark the collision map at this vert's location
+		updateCollisionData(session, cell_x, cell_y);
 		if(!map.data[cell_y]) {
 			v[i].hit = true;
 		} else {
@@ -717,6 +736,33 @@ function handleInput(player, session) {
 			ship.box.dx += -ship.box.dy * Math.sin(ship.box.ddir);
 			ship.box.dy += ship.box.dx * Math.sin(ship.box.ddir);
 		}
+	}
+}
+
+// Resets the collision map to portray just the terrain
+function resetCollisionData(session) {
+	var map = session.mapData;
+	if(!map) return;
+
+	var cmap = [];
+	for(var i = 0; i < map.height; i++) {
+		var row = [];
+		for(var j = 0; j < map.width; j++) {
+			var ch = map.data[i].charAt(j);
+			row.push(!!(!ch || ch === "1" || ch === "2" || ch === "3"));
+		}
+		cmap.push(row);
+	}
+	
+	session.collisionData = cmap;
+}
+
+// Flags the collision data at the given x and y
+function updateCollisionData(session, x, y) {
+	if(!session.mapData || !session.collisionData) return;
+	if(x > -1 && x < session.mapData.width &&
+		y > -1 && y < session.mapData.height) {
+			session.collisionData[y][x] = true;
 	}
 }
 
