@@ -19,7 +19,8 @@ Client.prototype.input = {
 	firingRight:false,
 	sails:false,
 	anchor:false,
-	swap:false
+        swap:false,
+        orders:[]    
 };
 Client.prototype.loading = false;
 Client.prototype.drawing = false;

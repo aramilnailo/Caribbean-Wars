@@ -215,6 +215,16 @@ dom.mapEditorCanvas.onmouseup = function(event) { router.route({name:"mapEditorC
 dom.mapEditorCanvas.onmousemove = function(event) { router.route({name:"mapEditorCanvasMouseMove", data:event}); }
 dom.mapEditorCanvas.onmouseup = function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
 dom.mapEditorCanvas.onmouseleave = function(event) { router.route({name:"mapEditorCanvasMouseLeave", data:event}); }
+
+
+// Game screen events
+//dom.canvas.onmousedown = function(event) { router.route({name:"gameCanvasMouseDown", data:event}); }
+dom.canvas.onclick = function(event) { router.route({name:"gameCanvasClick", data:event}); }
+dom.canvas.ondblclick = function(event) { router.route({name:"gameCanvasDoubleClick", data:event}); }
+//dom.canvas.onmouseup = function(event) { router.route({name:"gameCanvasMouseUp", data:event}); }
+//dom.canvas.onmousemove = function(event) { router.route({name:"gameCanvasMouseMove", data:event}); }
+//dom.canvas.onmouseleave = function(event) { router.route({name:"gameCanvasMouseLeave", data:event}); }
+    
     
 return dom;
 

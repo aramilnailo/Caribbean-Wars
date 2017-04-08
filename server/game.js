@@ -133,8 +133,15 @@ Game.prototype.update = function() {
 			// Send the packet to each client in the game session
 		    for(var j in session.clients) {
 				var c = session.clients[j];
-				if(c.player) {
-					server.emit(c.socket, "gameUpdate", pack);
+			if(c.player) {
+			            // mark currently selected client ship.
+			            var curr = pack.ships.find(function(sp) {
+				            return sp === c.player.ships.find(function(s) {
+				                   return s.selected;
+				            });
+			             });
+			             pack.myShip = pack.ships.indexOf(curr); 
+	   		             server.emit(c.socket, "gameUpdate", pack);
 				}
 			}
 		}

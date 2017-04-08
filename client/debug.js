@@ -9,6 +9,7 @@ var debugall = false;
 
 var debug = {
     client:debugall||true,
+    input:debugall||true,
     router:debugall||true,
     chat:debugall||true,
     saves:debugall||true,

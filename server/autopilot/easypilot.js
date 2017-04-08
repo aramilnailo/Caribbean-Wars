@@ -14,7 +14,7 @@ EasyPilot.prototype.computeInput = function(ship, session) {
 		  anchor:false,
 		  swap:false
 		};
-
+/*
     var x = ship.order.target.x;
     var y = ship.order.target.y;
     var x0 = ship.box.x;
@@ -38,7 +38,7 @@ EasyPilot.prototype.computeInput = function(ship, session) {
 		
 	
     }
-
+*/
     return input;
 }
 

@@ -27,8 +27,8 @@ View.prototype.listen = function(router) {
 	router.listen("gameScreen", this.gameScreen);
 	router.listen("adminScreen", this.adminScreen);
 	router.listen("mapEditorScreen", this.mapEditorScreen);
-	router.listen("keyPressed", this.keyPressed);
-	router.listen("keyReleased", this.keyReleased);
+	//router.listen("keyPressed", this.keyPressed);
+	//router.listen("keyReleased", this.keyReleased);
 	
     router.listen("newGameMapResponse", this.setMap);
 	router.listen("gameUpdate", this.setGameState);
@@ -115,6 +115,7 @@ View.prototype.adminScreen = function(data) {
 * @memberof module:client/View
 * @param event GUI event to process as a key press.
 */
+    /*
 View.prototype.keyPressed = function(event) {
     // If the chat bar is not in focus
     if(dom.chatInput !== dom.document.activeElement) {
@@ -207,13 +208,14 @@ View.prototype.keyPressed = function(event) {
 		client.emit("gameInput", client.input);
 	}
 }
-
+*/
 /**
 * Relays keyrelease to server. 
 *
 * @memberof module:client/View
 * @param event GUI event to process as a key release.
 */
+    /*
 View.prototype.keyReleased = function(event) {
     if(dom.chatInput !== dom.document.activeElement) {
 		var keycode = event.which || event.keyCode;
@@ -239,6 +241,7 @@ View.prototype.keyReleased = function(event) {
 		client.emit("gameInput", client.input);
 	}
 }
+*/
 
 function hide(data) {
 	for(var i in data) {

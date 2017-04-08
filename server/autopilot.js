@@ -33,7 +33,7 @@ AutoPilot.prototype.getInput = function(ship, session) {
     ship.order.last = input;
     */
 
-    return easypilot(ship,session);
+    return easypilot.computeInput(ship,session);
 
 }
 
