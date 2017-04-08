@@ -132,18 +132,27 @@ Game.prototype.update = function() {
 			}
 			// Send the packet to each client in the game session
 		    for(var j in session.clients) {
-				var c = session.clients[j];
+			var c = session.clients[j];
 			if(c.player) {
-			            // mark currently selected client ship.
-			            var curr = pack.ships.find(function(sp) {
-				            return sp === c.player.ships.find(function(s) {
+			    // mark currently selected client ship.
+			    pack.myShip = -1;
+			    for (var q in pack.ships) {
+				if (pack.ships[q].name === c.player.name
+				    && pack.ships[q].selected)
+				    pack.myShip = q;
+			    }
+			    /*
+			            pack.myShip = pack.ships.findIndex(function(sp) {
+				        return (sp === c.player.ships.find(function(s) {
 				                   return s.selected;
-				            });
-			             });
-			             pack.myShip = pack.ships.indexOf(curr); 
+				        }));
+			            });
+*/
+			    if (false) log("game: myShip = "+pack.myShip);
+			             //pack.myShip = pack.ships.indexOf(curr); 
 	   		             server.emit(c.socket, "gameUpdate", pack);
-				}
 			}
+		    }
 		}
 	}
 	// Handle death events
@@ -691,7 +700,7 @@ function handleInput(player, session) {
 					y:Math.sin(ship.box.dir)
 				};
 			    var dot = ship_dir.x * wind.x + ship_dir.y * wind.y;
-			    if (dot > 0) dot = 0;
+			    if (dot < 0) dot = 0;
 				vect = {
 					x:dot * ship_dir.x,
 					y:dot * ship_dir.y

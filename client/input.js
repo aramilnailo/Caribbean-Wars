@@ -29,7 +29,7 @@ Input.prototype.processMouseUp = function(event) {
 var orderIncoming = false;
 // same as single click, but terminate order stream
 Input.prototype.processMouseDoubleClick = function(event) {
-    processMouseClick(event);
+    Input.prototype.processMouseClick(event);
     orderIncoming = false;
 }
 // note: left: event.which = 1, right: event.which = 3
@@ -50,7 +50,7 @@ Input.prototype.processMouseClick = function(event) {
 	orderIncoming = false;
     }
 	
-    var rect = dom.canvas.getBoundingClientRect();
+    var rect = dom.easel.getBoundingClientRect();
     var x = event.clientX - rect.left;
     var y = event.clientY - rect.top;
     
@@ -59,9 +59,30 @@ Input.prototype.processMouseClick = function(event) {
     var b = Math.round((y / 500) * Math.floor(min / client.camera.zoom)) + client.camera.y;
 
     var ships = client.gameState.ships;
+    if (debug.input) debug.log("input.js: myShip = "+client.gameState.myShip);
     for (var s in ships) {
-	    // need to verify somehow that ships[s] is not current ship.
-	if (s != client.gameState.myShip && ships[s].active && inside(ships[s],a,b)) {
+	// need to verify somehow that ships[s] is not current ship.
+	if (debug.input) {
+	    //debug.log("ship "+s+": alive="+ships[s].alive);
+	    /*debug.log("ship "+s+":"
+		      +" (" + ships[s].box.verts[0].x+","
+		      +ships[s].box.verts[0].y+")"
+		      +" (" + ships[s].box.verts[1].x+","
+		      +ships[s].box.verts[1].y+")"
+		      +" (" + ships[s].box.verts[3].x+","
+		      +ships[s].box.verts[3].y+")"
+		      +" (" + ships[s].box.verts[2].x+","
+		      +ships[s].box.verts[2].y+")"
+		      +" (" + ships[s].box.verts[4].x+","
+		      +ships[s].box.verts[4].y+")");
+	
+	    if (inside(ships[s],a,b)) debug.log("input.js: inside ship "+s);
+	    else debug.log("input.js: outside ship "+s);
+*/
+	}
+
+	
+	if (s != client.gameState.myShip && inside(ships[s],a,b)) {
 	    // select:name = ram, name = fireOn, name = board
 	    alerts.showPrompt("f:follow, r:ram, b:board, s:fireAt", function(resp) {
 		if (resp === "f" || resp === "F") {
@@ -83,7 +104,7 @@ Input.prototype.processMouseClick = function(event) {
     // default: position
     // only push if a,b is over water.
     if (client.map.data[b].charAt(a) === "0") {
-	client.orders.push({name:"xy",x:a,y:b});
+	client.input.orders.push({name:"xy",x:a,y:b});
 	if (debug.input) debug.log("client/input.js: processMouseClick; order="+JSON.stringify(client.input.orders));
 	client.emit("gameInput",client.input);
     }
@@ -230,32 +251,46 @@ function inside(ship,x,y) {
     var ay = verts[0].y - y;
     var bx = verts[1].x - x;
     var by = verts[1].y - y;
-    var sign = ax*by < ay*bx ? true : false;
-    ax = bx;
-    ay = by;
+    var sign = (ax*by < ay*bx) ? true : false;
+    //if (debug.input) debug.log("inside: ax,ay,bx,by = "+ax+","+ay+","+bx+","+by);
+    if (debug.input) debug.log("inside: sign="+sign);
 
+
+    ax = verts[1].x - x;
+    ay = verts[1].y - y;
     bx = verts[3].x - x;
     by = verts[3].y - y;
-    if (ax*by > ay*bx && sign) return false;
-    ax = bx;
-    ay = by;
+    if (debug.input) debug.log("inside: 1,3 ax*by-ay*bx="+(ax*by-ay*bx));
+    if ((ax*by < ay*bx) !== sign) return false;
+    //ax = bx;
+    //ay = by;
 
+    ax = verts[3].x - x;
+    ay = verts[3].y - y;
     bx = verts[2].x - x;
     by = verts[2].y - y;
-    if (ax*by > ay*bx && sign) return false;
-    ax = bx;
-    ay = by;
+    if (debug.input) debug.log("inside: 3,2 ax*by-ay*bx="+(ax*by-ay*bx));
+    
+    if ((ax*by < ay*bx) !== sign) return false;
+    //ax = bx;
+    //ay = by;
 
+    ax = verts[2].x - x;
+    ay = verts[2].y - y;
     bx = verts[4].x - x;
     by = verts[4].y - y;
-    if (ax*by > ay*bx && sign) return false;
-    ax = bx;
-    ay = by;
+    if (debug.input) debug.log("inside: 2,4 ax*by-ay*bx="+(ax*by-ay*bx));
+    if ((ax*by < ay*bx) !== sign) return false;
+    //ax = bx;
+    //ay = by;
 
+    ax = verts[4].x - x;
+    ay = verts[4].y - y;
     bx = verts[0].x - x;
     by = verts[0].y - y;
-    if (ax*by > ay*bx && sign) return false;
-
+    if (debug.input) debug.log("inside: 4,0 ax*by-ay*bx="+(ax*by-ay*bx));
+    if ((ax*by < ay*bx) !== sign) return false;
+    
     return true;
 
 }

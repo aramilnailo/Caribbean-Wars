@@ -67,7 +67,7 @@ View.prototype.loginScreen = function(data) {
 
 View.prototype.sessionBrowser = function(data) {
 	hideAll();
-	show(["sessionBrowser", "upperMenu", "optionsMenu"]);
+        show(["sessionBrowser", "sessionMenu", "upperMenu", "optionsMenu"]);
 	client.inGame = false;
 }
 

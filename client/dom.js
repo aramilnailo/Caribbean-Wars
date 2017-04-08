@@ -74,7 +74,8 @@ var dom = {
 	
 	// Game screen
 	gameScreen:document.getElementById("game-screen"),
-	canvas:document.getElementById("canvas").getContext("2d"),
+        canvas:document.getElementById("canvas").getContext("2d"),
+        easel:document.getElementById("canvas"),
 	
 	// Admin screen
 	adminScreen:document.getElementById("admin-screen"),
@@ -219,8 +220,8 @@ dom.mapEditorCanvas.onmouseleave = function(event) { router.route({name:"mapEdit
 
 // Game screen events
 //dom.canvas.onmousedown = function(event) { router.route({name:"gameCanvasMouseDown", data:event}); }
-dom.canvas.onclick = function(event) { router.route({name:"gameCanvasClick", data:event}); }
-dom.canvas.ondblclick = function(event) { router.route({name:"gameCanvasDoubleClick", data:event}); }
+dom.easel.onclick = function(event) { router.route({name:"gameCanvasClick", data:event}); }
+dom.easel.ondblclick = function(event) { router.route({name:"gameCanvasDoubleClick", data:event}); }
 //dom.canvas.onmouseup = function(event) { router.route({name:"gameCanvasMouseUp", data:event}); }
 //dom.canvas.onmousemove = function(event) { router.route({name:"gameCanvasMouseMove", data:event}); }
 //dom.canvas.onmouseleave = function(event) { router.route({name:"gameCanvasMouseLeave", data:event}); }
