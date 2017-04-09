@@ -72,7 +72,8 @@ Session.prototype.newGameSession = function(param) {
 			running:false,
 		}, 
 		ruleset:rules.getDefault(),
-		mapData:null
+		mapData:null,
+		collisionData:null
 	};
 	// Move the player into the game lobby
 	server.emit(client.socket, "lobbyScreen", {isHost:true});
