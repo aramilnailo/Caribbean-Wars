@@ -8,7 +8,8 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 
 var log = debug.log;
     
-var Render = function() {};
+var Render = function() {
+};
 
 // loading images to be displayed
 var arrow = new Image();
@@ -77,25 +78,29 @@ Render.prototype.drawCamera = function(map) {
 		for(var j = 0; j < cam_w; j++) {
 			var ch;
 			var printImage;
-			if(line) ch = line.charAt(j + cam_x);
-		    printImage = getCellImage(ch);
-		    dom.canvas.drawImage(
-				printImage,
-				j * cell_w, 
-				i * cell_h, 
-				cell_w, 
-				cell_h
+		    if(line) ch = line.charAt(j + cam_x);
+		    if (ch !== "0") {
+			printImage = getCellImage(ch);
+			dom.canvas.drawImage(
+			    printImage,
+			    j * cell_w, 
+			    i * cell_h, 
+			    cell_w, 
+			    cell_h
 			);
+		    }
 		}
 	}
-	client.drawing = false;
-	client.camera.moved = false;
+    renderOcean();
+    client.drawing = false;
+    client.camera.moved = false;
+
 }
 
 Render.prototype.drawGameState = function(data) {
 	// Starting
 	client.drawing = true;
-	
+
 	// Extract data sent from server
 	var map = data.map;
 	var ships = data.state.ships;
@@ -112,21 +117,25 @@ Render.prototype.drawGameState = function(data) {
 	// cell dimensions in pixels
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;
-	
+
+    renderOcean();
+
 	// === GAME SCREEN ===
 	// Re-render any map cells affected last round
 	while(render_next.length > 0) {
 		var coords = render_next.pop(),
 		line = map.data[coords.y], ch;
-		if(line) ch = line.charAt(coords.x);
-	    var printImage = getCellImage(ch);
-	    dom.canvas.drawImage(
-			printImage,
-			(coords.x - cam_x) * cell_w, 
-			(coords.y - cam_y) * cell_h, 
-			cell_w, 
-			cell_h
+	    if(line) ch = line.charAt(coords.x);
+	    if (ch !== "0") {
+		var printImage = getCellImage(ch);
+		dom.canvas.drawImage(
+		    printImage,
+		    (coords.x - cam_x) * cell_w, 
+		    (coords.y - cam_y) * cell_h, 
+		    cell_w, 
+		    cell_h
 		);
+	    }
 	}
 	dom.canvas.fillStyle = "#000000";
 	dom.canvas.strokeStyle = "#000000";
@@ -198,7 +207,7 @@ Render.prototype.drawGameState = function(data) {
 				}
 			}
 		}
-		
+	
     }
 	
 	// === MINI MAP AND MENU ===
@@ -416,6 +425,224 @@ function getCellImage(ch) {
 	return image;
 }
 
+// ocean wave height
+var w0 = [];
+var w1 = [];
+var w2 = [];
+
+//speed of waves, squared, in pixels/timestep
+var speed = 0.5;
+var pixsize = 2;
+var npix = 500/pixsize;    
+    
+//initialization, called once per game
+function initializeOcean() {
+
+    // choose initial wave vectors.
+    var nvecs = 20;
+    var theta = [];
+    for (var n = 0; n < nvecs; n++)
+	theta.push(2*Math.PI*Math.random());
+
+    console.log("theta.len="+theta.length);
+    
+    var lambda = [];
+    var height = [];
+    var L0 = 25.0;
+    var temp = 1.0;
+    var nogood = true;
+    
+    // Sample wave frequencies from
+    // Maxwell-Boltmann distribution.
+    while (nogood) {
+	nogood = false;
+	lambda = [];
+	height = [];
+	var prob = [];
+	var sum = 0;
+	while (lambda.length < nvecs) {
+	    var l = L0*Math.random() + 5;
+	    var h = (Math.random() + 0.01)/1.01;
+	    lambda.push(l);
+	    height.push(h);
+	    var energy = 2*Math.PI*Math.PI*speed*h*h/l/l;
+	    var p = Math.exp(-energy/temp); 
+	    prob.push(p);
+	    sum += p;
+	}
+	for (n = 0; n < nvecs; n++) {
+	    var flip = Math.random();
+	    if (flip < prob[p]/sum) {
+		nogood = true;
+		break;
+	    }
+	}
+    }
+
+    // normalize wave heights so that
+    // the sum is always between [0,1]
+    var hmax = height[0];
+    //console.log("ht.len = "+ height.length);
+    for (var n = 1; n < nvecs; n++) {
+	if (height[n] > hmax) hmax = height[n];
+    }
+    for (var n = 0; n < nvecs; n++)
+	height[n] /= (hmax * 2); 
+
+    //hmax = height[0];
+    //for (var n = 1; n < nvecs; n++) {
+//	if (height[n] > hmax) hmax = height[n];
+  //  }
+    //console.log("ht.len = "+ height.length);
+
+    // fill in waves 
+    var max = 500;
+    var val, dot, ind;
+    // fill in wave heights [0,1)
+    for (var i = 0; i <= max; i++) 
+	for (var j = 0; j <= max; j++) {
+	    w0[j+max*i] = 0;
+	}
+    for (var n = 0; n < nvecs; n++) {
+
+	// random offset
+	var ox = 10.0*Math.random() - 5.0;
+	var oy = 10.0*Math.random() - 5.0;
+	
+	for (var i = 0; i <= max; i++) {
+	    for (var j = 0; j <= max; j++) {
+		ind = j+max*i;
+		dot = Math.cos(theta[n])*(i+ox) + Math.sin(theta[n])*(j+oy);
+		val = height[n]*0.5*(Math.sin(2*Math.PI/lambda[n] * dot)+1.0);
+		w0[ind] += val;
+		
+	    }
+	}
+    }
+    for (var i = 0; i <= max; i++) 
+	for (var j = 0; j <= max; j++) {
+	    w1[j+max*i] = w0[j+max*i];
+	    w2[j+max*i] = w0[j+max*i];
+	}
+    
+    // overwrite 1.0 for anything not ocean
+    for (var i = 0; i <= max; i++) {
+	var a = Math.floor(i/20);
+	var line = client.map.data[a];
+	for (var j = 0; j <= max; j++) {
+	    var b = Math.floor(j/20);
+	    if (line.charAt(b) !== "0") {
+		w0[ind] = 1.0;
+		w1[ind] = 1.0;
+		w2[ind] = 1.0;
+	    }
+	}
+    }
+
+    //console.log(JSON.stringify(w0));
+}
+
+
+function waveEquation() {
+    var a,b,i,j,n;
+    var line;
+    var ind = 0;
+    var lap1 = 0;
+    var lap2 = 0;
+    var max = 500;
+    var jnum = 500;
+    for (i = 0; i < max; i++) {
+	for (j = 0; j < max; j++)  {
+	    ind = j + jnum*i;
+	    //Compute the 2D laplacian
+	    lap1 = -4.0*w1[ind];
+	    lap2 = -4.0*w2[ind];
+	    if (i > 0) {
+		lap1 += w1[j + jnum*(i-1)];
+		lap2 += w2[j + jnum*(i-1)];
+	    }
+	    //else lap += w1[j + 500*499];
+	    if (i < 499) {
+		lap1 += w1[j + jnum*(i+1)];
+		lap2 += w2[j + jnum*(i+1)];
+	    }		
+	    //else lap += w1[j];
+	    if (j > 0) {
+		lap1 += w1[ind -1 ];
+		lap2 += w2[ind -1 ];
+	    }
+	    //else lap += w1[ind+499];
+	    if (j < 499) {
+		lap1 += w1[ind + 1];
+		lap2 += w2[ind + 1];
+	    }
+	    //else lap += w1[500*i];
+	    
+	    // add finite diff approx to 2nd time deriv
+	    // to complete wave equation approx.
+	    // note speed = speed squared
+	    w0[ind] = 2*w1[ind] - w2[ind] + speed*0.5*(lap1+lap2);
+	}
+    }
+}
+
+
+function heightColorFunction(ht) {
+    return {r:Math.floor(255*(1-ht)),g:Math.floor(255*(1-ht)),b:Math.floor(255*ht)};
+}
+
+var first = true;
+function renderOcean() {
+
+    if (first) { initializeOcean(); first = false; }
+    
+    // shift arrays before updating w0
+    w2 = w1;
+    w1 = w0;
+    waveEquation();
+/*
+    var imageData = dom.canvas.getImageData(0,0,500,500).data;
+    var data = imageData.data;
+    var h = imageData.height;
+    var w = imageData.width;
+    var x = 0;
+    var y = 0;
+    var index = 0;
+*/
+
+    var id = dom.canvas.createImageData(500,500);
+    //var id = dom.canvas.createImageData(1,1);
+    var d = id.data;
+    var color;
+    var imin = 0;
+    var imax = 0;
+    var jmin = 0;
+    var jmax = 0;
+    
+    for (j = 0; j <= 500; j++) {
+	var a = Math.floor(j/20);
+	for (i = 0; i <= 500; i++) {
+	    var b = Math.floor(i/20);
+	    if (client.map.data[b].charAt(a) === "0") {
+		var off = j*500+i;
+		var value = Math.min(w0[off],1.0);
+		var pow = w0[off];
+		pow *= pow;
+		pow *= pow;
+		off *= 4;
+		d[off] = 0; //Math.floor(25*pow); ///(1.001-w0[off]));
+		d[off+1] = Math.floor(255*value); //Math.floor(25*pow);
+		d[off+2] = 255; //value;
+		d[off+3] = 255;
+	    }
+	    //dom.canvas.putImageData(id,i,j);
+	}
+    }
+    dom.canvas.putImageData(id,0,0);
+}
+
+
+    
 return new Render();
 
 });
