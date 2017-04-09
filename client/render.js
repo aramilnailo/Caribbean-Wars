@@ -439,7 +439,7 @@ var npix = 500/pixsize;
 function initializeOcean() {
 
     // choose initial wave vectors.
-    var nvecs = 20;
+    var nvecs = 30;
     var theta = [];
     for (var n = 0; n < nvecs; n++)
 	theta.push(2*Math.PI*Math.random());
@@ -448,7 +448,7 @@ function initializeOcean() {
     
     var lambda = [];
     var height = [];
-    var L0 = 25.0;
+    var L0 = 75.0;
     var temp = 1.0;
     var nogood = true;
     
@@ -461,7 +461,7 @@ function initializeOcean() {
 	var prob = [];
 	var sum = 0;
 	while (lambda.length < nvecs) {
-	    var l = L0*Math.random() + 5;
+	    var l = L0*Math.random() + 3;
 	    var h = (Math.random() + 0.01)/1.01;
 	    lambda.push(l);
 	    height.push(h);
@@ -551,30 +551,36 @@ function waveEquation() {
     var lap2 = 0;
     var max = 500;
     var jnum = 500;
+    var grad = 0;
     for (i = 0; i < max; i++) {
 	for (j = 0; j < max; j++)  {
 	    ind = j + jnum*i;
 	    //Compute the 2D laplacian
 	    lap1 = -4.0*w1[ind];
 	    lap2 = -4.0*w2[ind];
+	    grad = 0;
 	    if (i > 0) {
 		lap1 += w1[j + jnum*(i-1)];
 		lap2 += w2[j + jnum*(i-1)];
+		//grad += Math.abs(w1[j + jnum*(i-1)]);
 	    }
 	    //else lap += w1[j + 500*499];
 	    if (i < 499) {
 		lap1 += w1[j + jnum*(i+1)];
 		lap2 += w2[j + jnum*(i+1)];
+		//grad += Math.abs(w1[j + jnum*(i+1)]);
 	    }		
 	    //else lap += w1[j];
 	    if (j > 0) {
 		lap1 += w1[ind -1 ];
 		lap2 += w2[ind -1 ];
+		//grad += Math.abs(w1[ind -1]);
 	    }
 	    //else lap += w1[ind+499];
 	    if (j < 499) {
 		lap1 += w1[ind + 1];
 		lap2 += w2[ind + 1];
+		//grad += Math.abs(w1[ind +1]);
 	    }
 	    //else lap += w1[500*i];
 	    
