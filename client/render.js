@@ -439,16 +439,16 @@ var npix = 500/pixsize;
 function initializeOcean() {
 
     // choose initial wave vectors.
-    var nvecs = 30;
+    var nvecs = 20;
     var theta = [];
     for (var n = 0; n < nvecs; n++)
 	theta.push(2*Math.PI*Math.random());
 
-    console.log("theta.len="+theta.length);
+    //console.log("theta.len="+theta.length);
     
     var lambda = [];
     var height = [];
-    var L0 = 75.0;
+    var L0 = 50.0;
     var temp = 1.0;
     var nogood = true;
     
@@ -461,7 +461,7 @@ function initializeOcean() {
 	var prob = [];
 	var sum = 0;
 	while (lambda.length < nvecs) {
-	    var l = L0*Math.random() + 3;
+	    var l = L0*Math.random() + 5;
 	    var h = (Math.random() + 0.01)/1.01;
 	    lambda.push(l);
 	    height.push(h);
@@ -499,8 +499,8 @@ function initializeOcean() {
     var max = 500;
     var val, dot, ind;
     // fill in wave heights [0,1)
-    for (var i = 0; i <= max; i++) 
-	for (var j = 0; j <= max; j++) {
+    for (var i = 0; i < max; i++) 
+	for (var j = 0; j < max; j++) {
 	    w0[j+max*i] = 0;
 	}
     for (var n = 0; n < nvecs; n++) {
@@ -509,8 +509,8 @@ function initializeOcean() {
 	var ox = 10.0*Math.random() - 5.0;
 	var oy = 10.0*Math.random() - 5.0;
 	
-	for (var i = 0; i <= max; i++) {
-	    for (var j = 0; j <= max; j++) {
+	for (var i = 0; i < max; i++) {
+	    for (var j = 0; j < max; j++) {
 		ind = j+max*i;
 		dot = Math.cos(theta[n])*(i+ox) + Math.sin(theta[n])*(j+oy);
 		val = height[n]*0.5*(Math.sin(2*Math.PI/lambda[n] * dot)+1.0);
@@ -519,17 +519,17 @@ function initializeOcean() {
 	    }
 	}
     }
-    for (var i = 0; i <= max; i++) 
-	for (var j = 0; j <= max; j++) {
+    for (var i = 0; i < max; i++) 
+	for (var j = 0; j < max; j++) {
 	    w1[j+max*i] = w0[j+max*i];
 	    w2[j+max*i] = w0[j+max*i];
 	}
     
     // overwrite 1.0 for anything not ocean
-    for (var i = 0; i <= max; i++) {
+    for (var i = 0; i < max; i++) {
 	var a = Math.floor(i/20);
 	var line = client.map.data[a];
-	for (var j = 0; j <= max; j++) {
+	for (var j = 0; j < max; j++) {
 	    var b = Math.floor(j/20);
 	    if (line.charAt(b) !== "0") {
 		w0[ind] = 1.0;
@@ -548,7 +548,7 @@ function waveEquation() {
     var line;
     var ind = 0;
     var lap1 = 0;
-    var lap2 = 0;
+    //var lap2 = 0;
     var max = 500;
     var jnum = 500;
     var grad = 0;
@@ -557,29 +557,29 @@ function waveEquation() {
 	    ind = j + jnum*i;
 	    //Compute the 2D laplacian
 	    lap1 = -4.0*w1[ind];
-	    lap2 = -4.0*w2[ind];
-	    grad = 0;
+	    //lap2 = -4.0*w2[ind];
+	    //grad = 0;
 	    if (i > 0) {
 		lap1 += w1[j + jnum*(i-1)];
-		lap2 += w2[j + jnum*(i-1)];
+		//lap2 += w2[j + jnum*(i-1)];
 		//grad += Math.abs(w1[j + jnum*(i-1)]);
 	    }
 	    //else lap += w1[j + 500*499];
 	    if (i < 499) {
 		lap1 += w1[j + jnum*(i+1)];
-		lap2 += w2[j + jnum*(i+1)];
+		//lap2 += w2[j + jnum*(i+1)];
 		//grad += Math.abs(w1[j + jnum*(i+1)]);
 	    }		
 	    //else lap += w1[j];
 	    if (j > 0) {
 		lap1 += w1[ind -1 ];
-		lap2 += w2[ind -1 ];
+		//lap2 += w2[ind -1 ];
 		//grad += Math.abs(w1[ind -1]);
 	    }
 	    //else lap += w1[ind+499];
 	    if (j < 499) {
 		lap1 += w1[ind + 1];
-		lap2 += w2[ind + 1];
+		//lap2 += w2[ind + 1];
 		//grad += Math.abs(w1[ind +1]);
 	    }
 	    //else lap += w1[500*i];
@@ -587,10 +587,57 @@ function waveEquation() {
 	    // add finite diff approx to 2nd time deriv
 	    // to complete wave equation approx.
 	    // note speed = speed squared
-	    w0[ind] = 2*w1[ind] - w2[ind] + speed*0.5*(lap1+lap2);
+	    w0[ind] = 2*w1[ind] - w2[ind] + speed*lap1;
 	}
     }
 }
+
+
+function advectionEquation() {
+    var a,b,i,j,n;
+    var line;
+    var ind = 0;
+    var max = 500;
+    var jnum = 500;
+    var grad = 0;
+    var gradp = 0;
+    var gradm = 0;
+    var gradi = 0;
+    var gradj = 0;
+    for (i = 0; i < max; i++) {
+	for (j = 0; j < max; j++)  {
+	    ind = j + jnum*i;
+	    //Compute 1st order upwind spatial gradient.
+
+	    // i-dir
+	    gradp = -w1[ind];
+	    gradm = w1[ind];	    
+	    if (i > 0) 
+		gradm -= w1[j + jnum*(i-1)];
+	    if (i < 499) 
+		gradp += w1[j + jnum*(i+1)];
+	    gradi = (Math.abs(gradp) < Math.abs(gradm)) ? gradp : gradm;
+
+	    // j-dir
+	    gradp = -w1[ind];
+	    gradm = w1[ind];	    
+	    if (j > 0) 
+		gradm -= w1[ind-1];
+	    if (j < 499)
+		gradp += w1[ind+1];
+	    gradj = (Math.abs(gradp) < Math.abs(gradm)) ? gradp : gradm;
+
+	    //else lap += w1[500*i];
+	    
+	    // add finite diff approx to 2nd time deriv
+	    // to complete wave equation approx.
+	    // note speed = speed squared
+	    w0[ind] = w1[ind] + speed*Math.sqrt(gradi*gradi+gradj*gradj);
+	}
+    }
+}
+    
+    
 
 
 function heightColorFunction(ht) {
@@ -606,6 +653,7 @@ function renderOcean() {
     w2 = w1;
     w1 = w0;
     waveEquation();
+    //advectionEquation();
 /*
     var imageData = dom.canvas.getImageData(0,0,500,500).data;
     var data = imageData.data;
@@ -625,16 +673,13 @@ function renderOcean() {
     var jmin = 0;
     var jmax = 0;
     
-    for (j = 0; j <= 500; j++) {
+    for (j = 0; j < 500; j++) {
 	var a = Math.floor(j/20);
-	for (i = 0; i <= 500; i++) {
+	for (i = 0; i < 500; i++) {
 	    var b = Math.floor(i/20);
-	    if (client.map.data[b].charAt(a) === "0") {
+	    if (client.map.data[a].charAt(b) === "0") {
 		var off = j*500+i;
 		var value = Math.min(w0[off],1.0);
-		var pow = w0[off];
-		pow *= pow;
-		pow *= pow;
 		off *= 4;
 		d[off] = 0; //Math.floor(25*pow); ///(1.001-w0[off]));
 		d[off+1] = Math.floor(255*value); //Math.floor(25*pow);

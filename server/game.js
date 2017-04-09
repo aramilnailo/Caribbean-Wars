@@ -102,7 +102,8 @@ Game.prototype.update = function() {
 			
 			// Run the physics engine
 			updatePhysics(session);
-			// Print the collision map
+		    // Print the collision map
+		    /*
 			var txt = "";
 			for(var i = 0; i < session.collisionData.length; i++) {
 				for(var j = 0; j < session.collisionData[i].length; j++) {
@@ -115,6 +116,7 @@ Game.prototype.update = function() {
 				txt += "\n";
 			}
 			console.log(txt);
+		    */
 			// Spawn new entities
 			updateSpawners(session);
 			// Add the ship data to the packet
@@ -158,16 +160,7 @@ Game.prototype.update = function() {
 				    && pack.ships[q].selected)
 				    pack.myShip = q;
 			    }
-			    /*
-			            pack.myShip = pack.ships.findIndex(function(sp) {
-				        return (sp === c.player.ships.find(function(s) {
-				                   return s.selected;
-				        }));
-			            });
-*/
-			    if (false) log("game: myShip = "+pack.myShip);
-			             //pack.myShip = pack.ships.indexOf(curr); 
-	   		             server.emit(c.socket, "gameUpdate", pack);
+	   		    server.emit(c.socket, "gameUpdate", pack);
 			}
 		    }
 		}

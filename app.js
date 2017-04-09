@@ -21,7 +21,7 @@ app.get("/", function(req, res) {
 app.use("/client", express.static(__dirname + "/client"));
 app.use("/client/imgs", express.static(__dirname + "/client/imgs"));
 
-serv.listen(4242);
+serv.listen(2000);
 
 server.init();
 
