@@ -16,6 +16,9 @@ var dom = {
 	promptForm:document.getElementById("prompt-form"),
 	promptInput:document.getElementById("prompt-input"),
 
+	// Right click menu
+	rightClickMenu:document.getElementById("right-click-menu"),
+
 	// Login page
 	loginScreen:document.getElementById("login-screen"),
     loginUsername:document.getElementById("login-username"),
@@ -225,8 +228,14 @@ dom.easel.ondblclick = function(event) { router.route({name:"gameCanvasDoubleCli
 //dom.canvas.onmouseup = function(event) { router.route({name:"gameCanvasMouseUp", data:event}); }
 //dom.canvas.onmousemove = function(event) { router.route({name:"gameCanvasMouseMove", data:event}); }
 //dom.canvas.onmouseleave = function(event) { router.route({name:"gameCanvasMouseLeave", data:event}); }
-    
-    
+
+// Right click menu
+if (document.addEventListener) { // IE >= 9; other browsers
+	document.addEventListener('contextmenu', function(event) {
+		router.route({name:"rightClick", data:event});
+	}, false);
+}
+
 return dom;
 
 });

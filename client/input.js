@@ -17,6 +17,7 @@ Input.prototype.listen = function(router) {
     router.listen("keyReleased", this.processKeyReleased);
     router.listen("gameCanvasClick", this.processMouseClick);
     router.listen("gameCanvasDoubleClick", this.processMouseDoubleClick);
+	router.listen("rightClick", this.handleRightClick);
 }
 
 
@@ -35,6 +36,25 @@ Input.prototype.processMouseDoubleClick = function(event) {
     Input.prototype.processMouseClick(event);
     orderIncoming = false;
 }
+
+Input.prototype.handleRightClick = function(event) {
+	event.preventDefault();
+
+    var rect = dom.easel.getBoundingClientRect();
+    var x = event.clientX - rect.left;
+    var y = event.clientY - rect.top;
+	console.log("Right click at " + x + ", " + y);
+	
+	dom.rightClickMenu.style.display = "block";
+	dom.rightClickMenu.style.left = x + "px";
+	dom.rightClickMenu.style.top = y + "px";
+	
+	// Prepare to close menu
+	dom.document.onclick = function() {
+		dom.rightClickMenu.style.display = "none";
+	}
+}
+
 // note: left: event.which = 1, right: event.which = 3
 Input.prototype.processMouseClick = function(event) {
     if (debug.input) debug.log("client/input.js: processMouseClick()");
