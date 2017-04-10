@@ -432,9 +432,6 @@ var w2 = [];
 
 //speed of waves, squared, in pixels/timestep
 var speed = 0.5;
-var pixsize = 2;
-var npix = 500/pixsize;    
-    
 //initialization, called once per game
 function initializeOcean() {
 
@@ -503,6 +500,7 @@ function initializeOcean() {
 	for (var j = 0; j < max; j++) {
 	    w0[j+max*i] = 0;
 	}
+    
     for (var n = 0; n < nvecs; n++) {
 
 	// random offset
@@ -525,12 +523,27 @@ function initializeOcean() {
 	    w2[j+max*i] = w0[j+max*i];
 	}
     
+    for (var i = 0; i < max; i++) w0[max*i] = 0;
+    for (var i = 0; i < max; i++) w0[max-1+max*i] = 0;
+    for (var j = 0; j < max; j++) w0[j+max*(max-1)] = 0;
+    for (var j = 0; j < max; j++) w0[j] = 0;
+
+    var cam_x = client.camera.x;
+    var cam_y = client.camera.y;
+    var min = Math.min(client.map.width, client.map.height);
+    var cam_w = Math.floor(min / client.camera.zoom);
+    var cam_h = Math.floor(min / client.camera.zoom);
+    // cell dimensions in pixels
+    var cell_w = CANVAS_W / cam_w;
+    var cell_h = CANVAS_H / cam_h;
+    
+    
     // overwrite 1.0 for anything not ocean
     for (var i = 0; i < max; i++) {
-	var a = Math.floor(i/20);
+	var a = Math.floor(i/cell_h);
 	var line = client.map.data[a];
 	for (var j = 0; j < max; j++) {
-	    var b = Math.floor(j/20);
+	    var b = Math.floor(j/cell_w);
 	    if (line.charAt(b) !== "0") {
 		w0[ind] = 1.0;
 		w1[ind] = 1.0;
@@ -549,13 +562,17 @@ function waveEquation() {
     var ind = 0;
     var lap1 = 0;
     //var lap2 = 0;
-    var max = 500;
-    var jnum = 500;
+    var maxw = CANVAS_W-1;
+    var maxh = CANVAS_H-1;
+    var jnum = CANVAS_W;
     var grad = 0;
-    for (i = 0; i < max; i++) {
-	for (j = 0; j < max; j++)  {
+    for (i = 1; i < maxw; i++) {
+	for (j = 1; j < maxh; j++)  {
 	    ind = j + jnum*i;
 	    //Compute the 2D laplacian
+	    lap1 = w1[j + jnum*(i-1)] + w1[j + jnum*(i+1)]
+		+ w1[ind -1 ] + w1[ind +1 ] - 4.0*w1[ind];
+	    /*
 	    lap1 = -4.0*w1[ind];
 	    //lap2 = -4.0*w2[ind];
 	    //grad = 0;
@@ -583,7 +600,7 @@ function waveEquation() {
 		//grad += Math.abs(w1[ind +1]);
 	    }
 	    //else lap += w1[500*i];
-	    
+	    */
 	    // add finite diff approx to 2nd time deriv
 	    // to complete wave equation approx.
 	    // note speed = speed squared
