@@ -6,156 +6,64 @@
 */
 define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts) {
 
+var log = debug.log;
+var debug = debug.input;
+
 var Input = function() {};
 
 var CANVAS_W = 500;
 var CANVAS_H = 500;
+
+var orderIncoming = false;
     
 Input.prototype.listen = function(router) {
     if (debug.input) debug.log("client/input.js: listen()");
     router.listen("keyPressed", this.processKeyPressed);
     router.listen("keyReleased", this.processKeyReleased);
-    router.listen("gameCanvasClick", this.processMouseClick);
-    router.listen("gameCanvasDoubleClick", this.processMouseDoubleClick);
-	router.listen("rightClick", this.handleRightClick);
+    router.listen("leftClick", this.processLeftClick);
+	router.listen("rightClick", this.processRightClick);
+    router.listen("doubleClick", this.processDoubleClick);
 }
 
-
-
-/*
-Input.prototype.processMouseDown = function(event) {
-}
-
-Input.prototype.processMouseUp = function(event) {
-}
-*/
-
-var orderIncoming = false;
 // same as single click, but terminate order stream
-Input.prototype.processMouseDoubleClick = function(event) {
-    Input.prototype.processMouseClick(event);
-    orderIncoming = false;
+Input.prototype.processDoubleClick = function(event) {
+	var coords = getAbsCoords(event);
+	if(debug) log("Double click at " + coords.x + ", " + coords.y);
+    Input.prototype.processLeftClick(event);
+	if(client.inGame) orderIncoming = false;
 }
 
-Input.prototype.handleRightClick = function(event) {
-	event.preventDefault();
-
-    var rect = dom.easel.getBoundingClientRect();
-    var x = event.clientX - rect.left;
-    var y = event.clientY - rect.top;
-	console.log("Right click at " + x + ", " + y);
-	
-	dom.rightClickMenu.style.display = "block";
-	dom.rightClickMenu.style.left = x + "px";
-	dom.rightClickMenu.style.top = y + "px";
-	
-	// Prepare to close menu
-	dom.document.onclick = function() {
+Input.prototype.processLeftClick = function(event) {
+	var rel_coords = getRelCoords(event);
+	// Click off right click menu if needed
+	if(rel_coords.elem !== dom.rightClickMenu &&
+	dom.rightClickMenu.style.display !== "none") {
 		dom.rightClickMenu.style.display = "none";
-	}
-}
-
-// note: left: event.which = 1, right: event.which = 3
-Input.prototype.processMouseClick = function(event) {
-    if (debug.input) debug.log("client/input.js: processMouseClick()");
-    if (! client.inGame) return;
-    if (event.which == 1) {
-	// left mouse click
-	if (debug.input) debug.log("client/input.js: processMouseClick; left");
-	if (! orderIncoming) {
-	    // erase previous orders
-	    client.input.orders = [];
-	}
-	orderIncoming = true;
-    } else {
-	// right mouse click
-	if (debug.input) debug.log("client/input.js: processMouseClick; right");
-	orderIncoming = false;
-    }
-	
-    var rect = dom.easel.getBoundingClientRect();
-    var x = event.clientX - rect.left;
-    var y = event.clientY - rect.top;
-
-    /*
-    var min = Math.min(client.map.width, client.map.height);
-    var a = Math.round((x / 500) * Math.floor(min / client.camera.zoom)) + client.camera.x;
-    var b = Math.round((y / 500) * Math.floor(min / client.camera.zoom)) + client.camera.y;
-    */
-
-    var cam_x = client.camera.x;
-    var cam_y = client.camera.y;
-    var min = Math.min(client.map.width, client.map.height);
-    var cam_w = Math.floor(min / client.camera.zoom);
-    var cam_h = Math.floor(min / client.camera.zoom);
-    // cell dimensions in pixels
-    var cell_w = CANVAS_W / cam_w;
-    var cell_h = CANVAS_H / cam_h;
-    var a = x/cell_w + cam_x;
-    var b = y/cell_h + cam_y;
-    
-    var ships = client.gameState.ships;
-    if (debug.input) debug.log("input.js: myShip = "+client.gameState.myShip);
-    for (var s in ships) {
-	// need to verify somehow that ships[s] is not current ship.
-	if (debug.input) {
-	    //debug.log("ship "+s+": alive="+ships[s].alive);
-	    /*debug.log("ship "+s+":"
-		      +" (" + ships[s].box.verts[0].x+","
-		      +ships[s].box.verts[0].y+")"
-		      +" (" + ships[s].box.verts[1].x+","
-		      +ships[s].box.verts[1].y+")"
-		      +" (" + ships[s].box.verts[3].x+","
-		      +ships[s].box.verts[3].y+")"
-		      +" (" + ships[s].box.verts[2].x+","
-		      +ships[s].box.verts[2].y+")"
-		      +" (" + ships[s].box.verts[4].x+","
-		      +ships[s].box.verts[4].y+")");
-	*/
-	    if (inside(ships[s],a,b)) debug.log("input.js: inside ship "+s);
-	    else debug.log("input.js: outside ship "+s);
-
-	}
-
-	
-	if (s != client.gameState.myShip && inside(ships[s],a,b)) {
-	    // select:name = ram, name = fireOn, name = board
-	    alerts.showPrompt("f:follow, r:ram, b:board, s:fireAt", function(resp) {
-		if (resp === "f" || resp === "F") {
-		    client.input.orders.push({name:"f",ship:ships[s]});
-		} else if (resp === "r" || resp === "R") {
-		    client.input.orders.push({name:"r",ship:ships[s]});
-		} else if (resp === "b" || resp === "B") {
-		    client.input.orders.push({name:"b",ship:ships[s]});
-		}
-		if (debug.input) debug.log("client/input.js: processMouseClick; order="+JSON.stringify(client.input.orders));
-		client.emit("gameInput",client.input);
 		return;
-	    });
 	}
-    }
-    
-    // TODO target docks
-    
-    // default: position
-    // only push if a,b is over water.
-    console.log("input: a="+a+" b="+b);
-    console.log("input: cam_w="+cam_w+" cam_h="+cam_h);
-    console.log("input: cell_w="+cell_w+" cell_h="+cell_h);
-    console.log("input: x="+x+" y="+y);
-    if (client.map.data[Math.floor(b)].charAt(Math.floor(a)) === "0") {
-	client.input.orders.push({name:"xy",x:a,y:b});
-	if (debug.input) debug.log("client/input.js: processMouseClick; order="+JSON.stringify(client.input.orders));
-	client.emit("gameInput",client.input);
-    } else {
-	console.log("mouseover not over water but: "+ client.map.data[Math.floor(b)].charAt(Math.floor(a)));
-    }
+	// Check if clicking the game screen
+	if(rel_coords.elem === dom.easel) {
+		// Give orders
+		giveOrders(getCellCoords(rel_coords));
+	} else {
+		if(debug) log("Click at " + rel_coords.x + ", " + rel_coords.y + 
+			" on element " + rel_coords.elem.id);
+	}
 }
 
-/*
-Input.prototype.processMouseMove = function(event) {
+Input.prototype.processRightClick = function(event) {
+	var coords = getAbsCoords(event);
+	var rel_coords = getRelCoords(event);
+	
+	if(debug) log("Right click at " + rel_coords.x + ", " + 
+		rel_coords.y + " on element " + rel_coords.elem.id);
+	if(rel_coords.elem === dom.easel) {
+		event.preventDefault();
+		dom.rightClickMenu.style.display = "block";
+		dom.rightClickMenu.style.left = coords.x + "px";
+		dom.rightClickMenu.style.top = coords.y + "px";
+	}
 }
-*/
 
 Input.prototype.processKeyPressed = function(event) {
     // If the chat bar is not in focus
@@ -283,58 +191,74 @@ Input.prototype.processKeyReleased = function(event) {
     }
 }
 
+// Returns the x y coordinates of the event
+// relative to the entire document
+function getAbsCoords(event) {
+	var rect = dom.document.body.getBoundingClientRect();
+    return {
+		x:event.clientX - rect.left,
+		y:event.clientY - rect.top
+	};
+}
 
-//winding number algorithm
-// assumes convex ship box
-function inside(ship,x,y) {
+// Returns the x y coordinates of the event
+// relative to the most nested element it
+// occurred within
+function getRelCoords(event) {
+	var elem = dom.document.elementFromPoint(event.clientX, event.clientY);
+    var rect = elem.getBoundingClientRect();
+    return {
+		x:event.clientX - rect.left,
+		y:event.clientY - rect.top,
+		elem:elem
+	};
+}
 
-    var verts = ship.box.verts;
-    var ax = verts[0].x - x;
-    var ay = verts[0].y - y;
-    var bx = verts[1].x - x;
-    var by = verts[1].y - y;
-    var sign = (ax*by < ay*bx) ? true : false;
-    //if (debug.input) debug.log("inside: ax,ay,bx,by = "+ax+","+ay+","+bx+","+by);
-    //if (debug.input) debug.log("inside: sign="+sign);
+function getCellCoords(coords) {
+	var min = Math.min(client.map.width, client.map.height);
+	return {
+		x:Math.round((coords.x / CANVAS_W) * Math.floor(min / client.camera.zoom)) + client.camera.x,
+		y:Math.round((coords.y / CANVAS_H) * Math.floor(min / client.camera.zoom)) + client.camera.y
+	};
+}
 
+function giveOrders(coords) {
 
-    ax = verts[1].x - x;
-    ay = verts[1].y - y;
-    bx = verts[3].x - x;
-    by = verts[3].y - y;
-    //if (debug.input) debug.log("inside: 1,3 ax*by-ay*bx="+(ax*by-ay*bx));
-    if ((ax*by < ay*bx) !== sign) return false;
-    //ax = bx;
-    //ay = by;
+	if (! orderIncoming) {
+	    // erase previous orders
+	    client.input.orders = [];
+		orderIncoming = true;
+    }
+	
+	if(debug) log("Clicked cell at " + coords.x + ", " + coords.y);
+	
+	var selection = shipAtCoords(coords);
+	
+	if (selection && selection !== client.gameState.myShip) {
+		if(debug) log("Selected ship");
+	    // select:name = ram, name = fireOn, name = board
+	    alerts.showPrompt("f:follow, r:ram, b:board, s:fireAt", function(resp) {
+			client.input.orders.push({name:resp, ship:selection});
+			client.emit("gameInput",client.input);
+			if(debug) log("Order \"" + resp + "\" given");
+	    });
+    } else {
+		if(debug) log("Emitted xy orders");
+    	client.input.orders.push({name:"xy", coords:coords});
+    }
+}
 
-    ax = verts[3].x - x;
-    ay = verts[3].y - y;
-    bx = verts[2].x - x;
-    by = verts[2].y - y;
-    //if (debug.input) debug.log("inside: 3,2 ax*by-ay*bx="+(ax*by-ay*bx));
-    
-    if ((ax*by < ay*bx) !== sign) return false;
-    //ax = bx;
-    //ay = by;
-
-    ax = verts[2].x - x;
-    ay = verts[2].y - y;
-    bx = verts[4].x - x;
-    by = verts[4].y - y;
-    //if (debug.input) debug.log("inside: 2,4 ax*by-ay*bx="+(ax*by-ay*bx));
-    if ((ax*by < ay*bx) !== sign) return false;
-    //ax = bx;
-    //ay = by;
-
-    ax = verts[4].x - x;
-    ay = verts[4].y - y;
-    bx = verts[0].x - x;
-    by = verts[0].y - y;
-    //if (debug.input) debug.log("inside: 4,0 ax*by-ay*bx="+(ax*by-ay*bx));
-    if ((ax*by < ay*bx) !== sign) return false;
-    
-    return true;
-
+function shipAtCoords(coords) {
+	if(!client.inGame) return;
+	for(var i in client.gameState.ships) {
+		var s = client.gameState.ships[i];
+		var val = Math.max(s.box.w, s.box.h);
+		if(s.box.x + val > coords.x && s.box.x - val < coords.x &&
+		s.box.y + val > coords.y && s.box.y - val < coords.y) {
+			return s;
+		}
+	}
+	return null;
 }
 
 return new Input();

@@ -30,7 +30,6 @@ Users.prototype.toggleUserMenu = function() {
 // Display the table with username, password, 
 // user type, and online status
 Users.prototype.displayUserList = function(data) {
-    if (debug.users) log("client/users.js: displayUserList()");
     var i;
     var html = "<table>" +
 	"<tr>" +

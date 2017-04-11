@@ -62,9 +62,9 @@ Router.prototype.unlisten = function(msg, action) {
 * @memberof module:client/Router
 */
 Router.prototype.route = function(msg) {
-	if(debug.router) {
-		if(msg.name !== "gameUpdate" && 
-			msg.name !== "refreshEditScreen") debug.log("[Client] Routing \"" + msg.name + "\"");
+	if(debug.router && !(msg.name === "gameUpdate" || 
+		msg.name === "userListResponse")) {
+		debug.log("[Client] Routing \"" + msg.name + "\"");
 	}
     for (var i in listeners) {
 		if (listeners[i].name === msg.name) {

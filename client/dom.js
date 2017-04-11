@@ -208,10 +208,6 @@ dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", d
 // Console window
 dom.consoleForm.onsubmit = function(event) { router.route({name:"consoleFormSubmit", data:event}); }
 
-// Input
-dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
-dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:event}); }
-
 // Map editor mouse events
 dom.mapEditorCanvas.onmousedown = function(event) { router.route({name:"mapEditorCanvasMouseDown", data:event}); }
 dom.mapEditorCanvas.onclick = function(event) { router.route({name:"mapEditorCanvasClick", data:event}); }
@@ -220,16 +216,14 @@ dom.mapEditorCanvas.onmousemove = function(event) { router.route({name:"mapEdito
 dom.mapEditorCanvas.onmouseup = function(event) { router.route({name:"mapEditorCanvasMouseUp", data:event}); }
 dom.mapEditorCanvas.onmouseleave = function(event) { router.route({name:"mapEditorCanvasMouseLeave", data:event}); }
 
+// Input
+dom.document.onkeydown = function(event) { router.route({name:"keyPressed", data:event}); }
+dom.document.onkeyup = function(event) { router.route({name:"keyReleased", data:event}); }
 
-// Game screen events
-//dom.canvas.onmousedown = function(event) { router.route({name:"gameCanvasMouseDown", data:event}); }
-dom.easel.onclick = function(event) { router.route({name:"gameCanvasClick", data:event}); }
-dom.easel.ondblclick = function(event) { router.route({name:"gameCanvasDoubleClick", data:event}); }
-//dom.canvas.onmouseup = function(event) { router.route({name:"gameCanvasMouseUp", data:event}); }
-//dom.canvas.onmousemove = function(event) { router.route({name:"gameCanvasMouseMove", data:event}); }
-//dom.canvas.onmouseleave = function(event) { router.route({name:"gameCanvasMouseLeave", data:event}); }
+// Mouse click events
+dom.document.onclick = function(event) { router.route({name:"leftClick", data:event}); }
+dom.document.ondblclick = function(event) { router.route({name:"doubleClick", data:event}); }
 
-// Right click menu
 if (document.addEventListener) { // IE >= 9; other browsers
 	document.addEventListener('contextmenu', function(event) {
 		router.route({name:"rightClick", data:event});
