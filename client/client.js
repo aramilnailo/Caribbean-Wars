@@ -27,6 +27,7 @@ Client.prototype.drawing = false;
 Client.prototype.inGame = false;
 
 Client.prototype.gameState = null;
+Client.prototype.ruleSet = null;
 Client.prototype.map = null;
 
 /**

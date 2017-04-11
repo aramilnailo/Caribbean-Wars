@@ -45,6 +45,9 @@ Session.prototype.listen = function(router) {
     router.listen("getGameMap", this.getGameMap);
 	router.listen("loadGameState", this.loadGameState);
 	router.listen("saveGameState", this.saveGameState);
+	
+	router.listen("getRuleSet", this.getRuleSet);
+	router.listen("modifyRuleSet", this.modifyRuleSet);
 }
 
 /**
@@ -498,6 +501,36 @@ Session.prototype.loadGameState = function(param) {
 	}
 }
 
+Session.prototype.getRuleSet = function(param) {
+	var client = param.client;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	if(client !== session.host) {
+		server.emit(client.socket, "alert", "Only host may edit the rule set");
+	} else {
+		server.emit(client.socket, "ruleSetResponse", session.ruleset);
+	}
+}
+
+Session.prototype.modifyRuleSet = function(param) {
+	var client = param.client;
+	var id = client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	if(client !== session.host) {
+		server.emit(client.socket, "alert", "Only host may edit the rule set");
+	} else {
+		var ruleName = param.data.name;
+		var ruleValue = param.data.value;
+		if(validRuleChange(ruleName, ruleValue)) {
+			session.ruleset[ruleName] = ruleValue;
+			server.emit(client.socket, "ruleSetResponse", session.ruleset);
+		} else {
+			server.emit(client.socket, "alert", "Invalid rule change");
+		}
+	}
+}
 
 
 //====== HELPERS ====================================
@@ -662,6 +695,11 @@ function spawnInGame(c, session, enter) {
 	}
 	if(enter) server.emit(c.socket, 
 		"gameScreen", {isHost:(c === session.host)});
+}
+
+function validRuleChange(ruleName, ruleValue) {
+	// TO DO
+	return true;
 }
 
 

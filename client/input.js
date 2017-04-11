@@ -4,7 +4,8 @@
 *
 * @module client/Input
 */
-define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts) {
+define(["debug", "dom", "client", "alerts", "router"], 
+function(debug, dom, client, alerts, router) {
 
 var log = debug.log;
 var debug = debug.input;
@@ -16,21 +17,13 @@ var CANVAS_H = 500;
 
 var orderIncoming = false;
     
-Input.prototype.listen = function(router) {
+Input.prototype.listen = function(mrouter) {
     if (debug.input) debug.log("client/input.js: listen()");
-    router.listen("keyPressed", this.processKeyPressed);
-    router.listen("keyReleased", this.processKeyReleased);
-    router.listen("leftClick", this.processLeftClick);
-	router.listen("rightClick", this.processRightClick);
-    router.listen("doubleClick", this.processDoubleClick);
-}
-
-// same as single click, but terminate order stream
-Input.prototype.processDoubleClick = function(event) {
-	var coords = getAbsCoords(event);
-	if(debug) log("Double click at " + coords.x + ", " + coords.y);
-    Input.prototype.processLeftClick(event);
-	if(client.inGame) orderIncoming = false;
+    mrouter.listen("keyPressed", this.processKeyPressed);
+    mrouter.listen("keyReleased", this.processKeyReleased);
+    mrouter.listen("leftClick", this.processLeftClick);
+	mrouter.listen("rightClick", this.processRightClick);
+    mrouter.listen("doubleClick", this.processDoubleClick);
 }
 
 Input.prototype.processLeftClick = function(event) {
@@ -51,7 +44,18 @@ Input.prototype.processLeftClick = function(event) {
 		// Direct selected ships to carry out clicked order
 		issueOrder(rel_coords.elem.id);
 		dom.rightClickMenu.style.display = "none";
-		if(debug) log("Executing order \"" + rel_coords.elem.id + "\"");
+		if(debug) log("Executing \"" + rel_coords.elem.id + "\" order");
+	} else if(rel_coords.elem.className === "rule") {
+		// Show rule set editor input
+		alerts.showPrompt(rel_coords.elem.id + ": ", function(resp) {
+			router.route({
+				name:"ruleInput", 
+				data:{
+					name:rel_coords.elem.id, 
+					value:resp
+				}
+			});
+		});
 	} else {
 		if(debug) log("Click at " + rel_coords.x + ", " + rel_coords.y + 
 			" on element " + rel_coords.elem.id);
@@ -61,9 +65,9 @@ Input.prototype.processLeftClick = function(event) {
 Input.prototype.processRightClick = function(event) {
 	var coords = getAbsCoords(event);
 	var rel_coords = getRelCoords(event);
-	
 	if(debug) log("Right click at " + rel_coords.x + ", " + 
 		rel_coords.y + " on element " + rel_coords.elem.id);
+	// Check if clicking the game screen
 	if(rel_coords.elem === dom.easel) {
 		event.preventDefault();
 		dom.rightClickMenu.style.display = "block";
@@ -76,10 +80,20 @@ Input.prototype.processRightClick = function(event) {
 			html += "<div id=\"follow\" class=\"orders\">Follow</div>";
 			html += "<div id=\"ram\" class=\"orders\">Ram</div>";
 			html += "<div id=\"board\" class=\"orders\">Board</div>";
+			// Add new orders here
 			dom.rightClickMenu.innerHTML = html;
 		}
 	}
 }
+
+// same as single click, but terminate order stream
+Input.prototype.processDoubleClick = function(event) {
+	var coords = getAbsCoords(event);
+	if(debug) log("Double click at " + coords.x + ", " + coords.y);
+    Input.prototype.processLeftClick(event);
+	if(client.inGame) orderIncoming = false;
+}
+
 
 Input.prototype.processKeyPressed = function(event) {
     // If the chat bar is not in focus
@@ -229,6 +243,7 @@ function getRelCoords(event) {
 	};
 }
 
+// Transforms pixel coordinates to cell coordinates
 function getCellCoords(coords) {
 	var min = Math.min(client.map.width, client.map.height);
 	return {
@@ -237,6 +252,7 @@ function getCellCoords(coords) {
 	};
 }
 
+// Detects and returns any ship at the given cell coordinates
 function shipAtCoords(coords) {
 	if(!client.inGame) return;
 	for(var i in client.gameState.ships) {

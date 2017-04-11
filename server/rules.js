@@ -24,10 +24,4 @@ Rules.prototype.getDefault = function() {
 	return ruleset;
 };
 
-// Takes rule as a string and sets it to the given value
-Rules.prototype.setRule = function(rule, setting) {
-	
-	
-};
-
 module.exports = new Rules();
