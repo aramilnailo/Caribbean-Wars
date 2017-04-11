@@ -37,14 +37,21 @@ Input.prototype.processLeftClick = function(event) {
 	var rel_coords = getRelCoords(event);
 	// Click off right click menu if needed
 	if(rel_coords.elem !== dom.rightClickMenu &&
-	dom.rightClickMenu.style.display !== "none") {
+		rel_coords.elem.className !== "orders" &&
+		dom.rightClickMenu.style.display !== "none") {
 		dom.rightClickMenu.style.display = "none";
 		return;
 	}
 	// Check if clicking the game screen
 	if(rel_coords.elem === dom.easel) {
-		// Give orders
-		giveOrders(getCellCoords(rel_coords));
+		// Direct selected ships to x y coordinates
+		navigate(getCellCoords(rel_coords));
+		if(debug) log("Navigating to " + rel_coords.x + ", " + rel_coords.y);
+	} else if(rel_coords.elem.className === "orders") {
+		// Direct selected ships to carry out clicked order
+		issueOrder(rel_coords.elem.id);
+		dom.rightClickMenu.style.display = "none";
+		if(debug) log("Executing order \"" + rel_coords.elem.id + "\"");
 	} else {
 		if(debug) log("Click at " + rel_coords.x + ", " + rel_coords.y + 
 			" on element " + rel_coords.elem.id);
@@ -62,6 +69,15 @@ Input.prototype.processRightClick = function(event) {
 		dom.rightClickMenu.style.display = "block";
 		dom.rightClickMenu.style.left = coords.x + "px";
 		dom.rightClickMenu.style.top = coords.y + "px";
+		dom.rightClickMenu.innerHTML = "";
+		if(shipAtCoords(getCellCoords(rel_coords))) {
+			var html = "<div>Orders?</div>";
+			html += "<div id=\"fire\" class=\"orders\">Fire</div>";
+			html += "<div id=\"follow\" class=\"orders\">Follow</div>";
+			html += "<div id=\"ram\" class=\"orders\">Ram</div>";
+			html += "<div id=\"board\" class=\"orders\">Board</div>";
+			dom.rightClickMenu.innerHTML = html;
+		}
 	}
 }
 
@@ -194,10 +210,9 @@ Input.prototype.processKeyReleased = function(event) {
 // Returns the x y coordinates of the event
 // relative to the entire document
 function getAbsCoords(event) {
-	var rect = dom.document.body.getBoundingClientRect();
     return {
-		x:event.clientX - rect.left,
-		y:event.clientY - rect.top
+		x:event.clientX - pageXOffset,
+		y:event.clientY - pageYOffset
 	};
 }
 
@@ -222,32 +237,6 @@ function getCellCoords(coords) {
 	};
 }
 
-function giveOrders(coords) {
-
-	if (! orderIncoming) {
-	    // erase previous orders
-	    client.input.orders = [];
-		orderIncoming = true;
-    }
-	
-	if(debug) log("Clicked cell at " + coords.x + ", " + coords.y);
-	
-	var selection = shipAtCoords(coords);
-	
-	if (selection && selection !== client.gameState.myShip) {
-		if(debug) log("Selected ship");
-	    // select:name = ram, name = fireOn, name = board
-	    alerts.showPrompt("f:follow, r:ram, b:board, s:fireAt", function(resp) {
-			client.input.orders.push({name:resp, ship:selection});
-			client.emit("gameInput",client.input);
-			if(debug) log("Order \"" + resp + "\" given");
-	    });
-    } else {
-		if(debug) log("Emitted xy orders");
-    	client.input.orders.push({name:"xy", coords:coords});
-    }
-}
-
 function shipAtCoords(coords) {
 	if(!client.inGame) return;
 	for(var i in client.gameState.ships) {
@@ -259,6 +248,14 @@ function shipAtCoords(coords) {
 		}
 	}
 	return null;
+}
+
+function navigate(coords) {
+	client.input.orders.push({name:"goto", coords:coords});
+}
+
+function issueOrder(order) {
+	client.input.orders.push({name:order});
 }
 
 return new Input();
