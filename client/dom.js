@@ -108,9 +108,18 @@ var dom = {
 	newGameButton:document.getElementById("new-game-btn"),
 	resumeGameButton:document.getElementById("resume-game-btn"),
 	endSessionButton:document.getElementById("end-session-btn"),
+	rulesEditorButton:document.getElementById("rules-editor-btn"),
 	lobbyButtons:document.getElementById("lobby-btns"),
 	leaveSessionButton:document.getElementById("leave-session-btn"),
 	joinInProgressButton:document.getElementById("join-in-progress-btn"),
+
+	// Rules editor
+	rulesEditor:document.getElementById("rules-editor"),
+	rulesEditorScreen:document.getElementById("rules-editor-screen"),
+	confirmRuleSetButton:document.getElementById("confirm-rule-set-btn"),
+	cancelRuleSetButton:document.getElementById("cancel-rule-set-btn"),
+	saveRuleSetButton:document.getElementById("save-rule-set-btn"),
+	loadRuleSetButton:document.getElementById("load-rule-set-btn"),
 
 	// Options menu
 	optionsMenu:document.getElementById("options-menu"),
@@ -189,8 +198,15 @@ dom.newSessionButton.onclick = function() { router.route({name:"newSessionClick"
 dom.newGameButton.onclick = function() { router.route({name:"newGameClick", data:null}); }
 dom.resumeGameButton.onclick = function() { router.route({name:"resumeGameClick", data:null}); }
 dom.endSessionButton.onclick = function() { router.route({name:"endSessionClick", data:null}); }
+dom.rulesEditorButton.onclick = function() { router.route({name:"rulesEditorScreen", data:null}); }
 dom.leaveSessionButton.onclick = function() { router.route({name:"leaveSessionClick", data:null}); }
 dom.joinInProgressButton.onclick = function() { router.route({name:"joinInProgressClick", data:null}); }
+
+// Rules editor screen
+dom.confirmRuleSetButton.onclick = function() { router.route({name:"confirmRuleSetClick", data:null}); }
+dom.cancelRuleSetButton.onclick = function() { router.route({name:"cancelRuleSetClick", data:null}); }
+dom.saveRuleSetButton.onclick = function() { router.route({name:"saveRuleSetClick", data:null}); }
+dom.loadRuleSetButton.onclick = function() { router.route({name:"loadRuleSetClick", data:null}); }
 
 // Map editor screen
 dom.undoButton.onclick = function() { router.route({name:"undoClick", data:null}); }

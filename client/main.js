@@ -2,12 +2,12 @@
 require(["client", "router", "chat", 
 "stats", "login", "render", 
 "saves", "view", "users", 
-"lobby", "mapeditor",
+"lobby", "mapeditor", "rules",
 "mapeditorfiles", "alerts", "input"], 
 function(client, router, chat,
 	 stats, login, render, 
 	saves, view, users, 
-	lobby, mapeditor, 
+	lobby, mapeditor, rules,
 	 mapeditorfiles, alerts, input) {
 
 var socket = io();
@@ -25,6 +25,7 @@ users.listen(router);
 lobby.listen(router);
 alerts.listen(router);
 input.listen(router);
+rules.listen(router);
     
 mapeditor.initButtons();
 	    

@@ -27,6 +27,7 @@ View.prototype.listen = function(router) {
 	router.listen("gameScreen", this.gameScreen);
 	router.listen("adminScreen", this.adminScreen);
 	router.listen("mapEditorScreen", this.mapEditorScreen);
+	router.listen("rulesEditorScreen", this.rulesEditorScreen);
 	//router.listen("keyPressed", this.keyPressed);
 	//router.listen("keyReleased", this.keyReleased);
 	
@@ -99,6 +100,12 @@ View.prototype.mapEditorScreen = function(data) {
 	client.emit("loadEditMap", "default");
 	show(["upperMenu", "mapEditorMenu", 
 	"mapEditorScreen", "optionsMenu"]);
+	client.inGame = false;
+}
+
+View.prototype.rulesEditorScreen = function(data) {
+	hideAll();
+	show(["rulesEditor", "upperMenu", "optionsMenu"]);
 	client.inGame = false;
 }
 
@@ -285,7 +292,7 @@ function hideAll() {
 	hide(["loginScreen", "gameScreen", "adminScreen", 
 	"lobbyScreen", "sessionBrowser", "mapEditorScreen",
 	"upperMenu", "inGameMenu", "hostMenu", "mapEditorMenu",
-	"optionsMenu"]);
+	"optionsMenu", "rulesEditor"]);
 }
 
 return new View();

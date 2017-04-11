@@ -20,7 +20,8 @@ var debug = {
     render:debugall||false,
     view:debugall||true,
     mapeditor:debugall||true,
-    mapeditorfiles:debugall||true
+    mapeditorfiles:debugall||true,
+	rules:debugall||true
 }
 
 /**
