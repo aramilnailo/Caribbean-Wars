@@ -1,4 +1,5 @@
-define(["debug", "dom", "client", "router"], function(debug, dom, client, router) {
+define(["debug", "dom", "client", "alerts", "router"], 
+function(debug, dom, client, alerts, router) {
 	
 	var log = debug.log;
 	var debug = debug.rules;
@@ -20,7 +21,7 @@ define(["debug", "dom", "client", "router"], function(debug, dom, client, router
 	}
 	
 	Rules.prototype.displayRulesEditor = function(data) {
-		log("displayRulesEditor");
+		if(debug) log("[Rules] displayRulesEditor");
 		var html = "<ul>";
 		for(var i in client.ruleSet) {
 			html += "<li id=\"" + i + "\" class=\"rule\">" + 
@@ -32,27 +33,63 @@ define(["debug", "dom", "client", "router"], function(debug, dom, client, router
 	
 	
 	Rules.prototype.confirmRuleSetClick = function(data) {
-		log("confirmRuleSet");
+		if(debug) log("[Rules] confirmRuleSet");
+		// Apply any changes to the server's rule set
+		client.emit("modifyRuleSet", client.ruleSet);
+		router.route({name:"lobbyScreen", data:{isHost:true}});
 	}
 	
 	Rules.prototype.cancelRuleSetClick = function(data) {
-		log("cancelRuleSet");
+		if(debug) log("[Rules] cancelRuleSet");
+		// Revert back to the session's rule set
+		client.emit("getRuleSet", null);
 		router.route({name:"lobbyScreen", data:{isHost:true}});
 	}
 	
 	Rules.prototype.saveRuleSetClick = function(data) {
-		log("saveRuleSet");
+		if(debug) log("[Rules] saveRuleSet");
+		alerts.showPrompt("Save rule set as:", function(resp) {
+			if(resp) {
+				client.emit("saveRuleSet", {
+					filename:resp,
+					ruleset:client.ruleSet
+				});
+			}
+		});
 	}
 	
 	Rules.prototype.loadRuleSetClick = function(data) {
-		log("loadRuleSet");
+		if(debug) log("[Rules] loadRuleSet");
+		alerts.showPrompt("Load rule set:", function(resp) {
+			if(resp) {
+				client.emit("loadRuleSet", resp);
+			}
+		});
+	}
+	
+	Rules.prototype.deleteRuleSetClick = function(data) {
+		if(debug) log("[Rules] deleteRuleSet");
+		alerts.showPrompt("Delete rule set:", function(resp) {
+			if(resp) {
+				client.emit("deleteRuleSet", resp);
+			}
+		});
 	}
 	
 	Rules.prototype.modifyRuleSet = function(data) {
-		log("Attempting to change " + data.name + 
+		if(debug) log("[Rules] Attempting to change " + data.name + 
 		" to " + data.value);
-		client.emit("modifyRuleSet", data);
+		if(validateChange(data.name, data.value)) {
+			client.ruleSet[data.name] = data.value;
+		}
+		Rules.prototype.displayRulesEditor();
 	}
+	
+	function validateChange(ruleName, value) {
+		// TO DO
+		return true;
+	}
+	
 	
 	return new Rules();
 	

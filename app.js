@@ -14,6 +14,7 @@ var accounts = require("./server/accounts.js");
 var game = require("./server/game.js");
 var chat = require("./server/chat.js");
 var saves = require("./server/saves.js");
+var rules = require("./server/rules.js");
 
 app.get("/", function(req, res) {
     res.sendFile(__dirname + "/client/index.html");
@@ -33,6 +34,7 @@ accounts.listen(router);
 game.listen(router);
 chat.listen(router);
 saves.listen(router);
+rules.listen(router);
 
 server.run(io);
 

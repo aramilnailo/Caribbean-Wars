@@ -521,14 +521,8 @@ Session.prototype.modifyRuleSet = function(param) {
 	if(client !== session.host) {
 		server.emit(client.socket, "alert", "Only host may edit the rule set");
 	} else {
-		var ruleName = param.data.name;
-		var ruleValue = param.data.value;
-		if(validRuleChange(ruleName, ruleValue)) {
-			session.ruleset[ruleName] = ruleValue;
-			server.emit(client.socket, "ruleSetResponse", session.ruleset);
-		} else {
-			server.emit(client.socket, "alert", "Invalid rule change");
-		}
+		session.ruleset = param.data;
+		server.emit(client.socket, "alert", "Rules have been set");
 	}
 }
 
@@ -696,12 +690,6 @@ function spawnInGame(c, session, enter) {
 	if(enter) server.emit(c.socket, 
 		"gameScreen", {isHost:(c === session.host)});
 }
-
-function validRuleChange(ruleName, ruleValue) {
-	// TO DO
-	return true;
-}
-
 
 module.exports = new Session();
 module.exports.GAME_SESSIONS = GAME_SESSIONS;

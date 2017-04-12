@@ -1,5 +1,16 @@
+var debug = require("./debug.js").rules;
+var log = require("./debug.js").log;
+
+var dbi = require("./dbi.js");
+var server = require("./server.js");
 
 var Rules = function() {}
+	
+Rules.prototype.listen = function(router) {
+	router.listen("saveRuleSet", this.saveRuleSet);
+	router.listen("loadRuleSet", this.loadRuleSet);
+	router.listen("deleteRuleSet", this.deleteRuleSet);
+}
 	
 // Returns default ruleset object
 Rules.prototype.getDefault = function() {
@@ -23,5 +34,42 @@ Rules.prototype.getDefault = function() {
 	
 	return ruleset;
 };
+
+Rules.prototype.saveRuleSet = function(param) {
+	var author = param.client.username;
+	var filename = param.data.filename;
+	var data = param.data.ruleset;
+	dbi.addRuleSet(filename, author, data, function(resp) {
+		if(resp) {
+			server.emit(param.client.socket, "alert", "Saved " + filename);
+		} else {
+			server.emit(param.client.socket, "alert", "Could not save " + filename);
+		}
+	});
+}
+
+Rules.prototype.loadRuleSet = function(param) {
+	var filename = param.data;
+	dbi.getRuleSet(filename, function(data) {
+		if(data) {
+			server.emit(param.client.socket, "ruleSetResponse", data);
+			server.emit(param.client.socket, "alert", "Loaded " + filename);
+		} else {
+			server.emit(param.client.socket, "alert", "Could not load " + filename);
+		}
+	});
+}
+
+Rules.prototype.deleteRuleSet = function(param) {
+	var filename = param.data;
+	var author = param.client.username;
+	dbi.removeRuleSet(filename, author, function(resp) {
+		if(resp) {
+			server.emit(param.client.socket, "alert", "Deleted " + filename);
+		} else {
+			server.emit(param.client.socket, "alert", "Could not delete " + filename);
+		}
+	});
+}
 
 module.exports = new Rules();
