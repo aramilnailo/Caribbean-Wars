@@ -73,25 +73,23 @@ Render.prototype.drawCamera = function(map) {
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;
 	// Draw camera
+        renderOcean();
 	for(var i = 0; i < cam_h; i++) {
 		var line = map.data[i + cam_y];
 		for(var j = 0; j < cam_w; j++) {
 			var ch;
 			var printImage;
 		    if(line) ch = line.charAt(j + cam_x);
-		    if (ch !== "0") {
-			printImage = getCellImage(ch);
-			dom.canvas.drawImage(
+		    printImage = getCellImage(ch);
+		    dom.canvas.drawImage(
 			    printImage,
-			    j * cell_w, 
-			    i * cell_h, 
-			    cell_w, 
-			    cell_h
-			);
-		    }
+			j * cell_w, 
+			i * cell_h, 
+			cell_w, 
+			cell_h
+		    );
 		}
 	}
-    renderOcean();
     client.drawing = false;
     client.camera.moved = false;
 
@@ -445,7 +443,18 @@ function initializeOcean() {
     
     var lambda = [];
     var height = [];
-    var L0 = 50.0;
+    // camera position in cells
+    var cam_x = client.camera.x;
+    var cam_y = client.camera.y;
+    // camera dimensions in cells
+    var min = Math.min(client.map.width, client.map.height);
+    var cam_w = Math.floor(min / client.camera.zoom);
+    var cam_h = Math.floor(min / client.camera.zoom);
+    // cell dimensions in pixels
+    //var cell_w = CANVAS_W / cam_w;
+    //var cell_h = CANVAS_H / cam_h;
+
+    var L0 = Math.min(cam_w,cam_h)*0.5;
     var temp = 1.0;
     var nogood = true;
     
@@ -458,7 +467,7 @@ function initializeOcean() {
 	var prob = [];
 	var sum = 0;
 	while (lambda.length < nvecs) {
-	    var l = L0*Math.random() + 5;
+	    var l = L0*Math.random() + 3;
 	    var h = (Math.random() + 0.01)/1.01;
 	    lambda.push(l);
 	    height.push(h);
@@ -536,15 +545,17 @@ function initializeOcean() {
     // cell dimensions in pixels
     var cell_w = CANVAS_W / cam_w;
     var cell_h = CANVAS_H / cam_h;
-    
+
     
     // overwrite 1.0 for anything not ocean
-    for (var i = 0; i < max; i++) {
+
+    for (var i = 0; i < CANVAS_H; i++) {
 	var a = Math.floor(i/cell_h);
-	var line = client.map.data[a];
-	for (var j = 0; j < max; j++) {
+	var line = client.map.data[a+cam_y];
+	for (var j = 0; j < CANVAS_W; j++) {
 	    var b = Math.floor(j/cell_w);
-	    if (line.charAt(b) !== "0") {
+	    var ch = line.charAt(b+cam_x);
+	    if (ch === "1" || ch === "2" || ch === "3") {
 		w0[ind] = 1.0;
 		w1[ind] = 1.0;
 		w2[ind] = 1.0;
@@ -607,6 +618,35 @@ function waveEquation() {
 	    w0[ind] = 2*w1[ind] - w2[ind] + speed*lap1;
 	}
     }
+
+
+        // overwrite 1.0 for anything not ocean
+	// camera position in cells
+	var cam_x = client.camera.x;
+	var cam_y = client.camera.y;
+	// camera dimensions in cells
+	var min = Math.min(client.map.width, client.map.height);
+	var cam_w = Math.floor(min / client.camera.zoom);
+	var cam_h = Math.floor(min / client.camera.zoom);
+	// cell dimensions in pixels
+	var cell_w = CANVAS_W / cam_w;
+	var cell_h = CANVAS_H / cam_h;
+
+    for (var i = 0; i < CANVAS_H; i++) {
+	var a = Math.floor(i/cell_h);
+	var line = client.map.data[a+cam_y];
+	for (var j = 0; j < CANVAS_W; j++) {
+	    var b = Math.floor(j/cell_w);
+	    var ch = line.charAt(b+cam_x);
+	    if (ch === "1" || ch === "2" || ch === "3") {
+		w0[ind] = 1.0;
+		w1[ind] = 1.0;
+		w2[ind] = 1.0;
+	    }
+	}
+    }
+
+
 }
 
 
@@ -657,59 +697,70 @@ function advectionEquation() {
     
 
 
-function heightColorFunction(ht) {
-    return {r:Math.floor(255*(1-ht)),g:Math.floor(255*(1-ht)),b:Math.floor(255*ht)};
-}
-
 var first = true;
+var lastzoom = client.camera.zoom;
 function renderOcean() {
 
-    if (first) { initializeOcean(); first = false; }
+    if (lastzoom != client.camera.zoom || first) {
+	initializeOcean();
+	first = false;
+	lastzoom = client.camera.zoom;
+    }
+
     
     // shift arrays before updating w0
     w2 = w1;
     w1 = w0;
     waveEquation();
     //advectionEquation();
-/*
-    var imageData = dom.canvas.getImageData(0,0,500,500).data;
-    var data = imageData.data;
-    var h = imageData.height;
-    var w = imageData.width;
-    var x = 0;
-    var y = 0;
-    var index = 0;
-*/
 
-    var id = dom.canvas.createImageData(500,500);
-    //var id = dom.canvas.createImageData(1,1);
+    var id = dom.canvas.createImageData(CANVAS_W,CANVAS_H);
     var d = id.data;
     var color;
-    var imin = 0;
-    var imax = 0;
-    var jmin = 0;
-    var jmax = 0;
+
+	// camera position in cells
+	var cam_x = client.camera.x;
+	var cam_y = client.camera.y;
+	// camera dimensions in cells
+	var min = Math.min(client.map.width, client.map.height);
+	var cam_w = Math.floor(min / client.camera.zoom);
+	var cam_h = Math.floor(min / client.camera.zoom);
+	// cell dimensions in pixels
+	var cell_w = CANVAS_W / cam_w;
+	var cell_h = CANVAS_H / cam_h;
+
     
-    for (j = 0; j < 500; j++) {
-	var a = Math.floor(j/20);
-	for (i = 0; i < 500; i++) {
-	    var b = Math.floor(i/20);
-	    if (client.map.data[a].charAt(b) === "0") {
-		var off = j*500+i;
+    for (var j = 0; j < CANVAS_H; j++) {
+	var a = Math.floor(j/cell_h);
+	var line = client.map.data[a+cam_y];
+	for (var i = 0; i < CANVAS_W; i++) {
+	    var b = Math.floor(i/cell_w);
+	    var ch = line.charAt(b + cam_x);
+	    var off = i + CANVAS_W*j;
+	    if (ch !== "1" && ch !=="2" && ch !== "3") {
 		var value = Math.min(w0[off],1.0);
 		off *= 4;
-		d[off] = 0; //Math.floor(25*pow); ///(1.001-w0[off]));
-		d[off+1] = Math.floor(255*value); //Math.floor(25*pow);
-		d[off+2] = 255; //value;
+		d[off] = 0; 
+		d[off+1] = Math.floor(200*value); 
+		d[off+2] = 255; 
 		d[off+3] = 255;
+	    } else {
+		off *= 4;
+		d[off] = 0;
+		d[off+1] = 0;
+		d[off+2] = 0;
+		d[off+3] = 0;
 	    }
-	    //dom.canvas.putImageData(id,i,j);
+	    
 	}
     }
     dom.canvas.putImageData(id,0,0);
+    
 }
 
 
+
+    
     
 return new Render();
 
