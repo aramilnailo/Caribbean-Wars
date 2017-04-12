@@ -500,21 +500,19 @@ dbi.prototype.getAllStats = function(cb) {
 //================ RULE SETS ========================
 
 dbi.prototype.addRuleSet = function(filename, author, rules, cb) {
-	db.query(
-		"REPLACE INTO saved_rule_sets SET ?;",
-	 	{
-			author:author,
-	  	  	file_name:filename,
-	  	 	data:JSON.stringify(rules)
-		}, 
-		function(err) {
-		    if(err) {
-				cb(false);
-		    } else {
-			   cb(true);
-		    }
+	db.query("REPLACE INTO saved_rule_sets SET ?;",
+	{
+		author:author,
+		file_name:filename,
+		data:JSON.stringify(rules)
+	}, 
+	function(err) {
+		if(err) {
+			cb(false);
+		} else {
+			cb(true);
 		}
-	);
+	});
 }
 
 dbi.prototype.getRuleSet = function(filename, cb) {
@@ -530,17 +528,29 @@ dbi.prototype.getRuleSet = function(filename, cb) {
 }
 
 dbi.prototype.removeRuleSet = function(filename, author, cb) {
-    var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
-    var inserts = ["saved_rule_sets", "file_name", filename,
-		   "author", author, author, "admin"];
-    db.query(mysql.format(sql, inserts), function(err, rows) {
+	var sql = "DELETE FROM ?? WHERE ??=? AND (??=? OR ?=?)";
+	var inserts = ["saved_rule_sets", "file_name", filename,
+	"author", author, author, "admin"];
+	db.query(mysql.format(sql, inserts), function(err, rows) {
 		if(err) {
-		    if (debug) log(err.message);
-		    cb(false);
+			if (debug) log(err.message);
+			cb(false);
 		} else if(rows.affectedRows > 0) {
-		    cb(true); // If a successful deletion occurred
+			cb(true); // If a successful deletion occurred
 		} else {
-		    cb(false);
+			cb(false);
+		}
+	});
+}
+
+dbi.prototype.getRuleSetList = function(cb) {
+	db.query("SELECT file_name, author FROM saved_rule_sets;", 
+	function(err, rows) {
+		if(err) {
+			if (debug) log(err.message);
+			cb(null);
+		} else {
+			cb(rows);
 		}
 	});
 }

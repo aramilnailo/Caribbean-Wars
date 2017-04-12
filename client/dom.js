@@ -116,6 +116,7 @@ var dom = {
 	// Rules editor
 	rulesEditor:document.getElementById("rules-editor"),
 	rulesEditorScreen:document.getElementById("rules-editor-screen"),
+	ruleSetList:document.getElementById("rule-set-list"),
 	confirmRuleSetButton:document.getElementById("confirm-rule-set-btn"),
 	cancelRuleSetButton:document.getElementById("cancel-rule-set-btn"),
 	saveRuleSetButton:document.getElementById("save-rule-set-btn"),

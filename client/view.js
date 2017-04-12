@@ -103,6 +103,7 @@ View.prototype.mapEditorScreen = function(data) {
 View.prototype.rulesEditorScreen = function(data) {
 	hideAll();
 	client.emit("getRuleSet", null);
+	client.emit("getRuleSetList", null);
 	show(["rulesEditor", "upperMenu", "optionsMenu"]);
 	client.inGame = false;
 }

@@ -10,6 +10,7 @@ Rules.prototype.listen = function(router) {
 	router.listen("saveRuleSet", this.saveRuleSet);
 	router.listen("loadRuleSet", this.loadRuleSet);
 	router.listen("deleteRuleSet", this.deleteRuleSet);
+	router.listen("getRuleSetList", this.getRuleSetList);
 }
 	
 // Returns default ruleset object
@@ -42,6 +43,7 @@ Rules.prototype.saveRuleSet = function(param) {
 	dbi.addRuleSet(filename, author, data, function(resp) {
 		if(resp) {
 			server.emit(param.client.socket, "alert", "Saved " + filename);
+			pushRuleSetList(param.clients);
 		} else {
 			server.emit(param.client.socket, "alert", "Could not save " + filename);
 		}
@@ -66,8 +68,28 @@ Rules.prototype.deleteRuleSet = function(param) {
 	dbi.removeRuleSet(filename, author, function(resp) {
 		if(resp) {
 			server.emit(param.client.socket, "alert", "Deleted " + filename);
+			pushRuleSetList(param.clients);
 		} else {
 			server.emit(param.client.socket, "alert", "Could not delete " + filename);
+		}
+	});
+}
+
+Rules.prototype.getRuleSetList = function(param) {
+	dbi.getRuleSetList(function(data) {
+		if(data) {
+			server.emit(param.client.socket, "ruleSetListResponse", data);
+		}
+	});
+}
+
+function pushRuleSetList(clients) {
+	dbi.getRuleSetList(function(data) {
+		if(data) {
+			for(var i in clients) {
+				var c = clients[i];
+				server.emit(c.socket, "ruleSetListResponse", data);
+			}
 		}
 	});
 }

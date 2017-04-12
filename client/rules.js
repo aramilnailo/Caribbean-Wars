@@ -8,10 +8,12 @@ function(debug, dom, client, alerts, router) {
 	
 	Rules.prototype.listen = function(mrouter) {
 		mrouter.listen("ruleSetResponse", this.assignRuleSet);
+		mrouter.listen("ruleSetListResponse", this.displayRuleSetList);
 		mrouter.listen("confirmRuleSetClick", this.confirmRuleSetClick);
 		mrouter.listen("cancelRuleSetClick", this.cancelRuleSetClick);
 		mrouter.listen("saveRuleSetClick", this.saveRuleSetClick);
 		mrouter.listen("loadRuleSetClick", this.loadRuleSetClick);
+		mrouter.listen("deleteRuleSetClick", this.deleteRuleSetClick);
 		mrouter.listen("ruleInput", this.modifyRuleSet);
 	}
 	
@@ -24,11 +26,32 @@ function(debug, dom, client, alerts, router) {
 		if(debug) log("[Rules] displayRulesEditor");
 		var html = "<ul>";
 		for(var i in client.ruleSet) {
-			html += "<li id=\"" + i + "\" class=\"rule\">" + 
-			i + "--" + client.ruleSet[i] + "</li>";
+			html += "<li class=\"rule\" data-name=\"" + i +
+			 "\">" + i + "--" + client.ruleSet[i] + "</li>";
 		}
 		html += "</ul>";
 		dom.rulesEditorScreen.innerHTML = html;
+	}
+	
+	Rules.prototype.displayRuleSetList = function(data) {
+		var html = "<table>" +
+		"<tr>" +
+		"<th>File name</th>" +
+		"<th>Author</th>" +
+		"</tr>";
+		for(var i in data) {
+			html += "<tr>" + 
+			
+			"<td class=\"rule-set\"" + 
+			"data-name=\"" + data[i].file_name + 
+			"\" >" + data[i].file_name + "</td>" + 
+			
+			"<td>" + data[i].author + "</td>" + 
+			
+			"</tr>";
+		}
+		html += "</table>";
+		dom.ruleSetList.innerHTML = html;
 	}
 	
 	
@@ -69,11 +92,7 @@ function(debug, dom, client, alerts, router) {
 	
 	Rules.prototype.deleteRuleSetClick = function(data) {
 		if(debug) log("[Rules] deleteRuleSet");
-		alerts.showPrompt("Delete rule set:", function(resp) {
-			if(resp) {
-				client.emit("deleteRuleSet", resp);
-			}
-		});
+		client.emit("deleteRuleSet", data);
 	}
 	
 	Rules.prototype.modifyRuleSet = function(data) {

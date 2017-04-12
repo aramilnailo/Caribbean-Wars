@@ -28,59 +28,91 @@ Input.prototype.listen = function(mrouter) {
 
 Input.prototype.processLeftClick = function(event) {
 	var rel_coords = getRelCoords(event);
+	// Print info
+	if(debug) {
+		if(rel_coords.elem.id) log("Left click at " + rel_coords.x + ", " + 
+		rel_coords.y + " on element " + rel_coords.elem.id);
+		else if(rel_coords.elem.className) log("Left click at " + rel_coords.x + ", " + 
+		rel_coords.y + " on element of class " + rel_coords.elem.className);
+	}
 	// Click off right click menu if needed
 	if(rel_coords.elem !== dom.rightClickMenu &&
 		rel_coords.elem.className !== "orders" &&
+		rel_coords.elem.className !== "rule-set-option" &&
 		dom.rightClickMenu.style.display !== "none") {
 		dom.rightClickMenu.style.display = "none";
 		return;
 	}
 	// Check if clicking the game screen
 	if(rel_coords.elem === dom.easel) {
-		// Direct selected ships to x y coordinates
-		navigate(getCellCoords(rel_coords));
-		if(debug) log("Navigating to " + rel_coords.x + ", " + rel_coords.y);
+		var c_coords = getCellCoords(rel_coords);
+		var ship = shipAtCoords(c_coords);
+		if(ship) {
+			// If ship is clicked, select/deselect it
+			if(debug) log("Clicked ship");
+		} else {
+			// Direct selected ships to x y coordinates
+			navigate(c_coords);
+		}
 	} else if(rel_coords.elem.className === "orders") {
 		// Direct selected ships to carry out clicked order
-		issueOrder(rel_coords.elem.id);
+		var orderName = rel_coords.elem.getAttribute("data-name");
+		issueOrder(orderName);
 		dom.rightClickMenu.style.display = "none";
-		if(debug) log("Executing \"" + rel_coords.elem.id + "\" order");
+		if(debug) log("Executing \"" + orderName + "\" order");
 	} else if(rel_coords.elem.className === "rule") {
 		// Show rule set editor input
-		alerts.showPrompt(rel_coords.elem.id + ": ", function(resp) {
+		var ruleName = rel_coords.elem.getAttribute("data-name");
+		alerts.showPrompt(ruleName + ": ", function(resp) {
 			router.route({
 				name:"ruleInput", 
 				data:{
-					name:rel_coords.elem.id, 
+					name:ruleName,
 					value:resp
 				}
 			});
 		});
-	} else {
-		if(debug) log("Click at " + rel_coords.x + ", " + rel_coords.y + 
-			" on element " + rel_coords.elem.id);
+	} else if(rel_coords.elem.className === "rule-set-option") {
+		// Fire the proper onclick function
+		var optionName = rel_coords.elem.getAttribute("data-name");
+		var parsedOption = optionName.split("-");
+		if(parsedOption[0] === "delete")
+			router.route({name:"deleteRuleSetClick", data:parsedOption[1]});
 	}
 }
 
 Input.prototype.processRightClick = function(event) {
 	var coords = getAbsCoords(event);
 	var rel_coords = getRelCoords(event);
-	if(debug) log("Right click at " + rel_coords.x + ", " + 
+	// Print info
+	if(debug) {
+		if(rel_coords.elem.id) log("Right click at " + rel_coords.x + ", " + 
 		rel_coords.y + " on element " + rel_coords.elem.id);
+		else if(rel_coords.elem.className) log("Right click at " + rel_coords.x + ", " + 
+		rel_coords.y + " on element of class " + rel_coords.elem.className);
+	}
 	// Check if clicking the game screen
-	if(rel_coords.elem === dom.easel) {
+	if(rel_coords.elem === dom.easel || rel_coords.elem.className === "rule-set") {
 		event.preventDefault();
 		dom.rightClickMenu.style.display = "block";
 		dom.rightClickMenu.style.left = coords.x + "px";
 		dom.rightClickMenu.style.top = coords.y + "px";
 		dom.rightClickMenu.innerHTML = "";
-		if(shipAtCoords(getCellCoords(rel_coords))) {
-			var html = "<div>Orders?</div>";
-			html += "<div id=\"fire\" class=\"orders\">Fire</div>";
-			html += "<div id=\"follow\" class=\"orders\">Follow</div>";
-			html += "<div id=\"ram\" class=\"orders\">Ram</div>";
-			html += "<div id=\"board\" class=\"orders\">Board</div>";
-			// Add new orders here
+		if(rel_coords.elem === dom.easel) {
+			var ship = shipAtCoords(getCellCoords(rel_coords));
+			if(ship) {
+				var html = "";
+				html += "<div class=\"orders\" data-name=\"fire\">Fire</div>";
+				html += "<div class=\"orders\" data-name=\"follow\">Follow</div>";
+				html += "<div class=\"orders\" data-name=\"ram\">Ram</div>";
+				html += "<div class=\"orders\" data-name=\"board\">Board</div>";
+				// Add new orders here
+				dom.rightClickMenu.innerHTML = html;
+			}
+		} else {
+			var html = "<div class=\"rule-set-option\"" + 
+			"data-name=\"delete-" + rel_coords.elem.getAttribute("data-name") + 
+			"\">Delete</div>";
 			dom.rightClickMenu.innerHTML = html;
 		}
 	}
@@ -267,6 +299,7 @@ function shipAtCoords(coords) {
 }
 
 function navigate(coords) {
+	if(debug) log("Navigating to " + coords.x + ", " + coords.y);
 	client.input.orders.push({name:"goto", coords:coords});
 }
 

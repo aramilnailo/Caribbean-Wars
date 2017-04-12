@@ -128,7 +128,7 @@ th, td {
 
 #right-click-menu {
 	position:absolute;
-	width:50px;
+	width:80px;
 	height:100px;
 	font-family:Courier;
 	color:white;
@@ -206,6 +206,22 @@ th, td {
 	margin-top:1em;
 	margin-bottom:1em;
 	color:green;
+}
+
+#rules-editor-org:after {
+	content: "";
+	clear: both;
+	display: table;
+}
+
+#rules-editor-screen {
+	float:left;
+	width:60%;
+}
+
+#rule-set-list {
+	float:right;
+	width:40%;
 }
 
 #map-editor-screen {
