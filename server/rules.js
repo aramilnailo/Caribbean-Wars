@@ -29,8 +29,9 @@ Rules.prototype.getDefault = function() {
 		projectileRange:20, 	// Distance a live projectile will travel
 		
 		resourceHealth:1,		// Health points for new resource barrel
-		resourceAmount:10		// Amount of resource in each barrel
+		resourceAmount:10,		// Amount of resource in each barrel
 		
+		friendlyFire:true		// Whether player can hit his own ships
 	};
 	
 	return ruleset;

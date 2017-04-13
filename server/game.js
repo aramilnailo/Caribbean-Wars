@@ -521,9 +521,16 @@ function handleCollisions(box, session) {
 		};
 		for(var j in session.game.ships) {
 			var s = session.game.ships[j];
+			
 			if(!s.active || 
 				s.name === box.name ||
 				s.box === box) continue;
+				
+			// Prevent friendly fire if necessary
+			if(!session.ruleset.friendlyFire &&
+				s.name.split("-")[0] === box.name.split("-")[0]) 
+				continue;
+				
 			if((Math.abs(v[i].x - s.box.x) < s.box.w) &&
 				(Math.abs(v[i].y - s.box.y) < s.box.h)) {
 				v[i].hit = true;

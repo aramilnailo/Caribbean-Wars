@@ -98,15 +98,16 @@ function(debug, dom, client, alerts, router) {
 	Rules.prototype.modifyRuleSet = function(data) {
 		if(debug) log("[Rules] Attempting to change " + data.name + 
 		" to " + data.value);
-		if(validateChange(data.name, data.value)) {
-			client.ruleSet[data.name] = data.value;
-		}
+		validChange(data.name, data.value);
 		Rules.prototype.displayRulesEditor();
 	}
 	
-	function validateChange(ruleName, value) {
-		// TO DO
-		return true;
+	function validChange(ruleName, value) {
+		if(ruleName === "friendlyFire") {
+			client.ruleSet[ruleName] = (value == "true");
+		} else {
+			client.ruleSet[ruleName] = value;
+		}
 	}
 	
 	

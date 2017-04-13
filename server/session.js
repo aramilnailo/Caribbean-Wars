@@ -615,7 +615,7 @@ function setGame(session, other) {
 				session.game.shipSpawns.push({
 					x:j, y:i, 
 					blocked:false,
-					counter:500
+					counter:750
 				});
 			}
 		}
