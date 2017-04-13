@@ -213,7 +213,7 @@ Game.prototype.update = function() {
 	// Handle docking events
 	while(docks.length > 0) {
 		var d = docks.pop();
-		var parsedName = d.name.split("-");
+		var parsedName = d.name.split("-")[0];
 		var client = CLIENT_LIST.find(function(c) {
 			return c.username === parsedName;
 		});
@@ -222,7 +222,7 @@ Game.prototype.update = function() {
 			var ship = p.ships.find(function(s) {
 				return s.name === d.name;
 			});
-			if(ship && !ship.docked) {
+			if(ship && ship.selected && !ship.docked) {
 				server.emit(client.socket, "alert", "You are now docked at (" + 
 					d.coords.x + ", " + d.coords.y + ")");
 				ship.docked = true;
@@ -233,12 +233,18 @@ Game.prototype.update = function() {
 	// Handle undocking events
 	while(undocks.length > 0) {
 		var d = undocks.pop();
-		var parsedName = d.name.split("-");
+		var parsedName = d.name.split("-")[0];
 		var client = CLIENT_LIST.find(function(c) {
 			return c.username === parsedName;
 		});
-		if(client) {
-			server.emit(client.socket, "alert", "You have undocked from a port");
+		var p = client.player;
+		if(client && p) {
+			var ship = p.ships.find(function(s) {
+				return s.name === d.name;
+			});
+			if(ship && ship.selected) {
+				server.emit(client.socket, "alert", "You have undocked from a port");
+			}
 		}
 	}
 }
