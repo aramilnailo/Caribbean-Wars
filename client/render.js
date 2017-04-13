@@ -423,26 +423,31 @@ function getCellImage(ch) {
 	return image;
 }
 
+
+
 // ocean wave height
 var w0 = [];
 var w1 = [];
 var w2 = [];
 
-//speed of waves, squared, in pixels/timestep
-var speed = 0.5;
-//initialization, called once per game
 function initializeOcean() {
 
-    // choose initial wave vectors.
-    var nvecs = 20;
-    var theta = [];
-    for (var n = 0; n < nvecs; n++)
-	theta.push(2*Math.PI*Math.random());
-
-    //console.log("theta.len="+theta.length);
+    w0 = [];
+    w1 = [];
+    w2 = [];
     
-    var lambda = [];
-    var height = [];
+    for (var i = 0; i < CANVAS_H; i++) {
+	for (var j = 0; j < CANVAS_W; j++) {
+	    w0.push(0.0);
+	    w1.push(0.0);
+	    w2.push(0.0);
+	}
+    }
+}
+
+
+function refreshOcean() {
+
     // camera position in cells
     var cam_x = client.camera.x;
     var cam_y = client.camera.y;
@@ -450,105 +455,90 @@ function initializeOcean() {
     var min = Math.min(client.map.width, client.map.height);
     var cam_w = Math.floor(min / client.camera.zoom);
     var cam_h = Math.floor(min / client.camera.zoom);
-    // cell dimensions in pixels
-    //var cell_w = CANVAS_W / cam_w;
-    //var cell_h = CANVAS_H / cam_h;
-
-    var L0 = Math.min(cam_w,cam_h)*0.5;
-    var temp = 1.0;
-    var nogood = true;
-    
-    // Sample wave frequencies from
-    // Maxwell-Boltmann distribution.
-    while (nogood) {
-	nogood = false;
-	lambda = [];
-	height = [];
-	var prob = [];
-	var sum = 0;
-	while (lambda.length < nvecs) {
-	    var l = L0*Math.random() + 3;
-	    var h = (Math.random() + 0.01)/1.01;
-	    lambda.push(l);
-	    height.push(h);
-	    var energy = 2*Math.PI*Math.PI*speed*h*h/l/l;
-	    var p = Math.exp(-energy/temp); 
-	    prob.push(p);
-	    sum += p;
-	}
-	for (n = 0; n < nvecs; n++) {
-	    var flip = Math.random();
-	    if (flip < prob[p]/sum) {
-		nogood = true;
-		break;
-	    }
-	}
-    }
-
-    // normalize wave heights so that
-    // the sum is always between [0,1]
-    var hmax = height[0];
-    //console.log("ht.len = "+ height.length);
-    for (var n = 1; n < nvecs; n++) {
-	if (height[n] > hmax) hmax = height[n];
-    }
-    for (var n = 0; n < nvecs; n++)
-	height[n] /= (hmax * 2); 
-
-    //hmax = height[0];
-    //for (var n = 1; n < nvecs; n++) {
-//	if (height[n] > hmax) hmax = height[n];
-  //  }
-    //console.log("ht.len = "+ height.length);
-
-    // fill in waves 
-    var max = 500;
-    var val, dot, ind;
-    // fill in wave heights [0,1)
-    for (var i = 0; i < max; i++) 
-	for (var j = 0; j < max; j++) {
-	    w0[j+max*i] = 0;
-	}
-    
-    for (var n = 0; n < nvecs; n++) {
-
-	// random offset
-	var ox = 10.0*Math.random() - 5.0;
-	var oy = 10.0*Math.random() - 5.0;
-	
-	for (var i = 0; i < max; i++) {
-	    for (var j = 0; j < max; j++) {
-		ind = j+max*i;
-		dot = Math.cos(theta[n])*(i+ox) + Math.sin(theta[n])*(j+oy);
-		val = height[n]*0.5*(Math.sin(2*Math.PI/lambda[n] * dot)+1.0);
-		w0[ind] += val;
-		
-	    }
-	}
-    }
-    for (var i = 0; i < max; i++) 
-	for (var j = 0; j < max; j++) {
-	    w1[j+max*i] = w0[j+max*i];
-	    w2[j+max*i] = w0[j+max*i];
-	}
-    
-    for (var i = 0; i < max; i++) w0[max*i] = 0;
-    for (var i = 0; i < max; i++) w0[max-1+max*i] = 0;
-    for (var j = 0; j < max; j++) w0[j+max*(max-1)] = 0;
-    for (var j = 0; j < max; j++) w0[j] = 0;
-
-    var cam_x = client.camera.x;
-    var cam_y = client.camera.y;
-    var min = Math.min(client.map.width, client.map.height);
-    var cam_w = Math.floor(min / client.camera.zoom);
-    var cam_h = Math.floor(min / client.camera.zoom);
+    var len = client.map.width < client.map.height ? min/cam_w : min/cam_h;
     // cell dimensions in pixels
     var cell_w = CANVAS_W / cam_w;
     var cell_h = CANVAS_H / cam_h;
 
+    // choose initial wave vectors.
+    var nvecs = 10;
+    var theta = [];
+    var ntheta = 10;
+    for (var n = 0; n < ntheta*nvecs; n++)
+	theta.push(2*3.141592654*Math.random());
+
+    //console.log("theta.len="+theta.length);
+    // 1 < wavenum < min/5
+    // wavelen = min/wavenum,
+    // so that 5 < wavelen < min (pixels)
+    var minwavepix = 20;
+    var wavenum = [];
+    var waveht = [];
+
+    var temp = 0.75*min;
+    var nogood = true;
+    
+    // Random wave set
+    var maxzoom = 20.0;
+    for (var n = 0; n < nvecs; n++) {
+	var num = Math.floor((len-minwavepix)*Math.random()) + minwavepix;
+	var h = (Math.random() + 0.5)/1.5;
+	wavenum.push(num);
+	waveht.push(h);
+    }
+
+    // summed wave heights determines pixel color
+    // normalize so that the sum is almost always between [0,1]
+    //console.log("ht.len = "+ height.length);
+    var factor = len/client.camera.zoom;
+    for (var n = 0; n < wavenum.length; n++) {
+	if (factor/wavenum[n] < minwavepix) {
+	    wavenum.splice(n,1);
+	    waveht.splice(n,1);
+	}
+    }
+    
+    var hmax = -1;
+    for (var n = 0; n < wavenum.length; n++) {
+	if (waveht[n] > hmax) hmax = waveht[n];
+    }
+    for (var n = 0; n < wavenum.length; n++)
+	waveht[n] /= (ntheta*wavenum.length*hmax); 
+
+    // fill in waves 
+    var val, dotx, doty, prefactor;
+
+    factor /= 6.28318508;
+    for (var n = 0; n < wavenum.length; n++) {
+
+	// k = 2pi/lambda = 2pi n/L
+	val = wavenum[n]/factor;
+	
+	for (var m = 0; m < ntheta; m++) {
+	    
+	    dotx = Math.cos(theta[n*ntheta+m]);
+	    doty = Math.sin(theta[n*ntheta+m]);
+	    // random offset
+	    var ox = 10.0*Math.random() - 5.0;
+	    var oy = 10.0*Math.random() - 5.0;
+	    
+	    for (var i = 0; i < CANVAS_H; i++) {
+		for (var j = 0; j < CANVAS_W; j++) {
+		    w0[j+i*CANVAS_W] += waveht[n]*(Math.sin(val * (dotx*(i+ox) + doty*(j+oy)))+1.0);
+		    }
+		    //console.log(":"+i+","+j+" dot:"+dot+" val:"+val+" waveht:"+waveht[n]+" theta:"+theta[n]+" ox,y:"+ox+","+oy);
+		}
+	}
+    }
+    for (var i = 0; i < CANVAS_H; i++) 
+	for (var j = 0; j < CANVAS_W; j++) {
+	    w1[j+CANVAS_W*i] = w0[j+CANVAS_W*i];
+	    w2[j+CANVAS_W*i] = w0[j+CANVAS_W*i];
+	}
+
     
     // overwrite 1.0 for anything not ocean
-
+    var ind;
     for (var i = 0; i < CANVAS_H; i++) {
 	var a = Math.floor(i/cell_h);
 	var line = client.map.data[a+cam_y];
@@ -566,72 +556,50 @@ function initializeOcean() {
     //console.log(JSON.stringify(w0));
 }
 
-
+//speed of waves in pixels/timestep (advection)
+//speed of waves, squared, in (pixels/timestep)^2 (wave eqn)
+//var speed = 0.2;
+var speed = 0.5;
+    
 function waveEquation() {
     var a,b,i,j,n;
     var line;
     var ind = 0;
     var lap1 = 0;
-    //var lap2 = 0;
-    var maxw = CANVAS_W-1;
-    var maxh = CANVAS_H-1;
-    var jnum = CANVAS_W;
-    var grad = 0;
-    for (i = 1; i < maxw; i++) {
-	for (j = 1; j < maxh; j++)  {
-	    ind = j + jnum*i;
-	    //Compute the 2D laplacian
-	    lap1 = w1[j + jnum*(i-1)] + w1[j + jnum*(i+1)]
-		+ w1[ind -1 ] + w1[ind +1 ] - 4.0*w1[ind];
-	    /*
-	    lap1 = -4.0*w1[ind];
-	    //lap2 = -4.0*w2[ind];
-	    //grad = 0;
-	    if (i > 0) {
-		lap1 += w1[j + jnum*(i-1)];
-		//lap2 += w2[j + jnum*(i-1)];
-		//grad += Math.abs(w1[j + jnum*(i-1)]);
-	    }
-	    //else lap += w1[j + 500*499];
-	    if (i < 499) {
-		lap1 += w1[j + jnum*(i+1)];
-		//lap2 += w2[j + jnum*(i+1)];
-		//grad += Math.abs(w1[j + jnum*(i+1)]);
-	    }		
-	    //else lap += w1[j];
-	    if (j > 0) {
-		lap1 += w1[ind -1 ];
-		//lap2 += w2[ind -1 ];
-		//grad += Math.abs(w1[ind -1]);
-	    }
-	    //else lap += w1[ind+499];
-	    if (j < 499) {
-		lap1 += w1[ind + 1];
-		//lap2 += w2[ind + 1];
-		//grad += Math.abs(w1[ind +1]);
-	    }
-	    //else lap += w1[500*i];
-	    */
-	    // add finite diff approx to 2nd time deriv
-	    // to complete wave equation approx.
-	    // note speed = speed squared
+    var im, ip, jm, jp;
+    // periodic.
+    for (i = 0; i < CANVAS_H; i++) {
+	ip = i + 1;
+	if (ip === CANVAS_H) ip = 0;
+	im = i - 1;
+	if (im === -1) im = CANVAS_H - 1;
+		
+	for (j = 0; j < CANVAS_W; j++) {
+
+	    jp = j + 1;
+	    if (jp === CANVAS_W) jp = 0;
+	    jm = j - 1;
+	    if (jm === -1) jm = CANVAS_W - 1;
+	    ind = j + CANVAS_W*i;
+	    lap1 = w1[j + CANVAS_W*ip] + w1[j + CANVAS_W*im]
+		+ w1[jm + CANVAS_W*i] + w1[jp + CANVAS_W*i]
+		- 4.0 * w1[ind];
 	    w0[ind] = 2*w1[ind] - w2[ind] + speed*lap1;
 	}
     }
-
-
-        // overwrite 1.0 for anything not ocean
-	// camera position in cells
-	var cam_x = client.camera.x;
-	var cam_y = client.camera.y;
-	// camera dimensions in cells
-	var min = Math.min(client.map.width, client.map.height);
-	var cam_w = Math.floor(min / client.camera.zoom);
-	var cam_h = Math.floor(min / client.camera.zoom);
-	// cell dimensions in pixels
-	var cell_w = CANVAS_W / cam_w;
-	var cell_h = CANVAS_H / cam_h;
-
+	    
+    // overwrite 1.0 for anything not ocean
+    // camera position in cells
+    var cam_x = client.camera.x;
+    var cam_y = client.camera.y;
+    // camera dimensions in cells
+    var min = Math.min(client.map.width, client.map.height);
+    var cam_w = Math.floor(min / client.camera.zoom);
+    var cam_h = Math.floor(min / client.camera.zoom);
+    // cell dimensions in pixels
+    var cell_w = CANVAS_W / cam_w;
+    var cell_h = CANVAS_H / cam_h;
+    
     for (var i = 0; i < CANVAS_H; i++) {
 	var a = Math.floor(i/cell_h);
 	var line = client.map.data[a+cam_y];
@@ -654,42 +622,61 @@ function advectionEquation() {
     var a,b,i,j,n;
     var line;
     var ind = 0;
-    var max = 500;
-    var jnum = 500;
     var grad = 0;
     var gradp = 0;
     var gradm = 0;
     var gradi = 0;
     var gradj = 0;
-    for (i = 0; i < max; i++) {
-	for (j = 0; j < max; j++)  {
-	    ind = j + jnum*i;
+    for (i = 0; i < CANVAS_H; i++) {
+	for (j = 0; j < CANVAS_W; j++)  {
+	    ind = j + CANVAS_W*i;
 	    //Compute 1st order upwind spatial gradient.
 
+	    if (i > 0)
+		gradi = w1[ind]- w1[j + CANVAS_W*(i-1)];
+	    else 
+		gradi = w1[ind] -w1[j+ CANVAS_W*(CANVAS_H-1)];
+
+	    if (j > 0)
+		gradj = w1[ind]- w1[ind-1];
+	    else 
+		gradj = w1[ind] -w1[CANVAS_W-1+CANVAS_W*i];
+
+/*	    
 	    // i-dir
 	    gradp = -w1[ind];
 	    gradm = w1[ind];	    
 	    if (i > 0) 
-		gradm -= w1[j + jnum*(i-1)];
-	    if (i < 499) 
-		gradp += w1[j + jnum*(i+1)];
-	    gradi = (Math.abs(gradp) < Math.abs(gradm)) ? gradp : gradm;
+		gradm -= w1[j + CANVAS_W*(i-1)];
+	    else
+		gradm -= w1[j + CANVAS_W*(CANVAS_H-1)]
+	    if (i < CANVAS_H-1) 
+		gradp += w1[j + CANVAS_W*(i+1)];
+	    else
+		gradp += w1[j];
+	    gradi = (Math.abs(gradp) > Math.abs(gradm)) ? -gradp : gradm;
 
 	    // j-dir
 	    gradp = -w1[ind];
 	    gradm = w1[ind];	    
 	    if (j > 0) 
 		gradm -= w1[ind-1];
-	    if (j < 499)
+	    else
+		gradm -= w1[CANVAS_W-1+CANVAS_W*i];
+	    if (j < CANVAS_W-1)
 		gradp += w1[ind+1];
-	    gradj = (Math.abs(gradp) < Math.abs(gradm)) ? gradp : gradm;
-
+	    else
+		gradp += w1[CANVAS_W*i];
+	    gradj = (Math.abs(gradp) > Math.abs(gradm)) ? -gradp : gradm;
+*/
 	    //else lap += w1[500*i];
 	    
 	    // add finite diff approx to 2nd time deriv
 	    // to complete wave equation approx.
 	    // note speed = speed squared
-	    w0[ind] = w1[ind] + speed*Math.sqrt(gradi*gradi+gradj*gradj);
+	    //w0[ind] = w1[ind] + speed*(2*w1[ind]-w1[j+jnum*(i-1)]-w1[ind-1]);
+	    //Math.sqrt(gradi*gradi+gradj*gradj);
+	    w0[ind] = w2[ind] - speed*(gradi + gradj);
 	}
     }
 }
@@ -699,12 +686,61 @@ function advectionEquation() {
 
 var first = true;
 var lastzoom = client.camera.zoom;
+var lastcntr = {x:client.camera.x,y:client.camera.y};
+var ncalls = 0;
+var nrefresh = 1;
 function renderOcean() {
+
+    // camera position in cells
+    var cam_x = client.camera.x;
+    var cam_y = client.camera.y;
+    // camera dimensions in cells
+    var min = Math.min(client.map.width, client.map.height);
+    var cam_w = Math.floor(min / client.camera.zoom);
+    var cam_h = Math.floor(min / client.camera.zoom);
+    // cell dimensions in pixels
+    var cell_w = CANVAS_W / cam_w;
+    var cell_h = CANVAS_H / cam_h;
 
     if (lastzoom != client.camera.zoom || first) {
 	initializeOcean();
+	refreshOcean();
 	first = false;
 	lastzoom = client.camera.zoom;
+    } /*else if (ncalls === nrefresh) {
+	refreshOcean();
+	ncalls = 0;
+    } else ncalls++;
+*/
+
+    //translate 
+    if (lastcntr.x != cam_x || lastcntr.y != cam_y) {
+	var temp0 = [], temp1 = [], temp2 = [];
+	for (var t in w0)
+	    temp0.push(w0[t]);
+	for (var t in w1)
+	    temp1.push(w1[t]);
+	for (var t in w2)
+	    temp2.push(w2[t]);
+	
+	for (var i = 0; i < CANVAS_H; i++) {
+	    var u = i + Math.floor((cam_y - lastcntr.y)*cell_h);
+	    if (u < 0) u += CANVAS_H;
+	    if (u >= CANVAS_H) u -= CANVAS_H;
+	    for (var j = 0; j < CANVAS_W; j++) {
+		var v = j + Math.floor((cam_x - lastcntr.x)*cell_w);
+		if (v < 0) v += CANVAS_W;
+		if (v >= CANVAS_W) v -= CANVAS_W;
+		var ij = j + CANVAS_W*i;
+		var uv = v + CANVAS_W*u;
+		w0[ij] = temp0[uv];
+		w1[ij] = temp1[uv];
+		w2[ij] = temp2[uv];
+
+	    }
+	}
+	lastcntr.x = cam_x;
+	lastcntr.y = cam_y;
     }
 
     
@@ -714,22 +750,13 @@ function renderOcean() {
     waveEquation();
     //advectionEquation();
 
+    
     var id = dom.canvas.createImageData(CANVAS_W,CANVAS_H);
     var d = id.data;
     var color;
 
-	// camera position in cells
-	var cam_x = client.camera.x;
-	var cam_y = client.camera.y;
-	// camera dimensions in cells
-	var min = Math.min(client.map.width, client.map.height);
-	var cam_w = Math.floor(min / client.camera.zoom);
-	var cam_h = Math.floor(min / client.camera.zoom);
-	// cell dimensions in pixels
-	var cell_w = CANVAS_W / cam_w;
-	var cell_h = CANVAS_H / cam_h;
 
-    
+    var low = 100;    
     for (var j = 0; j < CANVAS_H; j++) {
 	var a = Math.floor(j/cell_h);
 	var line = client.map.data[a+cam_y];
@@ -739,9 +766,11 @@ function renderOcean() {
 	    var off = i + CANVAS_W*j;
 	    if (ch !== "1" && ch !=="2" && ch !== "3") {
 		var value = Math.min(w0[off],1.0);
+		//console.log("val="+value);
+		var valsq = value*value;
 		off *= 4;
-		d[off] = 0; 
-		d[off+1] = Math.floor(200*value); 
+		d[off] = Math.floor((255-low)*valsq*valsq) + low; 
+		d[off+1] = Math.floor((255-low)*value) + low; 
 		d[off+2] = 255; 
 		d[off+3] = 255;
 	    } else {
