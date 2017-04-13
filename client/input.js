@@ -214,6 +214,9 @@ Input.prototype.processKeyReleased = function(event) {
 		case 69: // e
 			client.input.firingRight = false;
 			break;
+		case 70:
+			client.emit("selectShip", selectNextShip());
+			break;
 		case 82: // r
 			client.input.anchor = !client.input.anchor;
 			break;
@@ -353,6 +356,16 @@ function correctCamera() {
 			client.camera.zoom !== client.camera.prev.zoom
 		);
 	}
+}
+
+function selectNextShip() {
+	var ships = client.gameState.ships;
+	var current = ships.find(function(s) {
+		return s.selected;
+	});
+	var index = ships.indexOf(current);
+	if(++index >= ships.length) index = 0;
+	return ships[index].name;
 }
 
 return new Input();
