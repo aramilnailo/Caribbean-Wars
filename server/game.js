@@ -38,7 +38,8 @@ var undocks = [];
 */
 Game.prototype.listen = function(router) {
     if(debug) log("[Game] listen()");
-    router.listen("gameInput",this.input);
+    router.listen("gameInput", this.input);
+	router.listen("selectShip", this.selectShip);
 }
 
 /**
@@ -54,16 +55,15 @@ Game.prototype.input = function(param) {
 	if(!p) return;
     // Assign input data
 	p.input = param.data;
-	// Change ships if needed
-	if(p.input.swap) {
-		var prev = p.ships.find(function(s) {
-			return s.selected;
-		});
-		var index = p.ships.indexOf(prev);
-		if(index > -1) {
-			prev.selected = false;
-			if(++index >= p.ships.length) index = 0;
-			p.ships[index].selected = true;
+}
+
+Game.prototype.selectShip = function(param) {
+	var client = param.client;
+	var shipName = param.data;
+	if(client.player) {
+		for(var i in client.player.ships) {
+			var s = client.player.ships[i];
+			s.selected = (s.name === shipName);
 		}
 	}
 }

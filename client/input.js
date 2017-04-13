@@ -49,17 +49,16 @@ Input.prototype.processLeftClick = function(event) {
 		var ship = shipAtCoords(c_coords);
 		if(ship) {
 			// If ship is clicked, select/deselect it
-			if(debug) log("Clicked ship " + ship.name);
+			select(ship.name);
 		} else {
 			// Direct selected ships to x y coordinates
 			navigate(c_coords);
 		}
 	} else if(rel_coords.elem.className === "orders") {
 		// Direct selected ships to carry out clicked order
-		var orderName = rel_coords.elem.getAttribute("data-name");
-		issueOrder(orderName);
+		var orderText = rel_coords.elem.getAttribute("data-name");
+		issueOrder(orderText);
 		dom.rightClickMenu.style.display = "none";
-		if(debug) log("Executing \"" + orderName + "\" order");
 	} else if(rel_coords.elem.className === "rule") {
 		// Show rule set editor input
 		var ruleName = rel_coords.elem.getAttribute("data-name");
@@ -102,10 +101,10 @@ Input.prototype.processRightClick = function(event) {
 			var ship = shipAtCoords(getCellCoords(rel_coords));
 			if(ship) {
 				var html = "";
-				html += "<div class=\"orders\" data-name=\"fire\">Fire</div>";
-				html += "<div class=\"orders\" data-name=\"follow\">Follow</div>";
-				html += "<div class=\"orders\" data-name=\"ram\">Ram</div>";
-				html += "<div class=\"orders\" data-name=\"board\">Board</div>";
+				html += "<div class=\"orders\" data-name=\"fire:" + ship.name + "\">Fire</div>";
+				html += "<div class=\"orders\" data-name=\"follow:" + ship.name + "\">Follow</div>";
+				html += "<div class=\"orders\" data-name=\"ram:" + ship.name + "\">Ram</div>";
+				html += "<div class=\"orders\" data-name=\"board:" + ship.name + "\">Board</div>";
 				// Add new orders here
 				dom.rightClickMenu.innerHTML = html;
 			}
@@ -163,9 +162,6 @@ Input.prototype.processKeyPressed = function(event) {
 	    break;
 	case 82: // r
 	    client.input.anchor = !client.input.anchor;
-	    break;
-	case 70: // f
-	    client.input.swap = true;
 	    break;
 	case 32: //space bar
 	    orderIncoming = false;
@@ -243,9 +239,6 @@ Input.prototype.processKeyReleased = function(event) {
 	case 69: // e
 	    client.input.firingRight = false;
 	    break;
-	case 70: // f
-	    client.input.swap = false;
-	    break;
 	default:
 	    break;
 	}
@@ -298,13 +291,21 @@ function shipAtCoords(coords) {
 	return null;
 }
 
+function select(shipName) {
+	if(debug) log("Clicked ship " + shipName);
+	client.emit("selectShip", shipName);
+}
+
 function navigate(coords) {
 	if(debug) log("Navigating to " + coords.x + ", " + coords.y);
 	client.input.orders.push({name:"goto", coords:coords});
 }
 
-function issueOrder(order) {
-	client.input.orders.push({name:order});
+function issueOrder(orderText) {
+	var order = orderText.split(":")[0];
+	var target = orderText.split(":")[1];
+	if(debug) log("Issuing \"" + order + "\" order on target \"" + target + "\"");
+	client.input.orders.push({name:order, target:target});
 }
 
 return new Input();

@@ -10,8 +10,7 @@ var Player = function(name) {
 			firingLeft:false,
 			firingRight:false,
 			sails:false,
-			anchor:false,
-			swap:false
+			anchor:false
 		},
 		diff:{
 			distanceSailed:0,

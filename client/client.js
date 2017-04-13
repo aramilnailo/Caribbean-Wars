@@ -19,7 +19,6 @@ Client.prototype.input = {
 	firingRight:false,
 	sails:false,
 	anchor:false,
-	swap:false,
 	orders:[]
 };
 Client.prototype.loading = false;
