@@ -136,59 +136,56 @@ Input.prototype.processKeyPressed = function(event) {
 	backupCamera();
 
 	switch(keycode) {
-	    // Game input
-	case 65: // a
-	    client.input.left = true;
-	    break;
-	case 68: // d
-	    client.input.right = true;
-	    break;
-	case 83: // s
-	    if (debug.input) debug.log("input.js: sails -> false");
-	    client.input.sails = false;
-	    break;
-	case 87: // w
-	    if (debug.input) debug.log("input.js: sails -> true");
-	    client.input.sails = true;
-	    break;
-	case 81: // q
-	    client.input.firingLeft = true;
-	    break;
-	case 69: // e
-	    client.input.firingRight = true;
-	    break;
-	case 82: // r
-	    client.input.anchor = !client.input.anchor;
-	    break;
-	case 32: //space bar
-	    orderIncoming = false;
-	    break;
-	    
-	    // Camera controls
-	case 37: // left arrow
-	    client.camera.x--;
-	    if(event.shiftKey) client.camera.x -= 4;
-	    break;
-	case 38: // up arrow
-	    client.camera.y--;
-	    if(event.shiftKey) client.camera.y -= 4;
-	    break;
-	case 39: // right arrow
-	    client.camera.x++;
-	    if(event.shiftKey) client.camera.x += 4;
-	    break;
-	case 40: // down arrow
-	    client.camera.y++;
-	    if(event.shiftKey) client.camera.y += 4;
-	    break;
-	case 187: // "=/+"
-	    client.camera.zoom += 0.2;
-	    break;
-	case 189: // "-/_"
-	    client.camera.zoom -= 0.2;
-	    break;
-	default:
-	    break;
+		// Game input
+		case 65: // a
+			client.input.left = true;
+			break;
+		case 68: // d
+			client.input.right = true;
+			break;
+		case 83: // s
+			if (debug.input) debug.log("input.js: sails -> false");
+			client.input.sails = false;
+			break;
+		case 87: // w
+			if (debug.input) debug.log("input.js: sails -> true");
+			client.input.sails = true;
+			break;
+		case 81: // q
+			client.input.firingLeft = true;
+			break;
+		case 69: // e
+			client.input.firingRight = true;
+			break;
+		case 32: //space bar
+			orderIncoming = false;
+			break;
+
+		// Camera controls
+		case 37: // left arrow
+		client.camera.x--;
+		if(event.shiftKey) client.camera.x -= 4;
+		break;
+		case 38: // up arrow
+		client.camera.y--;
+		if(event.shiftKey) client.camera.y -= 4;
+		break;
+		case 39: // right arrow
+		client.camera.x++;
+		if(event.shiftKey) client.camera.x += 4;
+		break;
+		case 40: // down arrow
+		client.camera.y++;
+		if(event.shiftKey) client.camera.y += 4;
+		break;
+		case 187: // "=/+"
+		client.camera.zoom += 0.2;
+		break;
+		case 189: // "-/_"
+		client.camera.zoom -= 0.2;
+		break;
+		default:
+		break;
 	}
 
 	// Correct camera position
@@ -205,20 +202,23 @@ Input.prototype.processKeyReleased = function(event) {
     if(dom.chatInput !== dom.document.activeElement) {
 	var keycode = event.which || event.keyCode;
 	switch(keycode) {
-	case 65: // a
-	    client.input.left = false;
-	    break;
-	case 68: // d
-	    client.input.right = false;
-	    break;
-	case 81: // q
-	    client.input.firingLeft = false;
-	    break;
-	case 69: // e
-	    client.input.firingRight = false;
-	    break;
-	default:
-	    break;
+		case 65: // a
+			client.input.left = false;
+			break;
+		case 68: // d
+			client.input.right = false;
+			break;
+		case 81: // q
+			client.input.firingLeft = false;
+			break;
+		case 69: // e
+			client.input.firingRight = false;
+			break;
+		case 82: // r
+			client.input.anchor = !client.input.anchor;
+			break;
+		default:
+			break;
 	}
 	client.emit("gameInput", client.input);
     }
