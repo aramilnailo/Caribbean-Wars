@@ -78,7 +78,7 @@ var dom = {
 	// Game screen
 	gameScreen:document.getElementById("game-screen"),
 	canvas:document.getElementById("canvas").getContext("2d"),
-	oceanCanvas:document.getElementById("oceanCanvas").getContext("2d"),
+	oceanCanvas:document.getElementById("ocean-canvas").getContext("2d"),
 	easel:document.getElementById("canvas"),
 	
 	// Admin screen

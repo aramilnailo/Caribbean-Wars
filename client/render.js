@@ -23,7 +23,6 @@ ball.src = "client/imgs/ball.png";
 ship.src = "client/imgs/ship.png";
 barrel.src = "client/imgs/barrel.png";
 sand.src = "client/imgs/sand.png";
-ocean.src = "client/imgs/ocean.png";
 grass.src = "client/imgs/grass.png";
 port.src = "client/imgs/dock.png";
 defaultCell.src = "client/imgs/default.png";
@@ -77,13 +76,23 @@ Render.prototype.drawCamera = function(map) {
 			var printImage;
 			if(line) ch = line.charAt(j + cam_x);
 			printImage = getCellImage(ch);
-			dom.canvas.drawImage(
-				printImage,
-				j * cell_w, 
-				i * cell_h, 
-				cell_w, 
-				cell_h
-			);
+			if(printImage) {
+				dom.canvas.drawImage(
+					printImage,
+					j * cell_w, 
+					i * cell_h, 
+					cell_w, 
+					cell_h
+				);
+			} else {
+				// Invisible terrain
+				dom.canvas.clearRect(
+					j * cell_w, 
+					i * cell_h, 
+					cell_w, 
+					cell_h
+				);
+			}
 		}
 	}
 	renderOcean();
@@ -118,13 +127,22 @@ Render.prototype.drawGameState = function(data) {
 		line = map.data[coords.y], ch;
 		if(line) ch = line.charAt(coords.x);
 		var printImage = getCellImage(ch);
-		dom.canvas.drawImage(
-			printImage,
-			(coords.x - cam_x) * cell_w, 
-			(coords.y - cam_y) * cell_h, 
-			cell_w, 
-			cell_h
-		);
+		if(printImage) {
+			dom.canvas.drawImage(
+				printImage,
+				(coords.x - cam_x) * cell_w, 
+				(coords.y - cam_y) * cell_h, 
+				cell_w, 
+				cell_h
+			);
+		} else {
+			dom.canvas.clearRect(
+				(coords.x - cam_x) * cell_w, 
+				(coords.y - cam_y) * cell_h, 
+				cell_w, 
+				cell_h
+			);
+		}
 	}
 	dom.canvas.fillStyle = "#000000";
 	dom.canvas.strokeStyle = "#000000";
@@ -385,29 +403,17 @@ function getColor(ch) {
 function getCellImage(ch) {
 	var image;
 	switch(ch) {
-		case "0": // Water -- blue
-			image = ocean;
-			break;
-		case "1": // Sand -- tan
+		case "1": // Sand
 			image = sand;
 			break;
-		case "2": // Grass -- green
+		case "2": // Grass
 			image = grass;
 			break;
-		case "3": // Port -- gray
+		case "3": // Port
 			image = port;
 			break;
-		case "4": // Resource spawn -- invisible
-			image = ocean;
-			break;
-		case "5": // Player spawn -- invisible
-			image = ocean;
-			break;
-		case "6": // Dock -- invisible
-			image = ocean;
-			break;
-		default: // Invalid -- black
-			image = defaultCell;
+		default: // Transparent
+			image = null;
 			break;
 	}
 	return image;

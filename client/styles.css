@@ -161,14 +161,25 @@ th, td {
 	border:2pt solid black;
 }
 
-#game-screen {
+#game-window {
+	position:relative;
 	margin:auto;
+	height:500px;
 	width:600px;
 }
 
 #canvas {
-	background-color:white;
+	position:absolute;
+	left:0px;
+	top:0px;
 	border:2px solid black;
+}
+
+#ocean-canvas {
+	position:absolute;
+	left:0px;
+	top:0px;
+	z-index:-1;
 }
 
 #upper-game-screen {
