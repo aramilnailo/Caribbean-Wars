@@ -168,7 +168,7 @@ Render.prototype.drawGameState = function(data) {
 		var shifted_h = s.box.h * cell_h;
 		var txt = "";
 		// Draw name
-		if(s.name === client.username) {
+		if(s.name.split("-")[0] === client.username) {
 			txt += s.name;
 			if(s.selected) {
 				txt +=

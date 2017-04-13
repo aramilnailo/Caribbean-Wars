@@ -168,37 +168,41 @@ Game.prototype.update = function() {
 	// Handle death events
 	while(deaths.length > 0) {
 		var d = deaths.pop();
+		var parsedVictim = d.victim.split("-")[0];
+		var parsedKiller = d.killer.split("-")[0];
+		
 		var victim = CLIENT_LIST.find(function(c) {
-			return c.username === d.victim;
+			return c.username === parsedVictim;
 		});
 		var killer = CLIENT_LIST.find(function(c) {
-			return c.username === d.killer;
+			return c.username === parsedKiller;
 		});
 		if(victim && victim.player) {
 			server.emit(victim.socket, 
-				"alert", "Your ship has been destroyed by " + d.killer);
+				"alert", "Your ship has been destroyed by " + parsedKiller);
 			victim.player.diff.shipsLost = 1;
 		}
 		if(killer && killer.player) {
 			server.emit(killer.socket, 
-				"alert", "You have destroyed " + d.victim);
+				"alert", "You have destroyed " + parsedVictim);
 			killer.player.diff.shipsSunk = 1;
 		}
 	}
 	// Handle resource pickup events
 	while(transfers.length > 0) {
 		var t = transfers.pop();
+		var parsedRecip = t.recipient.split("-")[0];
 		var client = CLIENT_LIST.find(function(c) {
-			return c.username === t.recipient;
+			return c.username === parsedRecip;
 		});
 		if(client && client.player) {
 			while(t.items.length > 0) {
 				var item = t.items.pop();
 				if(item.name === "ammo") {
 					var ship = client.player.ships.find(function(s) {
-						return s.selected;
+						return s.name === t.recipient;
 					});
-					ship.currentAmmo += item.amount;
+					if(ship) ship.currentAmmo += item.amount;
 					server.emit(client.socket, "alert", 
 					"+ " + item.amount + " ammo");
 				}
@@ -209,13 +213,14 @@ Game.prototype.update = function() {
 	// Handle docking events
 	while(docks.length > 0) {
 		var d = docks.pop();
+		var parsedName = d.name.split("-");
 		var client = CLIENT_LIST.find(function(c) {
-			return c.username === d.name;
+			return c.username === parsedName;
 		});
 		var p = client.player;
 		if(client && p && p.input.anchor) {
 			var ship = p.ships.find(function(s) {
-				return s.selected;
+				return s.name === d.name;
 			});
 			if(ship && !ship.docked) {
 				server.emit(client.socket, "alert", "You are now docked at (" + 
@@ -228,8 +233,9 @@ Game.prototype.update = function() {
 	// Handle undocking events
 	while(undocks.length > 0) {
 		var d = undocks.pop();
+		var parsedName = d.name.split("-");
 		var client = CLIENT_LIST.find(function(c) {
-			return c.username === d.name;
+			return c.username === parsedName;
 		});
 		if(client) {
 			server.emit(client.socket, "alert", "You have undocked from a port");
@@ -417,7 +423,8 @@ function updateSpawners(session) {
 				// Only first player for now -- TO DO
 				var p = session.game.players[0];
 				if(p.ships.length < 5) {
-					var sh = new ship(p.name, s.x, s.y, session.ruleset);
+					var sh = new ship(p.name + "-" + p.ships.length, 
+						s.x, s.y, session.ruleset);
 					p.ships.push(sh);
 					session.game.ships.push(sh);
 				}

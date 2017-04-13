@@ -49,7 +49,7 @@ Input.prototype.processLeftClick = function(event) {
 		var ship = shipAtCoords(c_coords);
 		if(ship) {
 			// If ship is clicked, select/deselect it
-			if(debug) log("Clicked ship");
+			if(debug) log("Clicked ship " + ship.name);
 		} else {
 			// Direct selected ships to x y coordinates
 			navigate(c_coords);

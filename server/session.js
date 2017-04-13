@@ -676,7 +676,7 @@ function spawnInGame(c, session, enter) {
 			session.game.players.push(c.player);
 			var coords = getSpawn(session.game.shipSpawns);
 			if(coords) {
-				var s = new ship(c.username, 
+				var s = new ship(c.username + "-" + c.player.ships.length, 
 					coords.x, coords.y, session.ruleset);
 				c.player.ships.push(s);
 				session.game.ships.push(s);
