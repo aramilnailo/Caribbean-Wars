@@ -95,7 +95,6 @@ Render.prototype.drawCamera = function(map) {
 			}
 		}
 	}
-	renderOcean();
 	client.drawing = false;
 	client.camera.moved = false;
 }
@@ -119,7 +118,6 @@ Render.prototype.drawGameState = function(data) {
 	// cell dimensions in pixels
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;
-	renderOcean();
 	// === GAME SCREEN ===
 	// Re-render any map cells affected last round
 	while(render_next.length > 0) {
@@ -423,10 +421,6 @@ function getCellImage(ch) {
 // ================ OCEAN WAVES ===================
 
 
-
-// ================ OCEAN WAVES ===================
-
-
 // ocean wave height
 var w0 = [], w1 = [], w2 = [];
 // speed of waves, squared, in pixels/timestep
@@ -437,7 +431,36 @@ var first = true;
 var lastzoom = client.camera.zoom;
 // Saved camera position
 var lastcntr = {x:client.camera.x,y:client.camera.y};
+
+Render.prototype.renderOcean = function() {
+
+    // camera position in cells
+    var cam_x = client.camera.x;
+    var cam_y = client.camera.y;
+    // camera dimensions in cells
+    var min = Math.min(client.map.width, client.map.height);
+    var cam_w = Math.floor(min / client.camera.zoom);
+    var cam_h = Math.floor(min / client.camera.zoom);
+    // cell dimensions in pixels
+    var cell_w = CANVAS_W / cam_w;
+    var cell_h = CANVAS_H / cam_h;
+
+    if (lastzoom != client.camera.zoom || first) {
+	clearOcean();
+	refreshOcean();
+	first = false;
+	lastzoom = client.camera.zoom;
+    }
     
+    // Cycle saved timestep wave height arrays before updating
+    // calculating current wave height (w0)
+    w2 = w1;
+    w1 = w0;
+    waveEquation();
+
+    putOceanData(cam_x,cam_y,cell_h,cell_w);
+}
+
 function clearOcean() {
 
     w0 = [];
@@ -452,7 +475,6 @@ function clearOcean() {
 	}
     }
 }
-
 
 // Set initial wave height using
 // an arbitrary set of sinusoidal waves.
@@ -545,6 +567,7 @@ function refreshOcean() {
     for (var i = 0; i < CANVAS_H; i++) {
 	var a = Math.floor(i/cell_h);
 	var line = client.map.data[a+cam_y];
+	if(!line) continue;
 	for (var j = 0; j < CANVAS_W; j++) {
 	    var b = Math.floor(j/cell_w);
 	    var ch = line.charAt(b+cam_x);
@@ -558,7 +581,6 @@ function refreshOcean() {
 
 }
 
-    
 function waveEquation() {
     var ind, i,j, im, ip, jm, jp;
     var lap1 = 0;
@@ -590,39 +612,9 @@ function waveEquation() {
 
 }
 
-    
-function renderOcean() {
-
-    // camera position in cells
-    var cam_x = client.camera.x;
-    var cam_y = client.camera.y;
-    // camera dimensions in cells
-    var min = Math.min(client.map.width, client.map.height);
-    var cam_w = Math.floor(min / client.camera.zoom);
-    var cam_h = Math.floor(min / client.camera.zoom);
-    // cell dimensions in pixels
-    var cell_w = CANVAS_W / cam_w;
-    var cell_h = CANVAS_H / cam_h;
-
-    if (lastzoom != client.camera.zoom || first) {
-	clearOcean();
-	refreshOcean();
-	first = false;
-	lastzoom = client.camera.zoom;
-    }
-    
-    // Cycle saved timestep wave height arrays before updating
-    // calculating current wave height (w0)
-    w2 = w1;
-    w1 = w0;
-    waveEquation();
-
-    putOceanData(cam_x,cam_y,cell_h,cell_w);
-}
-
 function putOceanData(cam_x, cam_y, cell_h, cell_w) {
     
-    var id = dom.canvas.createImageData(CANVAS_W,CANVAS_H);
+    var id = dom.oceanCanvas.createImageData(CANVAS_W,CANVAS_H);
     var d = id.data;
 
     var low = 100;
