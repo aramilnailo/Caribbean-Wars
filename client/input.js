@@ -132,11 +132,8 @@ Input.prototype.processKeyPressed = function(event) {
 	//for compatability with firefox
 	var keycode = event.which || event.keyCode;
 
-	var old_cam = {
-	    x:client.camera.x,
-	    y:client.camera.y,
-	    zoom:client.camera.zoom
-	};
+	// Save camera position
+	backupCamera();
 
 	switch(keycode) {
 	    // Game input
@@ -194,27 +191,8 @@ Input.prototype.processKeyPressed = function(event) {
 	    break;
 	}
 
-	// Correct camera
-	if(client.map) {
-	    if(client.camera.zoom < 1) client.camera.zoom = 1;
-	    if(client.camera.zoom > 20) client.camera.zoom = 20;
-	    var min = Math.min(client.map.width, client.map.height);
-	    var cam_w = Math.floor(min / client.camera.zoom);
-	    var cam_h = Math.floor(min / client.camera.zoom);
-	    if(client.camera.x < 0) client.camera.x = 0;
-	    if(client.camera.y < 0) client.camera.y = 0;
-	    if(client.camera.x > client.map.width - cam_w)
-		client.camera.x = client.map.width - cam_w;
-	    if(client.camera.y > client.map.height - cam_h)
-		client.camera.y = client.map.height - cam_h;
-	}
-
-	// Detect camera movement
-	client.camera.moved = (
-	    client.camera.x !== old_cam.x   ||
-		client.camera.y !== old_cam.y ||
-		client.camera.zoom !== old_cam.zoom
-	);
+	// Correct camera position
+	correctCamera();
 
 	// Emit input
 	client.emit("gameInput", client.input);
@@ -244,6 +222,46 @@ Input.prototype.processKeyReleased = function(event) {
 	}
 	client.emit("gameInput", client.input);
     }
+}
+
+// Detects when selected ship is outside of 
+// the center of the camera, and adjusts
+Input.prototype.cameraTrackShip = function() {
+	var ship = client.gameState.ships.find(function(s) {
+		return s.selected;
+	});
+	if(ship) {
+		backupCamera();
+		
+		var min = Math.min(client.map.width, client.map.height);
+		var cam_dim = Math.floor(min / client.camera.zoom);
+		
+		var x = ship.box.x, y = ship.box.y;
+		
+		var x_low_bound = client.camera.x + 0.4 * cam_dim,
+		x_upp_bound = client.camera.x + 0.6 * cam_dim;
+		
+		var y_low_bound = client.camera.y + 0.4 * cam_dim,
+		y_upp_bound = client.camera.y + 0.6 * cam_dim;
+		
+		var diff;
+		if(x > x_upp_bound) {
+			diff = x - x_upp_bound;
+			client.camera.x += 0.1 * diff;
+		} else if(x < x_low_bound) {
+			diff = x - x_low_bound;
+			client.camera.x += 0.1 * diff;
+		}
+		if(y > y_upp_bound) {
+			diff = y - y_upp_bound;
+			client.camera.y+=0.1 * diff;
+		} else if(y < y_low_bound) {
+			diff = y - y_low_bound;
+			client.camera.y+=0.1 * diff;
+		}
+		
+		correctCamera();
+	}
 }
 
 // Returns the x y coordinates of the event
@@ -306,6 +324,35 @@ function issueOrder(orderText) {
 	var target = orderText.split(":")[1];
 	if(debug) log("Issuing \"" + order + "\" order on target \"" + target + "\"");
 	client.input.orders.push({name:order, target:target});
+}
+
+function backupCamera() {
+	client.camera.prev.x = client.camera.x;
+	client.camera.prev.y = client.camera.y;
+	client.camera.prev.zoom = client.camera.zoom;
+}
+
+// Fix camera bounds
+function correctCamera() {
+	if(client.map) {
+		if(client.camera.zoom < 1) client.camera.zoom = 1;
+		if(client.camera.zoom > 20) client.camera.zoom = 20;
+		var min = Math.min(client.map.width, client.map.height);
+		var cam_w = Math.floor(min / client.camera.zoom);
+		var cam_h = Math.floor(min / client.camera.zoom);
+		if(client.camera.x < 0) client.camera.x = 0;
+		if(client.camera.y < 0) client.camera.y = 0;
+		if(client.camera.x > client.map.width - cam_w)
+			client.camera.x = client.map.width - cam_w;
+		if(client.camera.y > client.map.height - cam_h)
+			client.camera.y = client.map.height - cam_h;
+		// Detect camera movement
+		client.camera.moved = (
+		    client.camera.x !== client.camera.prev.x   ||
+			client.camera.y !== client.camera.prev.y ||
+			client.camera.zoom !== client.camera.prev.zoom
+		);
+	}
 }
 
 return new Input();

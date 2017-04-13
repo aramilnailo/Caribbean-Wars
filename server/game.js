@@ -217,17 +217,20 @@ Game.prototype.update = function() {
 		var client = CLIENT_LIST.find(function(c) {
 			return c.username === parsedName;
 		});
-		var p = client.player;
-		if(client && p && p.input.anchor) {
-			var ship = p.ships.find(function(s) {
-				return s.name === d.name;
-			});
-			if(ship && ship.selected && !ship.docked) {
-				server.emit(client.socket, "alert", "You are now docked at (" + 
-					d.coords.x + ", " + d.coords.y + ")");
-				ship.docked = true;
+		if(client) {
+			var p = client.player;
+		 	if(p && p.input.anchor) {
+				var ship = p.ships.find(function(s) {
+					return s.name === d.name;
+				});
+				if(ship && ship.selected && !ship.docked) {
+					server.emit(client.socket, "alert", 
+					"You are now docked at (" + 
+						d.coords.x + ", " + d.coords.y + ")");
+					ship.docked = true;
+					// TO DO: more complex docking response
+				}
 			}
-			// TO DO: more complex docking response
 		}
 	}
 	// Handle undocking events
@@ -237,13 +240,16 @@ Game.prototype.update = function() {
 		var client = CLIENT_LIST.find(function(c) {
 			return c.username === parsedName;
 		});
-		var p = client.player;
-		if(client && p) {
-			var ship = p.ships.find(function(s) {
-				return s.name === d.name;
-			});
-			if(ship && ship.selected) {
-				server.emit(client.socket, "alert", "You have undocked from a port");
+		if(client) {
+			var p = client.player;
+			if(p) {
+				var ship = p.ships.find(function(s) {
+					return s.name === d.name;
+				});
+				if(ship && ship.selected) {
+					server.emit(client.socket, 
+						"alert", "You have undocked from a port");
+				}
 			}
 		}
 	}

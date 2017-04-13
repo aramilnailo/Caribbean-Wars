@@ -45,6 +45,7 @@ setInterval(function() {
 					map:client.map, 
 					state:client.gameState
 				});
+				input.cameraTrackShip();
 			}
 		}
 	}

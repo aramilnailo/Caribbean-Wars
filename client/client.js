@@ -11,7 +11,12 @@ Client.prototype.username = "";
 Client.prototype.usertype = "";
 Client.prototype.socket = null;
 
-Client.prototype.camera = {x:0, y:0, zoom:1.0};
+Client.prototype.camera = {
+	x:0, y:0, zoom:1.0,
+	prev:{
+		x:0, y:0, zoom:1.0
+	}
+};
 Client.prototype.input = {
 	left:false,
 	right:false,

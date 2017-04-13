@@ -69,18 +69,18 @@ Render.prototype.drawCamera = function(map) {
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;
 	// Draw camera
-	for(var i = 0; i < cam_h; i++) {
-		var line = map.data[i + cam_y];
-		for(var j = 0; j < cam_w; j++) {
+	for(var i = cam_y; i < cam_y + cam_h; i++) {
+		var line = map.data[Math.floor(i)];
+		for(var j = cam_x; j < cam_x + cam_w; j++) {
 			var ch;
 			var printImage;
-			if(line) ch = line.charAt(j + cam_x);
+			if(line) ch = line.charAt(Math.floor(j));
 			printImage = getCellImage(ch);
 			if(printImage) {
 				dom.canvas.drawImage(
 					printImage,
-					j * cell_w, 
-					i * cell_h, 
+					(Math.floor(j) - cam_x) * cell_w, 
+					(Math.floor(i) - cam_y) * cell_h,
 					cell_w, 
 					cell_h
 				);
