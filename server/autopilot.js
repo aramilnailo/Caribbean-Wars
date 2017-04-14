@@ -2,7 +2,7 @@ var debug = require("./debug.js").autopilot;
 var log = require("./debug.js").log;
 
 
-var easypilot = require("./autopilot/easypilot.js");
+//var easypilot = require("./autopilot/easypilot.js");
 
 
 var AutoPilot = function () {}
@@ -12,28 +12,59 @@ var AutoPilot = function () {}
 // and returns the proper input object.
 AutoPilot.prototype.getInput = function(ship, session) {
 
+    var input = { left:false,
+		  right:false,
+		  firingLeft:false,
+		  firingRight:false,
+		  sails:false,
+		  anchor:false,
+		  swap:false
+		};
 
-    /*
-    var input = {
-	left:false,
-	right:false,
-	firingLeft:false,
-	firingRight:false,
-	sails:false,
-	anchor:false,
-	swap:false
-    };   
-*/
-    /*
-    if (ship.order.name === "goto") {
 
-	seekPosition(input,ship.order.x,ship.order.y);
+    if (! ship.orders || ship.orders.length === 0) {
+	ship.lastorder = input;
+	return input;
+    }
+    if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
+    var order = ship.orders.pop();
+
+    if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
+
+    if (! order) {
+	ship.lastorder = input;
+	return input;
+    }
+    
+    if (order.name === "goto") {
+	if (debug) log("server/autopilot.js: processing goto");
+	var x = order.coords.x;
+	var y = order.coords.y;
+	var x0 = ship.box.x;
+	var y0 = ship.box.y;
+	var dir = ship.box.dir;
+
+	if (Math.abs(x0-x) + Math.abs(y0-y) < 0.01) {
+	    input.anchor = true;
+	} else {
+	    input.sails = true;
+	    var turn = true;
+	    if (ship.lastorder &&
+		ship.lastorder.left === false
+		 && ship.lastorder.right === false) {
+		var cross = (x-x0)*Math.sin(ship.box.dir)
+	            - (y-y0)*Math.cos(ship.box.dir);
+		if (cross > 0) input.left = true;
+		else if (cross < 0) input.right = true;
+	    }
+	    
+	}
 
     }
-    ship.order.last = input;
-    */
+    
+    ship.lastorder = input;
 
-    return easypilot.computeInput(ship,session);
+    return input;
 
 }
 

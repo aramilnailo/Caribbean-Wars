@@ -54,7 +54,13 @@ Game.prototype.input = function(param) {
     var p = param.client.player;
 	if(!p) return;
     // Assign input data
-	p.input = param.data;
+    p.input = param.data;
+    if (param.data.orders) {
+	for (var i in p.ships) {
+	    if (p.ships[i].selected)
+		p.ships[i].orders = param.data.orders;
+	}
+    }
 }
 
 Game.prototype.selectShip = function(param) {

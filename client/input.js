@@ -56,7 +56,8 @@ Input.prototype.processLeftClick = function(event) {
 		}
 	} else if(rel_coords.elem.className === "orders") {
 		// Direct selected ships to carry out clicked order
-		var orderText = rel_coords.elem.getAttribute("data-name");
+	    var orderText = rel_coords.elem.getAttribute("data-name");
+	    orderIncoming = true;
 		issueOrder(orderText);
 		dom.rightClickMenu.style.display = "none";
 	} else if(rel_coords.elem.className === "rule") {
@@ -93,13 +94,15 @@ Input.prototype.processRightClick = function(event) {
 	// Check if clicking the game screen
 	if(rel_coords.elem === dom.easel || rel_coords.elem.className === "rule-set") {
 		event.preventDefault();
-		dom.rightClickMenu.style.display = "block";
-		dom.rightClickMenu.style.left = coords.x + "px";
-		dom.rightClickMenu.style.top = coords.y + "px";
-		dom.rightClickMenu.innerHTML = "";
-		if(rel_coords.elem === dom.easel) {
+	    if(rel_coords.elem === dom.easel) {
+		
 			var ship = shipAtCoords(getCellCoords(rel_coords));
-			if(ship) {
+		if(ship) {
+		    dom.rightClickMenu.style.display = "block";
+		    dom.rightClickMenu.style.left = coords.x + "px";
+		    dom.rightClickMenu.style.top = coords.y + "px";
+		    dom.rightClickMenu.innerHTML = "";
+
 				var html = "";
 				html += "<div class=\"orders\" data-name=\"fire:" + ship.name + "\">Fire</div>";
 				html += "<div class=\"orders\" data-name=\"follow:" + ship.name + "\">Follow</div>";
@@ -122,6 +125,7 @@ Input.prototype.processDoubleClick = function(event) {
 	var coords = getAbsCoords(event);
 	if(debug) log("Double click at " + coords.x + ", " + coords.y);
     Input.prototype.processLeftClick(event);
+    client.emit("gameInput", client.input);
 	if(client.inGame) orderIncoming = false;
 }
 
