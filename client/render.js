@@ -603,8 +603,12 @@ function heightColorFunction(ht) {
 	};
 }
 
+var prevcamx;
+var prevcamy;
 Render.prototype.renderOcean = function() {
-	if (first) {
+    if (first) {
+	prevcamx = client.camera.x;
+	prevcamy = client.camera.y;
 		initializeOcean();
 		first = false;
 	}
@@ -616,15 +620,29 @@ Render.prototype.renderOcean = function() {
 	var id = dom.oceanCanvas.createImageData(500,500);
 	var d = id.data;
 	var color;
-	var imin = 0, imax = 0;
-	var jmin = 0, jmax = 0;
-	
-	for (j = 0; j < 500; j++) {
-		var a = Math.floor(j/20);
-		for (i = 0; i < 500; i++) {
-			var b = Math.floor(i/20);
+	// camera position in cells
+	var cam_x = client.camera.x;
+	var cam_y = client.camera.y;
+	var min = Math.min(client.map.width, client.map.height);
+	var cam_w = Math.floor(min / client.camera.zoom);
+	var cam_h = Math.floor(min / client.camera.zoom);
+	// cell dimensions in pixels
+	var cell_w = CANVAS_W / cam_w;
+	var cell_h = CANVAS_H / cam_h;
+    
+    for (j = 0; j < 500; j++) {
+	var jt = j + (cam_x-prevcamx)/cell_w;
+	if (jt < 0) jt += CANVAS_W;
+	if (jt >= CANVAS_W) jt -= CANVAS_W;
+		var a = Math.floor(jt/cell_w);
+	for (i = 0; i < 500; i++) {
+	    var it = i + (cam_y-prevcamy)/cell_w;
+	    if (it < 0) it += CANVAS_W;
+	    if (it >= CANVAS_W) it -= CANVAS_W;
+
+			var b = Math.floor(it/cell_h);
 			if (client.map.data[a].charAt(b) === "0") {
-				var off = j*500+i;
+				var off = jt*500+it;
 				var value = Math.min(w0[off],1.0);
 				off *= 4;
 				d[off] = 255;
