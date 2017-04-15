@@ -22,6 +22,8 @@ Rules.prototype.getDefault = function() {
 		
 		shipHealth:100,  		// Health points for a new ship
 		shipAmmo:20,			// Num cannonballs provided to a new ship
+		shipMaxAmmo:100,		// Num extra cannonballs any ship can hold
+		
 		shipCannons:20,  		// Default number of cannons on ship
 		shipFirepower:1.5,		// Default ship firepower
 		shipReloadRate:0.3,		// Default ship reload rate
@@ -35,7 +37,10 @@ Rules.prototype.getDefault = function() {
 		resourceHealth:1,		// Health points for new resource barrel
 		resourceAmount:10,		// Amount of resource in each barrel
 		
-		friendlyFire:true		// Whether player can hit his own ships
+		friendlyFire:true,		// Whether player can hit his own ships
+		
+		portAmmo:20,			// How much ammo ports give ships
+		portRepair:50			// How much health ports give ships
 	};
 	
 	return ruleset;

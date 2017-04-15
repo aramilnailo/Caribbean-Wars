@@ -68,20 +68,26 @@ Game.prototype.input = function(param) {
 }
 
 Game.prototype.parsePortInput = function(param) {
+	var id = param.client.id;
+	if(id === -1) return;
 	var player = param.client.player;
 	if(!player) return;
+	var session = GAME_SESSIONS[id];
 	var input = param.data;
 	var ship = player.ships.find(function(s) {
 		return s.name === input.ship;
 	});
 	if(input.name === "ammo") {
-		ship.currentAmmo += input.amount;
+		ship.currentAmmo += session.ruleset.portAmmo;
+		if(ship.currentAmmo > ship.maxAmmo) ship.currentAmmo = ship.maxAmmo;
 		server.emit(param.client.socket, "alert", "Refilled ammo");
 	}
 	else if(input.name === "health") {
-		ship.health += input.amount;
+		ship.health += session.ruleset.portRepair;
+		if(ship.health > ship.maxHealth) ship.health = ship.maxHealth;
 		server.emit(param.client.socket, "alert", "Repaired ship");
 	}
+	server.emit(param.client.socket, "hidePortMenu", null);
 }
 
 Game.prototype.pushShipOrder = function(param) {
