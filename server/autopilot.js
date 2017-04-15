@@ -17,6 +17,7 @@ AutoPilot.prototype.getInput = function(ship, session) {
 		  firingLeft:false,
 		  firingRight:false,
 		  sails:false,
+		  oars:false,
 		  anchor:false,
 		  swap:false
 		};
@@ -51,7 +52,12 @@ AutoPilot.prototype.getInput = function(ship, session) {
 	    input.anchor = true;
 	    ship.orders.pop();
 	} else {
-	    input.sails = true;
+	    if (Math.abs(x0 - ship.prevX) === 0 &&
+		   Math.abs(y0 - ship.prevY) === 0) {
+		input.oars = true;
+	    } else { 
+		input.sails = true;
+	    }
 	    var norm = nx*nx+ny*ny;
 	    if (norm > 0.0001) {
 		nx /= norm;

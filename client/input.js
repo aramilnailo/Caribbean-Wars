@@ -57,7 +57,7 @@ Input.prototype.processDoubleClick = function(event) {
 	var coords = getAbsCoords(event);
 	if(debug) log("Double click at " + coords.x + ", " + coords.y);
     Input.prototype.processLeftClick(event);
-    client.emit("gameInput", client.input);
+    //client.emit("gameInput", client.input);
 	if(client.inGame) orderIncoming = false;
 }
 
@@ -87,7 +87,7 @@ Input.prototype.processKeyPressed = function(event) {
 			break;
 		case 32: //space bar
  	                orderIncoming = false;
-	                client.emit("clearShipOrders",orders);
+	                client.emit("clearShipOrders",null);
 			break;
 			
 		// Camera controls
@@ -260,14 +260,15 @@ function select(shipName) {
 
 function navigate(coords) {
 	if(debug) log("Navigating to " + coords.x + ", " + coords.y);
-	client.input.orders.push({name:"goto", coords:coords});
+        client.emit("pushShipOrder",{name:"goto", coords:coords});
 }
 
 function issueOrder(orderText) {
 	var order = orderText.split(":")[0];
 	var target = orderText.split(":")[1];
-	if(debug) log("Issuing \"" + order + "\" order on target \"" + target + "\"");
-	client.input.orders.push({name:order, target:target});
+        if(debug) log("Issuing \"" + order + "\" order on target \"" + target + "\"");
+         client.emit("pushShipOrder",{name:order,target:target});
+	//client.input.orders.push({name:order, target:target});
 }
 
 function backupCamera() {
@@ -332,8 +333,8 @@ function routeRightClick(rel_coords, abs_coords) {
 		// Show right click menu
 		event.preventDefault();
 		dom.rightClickMenu.style.display = "block";
-		dom.rightClickMenu.style.left = coords.x + "px";
-		dom.rightClickMenu.style.top = coords.y + "px";
+		dom.rightClickMenu.style.left = rel_coords.x + "px";
+		dom.rightClickMenu.style.top = rel_coords.y + "px";
 		dom.rightClickMenu.innerHTML = "";
 		if(rel_coords.elem === dom.easel) {
 			var ship = shipAtCoords(getCellCoords(rel_coords));
@@ -371,15 +372,15 @@ function gameScreenClick(coords) {
 	}
 }
 
-function ordersClick(element)
+function ordersClick(element) {
 	// Direct selected ships to carry out clicked order
 	var orderText = element.getAttribute("data-name");
 	orderIncoming = true;
-	issueOrder(orderText);
+    issueOrder(orderText);
 	dom.rightClickMenu.style.display = "none";
 }
 
-function ruleClick(element)
+function ruleClick(element) {
 	// Show rule set editor input
 	var ruleName = element.getAttribute("data-name");
 	alerts.showPrompt(ruleName + ": ", function(resp) {

@@ -40,7 +40,7 @@ Game.prototype.listen = function(router) {
     if(debug) log("[Game] listen()");
     router.listen("gameInput", this.input);
     router.listen("selectShip", this.selectShip);
-    router.listen("pushShipOrders", this.pushShipOrders);
+    router.listen("pushShipOrder", this.pushShipOrder);
     router.listen("clearShipOrders", this.clearShipOrders);
 }
 
@@ -66,8 +66,8 @@ Game.prototype.input = function(param) {
     }
 }
 
-Game.prototype.pushShipOrders = function(param) {
-    if (debug) log("server/game.js: pushShipOrders()");
+Game.prototype.pushShipOrder = function(param) {
+    if (debug) log("server/game.js: pushShipOrder()");
     var p = param.client.player;
 	if(!p) return;
 
