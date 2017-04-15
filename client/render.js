@@ -20,7 +20,7 @@ defaultCell = new Image();
 
 arrow.src = "client/imgs/arrow.png";
 ball.src = "client/imgs/ball.png";
-ship.src = "client/imgs/ship.png";
+ship.src = "client/imgs/shipsails.png";
 barrel.src = "client/imgs/barrel.png";
 sand.src = "client/imgs/sand.png";
 grass.src = "client/imgs/grass.png";
@@ -318,13 +318,26 @@ function renderBoxes(list, imgData, renderStack) {
 			shifted_y
 		);
 		dom.canvas.rotate(b.box.dir);
-		dom.canvas.drawImage(
-			imgData.img,
-			shifted_w * imgData.x, 
-			shifted_h * imgData.y, 
-			shifted_w * imgData.w, 
-			shifted_h * imgData.h
-		);
+		if(imgData.img == ship){
+			dom.canvas.drawImage(
+				imgData.img,
+				1*(ship.width/2),
+				0,
+				ship.width/2,
+				ship.height,
+				shifted_w * imgData.x,
+				shifted_h * imgData.y,
+				shifted_w * imgData.w,
+				shifted_h * imgData.h
+			);
+		} else {
+			dom.canvas.drawImage(
+				imgData.img,
+				shifted_w * imgData.x, 
+				shifted_h * imgData.y, 
+				shifted_w * imgData.w, 
+				shifted_h * imgData.h
+			);}
 		dom.canvas.restore();
 		// Add cells for next screen refresh
 		var bx = Math.floor(b.box.x), 
