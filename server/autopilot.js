@@ -23,49 +23,51 @@ AutoPilot.prototype.getInput = function(ship, session) {
 
 
     if (! ship.orders || ship.orders.length === 0) {
-	ship.lastorder = input;
+	//if(debug) log("server/autopilot.js: ship="+ship.name+"; no orders");
 	return input;
     }
-    if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
-    var order = ship.orders.pop();
+    //if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
+    var order = ship.orders[0];
 
-    if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
+    //if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
 
     if (! order) {
-	ship.lastorder = input;
+	if(debug) log("server/autopilot.js: ship="+ship.name+"; !order");
 	return input;
     }
     
     if (order.name === "goto") {
-	if (debug) log("server/autopilot.js: processing goto");
+	
 	var x = order.coords.x;
 	var y = order.coords.y;
 	var x0 = ship.box.x;
 	var y0 = ship.box.y;
 	var dir = ship.box.dir;
-
-	if (Math.abs(x0-x) + Math.abs(y0-y) < 0.01) {
+	var nx = x - x0;
+	var ny = y - y0;
+	
+	
+	if (Math.abs(nx) + Math.abs(ny) < 0.1) {
 	    input.anchor = true;
+	    ship.orders.pop();
 	} else {
 	    input.sails = true;
-	    var turn = true;
-	    if (ship.lastorder &&
-		ship.lastorder.left === false
-		 && ship.lastorder.right === false) {
-		var cross = (x-x0)*Math.sin(ship.box.dir)
-	            - (y-y0)*Math.cos(ship.box.dir);
-		if (cross > 0) input.left = true;
-		else if (cross < 0) input.right = true;
+	    var norm = nx*nx+ny*ny;
+	    if (norm > 0.0001) {
+		nx /= norm;
+		ny /= norm;
+		var cross = nx*Math.sin(ship.box.dir);
+		    - ny*Math.cos(ship.box.dir);
+		
+		if (cross > 0.03) input.left = true;
+		else if (cross < -0.03) input.right = true;
 	    }
-	    
 	}
-
+	
     }
     
-    ship.lastorder = input;
-
     return input;
-
+    
 }
 
 

@@ -60,6 +60,7 @@ Game.prototype.input = function(param) {
 	    if (p.ships[i].selected)
 		p.ships[i].orders = param.data.orders;
 	}
+	
     }
 }
 
@@ -137,7 +138,8 @@ Game.prototype.update = function() {
 							loaded:s.projectiles.length,
 							unloaded:s.currentAmmo
 						},
-						selected:s.selected
+					    selected:s.selected,
+					    orders:s.orders
 					});
 				}
 			}
@@ -692,9 +694,13 @@ function handleInput(player, session) {
 	for(var i in player.ships) {
 		var ship = player.ships[i];
 		// Get input from either the player or autopilot
-		var input = ship.selected ? 
+	    var input = player.input;
+	    console.log ("input = "+JSON.stringify(input));
+	    input = 
+		ship.selected ?
 		player.input : 
-		autopilot.getInput(ship, session);
+		autopilot.getInput(ship, session) ;
+	    
 
 		// Rotate
 		if(input.right) {

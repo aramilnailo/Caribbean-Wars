@@ -224,7 +224,7 @@ Input.prototype.processKeyReleased = function(event) {
 			client.input.firingRight = false;
 			break;
 		case 70: // f
-			client.emit("selectShip", selectNextShip());
+	                client.emit("selectShip", selectNextShip());
 			break;
 		case 82: // r
 			client.input.anchor = !client.input.anchor;
