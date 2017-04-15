@@ -16,6 +16,12 @@ var dom = {
 	promptForm:document.getElementById("prompt-form"),
 	promptInput:document.getElementById("prompt-input"),
 
+	// Confirm box
+	confirmBox:document.getElementById("confirm-box"),
+	confirmText:document.getElementById("confirm-text"),
+	confirmYesButton:document.getElementById("confirm-yes-btn"),
+	confirmNoButton:document.getElementById("confirm-no-btn"),
+
 	// Right click menu
 	rightClickMenu:document.getElementById("right-click-menu"),
 

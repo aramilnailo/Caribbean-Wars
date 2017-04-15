@@ -119,6 +119,36 @@ th, td {
 	width:10%;
 }
 
+#confirm-box {
+	position:absolute;
+	left:0px;
+	top:0px;
+	width:30%;
+	font-family:Courier;
+	color:white;
+	background-color:black;
+	border:1px solid white;
+	padding:5px;
+}
+
+#confirm-box:after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+#confirm-yes-btn {
+	float:left;
+	width:30%;
+	background-color:green;
+}
+
+#confirm-no-btn {
+	float:right;
+	width:30%;
+	background-color:red;
+}
+
 #alert-text {
 	font-family:Courier;
 	color:white;

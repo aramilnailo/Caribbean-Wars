@@ -39,7 +39,16 @@ Alerts.prototype.showPrompt = function(data, cb) {
 };
 
 Alerts.prototype.confirm = function(data, cb) {
-	cb(confirm(data));
+	dom.confirmText.innerHTML = data;
+	dom.confirmBox.style.display = "block";
+	dom.confirmYesButton.onclick = function() {
+		cb(true);
+		dom.confirmBox.style.display = "none";
+	}
+	dom.confirmNoButton.onclick = function() {
+		cb(false);
+		dom.confirmBox.style.display = "none";
+	}
 };
 
 // Refreshes at 10 fps
