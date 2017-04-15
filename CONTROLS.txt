@@ -1,0 +1,20 @@
+
+	Current controls:
+
+	Movement
+	W   Sails up, oars in
+	S   Toggle oars (if sails down)
+	A   Turn counter-clockwise
+	D   Turn clockwise
+
+	R   Toggle anchor
+
+	Combat
+	E   Fire starboard
+	Q   Fire port
+
+	Camera
+	F   swap ship selected
+	-   zoom out
+	+   zoom in
+	Arrows   shift camera
