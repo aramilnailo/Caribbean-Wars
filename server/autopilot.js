@@ -33,62 +33,74 @@ AutoPilot.prototype.getInput = function(ship, session) {
     //if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
     var order = ship.orders[0];
 
-    if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
+    //if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
 
     if (! order) {
 	if(debug) log("server/autopilot.js: ship="+ship.name+"; !order");
 	return input;
     }
     
-    if (order.name === "goto") {
-	
-	var x = order.coords.x;
-	var y = order.coords.y;
+    if (order.name === "goto")
+	seekPosition(x,y,ship,session,input);
+
+    
+    return input;
+    
+}
+
+
+
+function seekPosition(x,y,ship,session,input) {
+
 	var x0 = ship.box.x;
 	var y0 = ship.box.y;
 	var dir = ship.box.dir;
 	var nx = x - x0;
 	var ny = y - y0;
+
+	//if (debug) log("(x,y)=("+x+","+y+"); (x0,y0)=("+x0+","+y0+")");
+	//if (debug) log("(c,s)=("+Math.cos(ship.box.dir)+","+Math.sin(ship.box.dir)+"); dir="+dir);
 	
 	
-	if (Math.abs(nx) + Math.abs(ny) < 0.1) {
+	if (Math.abs(nx) + Math.abs(ny) < 1) {
 	    input.anchor = true;
 	    ship.orders.shift();
-	    if (debug) log("server/autopilot.js: ship="+ship.name+"; anchored");
+	    //if (debug) log("server/autopilot.js: ship="+ship.name+"; anchored");
 	} else {	    
-	    if (Math.abs(x0 - ship.prevX) === 0 &&
-		Math.abs(y0 - ship.prevY) === 0) {
-		if (debug) log("server/autopilot.js: ship="+ship.name+"; oars");
+	    if (Math.abs(x0 - ship.prevX) < 1 &&
+		Math.abs(y0 - ship.prevY) < 1 ) {
+		//if (debug) log("server/autopilot.js: ship="+ship.name+"; oars");
 		input.oars = true;
 	    } else {
-		if (debug) log("server/autopilot.js: ship="+ship.name+"; sails");
+		//if (debug) log("server/autopilot.js: ship="+ship.name+"; sails");
 		input.sails = true;
 	    }
 	    var norm = nx*nx+ny*ny;
 	    if (norm > 0.0001) {
 		nx /= norm;
 		ny /= norm;
-		var cross = nx*Math.sin(ship.box.dir);
+		var cross = nx*Math.sin(ship.box.dir)
 		    - ny*Math.cos(ship.box.dir);
 		
 		if (cross > 0.03) {
 		    input.left = true;
-		    if (debug) log("server/autopilot.js: ship="+ship.name+"; left; cross="+cross);
+		    //if (debug) log("server/autopilot.js: ship="+ship.name+"; left; cross="+cross);
 		    
 		} else if (cross < -0.03) {
 		    input.right = true;
-		    if (debug) log("server/autopilot.js: ship="+ship.name+"; right; cross="+cross);
+		    //if (debug) log("server/autopilot.js: ship="+ship.name+"; right; cross="+cross);
 		} else {
-		    if (debug) log("server/autopilot.js: ship="+ship.name+"; null; cross="+cross);
+		    //if (debug) log("server/autopilot.js: ship="+ship.name+"; null; cross="+cross);
 		}
 	    }
 	}
-	
-    }
-    
-    return input;
-    
 }
+
+
+
+
+
+
 
 
 /*
