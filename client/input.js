@@ -15,8 +15,6 @@ var Input = function() {};
 var CANVAS_W = 500;
 var CANVAS_H = 500;
 
-var orderIncoming = false;
-    
 Input.prototype.listen = function(mrouter) {
     if (debug.input) debug.log("client/input.js: listen()");
     mrouter.listen("keyPressed", this.processKeyPressed);
@@ -58,7 +56,6 @@ Input.prototype.processDoubleClick = function(event) {
 	if(debug) log("Double click at " + coords.x + ", " + coords.y);
     Input.prototype.processLeftClick(event);
     //client.emit("gameInput", client.input);
-	if(client.inGame) orderIncoming = false;
 }
 
 
@@ -86,7 +83,6 @@ Input.prototype.processKeyPressed = function(event) {
 			client.input.firingRight = true;
 			break;
 		case 32: //space bar
-			orderIncoming = false;
 			client.emit("clearShipOrders",null);
 			break;
 			
@@ -376,8 +372,7 @@ function gameScreenClick(coords) {
 function ordersClick(element) {
 	// Direct selected ships to carry out clicked order
 	var orderText = element.getAttribute("data-name");
-	orderIncoming = true;
-    issueOrder(orderText);
+        issueOrder(orderText);
 	dom.rightClickMenu.style.display = "none";
 }
 

@@ -30,12 +30,13 @@ AutoPilot.prototype.getInput = function(ship, session) {
     //if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
     var order = ship.orders[0];
 
-    //if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
+    if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
 
     if (! order) {
 	if(debug) log("server/autopilot.js: ship="+ship.name+"; !order");
 	return input;
     }
+
     
     if (order.name === "goto")
 	seekPosition(order.coords.x,order.coords.y,ship,session,input);
@@ -43,9 +44,23 @@ AutoPilot.prototype.getInput = function(ship, session) {
 	seekPosition(order.coords.x,order.coords.y,ship,session,input);
     } else if (order.name === "follow") {
 	seekPosition(order.coords.x,order.coords.y,ship,session,input);
-    } else if (order.name === "ram")
-	seekPosition(order.target.x,order.target.y,ship,session,input);
-    
+    } else if (order.name === "ram") {
+	if (debug) log("server/autopilot.js: processing ram; target:"+JSON.stringify(order.target));
+	var x,y;
+	for (var i in session.game.players) {
+	    var target = session.game.players[i].ships.find(function(s) {
+		return s.name === orders.target;
+	    });
+	    if (target) {
+		x = target.box.x;
+		y = target.box.y;
+		if (debug) log("server/autopilot.js: ram x,y=("+x+","+y+")");
+		break;
+	    }
+	}
+	if (debug) log("server/autopilot.js: after x,y determination");
+	seekPosition(x,y,ship,session,input);
+    }
 
     
     return input;
