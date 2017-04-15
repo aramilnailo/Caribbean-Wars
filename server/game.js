@@ -58,13 +58,18 @@ Game.prototype.input = function(param) {
 	if(!p) return;
     // Assign input data
     p.input = param.data;
-    if (param.data.orders) {
 	for (var i in p.ships) {
-	    if (p.ships[i].selected)
-		p.ships[i].orders = param.data.orders;
+	    if (p.ships[i].active && p.ships[i].selected) {
+			p.ships[i].orders = param.data.orders;
+			p.ships[i].state = {
+				firingLeft:param.data.firingLeft,
+				firingRight:param.data.firingRight,
+				sails:param.data.sails,
+				anchor:param.data.anchor,
+				oars:param.data.oars
+			};
+		}
 	}
-	
-    }
 }
 
 Game.prototype.parsePortInput = function(param) {
@@ -188,6 +193,7 @@ Game.prototype.update = function() {
 					pack.ships.push({
 						name:s.name, 
 						box:s.box, 
+						state:s.state,
 						health:s.health, 
 						ammo:{
 							loaded:s.projectiles.length,
