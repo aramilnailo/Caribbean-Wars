@@ -603,8 +603,7 @@ function heightColorFunction(ht) {
 	};
 }
 
-var prevcamx;
-var prevcamy;
+var prevcamx, prevcamy;
 Render.prototype.renderOcean = function() {
     if (first) {
 	prevcamx = client.camera.x;
@@ -619,7 +618,7 @@ Render.prototype.renderOcean = function() {
 	
 	var id = dom.oceanCanvas.createImageData(500,500);
 	var d = id.data;
-	var color;
+
 	// camera position in cells
 	var cam_x = client.camera.x;
 	var cam_y = client.camera.y;
@@ -630,28 +629,26 @@ Render.prototype.renderOcean = function() {
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;
     
-    for (j = 0; j < 500; j++) {
-	var jt = j + (cam_x-prevcamx)/cell_w;
-	if (jt < 0) jt += CANVAS_W;
-	if (jt >= CANVAS_W) jt -= CANVAS_W;
-		var a = Math.floor(jt/cell_w);
-	for (i = 0; i < 500; i++) {
-	    var it = i + (cam_y-prevcamy)/cell_w;
-	    if (it < 0) it += CANVAS_W;
-	    if (it >= CANVAS_W) it -= CANVAS_W;
-
-			var b = Math.floor(it/cell_h);
-			if (client.map.data[a].charAt(b) === "0") {
-				var off = jt*500+it;
-				var value = Math.min(w0[off],1.0);
-				off *= 4;
-				d[off] = 255;
-				d[off+1] = 255;
-				d[off+2] = 255;
-				d[off+3] = Math.floor(255*value);
-			}
-		}
+    for (i = 0; i < CANVAS_H; i++) {
+	var u = i + Math.floor((cam_y - prevcamy)/cell_h);
+	if (u < 0) u += CANVAS_H;
+	if (u >= CANVAS_H) u -= CANVAS_H;
+	//var line = client.map.data[Math.floor(u/cell_h+cam_y)];
+	for (j = 0; j < CANVAS_W; j++) {
+	    var v = j + Math.floor((cam_x - prevcamx)/cell_w);
+	    if (v < 0) v += CANVAS_W;
+	    if (v >= CANVAS_W) v -= CANVAS_W;
+	    //if (line.charAt(Math.floor(v/cell_w+cam_x)) === "0") {
+		var off = v + CANVAS_W*u;
+		var value = Math.min(w0[off],1.0);
+		off *= 4;
+		d[off] = 255;
+		d[off+1] = 255;
+		d[off+2] = 255;
+		d[off+3] = Math.floor(255*value);
+	    //}
 	}
+    }
 	
 	dom.oceanCanvas.putImageData(id,0,0);
 }
