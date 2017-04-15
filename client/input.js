@@ -86,8 +86,8 @@ Input.prototype.processKeyPressed = function(event) {
 			client.input.firingRight = true;
 			break;
 		case 32: //space bar
- 	                orderIncoming = false;
-	                client.emit("clearShipOrders",null);
+			orderIncoming = false;
+			client.emit("clearShipOrders",null);
 			break;
 			
 		// Camera controls
@@ -324,6 +324,7 @@ function routeLeftClick(rel_coords) {
 	else if(elem.className === "orders") ordersClick(elem);
 	else if(elem.className === "rule") ruleClick(elem);
 	else if(elem.className === "rule-set-option") ruleSetOptionClick(elem);
+	else if(elem.className === "port-option") portOptionClick(elem);
 }
 
 function routeRightClick(rel_coords, abs_coords) {
@@ -396,12 +397,16 @@ function ruleClick(element) {
 
 function ruleSetOptionClick(element) {
 	// Fire the proper onclick function
-	var optionName = rel_coords.elem.getAttribute("data-name");
+	var optionName = element.getAttribute("data-name");
 	var parsedOption = optionName.split("-");
 	if(parsedOption[0] === "delete")
 		router.route({name:"deleteRuleSetClick", data:parsedOption[1]});
 }
 
+function portOptionClick(element) {
+	var optionName = element.getAttribute("data-name");
+	if(optionName === "refill-ammo") client.emit("portInput", null);	
+}
 
 
 return new Input();

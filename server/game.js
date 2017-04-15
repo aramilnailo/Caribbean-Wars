@@ -42,6 +42,7 @@ Game.prototype.listen = function(router) {
     router.listen("selectShip", this.selectShip);
     router.listen("pushShipOrder", this.pushShipOrder);
     router.listen("clearShipOrders", this.clearShipOrders);
+	router.listen("portInput", this.parsePortInput);
 }
 
 /**
@@ -64,6 +65,10 @@ Game.prototype.input = function(param) {
 	}
 	
     }
+}
+
+Game.prototype.parsePortInput = function(param) {
+	server.emit(param.client.socket, "alert", "Refilled ammo");
 }
 
 Game.prototype.pushShipOrder = function(param) {
