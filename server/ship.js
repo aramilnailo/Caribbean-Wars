@@ -44,6 +44,8 @@ var Ship = function(name, x, y, ruleset) {
 		
 		numCannons:ruleset.shipCannons,
 		currentAmmo:ruleset.shipAmmo,
+		maxAmmo:ruleset.shipMaxAmmo,
+		
 		reloadCount:0,
 		firingCount:0,
 		reloadRate:ruleset.shipReloadRate,
@@ -54,6 +56,7 @@ var Ship = function(name, x, y, ruleset) {
 		docked:false,
 		active:true,
 		health:ruleset.shipHealth,
+		maxHealth:ruleset.shipHealth,
 		alive:true,
 		
 		rowingRate:ruleset.rowingRate,
