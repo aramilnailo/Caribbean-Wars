@@ -30,6 +30,8 @@ View.prototype.listen = function(router) {
 	router.listen("rulesEditorScreen", this.rulesEditorScreen);
     router.listen("newGameMapResponse", this.setMap);
 	router.listen("gameUpdate", this.setGameState);
+	router.listen("portMenu", this.portMenu);
+	router.listen("hidePortMenu", this.hidePortMenu);
 }
 
 
@@ -112,6 +114,22 @@ View.prototype.adminScreen = function(data) {
 	hideAll();
 	show(["adminScreen", "upperMenu", "optionsMenu"]);
 	client.inGame = false;
+}
+
+View.prototype.portMenu = function(data) {
+	var min = Math.min(client.map.width, client.map.height);
+	var cell_w = 500 / Math.floor(min / client.camera.zoom);
+	var cell_h = 500 / Math.floor(min / client.camera.zoom);
+	dom.portMenu.style.left = data.x * cell_w + "px";
+	dom.portMenu.style.top = data.y * cell_h + "px";
+	dom.portMenu.style.display = "block";
+	dom.portMenu.innerHTML = "<div>Port Menu</div>" + 
+	"<div data-name=\"refill-ammo\" class=\"port-option\">" + 
+	"Refill Ammo</div>";
+}
+
+View.prototype.hidePortMenu = function(data) {
+	hide(["portMenu"]);
 }
 
 function hide(data) {

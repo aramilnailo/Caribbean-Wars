@@ -333,8 +333,8 @@ function routeRightClick(rel_coords, abs_coords) {
 		// Show right click menu
 		event.preventDefault();
 		dom.rightClickMenu.style.display = "block";
-		dom.rightClickMenu.style.left = rel_coords.x + "px";
-		dom.rightClickMenu.style.top = rel_coords.y + "px";
+		dom.rightClickMenu.style.left = abs_coords.x + "px";
+		dom.rightClickMenu.style.top = abs_coords.y + "px";
 		dom.rightClickMenu.innerHTML = "";
 		if(rel_coords.elem === dom.easel) {
 			var ship = shipAtCoords(getCellCoords(rel_coords));

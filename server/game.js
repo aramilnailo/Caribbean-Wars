@@ -170,6 +170,7 @@ Game.prototype.update = function() {
 							unloaded:s.currentAmmo
 						},
 					    selected:s.selected,
+						docked:s.docked
 					});
 				}
 			}
@@ -266,6 +267,7 @@ Game.prototype.update = function() {
 					"You are now docked at (" + 
 						d.coords.x + ", " + d.coords.y + ")");
 					ship.docked = true;
+					server.emit(client.socket, "portMenu", d.coords);
 					// TO DO: more complex docking response
 				}
 			}
@@ -287,6 +289,7 @@ Game.prototype.update = function() {
 				if(ship && ship.selected) {
 					server.emit(client.socket, 
 						"alert", "You have undocked from a port");
+					server.emit(client.socket, "hidePortMenu", null);
 				}
 			}
 		}

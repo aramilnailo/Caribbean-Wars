@@ -213,6 +213,18 @@ th, td {
 	z-index:-1;
 }
 
+#port-menu {
+	position:absolute;
+	background-color:black;
+	color:white;
+	border:1px solid white;
+	padding:5px;
+	left:0px;
+	top:0px;
+	height:100px;
+	width:100px;
+}
+
 #upper-game-screen {
 	margin:auto;
 	margin-top:1em;
