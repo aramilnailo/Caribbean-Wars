@@ -103,7 +103,7 @@ function(debug, dom, client, alerts, router) {
 	}
 	
 	function validChange(ruleName, value) {
-		if(ruleName === "friendlyFire") {
+		if(ruleName === "friendlyFire" || ruleName === "inviteOnly") {
 			client.ruleSet[ruleName] = (value == "true");
 		} else {
 			client.ruleSet[ruleName] = value;

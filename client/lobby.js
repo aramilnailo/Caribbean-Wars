@@ -57,7 +57,8 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 		"<tr>" +
 		"<th>ID</th>" +
 		"<th>Host</th>" +
-		"<th>inGame</th>" +
+		"<th>In Game</th>" +
+		"<th>Invite Only</th>" +
 		"<th>Players</th>" +
 		"</tr>";
 		for(var i in data) {
@@ -65,6 +66,7 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 			"<td>" + i + "</td>" +
 			"<td>" + data[i].host + "</td>" +
 			"<td>" + data[i].running + "</td>" + 
+			"<td>" + data[i].inviteOnly + "</td>" +
 			"<td>";
 			for(var j in data[i].users) {
 				html += data[i].users[j];

@@ -55,6 +55,7 @@ Session.prototype.listen = function(router) {
 * @memberof module:server/Session
 */
 var GAME_SESSIONS = [];
+var invites = [];
 
 Session.prototype.newGameSession = function(param) {
 	var client = param.client;
@@ -131,6 +132,15 @@ Session.prototype.enterGameSession = function(param) {
 		return;
 	}
 	var session = GAME_SESSIONS[id];
+	if(session.ruleset.inviteOnly) {
+		var index = invites.indexOf(client);
+		if(index === -1) {
+			server.emit(client.socket, "alert", "Session is invite-only");
+			return;
+		} else {
+			invites.splice(index, 1);
+		}
+	}
     // If session is empty, client becomes host
 	var isHost = false;
     if(session.clients.length === 0) {
@@ -201,6 +211,7 @@ Session.prototype.inviteUser = function(param) {
 	} else if(target.id == client.id) {
 		server.emit(client.socket, "alert", "User is already in lobby");
 	} else {
+		invites.push(target);
 		server.emit(target.socket, "invitation", 
 			{username:client.username, id:id});
 	}
@@ -568,9 +579,10 @@ function getSessionTable() {
 	var table = [];
 	for(var i in GAME_SESSIONS) {
 		var s = GAME_SESSIONS[i];
-		table[i] = {host:"", running:"", users:[]};
+		table[i] = {host:"", running:"", users:[], inviteOnly:""};
 		table[i].host = s.host ? s.host.username : "";
 		table[i].running = s.game.running ? "yes" : "no";
+		table[i].inviteOnly = s.ruleset.inviteOnly ? "yes" : "no";
 		for(var j in s.clients) {
 			table[i].users.push(s.clients[j].username);
 		}

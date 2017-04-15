@@ -18,6 +18,7 @@ Rules.prototype.getDefault = function() {
 	var ruleset = {
 		gameCapacity:8,  	// Number of players allowed in one game
 		lobbyCapacity:8, 	// Number of clients allowed in this session
+		inviteOnly:false,	// Whether new clients can join without host invite
 		
 		shipHealth:100,  		// Health points for a new ship
 		shipAmmo:20,			// Num cannonballs provided to a new ship
