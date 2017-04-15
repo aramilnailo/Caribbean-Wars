@@ -38,27 +38,85 @@ AutoPilot.prototype.getInput = function(ship, session) {
     
     if (order.name === "goto")
 	seekPosition(order.coords.x,order.coords.y,ship,session,input);
-    else if (order.name === "fire") {
-	seekPosition(order.coords.x,order.coords.y,ship,session,input);
-    } else if (order.name === "follow") {
-	seekPosition(order.coords.x,order.coords.y,ship,session,input);
-    } else if (order.name === "ram") {
-	var x,y;
+    else {
+	var target;
 	for (var i in session.game.players) {
-	    var target = session.game.players[i].ships.find(function(s) {
+	    target = session.game.players[i].ships.find(function(s) {
 		return s.name === order.target;
 	    });
-	    if (target) {
-		x = target.box.x;
-		y = target.box.y;
-		break;
+	    if (target) break;
+	}
+
+	if (target) {
+	    var tx = target.box.x;
+	    var ty = target.box.y;
+	    var tdir = target.box.dir;
+
+	    if (order.name === "fire") {
+
+		fireAt(tx,ty,tdir,ship,session,input);
+		
+	    } else if (order.name === "follow") {
+		
+		var x1 = tx-20*Math.cos(tdir);
+		var y1 = ty-20*Math.sin(tdir);
+		var dx = ship.box.x - tx;
+		var dy = ship.box.y - ty;
+		if (dx*dx + dy*dy > 5)
+		    seekPosition(x1,y1,ship,session,input);
+		else {
+		    var diff = dir - tdir;
+		    if (diff < -0.03) input.right = true;
+		    else if (diff > 0.03) input.left = true;
+		}
+		    
+	    } else if (order.name === "ram") {
+		seekPosition(tx,ty,ship,session,input);
 	    }
 	}
-	seekPosition(x,y,ship,session,input);
     }
 
     
     return input;
+    
+}
+
+function fireAt(x,y,tdir,ship,session,input) {
+
+    var fx = x - ship.box.x;
+    var fy = y - ship.box.y;
+    if (fx*fx + fy*fy < 20) {
+	var ddir = dir - ship.box.dir;
+	// swing cannons into range
+	if (ddir > 0.06) {
+	    input.right = true;
+	} else if (ddir < -0.06) {
+	    input.left = true;
+	} else {
+	    if (ddir > 0) input.firingLeft = true;
+	    else input.firingRight = true;
+	}
+    } else {
+	var c = Math.cos(tdir);
+	var s = Math.sin(tdir);
+	var t1x = x + s*15;
+	var t1y = y - c*15;
+	var t2x = x - s*15;
+	var t2y = y + c*15;
+	var s1x = ship.box.x-t1x;
+	var s1y = ship.box.y-t1y;
+	var s2x = ship.box.x-t2x;
+	var s2y = ship.box.y-t2y;
+	var tx, ty;
+	if (s1x*s1x+s1y*s1y < s2x*s2x+s2y*s2y) {
+	    tx = t1x;
+	    ty = t1y;
+	} else {
+	    tx = t2x;
+	    ty = t2y;
+	}
+	seekPosition(tx,ty,ship,session,input);
+    }
     
 }
 
@@ -72,21 +130,16 @@ function seekPosition(x,y,ship,session,input) {
 	var nx = x - x0;
 	var ny = y - y0;
 
-	//if (debug) log("(x,y)=("+x+","+y+"); (x0,y0)=("+x0+","+y0+")");
-	//if (debug) log("(c,s)=("+Math.cos(ship.box.dir)+","+Math.sin(ship.box.dir)+"); dir="+dir);
-	
 	
 	if (Math.abs(nx) + Math.abs(ny) < 1) {
 	    input.anchor = true;
 	    ship.orders.shift();
-	    //if (debug) log("server/autopilot.js: ship="+ship.name+"; anchored");
+
 	} else {	    
 	    if (Math.abs(x0 - ship.prevX) < 1 &&
 		Math.abs(y0 - ship.prevY) < 1 ) {
-		//if (debug) log("server/autopilot.js: ship="+ship.name+"; oars");
 		input.oars = true;
 	    } else {
-		//if (debug) log("server/autopilot.js: ship="+ship.name+"; sails");
 		input.sails = true;
 	    }
 	    var norm = nx*nx+ny*ny;
@@ -98,57 +151,15 @@ function seekPosition(x,y,ship,session,input) {
 		
 		if (cross > 0.03) {
 		    input.left = true;
-		    //if (debug) log("server/autopilot.js: ship="+ship.name+"; left; cross="+cross);
 		    
 		} else if (cross < -0.03) {
 		    input.right = true;
-		    //if (debug) log("server/autopilot.js: ship="+ship.name+"; right; cross="+cross);
-		} else {
-		    //if (debug) log("server/autopilot.js: ship="+ship.name+"; null; cross="+cross);
-		}
+
+		} 
 	    }
 	}
 }
 
-
-
-
-
-
-
-
-/*
-function seekPosition(ship, session) {
-
-    return easypilot.computeInput(ship, session);
-    
-
-    //if (ship.order.last) {
-//	if input.order.last
-  //  }
-    //
-    //var c = Math.cos(ship.box.dir);
-    //var s = Math.sin(ship.box.dir);
-    //
-  //  var dot = c*wind.x + s*wind.y;
-  //  if (dot < 0) dot = 0;
-
-
-    // tangent formula for sails = false, ddir != 0 step
-    // set dir for next sails = true
-    // assume v = dy/dx known
-    //tanth = { +/- v.wx +/- wy +/- sqrt[(v.wx+/- wy)^2 - 4(v.wy-v.by+bx)(bx-wx-v.by)] } / { 2 (v.wy - v.by + bx) }
-   
-    
-    // assumed computed: sx,sy
-    // to determine: c,s
-    //var sx = -0.005*ship.box.dx + 0.01*dot*c - ship.box.dy*s;
-    //var sy = -0.005*ship.box.dy + 0.01*dot*s + ship.box.dx*c;
-
-
-}
-
-*/
 
 
 module.exports = new AutoPilot();
