@@ -86,7 +86,8 @@ Input.prototype.processKeyPressed = function(event) {
 			client.input.firingRight = true;
 			break;
 		case 32: //space bar
-			orderIncoming = false;
+ 	                orderIncoming = false;
+	                client.emit("clearShipOrders",orders);
 			break;
 			
 		// Camera controls

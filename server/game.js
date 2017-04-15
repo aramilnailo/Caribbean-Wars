@@ -39,7 +39,9 @@ var undocks = [];
 Game.prototype.listen = function(router) {
     if(debug) log("[Game] listen()");
     router.listen("gameInput", this.input);
-	router.listen("selectShip", this.selectShip);
+    router.listen("selectShip", this.selectShip);
+    router.listen("pushShipOrders", this.pushShipOrders);
+    router.listen("clearShipOrders", this.clearShipOrders);
 }
 
 /**
@@ -63,6 +65,35 @@ Game.prototype.input = function(param) {
 	
     }
 }
+
+Game.prototype.pushShipOrders = function(param) {
+    if (debug) log("server/game.js: pushShipOrders()");
+    var p = param.client.player;
+	if(!p) return;
+
+    if (param.data) {
+	for (var i in p.ships) {
+	    if (p.ships[i].selected)
+		p.ships[i].orders.concat(param.data);
+	}
+	
+    }
+}
+
+Game.prototype.clearShipOrders = function(param) {
+    if (debug) log("server/game.js: clearShipOrders()");
+    var p = param.client.player;
+	if(!p) return;
+
+    if (param.data) {
+	for (var i in p.ships) {
+	    if (p.ships[i].selected)
+		p.ships[i].orders = [];
+	}
+	
+    }
+}
+
 
 Game.prototype.selectShip = function(param) {
 	var client = param.client;
@@ -139,7 +170,6 @@ Game.prototype.update = function() {
 							unloaded:s.currentAmmo
 						},
 					    selected:s.selected,
-					    orders:s.orders
 					});
 				}
 			}
@@ -695,7 +725,7 @@ function handleInput(player, session) {
 		var ship = player.ships[i];
 		// Get input from either the player or autopilot
 	    var input = player.input;
-	    console.log ("input = "+JSON.stringify(input));
+	    //console.log ("input = "+JSON.stringify(input));
 	    input = 
 		ship.selected ?
 		player.input : 
