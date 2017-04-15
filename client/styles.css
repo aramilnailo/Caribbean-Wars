@@ -177,6 +177,7 @@ th, td {
 
 #ocean-canvas {
 	position:absolute;
+	background-color:#3ed6e8;
 	left:0px;
 	top:0px;
 	z-index:-1;
