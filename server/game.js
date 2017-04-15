@@ -68,7 +68,20 @@ Game.prototype.input = function(param) {
 }
 
 Game.prototype.parsePortInput = function(param) {
-	server.emit(param.client.socket, "alert", "Refilled ammo");
+	var player = param.client.player;
+	if(!player) return;
+	var input = param.data;
+	var ship = player.ships.find(function(s) {
+		return s.name === input.ship;
+	});
+	if(input.name === "ammo") {
+		ship.currentAmmo += input.amount;
+		server.emit(param.client.socket, "alert", "Refilled ammo");
+	}
+	else if(input.name === "health") {
+		ship.health += input.amount;
+		server.emit(param.client.socket, "alert", "Repaired ship");
+	}
 }
 
 Game.prototype.pushShipOrder = function(param) {
@@ -272,7 +285,8 @@ Game.prototype.update = function() {
 					"You are now docked at (" + 
 						d.coords.x + ", " + d.coords.y + ")");
 					ship.docked = true;
-					server.emit(client.socket, "portMenu", d.coords);
+					server.emit(client.socket, "portMenu", 
+					{ship:ship.name, coords:d.coords});
 					// TO DO: more complex docking response
 				}
 			}

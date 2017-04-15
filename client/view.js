@@ -120,12 +120,14 @@ View.prototype.portMenu = function(data) {
 	var min = Math.min(client.map.width, client.map.height);
 	var cell_w = 500 / Math.floor(min / client.camera.zoom);
 	var cell_h = 500 / Math.floor(min / client.camera.zoom);
-	dom.portMenu.style.left = data.x * cell_w + "px";
-	dom.portMenu.style.top = data.y * cell_h + "px";
+	dom.portMenu.style.left = data.coords.x * cell_w + "px";
+	dom.portMenu.style.top = data.coords.y * cell_h + "px";
 	dom.portMenu.style.display = "block";
 	dom.portMenu.innerHTML = "<div>Port Menu</div>" + 
-	"<div data-name=\"refill-ammo\" class=\"port-option\">" + 
-	"Refill Ammo</div>";
+	"<div data-name=\"ammo:" + data.ship + "\" class=\"port-option\">" + 
+	"Refill Ammo</div>" +
+	"<div data-name=\"repair:" + data.ship + "\" class=\"port-option\">" + 
+	"Repair Ship</div>";
 }
 
 View.prototype.hidePortMenu = function(data) {

@@ -405,7 +405,23 @@ function ruleSetOptionClick(element) {
 
 function portOptionClick(element) {
 	var optionName = element.getAttribute("data-name");
-	if(optionName === "refill-ammo") client.emit("portInput", null);	
+	var parsedOption = optionName.split(":");
+	var input = null;
+	if(parsedOption[0] === "ammo") {
+		input = {
+			name:"ammo",
+			ship:parsedOption[1],
+			amount:20
+		};
+	}
+	else if(parsedOption[0] === "repair") {
+		input = {
+			name:"health",
+			ship:parsedOption[1],
+			amount:50
+		};
+	}
+	if(input) client.emit("portInput", input);
 }
 
 
