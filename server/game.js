@@ -74,7 +74,7 @@ Game.prototype.pushShipOrder = function(param) {
     if (param.data) {
 	for (var i in p.ships) {
 	    if (p.ships[i].selected)
-		p.ships[i].orders.concat(param.data);
+		p.ships[i].orders.push(param.data);
 	}
 	
     }

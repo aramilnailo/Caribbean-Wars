@@ -22,15 +22,18 @@ AutoPilot.prototype.getInput = function(ship, session) {
 		  swap:false
 		};
 
-
+    //if (debug) log("server/autopilot.js: ship="+ship.name+"; getInput()");
+    if (debug) if (! ship.orders) log("server/autopilot.js: !ship.orders");
+    
     if (! ship.orders || ship.orders.length === 0) {
 	//if(debug) log("server/autopilot.js: ship="+ship.name+"; no orders");
 	return input;
     }
+    
     //if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
     var order = ship.orders[0];
 
-    //if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
+    if(debug) log("server/autopilot.js: order = "+JSON.stringify(order));
 
     if (! order) {
 	if(debug) log("server/autopilot.js: ship="+ship.name+"; !order");
@@ -50,12 +53,15 @@ AutoPilot.prototype.getInput = function(ship, session) {
 	
 	if (Math.abs(nx) + Math.abs(ny) < 0.1) {
 	    input.anchor = true;
-	    ship.orders.pop();
-	} else {
+	    ship.orders.shift();
+	    if (debug) log("server/autopilot.js: ship="+ship.name+"; anchored");
+	} else {	    
 	    if (Math.abs(x0 - ship.prevX) === 0 &&
-		   Math.abs(y0 - ship.prevY) === 0) {
+		Math.abs(y0 - ship.prevY) === 0) {
+		if (debug) log("server/autopilot.js: ship="+ship.name+"; oars");
 		input.oars = true;
-	    } else { 
+	    } else {
+		if (debug) log("server/autopilot.js: ship="+ship.name+"; sails");
 		input.sails = true;
 	    }
 	    var norm = nx*nx+ny*ny;
@@ -65,8 +71,16 @@ AutoPilot.prototype.getInput = function(ship, session) {
 		var cross = nx*Math.sin(ship.box.dir);
 		    - ny*Math.cos(ship.box.dir);
 		
-		if (cross > 0.03) input.left = true;
-		else if (cross < -0.03) input.right = true;
+		if (cross > 0.03) {
+		    input.left = true;
+		    if (debug) log("server/autopilot.js: ship="+ship.name+"; left; cross="+cross);
+		    
+		} else if (cross < -0.03) {
+		    input.right = true;
+		    if (debug) log("server/autopilot.js: ship="+ship.name+"; right; cross="+cross);
+		} else {
+		    if (debug) log("server/autopilot.js: ship="+ship.name+"; null; cross="+cross);
+		}
 	    }
 	}
 	
