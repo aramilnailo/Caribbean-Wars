@@ -27,6 +27,9 @@ Rules.prototype.getDefault = function() {
 		shipReloadRate:0.3,		// Default ship reload rate
 		shipFiringRate:1,		// Default ship rate of fire
 		
+		maxShipSpeed:1,			// Max speed for any ship
+		rowingRate:0.01,		// Rate at which ships row
+		
 		projectileRange:20, 	// Distance a live projectile will travel
 		
 		resourceHealth:1,		// Health points for new resource barrel

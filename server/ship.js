@@ -24,8 +24,8 @@ var Ship = function(name, x, y, ruleset) {
 			dx:0,
 			dy:0,
 
-			dx_max:1,
-			dy_max:1,
+			dx_max:ruleset.maxShipSpeed,
+			dy_max:ruleset.maxShipSpeed,
 			mass:20,
 			
 			hit:false,
@@ -55,6 +55,9 @@ var Ship = function(name, x, y, ruleset) {
 		active:true,
 		health:ruleset.shipHealth,
 		alive:true,
+		
+		rowingRate:ruleset.rowingRate,
+		rowingCount:0,
 		
 		selected:false,
 		orders:[]

@@ -757,6 +757,24 @@ function handleInput(player, session) {
 				});
 			    
 			}
+			// Apply force from rowing
+			if(input.oars && ship.box.ddir === 0) {
+				if(ship.rowingCount < 1) {
+					ship.rowingCount += ship.rowingRate;
+				} else {
+					ship.rowingCount = 0;
+					var rowforce = {
+						x:Math.cos(ship.box.dir) * 0.05,
+						y:Math.sin(ship.box.dir) * 0.05
+					};
+					ship.box.collisions.push({
+						vector:rowforce,
+						mass:ship.box.mass,
+						source:"oars",
+						damage:0
+					});
+				}
+			}
 			// Apply force from turning
 			ship.box.dx += -ship.box.dy * Math.sin(ship.box.ddir);
 			ship.box.dy += ship.box.dx * Math.sin(ship.box.ddir);

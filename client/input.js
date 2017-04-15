@@ -132,13 +132,13 @@ Input.prototype.processDoubleClick = function(event) {
 
 Input.prototype.processKeyPressed = function(event) {
     // If the chat bar is not in focus
-    if(dom.chatInput !== dom.document.activeElement) {
+    if(dom.chatInput === dom.document.activeElement) return;
 	//for compatability with firefox
 	var keycode = event.which || event.keyCode;
-
+	
 	// Save camera position
 	backupCamera();
-
+	
 	switch(keycode) {
 		// Game input
 		case 65: // a
@@ -146,14 +146,6 @@ Input.prototype.processKeyPressed = function(event) {
 			break;
 		case 68: // d
 			client.input.right = true;
-			break;
-		case 83: // s
-			if (debug.input) debug.log("input.js: sails -> false");
-			client.input.sails = false;
-			break;
-		case 87: // w
-			if (debug.input) debug.log("input.js: sails -> true");
-			client.input.sails = true;
 			break;
 		case 81: // q
 			client.input.firingLeft = true;
@@ -164,46 +156,43 @@ Input.prototype.processKeyPressed = function(event) {
 		case 32: //space bar
 			orderIncoming = false;
 			break;
-
+			
 		// Camera controls
 		case 37: // left arrow
-		client.camera.x--;
-		if(event.shiftKey) client.camera.x -= 4;
-		break;
+			client.camera.x--;
+			if(event.shiftKey) client.camera.x -= 4;
+			break;
 		case 38: // up arrow
-		client.camera.y--;
-		if(event.shiftKey) client.camera.y -= 4;
-		break;
+			client.camera.y--;
+			if(event.shiftKey) client.camera.y -= 4;
+			break;
 		case 39: // right arrow
-		client.camera.x++;
-		if(event.shiftKey) client.camera.x += 4;
-		break;
+			client.camera.x++;
+			if(event.shiftKey) client.camera.x += 4;
+			break;
 		case 40: // down arrow
-		client.camera.y++;
-		if(event.shiftKey) client.camera.y += 4;
-		break;
+			client.camera.y++;
+			if(event.shiftKey) client.camera.y += 4;
+			break;
 		case 187: // "=/+"
-		client.camera.zoom += 0.2;
-		break;
+			client.camera.zoom += 0.2;
+			break;
 		case 189: // "-/_"
-		client.camera.zoom -= 0.2;
-		break;
+			client.camera.zoom -= 0.2;
+			break;
 		default:
-		break;
+			break;
 	}
-
+	
 	// Correct camera position
 	correctCamera();
-
+	
 	// Emit input
 	client.emit("gameInput", client.input);
-    }
-
 }
 	
 Input.prototype.processKeyReleased = function(event) {
-
-    if(dom.chatInput !== dom.document.activeElement) {
+	if(dom.chatInput === dom.document.activeElement) return;
 	var keycode = event.which || event.keyCode;
 	switch(keycode) {
 		case 65: // a
@@ -212,13 +201,29 @@ Input.prototype.processKeyReleased = function(event) {
 		case 68: // d
 			client.input.right = false;
 			break;
+		case 83: // s
+			if(!client.input.oars) {
+				client.input.oars = true;
+				client.input.sails = false;
+			} else {
+				client.input.oars = false;
+			}
+			break;
+		case 87: // w
+			if(!client.input.sails) {
+				client.input.sails = true;
+				client.input.oars = false;
+			} else {
+				client.input.sails = false;
+			}
+			break;
 		case 81: // q
 			client.input.firingLeft = false;
 			break;
 		case 69: // e
 			client.input.firingRight = false;
 			break;
-		case 70:
+		case 70: // f
 			client.emit("selectShip", selectNextShip());
 			break;
 		case 82: // r
@@ -228,7 +233,6 @@ Input.prototype.processKeyReleased = function(event) {
 			break;
 	}
 	client.emit("gameInput", client.input);
-    }
 }
 
 // Detects when selected ship is outside of 
