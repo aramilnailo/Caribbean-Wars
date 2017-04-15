@@ -2,9 +2,6 @@ var debug = require("./debug.js").autopilot;
 var log = require("./debug.js").log;
 
 
-//var easypilot = require("./autopilot/easypilot.js");
-
-
 var AutoPilot = function () {}
 
 // Decision making algorithm.
@@ -41,7 +38,14 @@ AutoPilot.prototype.getInput = function(ship, session) {
     }
     
     if (order.name === "goto")
-	seekPosition(x,y,ship,session,input);
+	seekPosition(order.coords.x,order.coords.y,ship,session,input);
+    else if (order.name === "fire") {
+	seekPosition(order.coords.x,order.coords.y,ship,session,input);
+    } else if (order.name === "follow") {
+	seekPosition(order.coords.x,order.coords.y,ship,session,input);
+    } else if (order.name === "ram")
+	seekPosition(order.target.x,order.target.y,ship,session,input);
+    
 
     
     return input;
