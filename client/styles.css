@@ -208,7 +208,7 @@ th, td {
 
 #ocean-canvas {
 	position:absolute;
-	background-color:#3ed6e8;
+	background-image: url("./imgs/ocean-floor.png");
 	left:0px;
 	top:0px;
 	z-index:-1;
