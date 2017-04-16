@@ -61,7 +61,6 @@ Game.prototype.input = function(param) {
 
 	for (var i in p.ships) {
 	    if (p.ships[i].active && p.ships[i].selected) {
-			//p.ships[i].orders = param.data.orders;
 			p.ships[i].state = {
 				firingLeft:param.data.firingLeft,
 				firingRight:param.data.firingRight,
@@ -766,7 +765,7 @@ function handleInput(player, session) {
 		ship.selected ? 
 		player.input : 
 		autopilot.getInput(ship, session) ;
-	    if (debug) {
+	    if (false) {
 		if (ship.selected) log ("game.js: "+ship.name+" selected");
 		else log ("game.js: "+ship.name+" NOT selected");
 	    }

@@ -82,7 +82,8 @@ Input.prototype.processKeyPressed = function(event) {
 		case 69: // e
 			client.input.firingRight = true;
 			break;
-		case 32: //space bar
+	        case 32: //space bar
+	                client.orders = [];
 			client.emit("clearShipOrders",null);
 			break;
 			

@@ -13,7 +13,7 @@ AutoPilot.prototype.getInput = function(ship, session) {
 		  right:false,
 		  firingLeft:false,
 		  firingRight:false,
-		  sails:false,
+		  sails:true,
 		  oars:false,
 		  anchor:false,
 		  swap:false
@@ -36,37 +36,43 @@ AutoPilot.prototype.getInput = function(ship, session) {
     }
 
     
-    if (order.name === "goto")
+    if (order.name === "goto") {
+	if (debug) log("server/autopilot.js: processing goto cmd");
 	seekPosition(order.coords.x,order.coords.y,ship,session,input);
-    else {
-	var target = null;
+    } else {
+	var target_ship = null;
 	for (var i in session.game.players) {
-	    target = session.game.players[i].ships.find(function(s) {
+	    target_ship = session.game.players[i].ships.find(function(s) {
 		return s.name === order.target;
 	    });
-	    if (target) break;
+	    if (target_ship) break;
 	}
-	if (debug) log("server/autopilot.js: order.target = "+ship.order.target);
-	if (debug && target) 
-	    log("server/autopilot.js: target name: "+target.name);
-	if (target) {
-	    var tx = target.box.x;
-	    var ty = target.box.y;
-	    var tdir = target.box.dir;
+	//if (debug) log("server/autopilot.js: order.target = "+ order.target);
+	if (false && debug && target_ship) 
+	    log("server/autopilot.js: target_ship name: "+target_ship.name);
+	if (target_ship) {
+	    var tx = target_ship.box.x;
+	    var ty = target_ship.box.y;
+	    var tdir = target_ship.box.dir;
 
 	    if (order.name === "fire") {
 		if (debug) log("server/autopilot.js: processing fire cmd");
 		fireAt(tx,ty,tdir,ship,session,input);
 		
 	    } else if (order.name === "follow") {
-		if (debug) log("server/autopilot.js: processing follow cmd");
+		//if (debug) log("server/autopilot.js: processing follow cmd");
 		var x1 = tx-20*Math.cos(tdir);
 		var y1 = ty-20*Math.sin(tdir);
-		var dx = ship.box.x - tx;
-		var dy = ship.box.y - ty;
+		var dx = ship.box.x - x1;
+		var dy = ship.box.y - y1;
 		if (dx*dx + dy*dy > 5)
 		    seekPosition(x1,y1,ship,session,input);
 		else {
+		    var dirx = ship.box.x - ship.prevX;
+		    var diry = ship.box.y - ship.prevY;
+		    var dir = ship.box.dir;
+		    if (dirx != 0 || diry != 0)
+			dir = Math.atan2(diry,dirx);
 		    var diff = dir - tdir;
 		    if (diff < -0.03) input.right = true;
 		    else if (diff > 0.03) input.left = true;
@@ -124,8 +130,58 @@ function fireAt(x,y,tdir,ship,session,input) {
 }
 
 
-
 function seekPosition(x,y,ship,session,input) {
+
+	var x0 = ship.box.x;
+	var y0 = ship.box.y;
+	var nx = x - x0;
+	var ny = y - y0;
+
+	
+	if (Math.abs(nx) + Math.abs(ny) < 1) {
+	    input.anchor = true;
+	    ship.orders.shift();
+	    //if (debug) log ("AP seekPos(): "+ship.name+": anchored");
+	} else {	    
+	    if (x0 === ship.prevX &&
+		y0 === ship.prevY) {
+		//if (debug) log ("AP seekPos(): "+ ship.name+": oars");
+		input.oars = true;
+	    } else {
+		//if (debug) log ("AP seekPos(): "+ship.name+": sails");
+		input.sails = true;
+	    }
+	    var norm = nx*nx+ny*ny;
+	    if (norm > 0.0001) {
+		nx /= norm;
+		ny /= norm;
+		var vx = ship.box.x - ship.prevX;
+		var vy = ship.box.y - ship.prevY;
+		//var dir = ship.box.dir;
+
+		if (Math.abs(vx) < 0.01 && Math.abs(vy) < 0.01) {
+		    vx = session.game.wind.x;
+		    vy = session.game.wind.y;
+		}
+		var v = Math.sqrt(vx*vx+vy*vy);
+		vx /= v;
+		vy /= v;
+		
+		var cross = nx*vy - ny*vx;
+		//if (debug) log ("AP seekPos(): "+ship.name+": cross="+cross);
+		if (cross > 0.03) {
+		    input.left = true;
+		    //if (debug) log ("AP seekPos(): "+ship.name+": left");
+		} else if (cross < -0.03) {
+		    input.right = true;
+		    //if (debug) log ("AP seekPos(): "+ship.name+": right");
+		} 
+	    }
+	}
+}
+
+
+function oldSeekPosition(x,y,ship,session,input) {
 
 	var x0 = ship.box.x;
 	var y0 = ship.box.y;
