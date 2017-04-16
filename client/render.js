@@ -321,17 +321,17 @@ function renderBoxes(list, imgData, renderStack) {
 			shifted_y
 		);
 		dom.canvas.rotate(b.box.dir);
-		if(imgData.img == ship){
+		if(imgData.img === ship){
 			var sailsOffset;
 
-			if(b.state.sails == true){
+			if(b.state.sails === true){
 				sailsOffset = 1;
 			} else {
 				sailsOffset = 0;
 			}
 
 			// if not already firing and state is set to firing
-			if(updateFiringState == 0 && (b.state.firingLeft || b.state.firingRight)){
+			if(updateFiringState === 0 && (b.state.firingLeft || b.state.firingRight)){
 				updateFiringState = 1;
 				if(b.state.firingLeft){
 					firingState = 1;
@@ -339,22 +339,18 @@ function renderBoxes(list, imgData, renderStack) {
 					firingState = 4;
 				}
 				// if already firing
-			} else if(updateFiringState != 0){
+			} else if(updateFiringState !== 0){
 				updateFiringState++;
-				if(updateFiringState % 3 == 0){ // updates every 3 frames
+				if(updateFiringState % 3 === 0){ // updates every 3 frames
 					firingState++;
-					if(firingState == 4 || firingState == 7){
+					if(firingState === 4 || firingState === 7){
 						firingState = 0;
 					}
 				}
-				if(updateFiringState == 10){
+				if(updateFiringState === 10){
 					updateFiringState = 0;
 				}
 			}
-
-
-
-
 			dom.canvas.drawImage(
 				imgData.img,
 				sailsOffset*(ship.width/2),
@@ -373,7 +369,8 @@ function renderBoxes(list, imgData, renderStack) {
 				shifted_h * imgData.y, 
 				shifted_w * imgData.w, 
 				shifted_h * imgData.h
-			);}
+			);
+		}
 		dom.canvas.restore();
 		// Add cells for next screen refresh
 		var bx = Math.floor(b.box.x), 
