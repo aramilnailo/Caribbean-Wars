@@ -39,25 +39,27 @@ AutoPilot.prototype.getInput = function(ship, session) {
     if (order.name === "goto")
 	seekPosition(order.coords.x,order.coords.y,ship,session,input);
     else {
-	var target;
+	var target = null;
 	for (var i in session.game.players) {
 	    target = session.game.players[i].ships.find(function(s) {
 		return s.name === order.target;
 	    });
 	    if (target) break;
 	}
-
+	if (debug) log("server/autopilot.js: order.target = "+ship.order.target);
+	if (debug && target) 
+	    log("server/autopilot.js: target name: "+target.name);
 	if (target) {
 	    var tx = target.box.x;
 	    var ty = target.box.y;
 	    var tdir = target.box.dir;
 
 	    if (order.name === "fire") {
-
+		if (debug) log("server/autopilot.js: processing fire cmd");
 		fireAt(tx,ty,tdir,ship,session,input);
 		
 	    } else if (order.name === "follow") {
-		
+		if (debug) log("server/autopilot.js: processing follow cmd");
 		var x1 = tx-20*Math.cos(tdir);
 		var y1 = ty-20*Math.sin(tdir);
 		var dx = ship.box.x - tx;
@@ -71,6 +73,7 @@ AutoPilot.prototype.getInput = function(ship, session) {
 		}
 		    
 	    } else if (order.name === "ram") {
+		if (debug) log("server/autopilot.js: processing ram cmd. tx,ty="+tx+","+ty);
 		seekPosition(tx,ty,ship,session,input);
 	    }
 	}

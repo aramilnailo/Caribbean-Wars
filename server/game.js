@@ -58,10 +58,10 @@ Game.prototype.input = function(param) {
 	if(!p) return;
     // Assign input data
     p.input = param.data;
-    /*
+
 	for (var i in p.ships) {
 	    if (p.ships[i].active && p.ships[i].selected) {
-			p.ships[i].orders = param.data.orders;
+			//p.ships[i].orders = param.data.orders;
 			p.ships[i].state = {
 				firingLeft:param.data.firingLeft,
 				firingRight:param.data.firingRight,
@@ -71,7 +71,7 @@ Game.prototype.input = function(param) {
 			};
 		}
 	}
-*/
+
 }
 
 Game.prototype.parsePortInput = function(param) {
@@ -763,10 +763,13 @@ function handleInput(player, session) {
 	    var input = player.input;
 	    //console.log ("input = "+JSON.stringify(input));
 	    input = 
-		ship.selected ?
+		ship.selected ? 
 		player.input : 
 		autopilot.getInput(ship, session) ;
-	    
+	    if (debug) {
+		if (ship.selected) log ("game.js: "+ship.name+" selected");
+		else log ("game.js: "+ship.name+" NOT selected");
+	    }
 
 		// Rotate
 		if(input.right) {
