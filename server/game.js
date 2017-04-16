@@ -58,6 +58,7 @@ Game.prototype.input = function(param) {
 	if(!p) return;
     // Assign input data
     p.input = param.data;
+    /*
 	for (var i in p.ships) {
 	    if (p.ships[i].active && p.ships[i].selected) {
 			p.ships[i].orders = param.data.orders;
@@ -70,6 +71,7 @@ Game.prototype.input = function(param) {
 			};
 		}
 	}
+*/
 }
 
 Game.prototype.parsePortInput = function(param) {
