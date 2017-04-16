@@ -676,29 +676,33 @@ Render.prototype.renderOcean = function() {
 	var cell_h = CANVAS_H / cam_h;
     var zoom = Math.floor(client.camera.zoom);
 
-    var cx = Math.floor(cam_x*cell_w);
-    var cy = Math.floor(cam_y*cell_h);
-    for (i = 0; i < CANVAS_H; i++) {
-	var u = i + cy;
-	if (u < 0) u += CANVAS_H;
+    var cx = Math.floor(cam_y/cell_h);
+    var cy = Math.floor(cam_x/cell_w);
+
+    for (var i = 0; i < CANVAS_H;) {
+	var u = i + cx;
+	//if (u < 0) u += CANVAS_H;
 	if (u >= CANVAS_H) u -= CANVAS_H;
 	var du = CANVAS_W*u;
-	for (j = 0; j < CANVAS_W;) {
-	    var v = j + cx;
-	    if (v < 0) v += CANVAS_W;
-	    if (v >= CANVAS_W) v -= CANVAS_W;
-	    var off = v + du;
-	    var value = Math.min(w0[off],1.0);
-	    for (var p = 0; p < zoom; p++) {
-		off = 4*(v + du);
-		d[off] = 255;
-		d[off+1] = 255;
-		d[off+2] = 255;
-		d[off+3] = Math.floor(255*value);
-		j++;
-		v++;
+	for (var p = 0; p < zoom; p++) {
+	    for (var j = 0; j < CANVAS_W;) {
+		var v = j + cx;
 		if (v >= CANVAS_W) v -= CANVAS_W;
+		var off = v + du;
+		var value = Math.min(w0[off],1.0);
+		for (var q = 0; q < zoom; q++) {
+		    off = 4*(v + du);
+		    d[off] = 255;
+		    d[off+1] = 255;
+		    d[off+2] = 255;
+		    d[off+3] = Math.floor(255*value);
+		    j++;
+		    v++;
+		    if (v >= CANVAS_W) v -= CANVAS_W;
+		}
 	    }
+	    i++;
+	    du += CANVAS_W;
 	}
     }
 	
