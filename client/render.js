@@ -683,7 +683,7 @@ Render.prototype.renderOcean = function() {
 	if (u < 0) u += CANVAS_H;
 	if (u >= CANVAS_H) u -= CANVAS_H;
 	var du = CANVAS_W*u;
-	for (j = 0; j < CANVAS_W; j++) {
+	for (j = 0; j < CANVAS_W;) {
 	    var v = j + cx;
 	    if (v < 0) v += CANVAS_W;
 	    if (v >= CANVAS_W) v -= CANVAS_W;

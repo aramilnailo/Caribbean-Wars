@@ -151,21 +151,29 @@ function seekPosition(x,y,ship,session,input) {
 		//if (debug) log ("AP seekPos(): "+ship.name+": sails");
 		input.sails = true;
 	    }
-	    var norm = nx*nx+ny*ny;
-	    if (norm > 0.0001) {
-		nx /= norm;
-		ny /= norm;
+	    var sqnorm = nx*nx+ny*ny;
+	    if (sqnorm > 0.0001) {
+
 		var vx = ship.box.x - ship.prevX;
 		var vy = ship.box.y - ship.prevY;
 		//var dir = ship.box.dir;
 
 		if (Math.abs(vx) < 0.01 && Math.abs(vy) < 0.01) {
-		    vx = session.game.wind.x;
-		    vy = session.game.wind.y;
+		    vx = Math.cos(ship.box.dir);
+		    vy = Math.sin(ship.box.dir);
+		    nx = session.game.wind.x;
+		    ny = session.game.wind.x;
+		    sqnorm = nx*nx+ny*ny;
+		} else {
+		    var v = Math.sqrt(vx*vx+vy*vy);
+		    vx /= v;
+		    vy /= v;
 		}
-		var v = Math.sqrt(vx*vx+vy*vy);
-		vx /= v;
-		vy /= v;
+		var norm = Math.sqrt(sqnorm);
+		nx /= norm;
+		ny /= norm;
+		
+
 		
 		var cross = nx*vy - ny*vx;
 		//if (debug) log ("AP seekPos(): "+ship.name+": cross="+cross);

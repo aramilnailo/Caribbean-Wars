@@ -690,6 +690,7 @@ function handleDeath(victim, killer) {
 		victim:victim.name, 
 		killer:killer
 	});
+       
 }
 
 function updateBox(box) {
