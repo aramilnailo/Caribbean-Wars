@@ -674,25 +674,31 @@ Render.prototype.renderOcean = function() {
 	// cell dimensions in pixels
 	var cell_w = CANVAS_W / cam_w;
 	var cell_h = CANVAS_H / cam_h;
-    
+    var zoom = Math.floor(client.camera.zoom);
+
+    var cx = Math.floor(cam_x*cell_w);
+    var cy = Math.floor(cam_y*cell_h);
     for (i = 0; i < CANVAS_H; i++) {
-	var u = i + Math.floor((cam_y - prevcamy)/cell_h);
+	var u = i + cy;
 	if (u < 0) u += CANVAS_H;
 	if (u >= CANVAS_H) u -= CANVAS_H;
-	//var line = client.map.data[Math.floor(u/cell_h+cam_y)];
+	var du = CANVAS_W*u;
 	for (j = 0; j < CANVAS_W; j++) {
-	    var v = j + Math.floor((cam_x - prevcamx)/cell_w);
+	    var v = j + cx;
 	    if (v < 0) v += CANVAS_W;
 	    if (v >= CANVAS_W) v -= CANVAS_W;
-	    //if (line.charAt(Math.floor(v/cell_w+cam_x)) === "0") {
-		var off = v + CANVAS_W*u;
-		var value = Math.min(w0[off],1.0);
-		off *= 4;
+	    var off = v + du;
+	    var value = Math.min(w0[off],1.0);
+	    for (var p = 0; p < zoom; p++) {
+		off = 4*(v + du);
 		d[off] = 255;
 		d[off+1] = 255;
 		d[off+2] = 255;
 		d[off+3] = Math.floor(255*value);
-	    //}
+		j++;
+		v++;
+		if (v >= CANVAS_W) v -= CANVAS_W;
+	    }
 	}
     }
 	
