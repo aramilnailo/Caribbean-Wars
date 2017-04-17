@@ -190,17 +190,34 @@ Game.prototype.update = function() {
 			// Add the ship data to the packet
 			for(var j in session.game.ships) {
 				var s = session.game.ships[j];
-				if(s.active) {
-					pack.ships.push({
+			    if(s.active) {
+				var orders = [];
+				for (var o in s.orders) {
+				    var coords = null;
+				    var target = null;
+				    if (s.orders[o].coords) {
+					coords = {x:s.orders[o].coords.x,
+						  y:s.orders[o].coords.y};
+				    }
+				    if (s.orders[o].target)
+					target = s.orders[o].target;
+
+				    orders.push({name:s.orders[i].name,
+						 coords:coords,
+						 target:target});
+				}
+				pack.ships.push({
 						name:s.name, 
 						box:s.box, 
 						state:s.state,
 						health:s.health, 
 						ammo:{
 							loaded:s.projectiles.length,
-							unloaded:s.currentAmmo
+						    unloaded:s.currentAmmo
+						    
 						},
-					    orders:s.orders,
+				    orders:orders,
+
 					    selected:s.selected,
 						docked:s.docked
 					});
@@ -227,7 +244,7 @@ Game.prototype.update = function() {
 			    // mark currently selected client ship.
 			    pack.myShip = -1;
 			    for (var q in pack.ships) {
-				if (pack.ships[q].name === c.player.name
+				if (pack.ships[q].name.split("-")[0] === c.player.name
 				    && pack.ships[q].selected)
 				    pack.myShip = q;
 			    }
@@ -760,12 +777,32 @@ function handleInput(player, session) {
 	
 	for(var i in player.ships) {
 		var ship = player.ships[i];
-		// Get input from either the player or autopilot
-	    var input = player.input;
+	    // Get input from either the player or autopilot
 	    //console.log ("input = "+JSON.stringify(input));
-	    if (input.queued) {
-		player.input.queued = false;
-	    } else input = autopilot.getInput(player,ship,session);
+	    var input;
+	    if (ship.selected) {
+		input = player.input;
+		//console.log("selected");
+		if (input.queued) {
+		    player.input.queued = false;
+		    //console.log("queued");
+		}
+		else autopilot.getInput(input,ship,session);
+		//console.log("after selected: input="+input);
+	    } else {
+		input = { left:false,
+			  right:false,
+			  firingLeft:false,
+			  firingRight:false,
+			  sails:true,
+			  oars:false,
+			  anchor:false,
+			  swap:false
+			};
+		autopilot.getInput(input,ship,session);
+		//console.log("after non-select: input="+input;
+	    }
+
 
 	    if (false) {
 		if (ship.selected) log ("game.js: "+ship.name+" selected");

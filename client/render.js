@@ -102,6 +102,7 @@ Render.prototype.drawCamera = function(map) {
 	client.camera.moved = false;
 }
 
+var autotargets = [];
 Render.prototype.drawGameState = function(data) {
 	// Starting
 	client.drawing = true;
@@ -145,7 +146,11 @@ Render.prototype.drawGameState = function(data) {
 			);
 		}
 	}
-	dom.canvas.fillStyle = "#000000";
+    for (var a in autotargets) {
+	var auto = autotargets.pop();
+	dom.canvas.clearRect(auto.x-1,auto.y-1,auto.size+2,auto.size+2);
+    }
+        dom.canvas.fillStyle = "#000000";
 	dom.canvas.strokeStyle = "#000000";
 	dom.canvas.font = "10px Arial";
 	// Render the ships
@@ -215,34 +220,34 @@ Render.prototype.drawGameState = function(data) {
 				}
 			}
 		}
-	    
+
+	    //console.log("render: myShip="+data.state.myShip);
+	    //console.log("render: s.orders.length="+s.orders.length);
 	    // Draw autopilot target positions
-	    if (i === data.state.myShip
-		&& s.orders.length > 0) {
+	    if (i === data.state.myShip && s.orders.length > 0) {
    		for(var i in s.orders) {
 		    if (i === 0 || s.orders[i].name === "goto") {
 			var px = (s.orders[i].coords.x - cam_x) * cell_w;
 			var py = (s.orders[i].coords.y - cam_y) * cell_h;
+			autotargets.push({x:px,y:py,size:5});
 			dom.canvas.fillStyle = "#ff0000"; // Red
 			dom.canvas.fillRect(px,py,5,5);
 		    } else {
 			var target_ship = null;
-			for (var i in game.state.ships) {
-			    target_ship = game.state[i].ships.find(function(s) {
-				return s.name === s.orders[i].target;
-			    });
-			    if (target_ship) break;
-			}
+			target_ship = ships.find(function(s) {
+			    return s.name === s.orders[i].target;
+			});
 			if (target_ship && target_ship.active) {
 			    var px = (target_ship.box.x - cam_x) * cell_w;
 			    var py = (target_ship.box.y - cam_y) * cell_h;
+			    autotargets.push({x:px,y:py,size:3});
 			    dom.canvas.fillStyle = "#ff0000"; // Red
 			    dom.canvas.fillRect(px,py,3,3);
 			}
 		    }
 		}
-
 	    }
+	    
 	}
 	
 	// === MINI MAP AND MENU ===

@@ -39,7 +39,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 
     
     if (order.name === "goto") {
-	if (debug) log("server/autopilot.js: processing goto cmd");
+	//if (debug) log("server/autopilot.js: processing goto cmd");
 	seekPosition(order.coords.x,order.coords.y,ship,session,input);
     } else {
 	var target_ship = null;
@@ -65,7 +65,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    
 	    if (order.name === "fire") {
 		
-		if (debug) log("server/autopilot.js: processing fire cmd");
+		//if (debug) log("server/autopilot.js: processing fire cmd");
 		fireAt(tx,ty,tdir,ship,session,input);
 		ship.orders[0].coords = {x:tx,y:ty};
 
@@ -92,7 +92,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 		}
 		    
 	    } else if (order.name === "ram") {
-		if (debug) log("server/autopilot.js: processing ram cmd. tx,ty="+tx+","+ty);
+		//if (debug) log("server/autopilot.js: processing ram cmd. tx,ty="+tx+","+ty);
 		ship.orders[0].coords = {x:tx,y:ty};
 		seekPosition(tx,ty,ship,session,input);
 	    }
