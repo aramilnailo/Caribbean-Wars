@@ -54,7 +54,8 @@ View.prototype.setMap = function(data) {
 }
 
 View.prototype.setGameState = function(data) {
-	client.gameState = data;
+    client.gameState = data;
+    client.input.queued = false;
 }
 
 View.prototype.loginScreen = function(data) {

@@ -7,8 +7,9 @@ var AutoPilot = function () {}
 // Decision making algorithm.
 // Takes a ship object and a given game session
 // and returns the proper input object.
-AutoPilot.prototype.getInput = function(ship, session) {
+AutoPilot.prototype.getInput = function(input, ship, session) {
 
+    /*
     var input = { left:false,
 		  right:false,
 		  firingLeft:false,
@@ -18,13 +19,14 @@ AutoPilot.prototype.getInput = function(ship, session) {
 		  anchor:false,
 		  swap:false
 		};
-
+    */
+    
     //if (debug) log("server/autopilot.js: ship="+ship.name+"; getInput()");
     if (debug) if (! ship.orders) log("server/autopilot.js: !ship.orders");
     
     if (! ship.orders || ship.orders.length === 0) {
 	//if(debug) log("server/autopilot.js: ship="+ship.name+"; no orders");
-	return input;
+	return;
     }
     
     //if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
@@ -32,7 +34,7 @@ AutoPilot.prototype.getInput = function(ship, session) {
 
 
     if (! order) {
-	return input;
+	return;
     }
 
     
@@ -47,27 +49,38 @@ AutoPilot.prototype.getInput = function(ship, session) {
 	    });
 	    if (target_ship) break;
 	}
+
 	//if (debug) log("server/autopilot.js: order.target = "+ order.target);
 	if (false && debug && target_ship) 
 	    log("server/autopilot.js: target_ship name: "+target_ship.name);
 	if (target_ship) {
+	    if (!target_ship.active) {
+		ship.orders.shift();
+		return;
+	    }
+
 	    var tx = target_ship.box.x;
 	    var ty = target_ship.box.y;
 	    var tdir = target_ship.box.dir;
-
+	    
 	    if (order.name === "fire") {
+		
 		if (debug) log("server/autopilot.js: processing fire cmd");
 		fireAt(tx,ty,tdir,ship,session,input);
-		
+		ship.orders[0].coords = {x:tx,y:ty};
+
 	    } else if (order.name === "follow") {
+
 		//if (debug) log("server/autopilot.js: processing follow cmd");
 		var x1 = tx-20*Math.cos(tdir);
 		var y1 = ty-20*Math.sin(tdir);
 		var dx = ship.box.x - x1;
 		var dy = ship.box.y - y1;
-		if (dx*dx + dy*dy > 5)
+		ship.orders[0].coords = {x:x1,y:y1};
+
+		if (dx*dx + dy*dy > 5) {
 		    seekPosition(x1,y1,ship,session,input);
-		else {
+		} else {
 		    var dirx = ship.box.x - ship.prevX;
 		    var diry = ship.box.y - ship.prevY;
 		    var dir = ship.box.dir;
@@ -80,13 +93,14 @@ AutoPilot.prototype.getInput = function(ship, session) {
 		    
 	    } else if (order.name === "ram") {
 		if (debug) log("server/autopilot.js: processing ram cmd. tx,ty="+tx+","+ty);
+		ship.orders[0].coords = {x:tx,y:ty};
 		seekPosition(tx,ty,ship,session,input);
 	    }
 	}
     }
 
     
-    return input;
+    //return input;
     
 }
 

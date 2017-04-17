@@ -11,7 +11,8 @@ var Player = function(name) {
 			firingRight:false,
 			sails:false,
 			anchor:false,
-			oars:false
+		        oars:false,
+		        queued:false
 		},
 		diff:{
 			distanceSailed:0,

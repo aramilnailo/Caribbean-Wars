@@ -200,6 +200,7 @@ Game.prototype.update = function() {
 							loaded:s.projectiles.length,
 							unloaded:s.currentAmmo
 						},
+					    orders:s.orders,
 					    selected:s.selected,
 						docked:s.docked
 					});
@@ -762,10 +763,10 @@ function handleInput(player, session) {
 		// Get input from either the player or autopilot
 	    var input = player.input;
 	    //console.log ("input = "+JSON.stringify(input));
-	    input = 
-		ship.selected ? 
-		player.input : 
-		autopilot.getInput(ship, session) ;
+	    if (input.queued) {
+		player.input.queued = false;
+	    } else input = autopilot.getInput(player,ship,session);
+
 	    if (false) {
 		if (ship.selected) log ("game.js: "+ship.name+" selected");
 		else log ("game.js: "+ship.name+" NOT selected");

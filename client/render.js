@@ -215,7 +215,34 @@ Render.prototype.drawGameState = function(data) {
 				}
 			}
 		}
-	
+	    
+	    // Draw autopilot target positions
+	    if (i === data.state.myShip
+		&& s.orders.length > 0) {
+   		for(var i in s.orders) {
+		    if (i === 0 || s.orders[i].name === "goto") {
+			var px = (s.orders[i].coords.x - cam_x) * cell_w;
+			var py = (s.orders[i].coords.y - cam_y) * cell_h;
+			dom.canvas.fillStyle = "#ff0000"; // Red
+			dom.canvas.fillRect(px,py,5,5);
+		    } else {
+			var target_ship = null;
+			for (var i in game.state.ships) {
+			    target_ship = game.state[i].ships.find(function(s) {
+				return s.name === s.orders[i].target;
+			    });
+			    if (target_ship) break;
+			}
+			if (target_ship && target_ship.active) {
+			    var px = (target_ship.box.x - cam_x) * cell_w;
+			    var py = (target_ship.box.y - cam_y) * cell_h;
+			    dom.canvas.fillStyle = "#ff0000"; // Red
+			    dom.canvas.fillRect(px,py,3,3);
+			}
+		    }
+		}
+
+	    }
 	}
 	
 	// === MINI MAP AND MENU ===

@@ -55,7 +55,8 @@ Input.prototype.processDoubleClick = function(event) {
 	var coords = getAbsCoords(event);
 	if(debug) log("Double click at " + coords.x + ", " + coords.y);
     Input.prototype.processLeftClick(event);
-    //client.emit("gameInput", client.input);
+    client.input.queued = true;
+    client.emit("gameInput", client.input);
 }
 
 
@@ -71,19 +72,22 @@ Input.prototype.processKeyPressed = function(event) {
 	switch(keycode) {
 		// Game input
 		case 65: // a
-			client.input.left = true;
+	    client.input.left = true;
+	    client.input.queued = true;
 			break;
 		case 68: // d
-			client.input.right = true;
+	    client.input.right = true;
+	    	    client.input.queued = true;
 			break;
 		case 81: // q
-			client.input.firingLeft = true;
+	    client.input.firingLeft = true;
+	    	    client.input.queued = true;
 			break;
 		case 69: // e
-			client.input.firingRight = true;
+	    client.input.firingRight = true;
+	    	    client.input.queued = true;
 			break;
 	        case 32: //space bar
-	                client.orders = [];
 			client.emit("clearShipOrders",null);
 			break;
 			
@@ -126,38 +130,47 @@ Input.prototype.processKeyReleased = function(event) {
 	var keycode = event.which || event.keyCode;
 	switch(keycode) {
 		case 65: // a
-			client.input.left = false;
+	    client.input.left = false;
+	    	    client.input.queued = true;
 			break;
 		case 68: // d
-			client.input.right = false;
+	    client.input.right = false;
+	    client.input.queued = true;
 			break;
 		case 83: // s
 			if(!client.input.oars) {
 				client.input.oars = true;
-				client.input.sails = false;
+			    client.input.sails = false;
+			    	    client.input.queued = true;
 			} else {
-				client.input.oars = false;
+			    client.input.oars = false;
+			    client.input.queued = true;
 			}
 			break;
 		case 87: // w
 			if(!client.input.sails) {
 				client.input.sails = true;
-				client.input.oars = false;
+			    client.input.oars = false;
+			    client.input.queued = true;
 			} else {
-				client.input.sails = false;
+			    client.input.sails = false;
+			    client.input.queued = true;
 			}
 			break;
 		case 81: // q
-			client.input.firingLeft = false;
+	    client.input.firingLeft = false;
+	    client.input.queued = true;
 			break;
 		case 69: // e
-			client.input.firingRight = false;
+	    client.input.firingRight = false;
+	    	    client.input.queued = true;
 			break;
 		case 70: // f
 			client.emit("selectShip", selectNextShip());
 			break;
 		case 82: // r
-			client.input.anchor = !client.input.anchor;
+	    client.input.anchor = !client.input.anchor;
+	    	    client.input.queued = true;
 			break;
 		default:
 			break;
