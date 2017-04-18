@@ -30,7 +30,7 @@ Rules.prototype.getDefault = function() {
 		shipFiringRate:1,		// Default ship rate of fire
 		
 		maxShipSpeed:1,			// Max speed for any ship
-		rowingRate:0.01,		// Rate at which ships row
+		rowSpeed:0.2,		// Speed at which ships row
 		
 		projectileRange:20, 	// Distance a live projectile will travel
 		

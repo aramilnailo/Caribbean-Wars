@@ -66,9 +66,6 @@ var Ship = function(name, x, y, ruleset) {
 		maxHealth:ruleset.shipHealth,
 		alive:true,
 		
-		rowingRate:ruleset.rowingRate,
-		rowingCount:0,
-		
 		selected:false,
 		orders:[]
 	}
