@@ -42,6 +42,7 @@ var Ship = function(name, x, y, ruleset) {
 		state:{
 			firingLeft:false,
 			firingRight:false,
+			firingCount:0,
 			sails:false,
 			anchor:false,
 			oars:false
@@ -54,7 +55,6 @@ var Ship = function(name, x, y, ruleset) {
 		maxAmmo:ruleset.shipMaxAmmo,
 		
 		reloadCount:0,
-		firingCount:0,
 		reloadRate:ruleset.shipReloadRate,
 		firingRate:ruleset.shipFiringRate,
 		firepower:ruleset.shipFirepower,

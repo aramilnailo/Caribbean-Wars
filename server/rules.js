@@ -27,7 +27,7 @@ Rules.prototype.getDefault = function() {
 		shipCannons:20,  		// Default number of cannons on ship
 		shipFirepower:1.5,		// Default ship firepower
 		shipReloadRate:0.3,		// Default ship reload rate
-		shipFiringRate:1,		// Default ship rate of fire
+		shipFiringRate:0.2,		// Default ship rate of fire
 		
 		maxShipSpeed:1,			// Max speed for any ship
 		rowSpeed:0.2,		// Speed at which ships row
