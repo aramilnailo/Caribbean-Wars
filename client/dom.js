@@ -48,12 +48,6 @@ var dom = {
 	inGameMenu:document.getElementById("in-game-menu"),
 	stopGameButton:document.getElementById("stop-game-btn"),
 	leaveGameButton:document.getElementById("leave-game-btn"),
-
-	// Host menu
-	hostMenu:document.getElementById("host-menu"),
-	inviteButton:document.getElementById("invite-btn"),
-	kickButton:document.getElementById("kick-btn"),
-	promoteButton:document.getElementById("promote-btn"),
 	
 	// Map editor menu
 	mapEditorMenu:document.getElementById("map-editor-menu"),
@@ -132,8 +126,6 @@ var dom = {
 
 	// Options menu
 	optionsMenu:document.getElementById("options-menu"),
-	chatToggleButton:document.getElementById("chat-toggle-btn"),
-	consoleToggleButton:document.getElementById("console-toggle-btn"),
 
 	// Chat window
 	chatWindow:document.getElementById("chat-window"),
@@ -168,11 +160,6 @@ dom.statsMenuButton.onclick = function() { router.route({name:"statsMenuToggle",
 // In game menu
 dom.stopGameButton.onclick = function() { router.route({name:"stopGameClick", data:null}); }
 dom.leaveGameButton.onclick = function() { router.route({name:"leaveGameClick", data:null}); }
-
-// Host menu
-dom.inviteButton.onclick = function() { router.route({name:"inviteClick", data:null}); }
-dom.kickButton.onclick = function() { router.route({name:"kickClick", data:null}); }
-dom.promoteButton.onclick = function() { router.route({name:"promoteClick", data:null}); }
 
 // Saved games menu
 dom.saveGameButton.onclick = function() { router.route({name:"saveGameClick", data:null}); }
@@ -222,10 +209,6 @@ dom.undoButton.onclick = function() { router.route({name:"undoClick", data:null}
 dom.redoButton.onclick = function() { router.route({name:"redoClick", data:null}); }
 dom.resizeButton.onclick = function() { router.route({name:"resizeClick", data:null}); }
 dom.clearButton.onclick = function() { router.route({name:"clearClick", data:null}); }
-
-// Options menu
-dom.chatToggleButton.onclick = function() { router.route({name:"chatWindowToggle", data:null}); }
-dom.consoleToggleButton.onclick = function() { router.route({name:"consoleWindowToggle", data:null}); }
 
 // Chat window
 dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", data:event}); }

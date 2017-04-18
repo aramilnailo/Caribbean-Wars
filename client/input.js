@@ -322,25 +322,25 @@ function selectNextShip() {
 
 function routeLeftClick(rel_coords) {
 	var elem = rel_coords.elem;
-	// Click off right click menu if needed
-	if(elem !== dom.rightClickMenu &&
-		elem.className !== "orders" &&
-		elem.className !== "rule-set-option" &&
-		dom.rightClickMenu.style.display !== "none") {
-		dom.rightClickMenu.style.display = "none";
-	}
 	// Check if clicking the game screen
-	else if(elem === dom.easel) gameScreenClick({x:rel_coords.x, y:rel_coords.y});
+	if(elem === dom.easel) gameScreenClick({x:rel_coords.x, y:rel_coords.y});
 	else if(elem.className === "orders") ordersClick(elem);
 	else if(elem.className === "rule") ruleClick(elem);
 	else if(elem.className === "rule-set-option") ruleSetOptionClick(elem);
 	else if(elem.className === "port-option") portOptionClick(elem);
+	else if(elem.className === "user-option") userOptionClick(elem);
+	
+	if(elem !== dom.rightClickMenu) {
+		if(dom.rightClickMenu.style.display !== "none") 
+			dom.rightClickMenu.style.display = "none";
+	}
 }
 
 function routeRightClick(rel_coords, abs_coords) {
 	// Check if clicking the game screen
 	if(rel_coords.elem === dom.easel || 
-		rel_coords.elem.className === "rule-set") {
+		rel_coords.elem.className === "rule-set" ||
+		rel_coords.elem.className === "user") {
 		// Show right click menu
 		event.preventDefault();
 		dom.rightClickMenu.style.display = "block";
@@ -357,6 +357,17 @@ function routeRightClick(rel_coords, abs_coords) {
 				html += "<div class=\"orders\" data-name=\"ram:" + ship.name + "\">Ram</div>";
 				html += "<div class=\"orders\" data-name=\"board:" + ship.name + "\">Board</div>";
 				// Add new orders here
+				dom.rightClickMenu.innerHTML = html;
+			}
+		} else if(rel_coords.elem.className === "user") {
+			var uname = rel_coords.elem.getAttribute("data-name");
+			if(uname) {
+				var html = "<div class=\"user-option\"" + 
+				"data-name=\"kick-" + uname + 
+				"\">Kick</div>";
+				html += "<div class=\"user-option\"" + 
+				"data-name=\"promote-" + uname + 
+				"\">Promote</div>";
 				dom.rightClickMenu.innerHTML = html;
 			}
 		} else {
@@ -429,6 +440,14 @@ function portOptionClick(element) {
 		};
 	}
 	if(input) client.emit("portInput", input);
+}
+
+function userOptionClick(element) {
+	var optionName = element.getAttribute("data-name");
+	var parsedOption = optionName.split("-");
+	log(parsedOption[0] + " " + parsedOption[1]);
+	if(parsedOption[0] === "kick") client.emit("kickUser", parsedOption[1]);
+	else if(parsedOption[0] === "promote") client.emit("setHost", parsedOption[1]);
 }
 
 
