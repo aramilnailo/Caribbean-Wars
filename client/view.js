@@ -75,13 +75,6 @@ View.prototype.sessionBrowser = function(data) {
 View.prototype.lobbyScreen = function(data) {
 	hideAll();
 	show(["lobbyScreen", "upperMenu", "optionsMenu"]);
-	if(data.isHost) {
-		show(["hostMenu", "hostLobbyButtons"]);
-		hide(["lobbyButtons"]);
-	} else {
-		show(["lobbyButtons"]);
-		hide(["hostLobbyButtons"]);
-	}
 	client.inGame = false;
 }
 
@@ -90,7 +83,6 @@ View.prototype.gameScreen = function(data) {
 	client.emit("getGameMap", null);
 	show(["gameScreen", "upperMenu", "inGameMenu", 
 	"optionsMenu"]);
-	if(data.isHost) show(["hostMenu"]);
 	client.inGame = true;
 	client.loading = true;
 }
@@ -176,7 +168,7 @@ function hideAll() {
 	
 	hide(["loginScreen", "gameScreen", "adminScreen", 
 	"lobbyScreen", "sessionBrowser", "mapEditorScreen",
-	"upperMenu", "inGameMenu", "hostMenu", "mapEditorMenu",
+	"upperMenu", "inGameMenu", "mapEditorMenu",
 	"optionsMenu", "rulesEditor"]);
 }
 

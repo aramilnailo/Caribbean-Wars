@@ -149,7 +149,7 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 		debug.log("[Lobby] updateLobby");
 		var html = "<ul>";
 		for(var i in data) {
-			html += "<li>" + data[i] + "</li>";
+			html += "<li data-name=\"" + data[i] + "\" class=\"user\">" + data[i] + "</li>";
 		}
 		html += "</ul>";
 		dom.lobbyPlayerList.innerHTML = html;
