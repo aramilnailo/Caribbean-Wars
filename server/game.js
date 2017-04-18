@@ -206,6 +206,7 @@ Game.prototype.update = function() {
 						 coords:coords,
 						 target:target});
 				}
+				console.log("game,pack: orders.len="+orders.length);
 				pack.ships.push({
 						name:s.name, 
 						box:s.box, 
@@ -223,6 +224,7 @@ Game.prototype.update = function() {
 					});
 				}
 			}
+		    
 			// Add projectile data to the packet
 			for(var j in session.game.projectiles) {
 				var p = session.game.projectiles[j];

@@ -234,8 +234,8 @@ Render.prototype.drawGameState = function(data) {
 			dom.canvas.fillRect(px,py,5,5);
 		    } else {
 			var target_ship = null;
-			target_ship = ships.find(function(s) {
-			    return s.name === s.orders[i].target;
+			target_ship = ships.find(function(tget) {
+			    return tget.name === tget.orders[i].target;
 			});
 			if (target_ship && target_ship.active) {
 			    var px = (target_ship.box.x - cam_x) * cell_w;

@@ -130,7 +130,6 @@ function fireAt(x,y,tdir,ship,session,input) {
     
 }
 
-
 function seekPosition(x,y,ship,session,input) {
 
 	var x0 = ship.box.x;
@@ -138,52 +137,39 @@ function seekPosition(x,y,ship,session,input) {
 	var nx = x - x0;
 	var ny = y - y0;
 
+    input.sails = true;
 	
 	if (Math.abs(nx) + Math.abs(ny) < 1) {
 	    ship.orders.shift();
 	    input.anchor = true;
+	    input.sails = false;
+
 	    //if (debug) log ("AP seekPos(): "+ship.name+": anchored");
 	} else {
-
 	    // if moving, use vx,vy to steer.
 	    var vx = ship.box.x - ship.prevX;
 	    var vy = ship.box.y - ship.prevY;	    
-	    var vnorm = vx*vx+vy*vy;
-
-
-	    
-	    if (sqnorm > 0.0001) {
-
-
-		//var dir = ship.box.dir;
-
-		if (Math.abs(vx) < 0.01 && Math.abs(vy) < 0.01) {
-		    vx = Math.cos(ship.box.dir);
-		    vy = Math.sin(ship.box.dir);
-		    nx = session.game.wind.x;
-		    ny = session.game.wind.x;
-		    sqnorm = nx*nx+ny*ny;
-		} else {
-		    var v = Math.sqrt(vx*vx+vy*vy);
-		    vx /= v;
-		    vy /= v;
-		}
-		var norm = Math.sqrt(sqnorm);
-		nx /= norm;
-		ny /= norm;
-		
-
-		
-		var cross = nx*vy - ny*vx;
-		//if (debug) log ("AP seekPos(): "+ship.name+": cross="+cross);
-		if (cross > 0.03) {
-		    input.left = true;
-		    //if (debug) log ("AP seekPos(): "+ship.name+": left");
-		} else if (cross < -0.03) {
-		    input.right = true;
-		    //if (debug) log ("AP seekPos(): "+ship.name+": right");
-		} 
+	    if (Math.abs(vx)+Math.abs(vy) < 0.01) {
+		// if not moving, turn sails to the wind.
+		vx = -session.game.wind.x;
+		vy = -session.game.wind.y;
 	    }
+	    var v = Math.sqrt(vx*vx+vy*vy);
+	    vx /= v;
+	    vy /= v;
+	    var norm = Math.sqrt(nx*nx+ny*ny);
+	    nx /= norm;
+	    ny /= norm;
+		
+	    var cross = nx*vy - ny*vx;
+	    //if (debug) log ("AP seekPos(): "+ship.name+": cross="+cross);
+	    if (cross > 0.03) {
+		input.right = true;
+		//if (debug) log ("AP seekPos(): "+ship.name+": left");
+	    } else if (cross < -0.03) {
+		input.left = true;
+		//if (debug) log ("AP seekPos(): "+ship.name+": right");
+	    } 
 	}
 }
 
