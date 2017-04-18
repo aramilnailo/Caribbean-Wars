@@ -794,7 +794,7 @@ function handleInput(player, session) {
 			  right:false,
 			  firingLeft:false,
 			  firingRight:false,
-			  sails:true,
+			  sails:false,
 			  oars:false,
 			  anchor:false,
 			  swap:false

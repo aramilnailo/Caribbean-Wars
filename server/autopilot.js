@@ -143,20 +143,18 @@ function seekPosition(x,y,ship,session,input) {
 	    ship.orders.shift();
 	    input.anchor = true;
 	    //if (debug) log ("AP seekPos(): "+ship.name+": anchored");
-	} else {	    
-	    if (x0 === ship.prevX &&
-		y0 === ship.prevY) {
-		//if (debug) log ("AP seekPos(): "+ ship.name+": oars");
-		input.oars = true;
-	    } else {
-		//if (debug) log ("AP seekPos(): "+ship.name+": sails");
-		input.sails = true;
-	    }
-	    var sqnorm = nx*nx+ny*ny;
+	} else {
+
+	    // if moving, use vx,vy to steer.
+	    var vx = ship.box.x - ship.prevX;
+	    var vy = ship.box.y - ship.prevY;	    
+	    var vnorm = vx*vx+vy*vy;
+
+
+	    
 	    if (sqnorm > 0.0001) {
 
-		var vx = ship.box.x - ship.prevX;
-		var vy = ship.box.y - ship.prevY;
+
 		//var dir = ship.box.dir;
 
 		if (Math.abs(vx) < 0.01 && Math.abs(vy) < 0.01) {
