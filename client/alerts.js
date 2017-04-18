@@ -87,12 +87,12 @@ Alerts.prototype.logToConsole = function(data) {
 Alerts.prototype.consoleWindowToggle = function(data) {
     if(dom.consoleWindow.style.display === "none") {
 		dom.consoleWindow.style.display = "block";
-		dom.consoleToggleButton.innerHTML = "Hide console";
+		dom.consoleToggle.src = "client/imgs/console-toggle-down.png";
 		dom.chatWindow.style.display = "none";
-		dom.chatToggleButton.innerHTML = "Show chat";
+		dom.chatToggle.src = "client/imgs/chat-toggle-up.png";
     } else {
 		dom.consoleWindow.style.display = "none";
-		dom.consoleToggleButton.innerHTML = "Show console";
+		dom.consoleToggle.src = "client/imgs/console-toggle-up.png";
     }
 };
 
