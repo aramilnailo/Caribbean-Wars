@@ -8,18 +8,6 @@ var AutoPilot = function () {}
 // Takes a ship object and a given game session
 // and returns the proper input object.
 AutoPilot.prototype.getInput = function(input, ship, session) {
-
-    /*
-    var input = { left:false,
-		  right:false,
-		  firingLeft:false,
-		  firingRight:false,
-		  sails:true,
-		  oars:false,
-		  anchor:false,
-		  swap:false
-		};
-    */
     
     //if (debug) log("server/autopilot.js: ship="+ship.name+"; getInput()");
     if (debug) if (! ship.orders) log("server/autopilot.js: !ship.orders");
@@ -31,7 +19,6 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
     
     //if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
     var order = ship.orders[0];
-
 
     if (! order) {
 	return;
