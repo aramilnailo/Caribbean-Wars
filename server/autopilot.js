@@ -140,8 +140,8 @@ function seekPosition(x,y,ship,session,input) {
 
 	
 	if (Math.abs(nx) + Math.abs(ny) < 1) {
-	    input.anchor = true;
 	    ship.orders.shift();
+	    input.anchor = true;
 	    //if (debug) log ("AP seekPos(): "+ship.name+": anchored");
 	} else {	    
 	    if (x0 === ship.prevX &&
