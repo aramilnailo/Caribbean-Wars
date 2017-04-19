@@ -35,9 +35,6 @@ var CANVAS_W = 500, CANVAS_H = 500,
 	MENU_X = 500, MENU_Y = 100,
 	MENU_W = 100, MENU_H = 400;
 
-var firingState = 0;
-var updateFiringState = 0;
-
 /**
 * Register gui events implemented by this
 * class.
@@ -354,39 +351,22 @@ function renderBoxes(list, imgData, renderStack) {
 		);
 		dom.canvas.rotate(b.box.dir);
 		if(imgData.img === ship){
-			var sailsOffset;
-
-			if(b.state.sails === true){
-				sailsOffset = 1;
-			} else {
-				sailsOffset = 0;
-			}
-
+			var sailsOffset = b.state.sails ? 1 : 0;
+			var firingOffset = 0;
 			// if not already firing and state is set to firing
-			if(updateFiringState === 0 && (b.state.firingLeft || b.state.firingRight)){
-				updateFiringState = 1;
-				if(b.state.firingLeft){
-					firingState = 1;
-				} else if(b.state.firingRight){
-					firingState = 4;
-				}
-				// if already firing
-			} else if(updateFiringState !== 0){
-				updateFiringState++;
-				if(updateFiringState % 3 === 0){ // updates every 3 frames
-					firingState++;
-					if(firingState === 4 || firingState === 7){
-						firingState = 0;
-					}
-				}
-				if(updateFiringState === 10){
-					updateFiringState = 0;
+			if(b.ammo.loaded > 0) {
+				if(b.state.firingLeft) {
+					firingOffset = 1 + Math.floor(b.state.firingCount * 3);
+					if(firingOffset > 3) firingOffset = 3;
+				} else if(b.state.firingRight) {
+					firingOffset = 4 + Math.floor(b.state.firingCount * 3);
+					if(firingOffset > 6) firingOffset = 6;
 				}
 			}
 			dom.canvas.drawImage(
 				imgData.img,
 				sailsOffset*(ship.width/2),
-				firingState*(ship.height/7),
+				firingOffset*(ship.height/7),
 				ship.width/2,
 				ship.height/7,
 				shifted_w * imgData.x,

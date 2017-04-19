@@ -75,6 +75,13 @@ View.prototype.sessionBrowser = function(data) {
 View.prototype.lobbyScreen = function(data) {
 	hideAll();
 	show(["lobbyScreen", "upperMenu", "optionsMenu"]);
+	if(data.isHost) {
+		hide(["lobbyButtons"]);
+		show(["hostLobbyButtons"]);
+	} else {
+		hide(["hostLobbyButtons"]);
+		show(["lobbyButtons"]);
+	}
 	client.inGame = false;
 }
 

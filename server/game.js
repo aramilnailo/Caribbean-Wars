@@ -66,6 +66,7 @@ Game.prototype.input = function(param) {
 		    right:param.data.right,
 				firingLeft:param.data.firingLeft,
 				firingRight:param.data.firingRight,
+				firingCount:p.ships[i].state.firingCount,
 				sails:param.data.sails,
 				anchor:param.data.anchor,
 			    oars:param.data.oars,
@@ -221,7 +222,7 @@ Game.prototype.update = function() {
 						    unloaded:s.currentAmmo
 						    
 						},
-				    orders:orders,
+				    	orders:orders,
 
 					    selected:s.selected,
 						docked:s.docked
@@ -921,8 +922,8 @@ function updateCollisionData(session, x, y) {
 // Create new projectiles, push to list, launch left or right or both
 function fireProjectile(ship, session, left, right) {
 	if(!ship) return;
-	if(ship.firingCount < 1) {
-		ship.firingCount += ship.firingRate;
+	if(ship.state.firingCount < 1) {
+		ship.state.firingCount += ship.firingRate;
 	} else {
 		var proj = ship.projectiles.pop(), proj2;
 		if(!proj) return; // Cannons need to be reloaded
@@ -966,7 +967,7 @@ function fireProjectile(ship, session, left, right) {
 		session.game.projectiles.push(proj);
 		proj.box.ddir = proj.box.dir;
 		ship.diff.shotsFired++;
-		ship.firingCount = ship.firingRate;
+		ship.state.firingCount = 0;
 	}
 }
 

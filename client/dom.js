@@ -126,6 +126,8 @@ var dom = {
 
 	// Options menu
 	optionsMenu:document.getElementById("options-menu"),
+	chatToggle:document.getElementById("chat-toggle"),
+	consoleToggle:document.getElementById("console-toggle"),
 
 	// Chat window
 	chatWindow:document.getElementById("chat-window"),
@@ -209,6 +211,10 @@ dom.undoButton.onclick = function() { router.route({name:"undoClick", data:null}
 dom.redoButton.onclick = function() { router.route({name:"redoClick", data:null}); }
 dom.resizeButton.onclick = function() { router.route({name:"resizeClick", data:null}); }
 dom.clearButton.onclick = function() { router.route({name:"clearClick", data:null}); }
+
+// Options menu
+dom.chatToggle.onclick = function() { router.route({name:"chatWindowToggle", data:null}); }
+dom.consoleToggle.onclick = function() { router.route({name:"consoleWindowToggle", data:null}); }
 
 // Chat window
 dom.chatForm.onsubmit = function(event) { router.route({name:"chatFormSubmit", data:event}); }

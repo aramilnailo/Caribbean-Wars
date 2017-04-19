@@ -81,14 +81,6 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 		dom.sessionList.innerHTML = html;
 	}
 	
-	
-	Lobby.prototype.inviteClick = function(data) {
-		debug.log("[Lobby] inviteClick");
-		alerts.showPrompt("Invite which user?", function(resp) {
-			if(resp) client.emit("inviteUser", resp);
-		});
-	}
-	
 	Lobby.prototype.inviteResponse = function(data) {
 		var text = data.username + 
 		" has invited you to lobby " + 
@@ -98,20 +90,6 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 				client.emit("exitGameSession", null);
 				client.emit("enterGameSession", data.id);
 			}
-		});
-	}
-	
-	Lobby.prototype.kickClick = function(data) {
-		debug.log("[Lobby] kickClick");
-		alerts.showPrompt("Kick which player?", function(resp) {
-			if(resp) client.emit("kickUser", resp);
-		});
-	}
-	
-	Lobby.prototype.promoteClick = function(data) {
-		debug.log("[Lobby] promoteClick");
-		alerts.showPrompt("Promote which player?", function(resp) {
-			if(resp) client.emit("setHost", resp);
 		});
 	}
 	
@@ -151,6 +129,7 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 		for(var i in data) {
 			html += "<li data-name=\"" + data[i] + "\" class=\"user\">" + data[i] + "</li>";
 		}
+		html += "<li data-name=\"+\" class=\"user\"> + </li>";
 		html += "</ul>";
 		dom.lobbyPlayerList.innerHTML = html;
 	}

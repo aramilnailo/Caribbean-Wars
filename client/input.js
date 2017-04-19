@@ -25,6 +25,7 @@ Input.prototype.listen = function(mrouter) {
 }
 
 Input.prototype.processLeftClick = function(event) {
+	var abs_coords = getAbsCoords(event);
 	var rel_coords = getRelCoords(event);
 	// Print info
 	if(debug) {
@@ -33,11 +34,11 @@ Input.prototype.processLeftClick = function(event) {
 		else if(rel_coords.elem.className) log("Left click at " + rel_coords.x + ", " + 
 		rel_coords.y + " on element of class " + rel_coords.elem.className);
 	}
-	routeLeftClick(rel_coords);
+	routeLeftClick(rel_coords, abs_coords);
 }
 
 Input.prototype.processRightClick = function(event) {
-	var coords = getAbsCoords(event);
+	var abs_coords = getAbsCoords(event);
 	var rel_coords = getRelCoords(event);
 	// Print info
 	if(debug) {
@@ -46,8 +47,7 @@ Input.prototype.processRightClick = function(event) {
 		else if(rel_coords.elem.className) log("Right click at " + rel_coords.x + ", " + 
 		rel_coords.y + " on element of class " + rel_coords.elem.className);
 	}
-	
-	routeRightClick(rel_coords, coords);
+	routeRightClick(rel_coords, abs_coords);
 }
 
 // same as single click, but terminate order stream
@@ -317,17 +317,20 @@ function selectNextShip() {
     }
 }
 
-function routeLeftClick(rel_coords) {
+function routeLeftClick(rel_coords, abs_coords) {
 	var elem = rel_coords.elem;
+		
 	// Check if clicking the game screen
 	if(elem === dom.easel) gameScreenClick({x:rel_coords.x, y:rel_coords.y});
 	else if(elem.className === "orders") ordersClick(elem);
 	else if(elem.className === "rule") ruleClick(elem);
+	else if(elem.className === "user") routeRightClick(rel_coords, abs_coords);
 	else if(elem.className === "rule-set-option") ruleSetOptionClick(elem);
 	else if(elem.className === "port-option") portOptionClick(elem);
 	else if(elem.className === "user-option") userOptionClick(elem);
 	
-	if(elem !== dom.rightClickMenu) {
+	// Click off right click menu if needed
+	if(elem !== dom.rightClickMenu && elem.className !== "user") {
 		if(dom.rightClickMenu.style.display !== "none") 
 			dom.rightClickMenu.style.display = "none";
 	}
@@ -358,15 +361,19 @@ function routeRightClick(rel_coords, abs_coords) {
 			}
 		} else if(rel_coords.elem.className === "user") {
 			var uname = rel_coords.elem.getAttribute("data-name");
-			if(uname) {
-				var html = "<div class=\"user-option\"" + 
+			var html = "";
+			if(uname === "+") {
+				html += "<div class=\"user-option\"" + 
+				"data-name=\"invite\">Invite</div>"
+			} else {
+				html += "<div class=\"user-option\"" + 
 				"data-name=\"kick-" + uname + 
 				"\">Kick</div>";
 				html += "<div class=\"user-option\"" + 
 				"data-name=\"promote-" + uname + 
-				"\">Promote</div>";
-				dom.rightClickMenu.innerHTML = html;
+				"\">Promote</div>";	
 			}
+			dom.rightClickMenu.innerHTML = html;
 		} else {
 			// Display rule set options
 			var html = "<div class=\"rule-set-option\"" + 
@@ -442,8 +449,12 @@ function portOptionClick(element) {
 function userOptionClick(element) {
 	var optionName = element.getAttribute("data-name");
 	var parsedOption = optionName.split("-");
-	log(parsedOption[0] + " " + parsedOption[1]);
-	if(parsedOption[0] === "kick") client.emit("kickUser", parsedOption[1]);
+	if(parsedOption[0] === "invite") {
+		alerts.showPrompt("Invite which user?", function(resp) {
+			if(resp) client.emit("inviteUser", resp);
+		});
+	}
+	else if(parsedOption[0] === "kick") client.emit("kickUser", parsedOption[1]);
 	else if(parsedOption[0] === "promote") client.emit("setHost", parsedOption[1]);
 }
 
