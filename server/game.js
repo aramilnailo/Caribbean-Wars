@@ -206,7 +206,7 @@ Game.prototype.update = function() {
 						 coords:coords,
 						 target:target});
 				}
-				console.log("game,pack: orders.len="+orders.length);
+				//console.log("game,pack: orders.len="+orders.length);
 				pack.ships.push({
 						name:s.name, 
 						box:s.box, 
