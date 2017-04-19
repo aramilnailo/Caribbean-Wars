@@ -55,7 +55,6 @@ Input.prototype.processDoubleClick = function(event) {
 	var coords = getAbsCoords(event);
 	if(debug) log("Double click at " + coords.x + ", " + coords.y);
     Input.prototype.processLeftClick(event);
-    client.input.queued = true;
     client.emit("gameInput", client.input);
 }
 
@@ -73,19 +72,15 @@ Input.prototype.processKeyPressed = function(event) {
 		// Game input
 		case 65: // a
 	    client.input.left = true;
-	    client.input.queued = true;
 			break;
 		case 68: // d
 	    client.input.right = true;
-	    	    client.input.queued = true;
 			break;
 		case 81: // q
 	    client.input.firingLeft = true;
-	    	    client.input.queued = true;
 			break;
 		case 69: // e
 	    client.input.firingRight = true;
-	    	    client.input.queued = true;
 			break;
 	        case 32: //space bar
 			client.emit("clearShipOrders",null);
@@ -131,49 +126,45 @@ Input.prototype.processKeyReleased = function(event) {
 	switch(keycode) {
 		case 65: // a
 	    client.input.left = false;
-	    	    client.input.queued = true;
-			break;
-		case 68: // d
+	    break;
+	case 68: // d
 	    client.input.right = false;
-	    client.input.queued = true;
-			break;
-		case 83: // s
-			if(!client.input.oars) {
-				client.input.oars = true;
-			    client.input.sails = false;
-			    	    client.input.queued = true;
-			} else {
-			    client.input.oars = false;
-			    client.input.queued = true;
-			}
-			break;
-		case 87: // w
-			if(!client.input.sails) {
-				client.input.sails = true;
-			    client.input.oars = false;
-			    client.input.queued = true;
-			} else {
-			    client.input.sails = false;
-			    client.input.queued = true;
-			}
-			break;
-		case 81: // q
+	    break;
+	case 83: // s
+	    if(!client.input.oars) {
+		client.input.oars = true;
+		client.input.sails = false;
+	    } else {
+		client.input.oars = false;
+	    }
+	    break;
+	case 87: // w
+	    if(!client.input.sails) {
+		client.input.sails = true;
+		client.input.oars = false;
+	    } else {
+		client.input.sails = false;
+	    }
+	    break;
+	case 111: // o
+	    client.input.autocontrol = true;
+	case 112: // p
+	    client.input.autocontrol = false;
+	    break;
+	case 81: // q
 	    client.input.firingLeft = false;
-	    client.input.queued = true;
-			break;
-		case 69: // e
+	    break;
+	case 69: // e
 	    client.input.firingRight = false;
-	    	    client.input.queued = true;
-			break;
-		case 70: // f
-			client.emit("selectShip", selectNextShip());
-			break;
-		case 82: // r
+	    break;
+	case 70: // f
+	    client.emit("selectShip", selectNextShip());
+	    break;
+	case 82: // r
 	    client.input.anchor = !client.input.anchor;
-	    	    client.input.queued = true;
-			break;
-		default:
-			break;
+	    break;
+	default:
+	    break;
 	}
 	client.emit("gameInput", client.input);
 }
@@ -315,9 +306,15 @@ function selectNextShip() {
 	var current = ships.find(function(s) {
 		return s.selected;
 	});
+    if (current) {
 	var index = ships.indexOf(current);
-	if(++index >= ships.length) index = 0;
+        if(++index >= ships.length) index = 0;
+        current.state = client.input;
+        client.input = ships[index].state;
 	return ships[index].name;
+    } else {
+	return "null";
+    }
 }
 
 function routeLeftClick(rel_coords) {

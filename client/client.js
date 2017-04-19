@@ -24,8 +24,8 @@ Client.prototype.input = {
 	firingRight:false,
 	sails:false,
 	anchor:false,
-	oars:false,
-	orders:[]
+        oars:false,
+        autocontrol:false,
 };
 Client.prototype.loading = false;
 Client.prototype.drawing = false;

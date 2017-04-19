@@ -61,13 +61,15 @@ Game.prototype.input = function(param) {
 
 	for (var i in p.ships) {
 	    if (p.ships[i].active && p.ships[i].selected) {
-			p.ships[i].state = {
+		p.ships[i].state = {
+		    left:param.data.left,
+		    right:param.data.right,
 				firingLeft:param.data.firingLeft,
 				firingRight:param.data.firingRight,
 				sails:param.data.sails,
 				anchor:param.data.anchor,
 			    oars:param.data.oars,
-			    playerControl:param.data.queued
+			    autocontrol:param.data.autocontrol
 			};
 		}
 	}
@@ -135,6 +137,7 @@ Game.prototype.selectShip = function(param) {
 			s.selected = (s.name === shipName);
 		}
 	}
+    
 }
 
 /**
@@ -203,7 +206,7 @@ Game.prototype.update = function() {
 				    if (s.orders[o].target)
 					target = s.orders[o].target;
 
-				    orders.push({name:s.orders[i].name,
+				    orders.push({name:s.orders[o].name,
 						 coords:coords,
 						 target:target});
 				}
@@ -793,7 +796,7 @@ function handleInput(player, session) {
 		swap:false
 	    };
 
-	    if (ship.selected) input = player.input;
+	    if (ship.selected && !input.autocontrol) input = player.input;
 	    else autopilot.getInput(input,ship,session);
 
 	    /*

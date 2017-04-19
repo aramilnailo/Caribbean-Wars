@@ -39,12 +39,15 @@ var Ship = function(name, x, y, ruleset) {
 			shotsFired:0,
 			shipsSunk:0
 		},
-		state:{
+	        state:{
+	                left:false,
+	                right:false,
 			firingLeft:false,
 			firingRight:false,
 			sails:false,
 			anchor:false,
-			oars:false
+		        oars:false,
+		        autocontrol:false
 		},
 		prevX:x,
 		prevY:y,

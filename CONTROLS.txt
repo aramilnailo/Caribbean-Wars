@@ -13,6 +13,10 @@
 	E   Fire starboard
 	Q   Fire port
 
+	Autopilot
+	o  turn over current ship to autopilot
+	p  take control of current ship away from autopilot
+
 	Camera
 	F   swap ship selected
 	-   zoom out
