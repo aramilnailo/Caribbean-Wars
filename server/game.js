@@ -66,7 +66,8 @@ Game.prototype.input = function(param) {
 				firingRight:param.data.firingRight,
 				sails:param.data.sails,
 				anchor:param.data.anchor,
-				oars:param.data.oars
+			    oars:param.data.oars,
+			    playerControl:param.data.queued
 			};
 		}
 	}
@@ -778,34 +779,35 @@ function handleInput(player, session) {
 	var wind = session.game.wind;
 	
 	for(var i in player.ships) {
-		var ship = player.ships[i];
+	    var ship = player.ships[i];
 	    // Get input from either the player or autopilot
 	    //console.log ("input = "+JSON.stringify(input));
-	    var input;
+	    var input ={
+		left:false,
+		right:false,
+		firingLeft:false,
+		firingRight:false,
+		sails:false,
+		oars:false,
+		anchor:false,
+		swap:false
+	    };
+
+	    if (ship.selected) input = player.input;
+	    else autopilot.getInput(input,ship,session);
+
+	    /*
 	    if (ship.selected) {
-		input = player.input;
-		//console.log("selected");
-		if (input.queued) {
-		    player.input.queued = false;
-		    //console.log("queued");
-		}
-		else autopilot.getInput(input,ship,session);
-		//console.log("after selected: input="+input);
+		if (ship.playerControl) {
+		    input = player.input;
+		    ship.playerControl = false;
+		} else 
+		    autopilot.getInput(input,ship,session);
 	    } else {
-		input = { left:false,
-			  right:false,
-			  firingLeft:false,
-			  firingRight:false,
-			  sails:false,
-			  oars:false,
-			  anchor:false,
-			  swap:false
-			};
 		autopilot.getInput(input,ship,session);
-		//console.log("after non-select: input="+input;
 	    }
 
-
+*/
 	    if (false) {
 		if (ship.selected) log ("game.js: "+ship.name+" selected");
 		else log ("game.js: "+ship.name+" NOT selected");

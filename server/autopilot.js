@@ -164,10 +164,10 @@ function seekPosition(x,y,ship,session,input) {
 	    var cross = nx*vy - ny*vx;
 	    //if (debug) log ("AP seekPos(): "+ship.name+": cross="+cross);
 	    if (cross > 0.03) {
-		input.right = true;
+		input.left = true;
 		//if (debug) log ("AP seekPos(): "+ship.name+": left");
 	    } else if (cross < -0.03) {
-		input.left = true;
+		input.right = true;
 		//if (debug) log ("AP seekPos(): "+ship.name+": right");
 	    } 
 	}
