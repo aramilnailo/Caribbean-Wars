@@ -135,7 +135,8 @@ Game.prototype.selectShip = function(param) {
 	if(client.player) {
 		for(var i in client.player.ships) {
 			var s = client.player.ships[i];
-			s.selected = (s.name === shipName);
+		    s.selected = (s.name === shipName);
+		    console.log("selecting shipName "+shipName+": "+s.name+" selected?"+s.selected);
 		}
 	}
     
@@ -794,10 +795,11 @@ function handleInput(player, session) {
 		sails:false,
 		oars:false,
 		anchor:false,
-		swap:false
+		swap:false,
+		autocontrol:true
 	    };
 
-	    if (ship.selected && !input.autocontrol) input = player.input;
+	    if (ship.selected && !player.input.autocontrol) input = player.input;
 	    else autopilot.getInput(input,ship,session);
 
 	    /*
@@ -889,6 +891,15 @@ function handleInput(player, session) {
 			ship.box.dx += -ship.box.dy * Math.sin(ship.box.ddir);
 			ship.box.dy += ship.box.dx * Math.sin(ship.box.ddir);
 		}
+	    ship.state.left = input.left;
+	    ship.state.right = input.right;
+	    ship.state.firingLeft = input.firingLeft;
+	    ship.state.firingRight = input.firingRight;
+	    ship.state.firingLeft = input.firingLeft;
+	    ship.state.sails = input.sails;
+	    ship.state.anchor = input.anchor;
+	    ship.state.oars = input.oars;
+	    ship.state.autocontrol = input.autocontrol;
 	}
 }
 

@@ -13,17 +13,16 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
     if (debug) if (! ship.orders) log("server/autopilot.js: !ship.orders");
     
     if (! ship.orders || ship.orders.length === 0) {
-	//if(debug) log("server/autopilot.js: ship="+ship.name+"; no orders");
 	return;
     }
     
-    //if (debug) log("server/autopilot.js: orders.length = "+ship.orders.length);
     var order = ship.orders[0];
 
     if (! order) {
 	return;
     }
 
+        if (debug) log("server/autopilot.js: ship="+ship.name+"; order="+order.name+"; orders.length = "+ship.orders.length);
     
     if (order.name === "goto") {
 	//if (debug) log("server/autopilot.js: processing goto cmd");
@@ -85,7 +84,6 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    }
 	}
     }
-
     
     //return input;
     
@@ -151,8 +149,12 @@ function seekPosition(x,y,ship,session,input) {
 	    var vy = ship.box.y - ship.prevY;	    
 	    if (Math.abs(vx)+Math.abs(vy) < 0.01) {
 		// if not moving, turn sails to the wind.
-		vx = -session.game.wind.x;
-		vy = -session.game.wind.y;
+		vx = Math.cos(ship.box.dir);
+		vy = Math.cos(ship.box.dir);
+		nx = -session.game.wind.x;
+		ny = -session.game.wind.y;
+		input.oars = true;
+		input.sails = false;
 	    }
 	    var v = Math.sqrt(vx*vx+vy*vy);
 	    vx /= v;
@@ -165,8 +167,10 @@ function seekPosition(x,y,ship,session,input) {
 	    //if (debug) log ("AP seekPos(): "+ship.name+": cross="+cross);
 	    if (cross > 0.03) {
 		input.left = true;
+		if (debug) log("AP: "+ship.name+", seekpos(): LEFT; cross="+cross+"; v=("+vx+","+vy+"),"+v+"; n=("+nx+","+ny+"),"+norm+"; sails="+input.sails); 
 		//if (debug) log ("AP seekPos(): "+ship.name+": left");
 	    } else if (cross < -0.03) {
+		if (debug) log("AP: "+ship.name+", seekpos(): RIGHT; cross="+cross+"; v=("+vx+","+vy+"),"+v+"; n=("+nx+","+ny+"),"+norm+"; sails="+input.sails); 
 		input.right = true;
 		//if (debug) log ("AP seekPos(): "+ship.name+": right");
 	    } 

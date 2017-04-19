@@ -148,6 +148,7 @@ Input.prototype.processKeyReleased = function(event) {
 	    break;
 	case 111: // o
 	    client.input.autocontrol = true;
+	    break;
 	case 112: // p
 	    client.input.autocontrol = false;
 	    break;
@@ -254,9 +255,40 @@ function shipAtCoords(coords) {
 	return null;
 }
 
+function selectNextShip() {
+	var ships = client.gameState.ships;
+	var current = ships.find(function(s) {
+		return s.selected;
+	});
+    if (current) {
+	var index = ships.indexOf(current);
+        if(++index >= ships.length) index = 0;
+        current.state = client.input;
+	current.selected = false;
+	ships[index].selected = true;
+        client.input = ships[index].state;
+	return ships[index].name;
+    } else {
+	return "null";
+    }
+}
+    
 function select(shipName) {
-	if(debug) log("Clicked ship " + shipName);
-	client.emit("selectShip", shipName);
+    if(debug) log("Clicked ship " + shipName);
+    var ships = client.gameState.ships;
+    var current = ships.find(function(s) {
+		return s.selected;
+    });
+    var next = ships.find(function(s) {
+	return (s.name === shipName);
+    });
+    if (current && next) {
+	current.state = client.input;
+	client.input = next.state;
+	current.selected = false;
+	next.selected = true;
+    }    
+    client.emit("selectShip", shipName);
 }
 
 function navigate(coords) {
@@ -301,21 +333,6 @@ function correctCamera() {
 	}
 }
 
-function selectNextShip() {
-	var ships = client.gameState.ships;
-	var current = ships.find(function(s) {
-		return s.selected;
-	});
-    if (current) {
-	var index = ships.indexOf(current);
-        if(++index >= ships.length) index = 0;
-        current.state = client.input;
-        client.input = ships[index].state;
-	return ships[index].name;
-    } else {
-	return "null";
-    }
-}
 
 function routeLeftClick(rel_coords, abs_coords) {
 	var elem = rel_coords.elem;
