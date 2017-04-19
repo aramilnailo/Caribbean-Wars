@@ -58,8 +58,8 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    } else if (order.name === "follow") {
 
 		//if (debug) log("server/autopilot.js: processing follow cmd");
-		var x1 = tx-20*Math.cos(tdir);
-		var y1 = ty-20*Math.sin(tdir);
+		var x1 = tx-3*ship.box.w*Math.cos(tdir);
+		var y1 = ty-3*ship.box.w*Math.sin(tdir);
 		var dx = ship.box.x - x1;
 		var dy = ship.box.y - y1;
 		ship.orders[0].coords = {x:x1,y:y1};
@@ -149,12 +149,9 @@ function seekPosition(x,y,ship,session,input) {
 	    var vy = ship.box.y - ship.prevY;	    
 	    if (Math.abs(vx)+Math.abs(vy) < 0.01) {
 		// if not moving, turn sails to the wind.
-		vx = Math.cos(ship.box.dir);
-		vy = Math.cos(ship.box.dir);
-		nx = -session.game.wind.x;
-		ny = -session.game.wind.y;
 		input.oars = true;
-		input.sails = false;
+		vx = Math.cos(ship.box.dir);
+		vy = Math.sin(ship.box.dir);
 	    }
 	    var v = Math.sqrt(vx*vx+vy*vy);
 	    vx /= v;
@@ -174,45 +171,6 @@ function seekPosition(x,y,ship,session,input) {
 		input.right = true;
 		//if (debug) log ("AP seekPos(): "+ship.name+": right");
 	    } 
-	}
-}
-
-
-function oldSeekPosition(x,y,ship,session,input) {
-
-	var x0 = ship.box.x;
-	var y0 = ship.box.y;
-	var dir = ship.box.dir;
-	var nx = x - x0;
-	var ny = y - y0;
-
-	
-	if (Math.abs(nx) + Math.abs(ny) < 1) {
-	    input.anchor = true;
-	    ship.orders.shift();
-
-	} else {	    
-	    if (Math.abs(x0 - ship.prevX) < 1 &&
-		Math.abs(y0 - ship.prevY) < 1 ) {
-		input.oars = true;
-	    } else {
-		input.sails = true;
-	    }
-	    var norm = nx*nx+ny*ny;
-	    if (norm > 0.0001) {
-		nx /= norm;
-		ny /= norm;
-		var cross = nx*Math.sin(ship.box.dir)
-		    - ny*Math.cos(ship.box.dir);
-		
-		if (cross > 0.03) {
-		    input.left = true;
-		    
-		} else if (cross < -0.03) {
-		    input.right = true;
-
-		} 
-	    }
 	}
 }
 
