@@ -13,6 +13,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
     if (debug) if (! ship.orders) log("server/autopilot.js: !ship.orders");
     
     if (! ship.orders || ship.orders.length === 0) {
+	input.sails = false;
 	return;
     }
     
@@ -22,7 +23,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	return;
     }
 
-        if (debug) log("server/autopilot.js: ship="+ship.name+"; order="+order.name+"; orders.length = "+ship.orders.length);
+        //if (debug) log("server/autopilot.js: ship="+ship.name+"; order="+order.name+"; orders.length = "+ship.orders.length);
     
     if (order.name === "goto") {
 	//if (debug) log("server/autopilot.js: processing goto cmd");
@@ -52,8 +53,12 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    if (order.name === "fire") {
 		
 		//if (debug) log("server/autopilot.js: processing fire cmd");
-		fireAt(tx,ty,tdir,ship,session,input);
 		ship.orders[0].coords = {x:tx,y:ty};
+		fireAt(tx,ty,tdir,ship,session,input);
+		if (input.anchor == true) {
+		    ship.orders.push({name:"fire",target:target_ship.name,coords:{x:tx,y:ty}});
+		}
+
 
 	    } else if (order.name === "follow") {
 
@@ -91,20 +96,6 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 
 function fireAt(x,y,tdir,ship,session,input) {
 
-    var fx = x - ship.box.x;
-    var fy = y - ship.box.y;
-    if (fx*fx + fy*fy < 20) {
-	var ddir = dir - ship.box.dir;
-	// swing cannons into range
-	if (ddir > 0.06) {
-	    input.right = true;
-	} else if (ddir < -0.06) {
-	    input.left = true;
-	} else {
-	    if (ddir > 0) input.firingLeft = true;
-	    else input.firingRight = true;
-	}
-    } else {
 	var c = Math.cos(tdir);
 	var s = Math.sin(tdir);
 	var t1x = x + s*15;
@@ -116,14 +107,39 @@ function fireAt(x,y,tdir,ship,session,input) {
 	var s2x = ship.box.x-t2x;
 	var s2y = ship.box.y-t2y;
 	var tx, ty;
-	if (s1x*s1x+s1y*s1y < s2x*s2x+s2y*s2y) {
-	    tx = t1x;
-	    ty = t1y;
-	} else {
-	    tx = t2x;
-	    ty = t2y;
-	}
-	seekPosition(tx,ty,ship,session,input);
+    if (s1x*s1x+s1y*s1y < s2x*s2x+s2y*s2y) {
+	    if (Math.abs(s1x) + Math.abs(s1y) < 5) {
+		var ddir = tdir - ship.box.dir;
+		// swing cannons into range
+		if (ddir > 0.06) {
+		    input.right = true;
+		} else if (ddir < -0.06) {
+		    input.left = true;
+		} else {
+		    if (ddir > 0) input.firingLeft = true;
+		    else input.firingRight = true;
+		}
+		
+	    } else {
+		seekPosition(t1x,t1y,ship,session,input);
+	    }
+	    
+    } else {
+	    if (Math.abs(s2x) + Math.abs(s2y) < 5) {
+		var ddir = tdir - ship.box.dir;
+		// swing cannons into range
+		if (ddir > 0.06) {
+		    input.right = true;
+		} else if (ddir < -0.06) {
+		    input.left = true;
+		} else {
+		    if (ddir > 0) input.firingLeft = true;
+		    else input.firingRight = true;
+		}
+	    } else {
+		seekPosition(t2x,t2y,ship,session,input);
+	    }
+
     }
     
 }

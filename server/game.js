@@ -59,7 +59,7 @@ Game.prototype.input = function(param) {
     // Assign input data
     p.input = param.data;
 
-    if (debug) log("server/game.js: autocontrol="+p.input.autocontrol);
+    //if (debug) log("server/game.js: autocontrol="+p.input.autocontrol);
     
 	for (var i in p.ships) {
 	    if (p.ships[i].active && p.ships[i].selected) {
@@ -792,7 +792,7 @@ function handleInput(player, session) {
 		right:false,
 		firingLeft:false,
 		firingRight:false,
-		sails:true,
+		sails:false,
 		oars:false,
 		anchor:false,
 		swap:false,
