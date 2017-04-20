@@ -82,7 +82,11 @@ Input.prototype.processKeyPressed = function(event) {
 		case 69: // e
 	    client.input.firingRight = true;
 			break;
-	        case 32: //space bar
+	case 32: //space bar
+	    var ship = client.gameState.ships.find(function(s) {
+		return s.selected;
+	    });
+	    ship.orders = [];
 			client.emit("clearShipOrders",null);
 			break;
 			
@@ -146,10 +150,21 @@ Input.prototype.processKeyReleased = function(event) {
 		client.input.sails = false;
 	    }
 	    break;
+	case 79: // O
 	case 111: // o
+	    var ship = client.gameState.ships.find(function(s) {
+		return s.selected;
+	    });
+	    ship.state.autocontrol = true;
 	    client.input.autocontrol = true;
 	    break;
+	case 80: //P
 	case 112: // p
+	    var ship = client.gameState.ships.find(function(s) {
+		return s.selected;
+	    });
+	    ship.state.autocontrol = false;
+
 	    client.input.autocontrol = false;
 	    break;
 	case 81: // q
@@ -287,7 +302,8 @@ function select(shipName) {
 	client.input = next.state;
 	current.selected = false;
 	next.selected = true;
-    }    
+    }
+    console.log("selectShip from input.select()");
     client.emit("selectShip", shipName);
 }
 

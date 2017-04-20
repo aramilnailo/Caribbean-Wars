@@ -4,7 +4,7 @@
 *
 * @module client/Render
 */
-define(["debug", "dom", "client"], function(debug, dom, client) {
+define(["debug", "dom", "client", "ocean"], function(debug, dom, client, ocean) {
 	
 var log = debug.log;
 var debug = debug.render;
@@ -14,10 +14,11 @@ var Render = function() {};
 // loading images to be displayed
 var arrow = new Image(), ball = new Image(), 
 ship = new Image(), barrel = new Image(), 
-sand = new Image(), ocean = new Image(), 
+sand = new Image(), 
 grass = new Image(), port = new Image(), 
 defaultCell = new Image();
-
+//, ocean = new Image(), 
+    
 arrow.src = "client/imgs/arrow.png";
 ball.src = "client/imgs/ball.png";
 ship.src = "client/imgs/shipcannon.png";

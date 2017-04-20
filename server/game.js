@@ -59,6 +59,8 @@ Game.prototype.input = function(param) {
     // Assign input data
     p.input = param.data;
 
+    if (debug) log("server/game.js: autocontrol="+p.input.autocontrol);
+    
 	for (var i in p.ships) {
 	    if (p.ships[i].active && p.ships[i].selected) {
 		p.ships[i].state = {
@@ -136,7 +138,6 @@ Game.prototype.selectShip = function(param) {
 		for(var i in client.player.ships) {
 			var s = client.player.ships[i];
 		    s.selected = (s.name === shipName);
-		    console.log("selecting shipName "+shipName+": "+s.name+" selected?"+s.selected);
 		}
 	}
     
@@ -786,37 +787,22 @@ function handleInput(player, session) {
 	for(var i in player.ships) {
 	    var ship = player.ships[i];
 	    // Get input from either the player or autopilot
-	    //console.log ("input = "+JSON.stringify(input));
 	    var input ={
 		left:false,
 		right:false,
 		firingLeft:false,
 		firingRight:false,
-		sails:false,
+		sails:true,
 		oars:false,
 		anchor:false,
 		swap:false,
 		autocontrol:true
 	    };
 
-	    if (ship.selected && !player.input.autocontrol) input = player.input;
-	    else autopilot.getInput(input,ship,session);
-
-	    /*
-	    if (ship.selected) {
-		if (ship.playerControl) {
-		    input = player.input;
-		    ship.playerControl = false;
-		} else 
-		    autopilot.getInput(input,ship,session);
+	    if (ship.selected && ! (player.input.autocontrol) ) {
+		input = player.input;
 	    } else {
 		autopilot.getInput(input,ship,session);
-	    }
-
-*/
-	    if (false) {
-		if (ship.selected) log ("game.js: "+ship.name+" selected");
-		else log ("game.js: "+ship.name+" NOT selected");
 	    }
 
 		// Rotate
@@ -895,7 +881,6 @@ function handleInput(player, session) {
 	    ship.state.right = input.right;
 	    ship.state.firingLeft = input.firingLeft;
 	    ship.state.firingRight = input.firingRight;
-	    ship.state.firingLeft = input.firingLeft;
 	    ship.state.sails = input.sails;
 	    ship.state.anchor = input.anchor;
 	    ship.state.oars = input.oars;

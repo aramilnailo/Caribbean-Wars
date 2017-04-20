@@ -3,7 +3,7 @@ require(["client", "router", "chat",
 "stats", "login", "render", 
 "saves", "view", "users", 
 "lobby", "mapeditor", "rules",
-"mapeditorfiles", "alerts", "input"], 
+	 "mapeditorfiles", "alerts", "input"], 
 function(client, router, chat,
 	 stats, login, render, 
 	saves, view, users, 
@@ -45,7 +45,7 @@ setInterval(function() {
 					map:client.map, 
 					state:client.gameState
 				});
-				render.renderOcean();
+			    render.renderOcean();
 				input.cameraTrackShip();
 			}
 		}
