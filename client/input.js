@@ -86,7 +86,7 @@ Input.prototype.processKeyPressed = function(event) {
 	    var ship = client.gameState.ships.find(function(s) {
 		return s.selected;
 	    });
-	    ship.orders = [];
+	    ship.orders.splice(0,ship.orders.length);
 			client.emit("clearShipOrders",null);
 			break;
 			

@@ -1,15 +1,20 @@
+
 var debug = require("./debug.js").autopilot;
 var log = require("./debug.js").log;
 
+var Heap = require("./heap.js");
 
 var AutoPilot = function () {}
 
 // Decision making algorithm.
 // Takes a ship object and a given game session
 // and returns the proper input object.
+var mapw = 0;
+var maph = 0;
+var graph = [];
+var landmap = [];
 AutoPilot.prototype.getInput = function(input, ship, session) {
     
-    //if (debug) log("server/autopilot.js: ship="+ship.name+"; getInput()");
     if (debug) if (! ship.orders) log("server/autopilot.js: !ship.orders");
     
     if (! ship.orders || ship.orders.length === 0) {
@@ -23,11 +28,47 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	return;
     }
 
-        //if (debug) log("server/autopilot.js: ship="+ship.name+"; order="+order.name+"; orders.length = "+ship.orders.length);
-    
     if (order.name === "goto") {
-	//if (debug) log("server/autopilot.js: processing goto cmd");
-	seekPosition(order.coords.x,order.coords.y,ship,session,input);
+	
+	
+	if (session.mapData.height !== maph ||
+	    session.mapData.width !== mapw) {
+	    mapw = session.mapData.width;
+	    maph = session.mapData.height;
+	    graph = init_graph();
+	    landmap = init_landmap(session);
+	}
+	
+	var q = new Heap();
+
+	var x0 = Math.round(ship.box.x);
+	var y0 = Math.round(ship.box.y);
+	var targetx = Math.round(order.coords.x);
+	var targety = Math.round(order.coords.y);
+
+	init_heap(q,x0,y0);
+
+	var path = dijkstra(q,targetx,targety);
+
+	var tx,ty;
+
+	//smooth path
+	if (path.length > 2) {
+	    var n = 2;
+	    while (n < path.length-1 &&
+		   (path[n].x-path[n-1].x)*(path[n-1].y-path[n-2].y) ==
+		   (path[n].y-path[n-1].y)*(path[n-1].x-path[n-2].x)) {
+		n++;
+	    }
+	    
+	    tx = (path[n].x+path[n-1].x)*0.5;
+	    ty = (path[n].y+path[n-1].y)*0.5;
+	} else {
+	    tx = order.coords.x;
+	    ty = order.coords.y;
+	}
+	seekPosition(tx,ty,ship,session,input);
+	
     } else {
 	var target_ship = null;
 	for (var i in session.game.players) {
@@ -37,7 +78,6 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    if (target_ship) break;
 	}
 
-	//if (debug) log("server/autopilot.js: order.target = "+ order.target);
 	if (false && debug && target_ship) 
 	    log("server/autopilot.js: target_ship name: "+target_ship.name);
 	if (target_ship) {
@@ -52,7 +92,6 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    
 	    if (order.name === "fire") {
 		
-		//if (debug) log("server/autopilot.js: processing fire cmd");
 		ship.orders[0].coords = {x:tx,y:ty};
 		fireAt(tx,ty,tdir,ship,session,input);
 		if (input.anchor == true) {
@@ -62,7 +101,6 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 
 	    } else if (order.name === "follow") {
 
-		//if (debug) log("server/autopilot.js: processing follow cmd");
 		var x1 = tx-3*ship.box.w*Math.cos(tdir);
 		var y1 = ty-3*ship.box.w*Math.sin(tdir);
 		var dx = ship.box.x - x1;
@@ -83,14 +121,11 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 		}
 		    
 	    } else if (order.name === "ram") {
-		//if (debug) log("server/autopilot.js: processing ram cmd. tx,ty="+tx+","+ty);
 		ship.orders[0].coords = {x:tx,y:ty};
 		seekPosition(tx,ty,ship,session,input);
 	    }
 	}
     }
-    
-    //return input;
     
 }
 
@@ -158,13 +193,13 @@ function seekPosition(x,y,ship,session,input) {
 	    input.anchor = true;
 	    input.sails = false;
 
-	    //if (debug) log ("AP seekPos(): "+ship.name+": anchored");
 	} else {
 	    // if moving, use vx,vy to steer.
 	    var vx = ship.box.x - ship.prevX;
 	    var vy = ship.box.y - ship.prevY;	    
 	    if (Math.abs(vx)+Math.abs(vy) < 0.01) {
 		// if not moving, turn sails to the wind.
+		input.sails = false;
 		input.oars = true;
 		vx = Math.cos(ship.box.dir);
 		vy = Math.sin(ship.box.dir);
@@ -177,19 +212,169 @@ function seekPosition(x,y,ship,session,input) {
 	    ny /= norm;
 		
 	    var cross = nx*vy - ny*vx;
-	    //if (debug) log ("AP seekPos(): "+ship.name+": cross="+cross);
 	    if (cross > 0.03) {
+		//if (debug) log("AP: "+ship.name+", seekpos(): LEFT; cross="+cross+"; v=("+vx+","+vy+"),"+v+"; n=("+nx+","+ny+"),"+norm+"; sails="+input.sails); 
 		input.left = true;
-		if (debug) log("AP: "+ship.name+", seekpos(): LEFT; cross="+cross+"; v=("+vx+","+vy+"),"+v+"; n=("+nx+","+ny+"),"+norm+"; sails="+input.sails); 
-		//if (debug) log ("AP seekPos(): "+ship.name+": left");
 	    } else if (cross < -0.03) {
-		if (debug) log("AP: "+ship.name+", seekpos(): RIGHT; cross="+cross+"; v=("+vx+","+vy+"),"+v+"; n=("+nx+","+ny+"),"+norm+"; sails="+input.sails); 
+		//if (debug) log("AP: "+ship.name+", seekpos(): RIGHT; cross="+cross+"; v=("+vx+","+vy+"),"+v+"; n=("+nx+","+ny+"),"+norm+"; sails="+input.sails); 
 		input.right = true;
-		//if (debug) log ("AP seekPos(): "+ship.name+": right");
 	    } 
 	}
 }
 
 
+// dijkstra
+// based on wikipedia pseudocode
+function dijkstra(q,tx,ty) {
+
+    var n,ind,vert,dist,edgelist,edge,newdist;
+    
+    while (q.array.length > 0) {
+	vert = q.pop();
+	// note: vert holds target vert at loop exit
+	if (vert.x === tx &&
+	    vert.y === ty) {
+	    break;
+	}
+	dist = graph[vert.y+mapw*vert.x].d; 
+	edgelist = graph[vert.y + mapw*vert.x].edgelist;
+	
+	for (n in edgelist) {
+	    edge = edgelist[n];
+	    ind = edge.y + mapw*edge.x;
+	    
+	    if (landmap[ind]) {
+		newdist = dist + edge.wt;
+		if (newdist <= graph[ind].d) {		    
+		    q.remove({x:edge.x,y:edge.y,d:graph[ind].d});
+		    q.push({x:edge.x,
+			    y:edge.y,
+			    d:newdist});
+
+		    graph[ind].d = newdist;
+		    graph[ind].prevx = vert.x;
+		    graph[ind].prevy = vert.y;
+		    
+
+		}
+	    }
+	}
+    }
+
+    var path = [];
+    var a,b,ind;
+    if (graph[ty+mapw*tx].prevx && graph[ty+mapw*tx].prevy) {
+	var a = tx;
+	var b = ty;
+	var ind = b + mapw*a;
+	while (graph[ind].prevx && graph[ind].prevy) {
+	    path.unshift({x:a,y:b,d:graph[ind].d});
+	    a = graph[ind].prevx;
+	    b = graph[ind].prevy;
+	    ind = b + mapw*a;
+	}
+    } 
+        
+    return path;
+    
+}
+
+var BIG = 99999999;
+
+//called once per session
+function init_graph() {
+
+    var grph = [];
+    
+    for (var x = 0 ; x < maph; x++) {
+	for (var y = 0; y < mapw; y++) {
+	    grph.push({d:BIG,edgelist:[]});
+	}
+    }
+    
+    for (var x = 0 ; x < maph; x++) {
+	for (var y = 0; y < mapw; y++) {
+	    
+	    for (var i = -1; i <= 1; i++) {
+		if (y+i >= 0 && y+i < mapw) {
+		    
+		    for (var j = -1; j<= 1; j++)
+			if ((i !== 0 || j !==0 ) && x+j >= 0 && x+j < maph) {
+			    grph[y+mapw*x].edgelist.push({x:x+j,
+							  y:y+i,
+							  wt:Math.sqrt(i*i+j*j)});
+			}
+		}
+	    }
+	}
+    }
+    return grph;
+}
+
+function init_heap(q,x0,y0) {
+    
+    q.array.splice(0,q.array.length);
+    q.push({x:x0,y:y0,d:0});
+    var x,y,ind;
+    for (x = 0 ; x < maph; x++) {
+	for (y = 0; y < mapw; y++) {
+	    ind = y + x*mapw;
+	    graph[ind].d = BIG;
+	    graph[ind].prevx = null;
+	    graph[ind].prevy = null;
+	}
+    }
+    graph[y0+x0*mapw].d = 0;
+    
+}
+
+
+function init_landmap(session) {
+
+    var lmap = [];
+    var map = session.mapData;
+    var ch, i, j, f, g;
+    for (i = 0; i < maph*mapw; i++) lmap.push(true);
+
+    var buffer = 10;
+
+    for (j = 0; j < mapw; j++) {
+	for (i = 0; i < maph; i++) {
+	    ch = map.data[j].charAt(i);
+	    if (ch === "1" || ch === "2" || ch === "3") {
+		lmap[j + mapw*i] = false;
+		for (f = -buffer; f < buffer ; f++) {
+		    if (j + g >= 0 && j+g < mapw) {
+			for (g = -buffer; g < buffer; g++) {
+			    if (i + f >= 0 && i+f < maph) {
+				lmap[j+g+mapw*(i+f)] = false;
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+    
+    for (i = 0; i < maph; i++) {
+	for (f = 0; f<buffer; f++) {
+	    lmap[f+mapw*i] = false;
+	    lmap[mapw-1-f+mapw*i] = false;
+	}
+    }
+
+    for (j = 0; j < mapw; j++) {
+	for (f = 0; f < buffer; f++) {
+	    lmap[j + mapw*f] = false;
+	    lmap[j+mapw*(maph-1-f)] = false;
+	}
+    }
+
+    return lmap;
+    
+}
+
 
 module.exports = new AutoPilot();
+
+

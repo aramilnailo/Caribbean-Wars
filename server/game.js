@@ -124,7 +124,7 @@ Game.prototype.clearShipOrders = function(param) {
     if (param.data) {
 	for (var i in p.ships) {
 	    if (p.ships[i].selected)
-		p.ships[i].orders = [];
+		p.ships[i].orders.splice(0,p.ships[i].orders.length);
 	}
 	
     }
@@ -893,6 +893,7 @@ function resetCollisionData(session) {
 	var map = session.mapData;
 	if(!map) return;
 
+    
 	var cmap = [];
 	for(var i = 0; i < map.height; i++) {
 		var row = [];
@@ -902,8 +903,7 @@ function resetCollisionData(session) {
 		}
 		cmap.push(row);
 	}
-	
-	session.collisionData = cmap;
+    session.collisionData = cmap;
 }
 
 // Flags the collision data at the given x and y
@@ -911,7 +911,7 @@ function updateCollisionData(session, x, y) {
 	if(!session.mapData || !session.collisionData) return;
 	if(x > -1 && x < session.mapData.width &&
 		y > -1 && y < session.mapData.height) {
-			session.collisionData[y][x] = true;
+	    session.collisionData[y][x] = true;
 	}
 }
 
