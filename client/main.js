@@ -45,7 +45,7 @@ setInterval(function() {
 					map:client.map, 
 					state:client.gameState
 				});
-			    ocean.renderOcean();
+			    render.renderOcean();
 				input.cameraTrackShip();
 			}
 		}

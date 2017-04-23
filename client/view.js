@@ -181,23 +181,20 @@ function hideAll() {
 }
 
 function renderPreview() {
+	console.log("rendering preview");
 	var canvas = dom.mapPreview.getContext("2d");
 	canvas.clearRect(0, 0, canvas.width, canvas.height);
-	var map = client.map;
-	if(!map) return;
+	if(!client.map) return;
+	var map = client.map.data;
+	var cell_w = 275 / client.map.width;
+	var cell_h = 275 / client.map.height;
 	
-	var min = Math.min(client.map.width, client.map.height);
-	var scale = canvas.height / min;
-	
-	for(var i = 0; i < canvas.height; i++) {
-		var line = map[Math.floor(i * scale)];
-		for(var j = x; j < x + w; j++) {
+	for(var i = 0; i < client.map.height; i++) {
+		var line = map[i];
+		for(var j = 0; j < client.map.width; j++) {
 			var ch, color;
-			if(line) ch = line.charAt(Math.floor(j * scale));
+			if(line) ch = line.charAt(j);
 		    switch(ch) {
-				case "0": // Water -- blue
-					color = "#42C5F4";
-					break;
 		    	case "1": // Sand -- tan
 					color = "#C19E70";
 					break;
@@ -207,26 +204,19 @@ function renderPreview() {
 				case "3": // Port -- gray
 					color = "#696969";
 					break;
-				case "4": // Resource -- maroon
-					color = "#a52a2a";
-					break;
-				case "5": // Spawn point -- yellow
-					color = "#ffff00";
-					break;
-				case "6": // Dock -- pink
-					color = "#f241a5";
-					break;
-		    	default: // Invalid -- black
-					color = "#000000";
+		    	default: // Invisible
+					color = null;
 					break;
 		    }
-		    dom.mapEditorCanvasContext.fillStyle = color;
-		    dom.mapEditorCanvasContext.fillRect(
-				j * scale, 
-				i * scale, 
-				scale, 
-				scale
-			);
+			if(color) {
+			    canvas.fillStyle = color;
+			    canvas.fillRect(
+					j * cell_w, 
+					i * cell_h, 
+					cell_w,
+					cell_h
+				);
+			}
 		}
 	}
 	

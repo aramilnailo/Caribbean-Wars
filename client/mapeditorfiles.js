@@ -58,7 +58,11 @@ MapEditorFiles.prototype.saveMapClick = function(data) {
 		return;
 	}
 	alerts.showPrompt("Save as: ", function(resp) {
-		if(resp) client.emit("saveEditMap", {filename:resp, map:client.map});
+		if(resp) {
+			client.map.name = resp;
+			client.map.author = client.username;
+			client.emit("saveEditMap", {filename:resp, map:client.map});
+		}
 	});
 };
 

@@ -246,8 +246,6 @@ th, td {
 }
 
 #map-preview {
-	height:275px;
-	width:275px;
 	background-image: url("./imgs/ocean-floor.png");
 }
 
