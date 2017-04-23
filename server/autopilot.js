@@ -408,7 +408,7 @@ function init_landmap(session) {
     var ch, i, j, f, g;
     for (i = 0; i < maph*mapw; i++) lmap.push(true);
 
-    var buffer = 20;
+    var buffer = 5;
 
     for (j = 0; j < mapw; j++) {
 	for (i = 0; i < maph; i++) {
@@ -416,9 +416,9 @@ function init_landmap(session) {
 	    if (ch === "1" || ch === "2" || ch === "3") {
 		lmap[j + mapw*i] = false;
 		for (f = -buffer; f < buffer ; f++) {
-		    if (j + g >= 0 && j+g < mapw) {
+		    if (j + f >= 0 && j+f < mapw) {
 			for (g = -buffer; g < buffer; g++) {
-			    if (i + f >= 0 && i+f < maph) {
+			    if (i + g >= 0 && i+g < maph) {
 				lmap[j+g+mapw*(i+f)] = false;
 			    }
 			}
