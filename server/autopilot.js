@@ -2,7 +2,7 @@
 var debug = require("./debug.js").autopilot;
 var log = require("./debug.js").log;
 
-var Heap = require("./heap.js");
+var Heap = require("./autopilot/heap.js");
 
 var AutoPilot = function () {}
 

@@ -4,7 +4,7 @@
 *
 * @module client/Render
 */
-define(["debug", "dom", "client", "ocean"], function(debug, dom, client, ocean) {
+define(["debug", "dom", "client"], function(debug, dom, client) {
 	
 var log = debug.log;
 var debug = debug.render;
