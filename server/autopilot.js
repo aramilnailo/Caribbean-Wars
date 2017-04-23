@@ -30,45 +30,50 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 
     if (order.name === "goto") {
 	
-	
-	if (session.mapData.height !== maph ||
-	    session.mapData.width !== mapw) {
-	    mapw = session.mapData.width;
-	    maph = session.mapData.height;
-	    graph = init_graph();
-	    landmap = init_landmap(session);
-	}
-	
-	var q = new Heap();
-
-	var x0 = Math.round(ship.box.x);
-	var y0 = Math.round(ship.box.y);
-	var targetx = Math.round(order.coords.x);
-	var targety = Math.round(order.coords.y);
-
-	init_heap(q,x0,y0);
-
-	var path = dijkstra(q,targetx,targety);
-
-	var tx,ty;
-
-	//smooth path
-	if (path.length > 2) {
-	    var n = 2;
-	    while (n < path.length-1 &&
-		   (path[n].x-path[n-1].x)*(path[n-1].y-path[n-2].y) ==
-		   (path[n].y-path[n-1].y)*(path[n-1].x-path[n-2].x)) {
-		n++;
+	if (check_linear(ship.box.x,ship.box.y,
+			 order.coords.x,order.coords.y)) {
+	    seekPosition(order.coords.x,order.coords.y,
+			 ship,session,input);
+	} else {
+	    
+	    if (session.mapData.height !== maph ||
+		session.mapData.width !== mapw) {
+		mapw = session.mapData.width;
+		maph = session.mapData.height;
+		graph = init_graph();
+		landmap = init_landmap(session);
 	    }
 	    
-	    tx = (path[n].x+path[n-1].x)*0.5;
-	    ty = (path[n].y+path[n-1].y)*0.5;
-	} else {
-	    tx = order.coords.x;
-	    ty = order.coords.y;
-	}
-	seekPosition(tx,ty,ship,session,input);
-	
+	    var q = new Heap();
+	    
+	    var x0 = Math.round(ship.box.x);
+	    var y0 = Math.round(ship.box.y);
+	    var targetx = Math.round(order.coords.x);
+	    var targety = Math.round(order.coords.y);
+	    
+	    init_heap(q,x0,y0);
+	    
+	    var path = dijkstra(q,targetx,targety);
+	    
+	    var tx,ty;
+	    
+	    //smooth path
+	    if (path.length > 2) {
+		var n = 2;
+		while (n < path.length-1 &&
+		       (path[n].x-path[n-1].x)*(path[n-1].y-path[n-2].y) ==
+		       (path[n].y-path[n-1].y)*(path[n-1].x-path[n-2].x)) {
+		    n++;
+		}
+		
+		tx = (path[n].x+path[n-1].x)*0.5;
+		ty = (path[n].y+path[n-1].y)*0.5;
+	    } else {
+		tx = order.coords.x;
+		ty = order.coords.y;
+	    }
+	    seekPosition(tx,ty,ship,session,input);
+	}	
     } else {
 	var target_ship = null;
 	for (var i in session.game.players) {
@@ -325,6 +330,73 @@ function init_heap(q,x0,y0) {
 	}
     }
     graph[y0+x0*mapw].d = 0;
+    
+}
+
+function check_linear(x0,y0,tx,ty) {    
+
+    var x1,x2,y1,y2;
+
+    if (Math.abs(tx-x0) > Math.abs(ty-y0)) {
+
+	if (ty > y0) {
+	    y2 = Math.round(ty);
+	    y1 = Math.round(y0);
+	} else {
+	    y2 = Math.round(y0);
+	    y1 = Math.round(ty);
+	}
+	if (tx > x0) {
+	    x2 = Math.round(tx);
+	    x1 = Math.round(x0);
+	} else {
+	    x2 = Math.round(x0);
+	    x1 = Math.round(tx);
+	}
+	
+	if (x2 === x1) return false;
+
+	var dy = (y2 - y1)/(x2 - x1);
+
+	var i;
+	var j = y1;
+
+	for (i = x1; i <= x2; i++) {
+	    j += dy;
+	    if (! (landmap[Math.floor(j) + mapw*i]))
+		return false;
+	}
+	return true;
+    }
+
+    if (tx > x0) {
+	y2 = Math.round(tx);
+	y1 = Math.round(x0);
+    } else {
+	y2 = Math.round(x0);
+	y1 = Math.round(tx);
+    }
+    if (ty > y0) {
+	x2 = Math.round(ty);
+	x1 = Math.round(y0);
+    } else {
+	x2 = Math.round(y0);
+	x1 = Math.round(ty);
+    }
+    
+    if (x2 === x1) return false;
+    
+    var dy = (y2 - y1)/(x2 - x1);
+    
+    var i;
+    var j = y1;
+    
+    for (i = x1; i <= x2; i++) {
+	j += dy;
+	if (! (landmap[i + mapw*Math.floor(j)]))
+	    return false;
+    }
+    return true;
     
 }
 
