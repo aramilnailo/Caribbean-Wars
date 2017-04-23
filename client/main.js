@@ -3,12 +3,12 @@ require(["client", "router", "chat",
 "stats", "login", "render", 
 "saves", "view", "users", 
 "lobby", "mapeditor", "rules",
-	 "mapeditorfiles", "alerts", "input"], 
+	 "mapeditorfiles", "alerts", "input", "ocean"], 
 function(client, router, chat,
 	 stats, login, render, 
 	saves, view, users, 
 	lobby, mapeditor, rules,
-	 mapeditorfiles, alerts, input) {
+	 mapeditorfiles, alerts, input, ocean) {
 
 var socket = io();
 client.socket = socket;
@@ -32,7 +32,7 @@ mapeditor.initButtons();
 socket.on("message", function(message) {
 	router.route(message);
 });
-
+    
 setInterval(function() { 
 	if(!client.loading && client.usertype === "editor") {
 		mapeditor.drawEditScreen(); 
@@ -45,7 +45,7 @@ setInterval(function() {
 					map:client.map, 
 					state:client.gameState
 				});
-			    render.renderOcean();
+			    ocean.renderOcean();
 				input.cameraTrackShip();
 			}
 		}

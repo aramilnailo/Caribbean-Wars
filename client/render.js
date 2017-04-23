@@ -145,7 +145,7 @@ Render.prototype.drawGameState = function(data) {
 		}
 	}
     for (var a in autotargets) {
-	var auto = autotargets.pop();
+	var auto = autotargets.shift();
 	dom.canvas.clearRect(auto.x-1,auto.y-1,auto.size+2,auto.size+2);
     }
         dom.canvas.fillStyle = "#000000";
@@ -223,23 +223,23 @@ Render.prototype.drawGameState = function(data) {
 	    //console.log("render: s.orders.length="+s.orders.length);
 	    // Draw autopilot target positions
 	    if (i === data.state.myShip && s.orders.length > 0) {
-   		for(var i in s.orders) {
-		    if (i === 0 || s.orders[i].name === "goto") {
-			var px = (s.orders[i].coords.x - cam_x) * cell_w;
-			var py = (s.orders[i].coords.y - cam_y) * cell_h;
+   		for(var j in s.orders) {
+		    if (j === 0 || s.orders[j].name === "goto") {
+			var px = (s.orders[j].coords.x - cam_x) * cell_w;
+			var py = (s.orders[j].coords.y - cam_y) * cell_h;
 			autotargets.push({x:px,y:py,size:5});
 			dom.canvas.fillStyle = "#ff0000"; // Red
 			dom.canvas.fillRect(px,py,5,5);
 		    } else {
 			var target_ship = null;
 			target_ship = ships.find(function(tget) {
-			    return tget.name === s.orders[i].target;
+			    return tget.name === s.orders[j].target;
 			});
 			if (target_ship && target_ship.active) {
 			    var px = (target_ship.box.x - cam_x) * cell_w;
 			    var py = (target_ship.box.y - cam_y) * cell_h;
 			    autotargets.push({x:px,y:py,size:3});
-			    dom.canvas.fillStyle = "#ff0000"; // Red
+			    dom.canvas.fillStyle = "#ffffff"; // White
 			    dom.canvas.fillRect(px,py,3,3);
 			}
 		    }
