@@ -43,6 +43,7 @@ Session.prototype.listen = function(router) {
 	router.listen("enterGame", this.enterGame);
 	
     router.listen("getGameMap", this.getGameMap);
+	router.listen("loadGameMap", this.loadGameMap);
 	router.listen("loadGameState", this.loadGameState);
 	router.listen("saveGameState", this.saveGameState);
 	
@@ -312,8 +313,12 @@ Session.prototype.startGame = function(param) {
 	var id = param.client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
+	if(!session.mapData) {
+		server.emit(param.client.socket, "alert", "No map selected");
+		return;
+	}
 	session.game = {
-		map:param.data, 
+		map:session.mapData.name, 
 		players:[],
 		ships:[], 
 		projectiles:[], 
@@ -323,14 +328,7 @@ Session.prototype.startGame = function(param) {
 		wind:null,
 		running:false
 	};
-	loadMap(param.data, session, function(resp) {
-		if(!resp) {
-			server.emit(param.client.socket, "alert", 
-			"Could not read from map file");
-		} else {
-			setGame(session, session.game);
-		}
-	});
+	setGame(session, session.game);
 	pushSessionTable(param.clients);
 }
 
@@ -444,8 +442,19 @@ Session.prototype.getGameMap = function(param) {
 	var id = client.id;
 	if(id === -1) return;
 	var session = GAME_SESSIONS[id];
-	if(!session.game.running) return;
 	server.emit(client.socket, "newGameMapResponse", session.mapData);
+}
+
+Session.prototype.loadGameMap = function(param) {
+	var id = param.client.id;
+	if(id === -1) return;
+	var session = GAME_SESSIONS[id];
+	loadMap(param.data, session, function(resp) {
+		if(!resp) {
+			server.emit(param.client.socket, "alert", 
+			"Could not read from map file");
+		}
+	});
 }
 
 Session.prototype.saveGameState = function(param) {

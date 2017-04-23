@@ -42,15 +42,20 @@ View.prototype.setClientInfo = function(data) {
 }
 
 View.prototype.setMap = function(data) {
-    if(debug.client) debug.log("client/client.js: setMap()");
-    if(!data.err) {
+    if(debug.view) debug.log("client/client.js: setMap()");
+    if(data) {
 		client.map = data;
 		client.camera.zoom = 1.0;
 		client.camera.x = 0;
 		client.camera.y = 0;
 		client.camera.moved = true;
 		client.loading = false;
+		
+		dom.mapSelectButton.innerHTML = client.map.name;
+	} else {
+		dom.mapSelectButton.innerHTML = "None";
 	}
+	renderPreview();
 }
 
 View.prototype.setGameState = function(data) {
@@ -63,13 +68,11 @@ View.prototype.loginScreen = function(data) {
 	show(["loginScreen"]);
     client.username = "";
     client.usertype = "";
-	client.inGame = false;
 }
 
 View.prototype.sessionBrowser = function(data) {
 	hideAll();
         show(["sessionBrowser", "sessionMenu", "upperMenu", "optionsMenu"]);
-	client.inGame = false;
 }
 
 View.prototype.lobbyScreen = function(data) {
@@ -82,16 +85,15 @@ View.prototype.lobbyScreen = function(data) {
 		hide(["hostLobbyButtons"]);
 		show(["lobbyButtons"]);
 	}
-	client.inGame = false;
+	client.emit("getGameMap", null);
+	client.loading = true;
 }
 
 View.prototype.gameScreen = function(data) {
 	hideAll();
-	client.emit("getGameMap", null);
 	show(["gameScreen", "upperMenu", "inGameMenu", 
 	"optionsMenu"]);
 	client.inGame = true;
-	client.loading = true;
 }
 
 View.prototype.mapEditorScreen = function(data) {
@@ -99,7 +101,6 @@ View.prototype.mapEditorScreen = function(data) {
 	client.emit("loadEditMap", "default");
 	show(["upperMenu", "mapEditorMenu", 
 	"mapEditorScreen", "optionsMenu"]);
-	client.inGame = false;
 }
 
 View.prototype.rulesEditorScreen = function(data) {
@@ -107,13 +108,11 @@ View.prototype.rulesEditorScreen = function(data) {
 	client.emit("getRuleSet", null);
 	client.emit("getRuleSetList", null);
 	show(["rulesEditor", "upperMenu", "optionsMenu"]);
-	client.inGame = false;
 }
 
 View.prototype.adminScreen = function(data) {
 	hideAll();
 	show(["adminScreen", "upperMenu", "optionsMenu"]);
-	client.inGame = false;
 }
 
 View.prototype.portMenu = function(data) {
@@ -177,6 +176,60 @@ function hideAll() {
 	"lobbyScreen", "sessionBrowser", "mapEditorScreen",
 	"upperMenu", "inGameMenu", "mapEditorMenu",
 	"optionsMenu", "rulesEditor"]);
+	
+	client.inGame = false;
+}
+
+function renderPreview() {
+	var canvas = dom.mapPreview.getContext("2d");
+	canvas.clearRect(0, 0, canvas.width, canvas.height);
+	var map = client.map;
+	if(!map) return;
+	
+	var min = Math.min(client.map.width, client.map.height);
+	var scale = canvas.height / min;
+	
+	for(var i = 0; i < canvas.height; i++) {
+		var line = map[Math.floor(i * scale)];
+		for(var j = x; j < x + w; j++) {
+			var ch, color;
+			if(line) ch = line.charAt(Math.floor(j * scale));
+		    switch(ch) {
+				case "0": // Water -- blue
+					color = "#42C5F4";
+					break;
+		    	case "1": // Sand -- tan
+					color = "#C19E70";
+					break;
+		    	case "2": // Grass -- green
+					color = "#2A8C23";
+					break;
+				case "3": // Port -- gray
+					color = "#696969";
+					break;
+				case "4": // Resource -- maroon
+					color = "#a52a2a";
+					break;
+				case "5": // Spawn point -- yellow
+					color = "#ffff00";
+					break;
+				case "6": // Dock -- pink
+					color = "#f241a5";
+					break;
+		    	default: // Invalid -- black
+					color = "#000000";
+					break;
+		    }
+		    dom.mapEditorCanvasContext.fillStyle = color;
+		    dom.mapEditorCanvasContext.fillRect(
+				j * scale, 
+				i * scale, 
+				scale, 
+				scale
+			);
+		}
+	}
+	
 }
 
 return new View();

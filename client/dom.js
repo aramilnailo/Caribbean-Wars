@@ -114,6 +114,8 @@ var dom = {
 	lobbyButtons:document.getElementById("lobby-btns"),
 	leaveSessionButton:document.getElementById("leave-session-btn"),
 	joinInProgressButton:document.getElementById("join-in-progress-btn"),
+	mapSelectButton:document.getElementById("map-select-btn"),
+	mapPreview:document.getElementById("map-preview"),
 
 	// Rules editor
 	rulesEditor:document.getElementById("rules-editor"),
@@ -199,6 +201,7 @@ dom.endSessionButton.onclick = function() { router.route({name:"endSessionClick"
 dom.rulesEditorButton.onclick = function() { router.route({name:"rulesEditorScreen", data:null}); }
 dom.leaveSessionButton.onclick = function() { router.route({name:"leaveSessionClick", data:null}); }
 dom.joinInProgressButton.onclick = function() { router.route({name:"joinInProgressClick", data:null}); }
+dom.mapSelectButton.onclick = function() { router.route({name:"mapSelectClick", data:null}); }
 
 // Rules editor screen
 dom.confirmRuleSetButton.onclick = function() { router.route({name:"confirmRuleSetClick", data:null}); }

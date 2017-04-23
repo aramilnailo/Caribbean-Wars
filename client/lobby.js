@@ -18,6 +18,9 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 		router.listen("endSessionClick", this.endSessionClick);
 		router.listen("leaveSessionClick", this.leaveSessionClick);
 		router.listen("joinInProgressClick", this.joinInProgressClick);
+		
+		router.listen("mapSelectClick", this.selectMapClick);
+		
 		router.listen("updateLobby", this.updateLobby);
 	}
 
@@ -95,8 +98,12 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 	
 	Lobby.prototype.newGameClick = function(data) {
 		debug.log("[Lobby] newGameClick");
+		client.emit("startGame", null);
+	}
+	
+	Lobby.prototype.selectMapClick = function(data) {
 		alerts.showPrompt("Which map?", function(resp) {
-			if(resp) client.emit("startGame", resp);
+			client.emit("loadGameMap", resp);
 		});
 	}
 	
