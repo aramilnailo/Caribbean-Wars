@@ -16,7 +16,7 @@ var arrow = new Image(), ball = new Image(),
 ship = new Image(), barrel = new Image(), 
 sand = new Image(), 
 grass = new Image(), port = new Image(), 
-defaultCell = new Image();
+defaultCell = new Image(), deadShip = new Image();
 //, ocean = new Image(), 
     
 arrow.src = "client/imgs/arrow.png";
@@ -27,8 +27,10 @@ sand.src = "client/imgs/sand.png";
 grass.src = "client/imgs/grass.png";
 port.src = "client/imgs/dock.png";
 defaultCell.src = "client/imgs/default.png";
+deadShip.src = "client/imgs/shipdeath.png";
 
 var render_next = [];
+var dying = [];
 var CANVAS_W = 500, CANVAS_H = 500,
 	CELL_W = 20, CELL_H = 20,
 	MINI_X = 500, MINI_Y = 0,
@@ -160,6 +162,14 @@ Render.prototype.drawGameState = function(data) {
 		h:1.5
 	};
 	renderBoxes(ships, imgData, render_next);
+	imgData = {
+		img:deadShip,
+		x:-0.5,
+		y:-0.75,
+		w:1.5,
+		h:1.5
+	};
+	renderBoxes(dying, imgData, render_next);
 	// Render projectiles
 	imgData = {
 		img:ball,
@@ -340,18 +350,42 @@ function renderBoxes(list, imgData, renderStack) {
 	for(var i in list) {
 		var b = list[i];
 		// Transform coordinates
-		var shifted_x = (b.box.x - cam_x) * cell_w;
-		var shifted_y = (b.box.y - cam_y) * cell_h;
-		var shifted_w = b.box.w * cell_w;
-		var shifted_h = b.box.h * cell_h;
+		var shifted_x, shifted_y, shifted_w, shifted_h, dir, x, y, w, h;
+
+		if(imgData.img === deadShip){
+			shifted_x = (b.ship.box.x - cam_x) * cell_w;
+			shifted_y = (b.ship.box.y - cam_y) * cell_h;
+			shifted_w = b.ship.box.w * cell_w;
+			shifted_h = b.ship.box.h * cell_h;
+			dir = b.ship.box.dir;
+			x = b.ship.box.x;
+			y = b.ship.box.y;
+			w = b.ship.box.w;
+			h = b.ship.box.h;
+		} else {
+			shifted_x = (b.box.x - cam_x) * cell_w;
+			shifted_y = (b.box.y - cam_y) * cell_h;
+			shifted_w = b.box.w * cell_w;
+			shifted_h = b.box.h * cell_h;
+			dir = b.box.dir;
+			x = b.box.x;
+			y = b.box.y;
+			w = b.box.w;
+			h = b.box.h;
+		}
+
+
+
+
 		// Draw image
 		dom.canvas.save();
 		dom.canvas.translate(
 			shifted_x, 
 			shifted_y
 		);
-		dom.canvas.rotate(b.box.dir);
+		dom.canvas.rotate(dir);
 		if(imgData.img === ship){
+			if(b.state.dead) dying.push({ship:b,stage:0});
 			var sailsOffset = b.state.sails ? 1 : 0;
 			var firingOffset = 0;
 			// if not already firing and state is set to firing
@@ -375,6 +409,23 @@ function renderBoxes(list, imgData, renderStack) {
 				shifted_w * imgData.w,
 				shifted_h * imgData.h
 			);
+		} else if (imgData.img === deadShip){
+			dom.canvas.drawImage(
+				imgData.img,
+				0, // one sprite wide
+				b.stage * (deadShip.height/10),
+				deadShip.width,
+				deadShip.height/10,
+				shifted_w*imgData.x,
+				shifted_h * imgData.y,
+				shifted_w * imgData.w,
+				shifted_h * imgData.h
+			);
+			b.stage++;
+			if(b.stage == 10) dying.splice(i,1);
+
+
+
 		} else {
 			dom.canvas.drawImage(
 				imgData.img,
@@ -386,11 +437,11 @@ function renderBoxes(list, imgData, renderStack) {
 		}
 		dom.canvas.restore();
 		// Add cells for next screen refresh
-		var bx = Math.floor(b.box.x), 
-		by = Math.floor(b.box.y), 
+		var bx = Math.floor(x), 
+		by = Math.floor(y), 
 		val = Math.max(
-			Math.ceil(b.box.w), 
-			Math.ceil(b.box.h)
+			Math.ceil(w), 
+			Math.ceil(h)
 			) + 3;
 		for(var j = -val; j < val; j++) {
 			for(var k = -val; k < val; k++) {
