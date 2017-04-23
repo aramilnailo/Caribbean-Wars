@@ -13,6 +13,7 @@ var mapw = 0;
 var maph = 0;
 var graph = [];
 var landmap = [];
+var timelag = 500;
 AutoPilot.prototype.getInput = function(input, ship, session) {
     
     if (debug) if (! ship.orders) log("server/autopilot.js: !ship.orders");
@@ -29,51 +30,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
     }
 
     if (order.name === "goto") {
-
-	if (session.mapData.height !== maph ||
-	    session.mapData.width !== mapw) {
-	    mapw = session.mapData.width;
-	    maph = session.mapData.height;
-	    graph = init_graph();
-	    landmap = init_landmap(session);
-	}
-	
-	if (check_linear(ship.box.x,ship.box.y,
-			 order.coords.x,order.coords.y)) {
-	    seekPosition(order.coords.x,order.coords.y,
-			 ship,session,input);
-	} else {
-	    
-	    var q = new Heap();
-	    
-	    var x0 = Math.round(ship.box.x);
-	    var y0 = Math.round(ship.box.y);
-	    var targetx = Math.round(order.coords.x);
-	    var targety = Math.round(order.coords.y);
-	    
-	    init_heap(q,x0,y0);
-	    
-	    var path = dijkstra(q,targetx,targety);
-	    
-	    var tx,ty;
-	    
-	    //smooth path
-	    if (path.length > 2) {
-		var n = 2;
-		while (n < path.length-1 &&
-		       (path[n].x-path[n-1].x)*(path[n-1].y-path[n-2].y) ==
-		       (path[n].y-path[n-1].y)*(path[n-1].x-path[n-2].x)) {
-		    n++;
-		}
-		
-		tx = (path[n].x+path[n-1].x)*0.5;
-		ty = (path[n].y+path[n-1].y)*0.5;
-	    } else {
-		tx = order.coords.x;
-		ty = order.coords.y;
-	    }
-	    seekPosition(tx,ty,ship,session,input);
-	}	
+	autonav(input,ship,session);
     } else {
 	var target_ship = null;
 	for (var i in session.game.players) {
@@ -83,8 +40,6 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    if (target_ship) break;
 	}
 
-	if (false && debug && target_ship) 
-	    log("server/autopilot.js: target_ship name: "+target_ship.name);
 	if (target_ship) {
 	    if (!target_ship.active) {
 		ship.orders.shift();
@@ -102,7 +57,6 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 		if (input.anchor == true) {
 		    ship.orders.push({name:"fire",target:target_ship.name,coords:{x:tx,y:ty}});
 		}
-
 
 	    } else if (order.name === "follow") {
 
@@ -132,6 +86,74 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	}
     }
     
+}
+
+
+function autonav(input,ship,session) {
+
+    var order = ship.orders[0];
+    
+    if (session.mapData.height !== maph ||
+	session.mapData.width !== mapw) {
+	mapw = session.mapData.width;
+	maph = session.mapData.height;
+	graph = init_graph();
+	landmap = init_landmap(session);
+    }
+    
+    if (check_linear(ship.box.x,ship.box.y,
+		     order.coords.x,order.coords.y)) {
+	seekPosition(order.coords.x,order.coords.y,
+		     ship,session,input);
+    } else {
+
+	if ( ship.lastpathcalc === timelag  ||
+	     ship.lastpathcalc < 0) {
+	    
+	    lastpathcalc = 0;
+	    
+	    var q = new Heap();
+	    
+	    var x0 = Math.round(ship.box.x);
+	    var y0 = Math.round(ship.box.y);
+	    var targetx = Math.round(order.coords.x);
+	    var targety = Math.round(order.coords.y);
+	    
+	    init_heap(q,x0,y0);
+	    
+	    ship.path = dijkstra(q,targetx,targety);
+	    
+	}
+	
+	for (var n = 0; n < ship.path.length; n++) {
+	    if (Math.abs(ship.box.x - ship.path[n].x)
+		+ Math.abs(ship.box.y - ship.path[n].y) < 5)
+		ship.path.splice(n,1);
+	}
+	
+	var tx,ty;
+	//smooth path
+	if (ship.path.length > 2) {
+	    var n = 2;
+	    while (n < ship.path.length-1 &&
+		   (ship.path[n].x-ship.path[n-1].x)*(ship.path[n-1].y-ship.path[n-2].y) ==
+		   (ship.path[n].y-ship.path[n-1].y)*(ship.path[n-1].x-ship.path[n-2].x)) {
+		n++;
+	    }
+	    
+	    tx = (ship.path[n].x+ship.path[n-1].x)*0.5;
+	    ty = (ship.path[n].y+ship.path[n-1].y)*0.5;
+	} else {
+	    tx = order.coords.x;
+	    ty = order.coords.y;
+	}
+	seekPosition(tx,ty,ship,session,input);
+	if (input.anchor) {
+	    ship.lastpathcalc = -1;
+	} else {
+	    ship.lastpathcalc++
+	}
+    }	
 }
 
 function fireAt(x,y,tdir,ship,session,input) {
