@@ -72,6 +72,8 @@ var Ship = function(name, x, y, ruleset) {
 		selected:false,
 	        orders:[],
 	        path:[],
+	        follower:null,
+	        following:null,
 	        lastpathcalc:-1
 	}
 	

@@ -30,8 +30,19 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
     }
 
     if (order.name === "goto") {
-	autonav(input,ship,session);
+	var step = autonav(input,ship,
+			   order.coords.x,
+			   order.coords.y,
+			   session);
+	seekPosition(step.x,step.y,ship,session,input);
+	if (input.anchor && ship.path.length < 3) {
+	    ship.lastpathcalc = -1;
+	    if (ship.path.length > 0) {
+		ship.path.splice(0,ship.path.length -1);
+	    }
+	}
     } else {
+	//console.log ("processing non-goto");
 	var target_ship = null;
 	for (var i in session.game.players) {
 	    target_ship = session.game.players[i].ships.find(function(s) {
@@ -40,56 +51,228 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    if (target_ship) break;
 	}
 
-	if (target_ship) {
-	    if (!target_ship.active) {
-		ship.orders.shift();
-		return;
-	    }
-
-	    var tx = target_ship.box.x;
-	    var ty = target_ship.box.y;
-	    var tdir = target_ship.box.dir;
-	    
-	    if (order.name === "fire") {
+	if (order.name === "fire") {
+	    if (target_ship) {
 		
+		var step = autonav(input,ship,
+				   target_ship.box.x,
+				   target_ship.box.y,
+				   session);
+		
+		var tx = step.x; //target_ship.box.x;
+		var ty = step.y; //target_ship.box.y;
+		var tdir = target_ship.box.dir;
+
 		ship.orders[0].coords = {x:tx,y:ty};
 		fireAt(tx,ty,tdir,ship,session,input);
 		if (input.anchor == true) {
-		    ship.orders.push({name:"fire",target:target_ship.name,coords:{x:tx,y:ty}});
+		    ship.orders.push({name:"fire",
+				      target:target_ship.name,
+				      coords:{x:tx,y:ty}});
+		    ship.lastpathcalc = -1;
+		    if (ship.path.length > 0) {
+			ship.path.splice(0,ship.path.length -1);
+		    }
 		}
-
-	    } else if (order.name === "follow") {
-
-		var x1 = tx-3*ship.box.w*Math.cos(tdir);
-		var y1 = ty-3*ship.box.w*Math.sin(tdir);
-		var dx = ship.box.x - x1;
-		var dy = ship.box.y - y1;
-		ship.orders[0].coords = {x:x1,y:y1};
-
-		if (dx*dx + dy*dy > 5) {
-		    seekPosition(x1,y1,ship,session,input);
-		} else {
-		    var dirx = ship.box.x - ship.prevX;
-		    var diry = ship.box.y - ship.prevY;
-		    var dir = ship.box.dir;
-		    if (dirx != 0 || diry != 0)
-			dir = Math.atan2(diry,dirx);
-		    var diff = dir - tdir;
-		    if (diff < -0.03) input.right = true;
-		    else if (diff > 0.03) input.left = true;
+	    } else {
+		ship.orders.shift();
+		ship.lastpathcalc = -1;
+		if (ship.path.length > 0) {
+		    ship.path.splice(0,ship.path.length -1);
 		}
-		    
-	    } else if (order.name === "ram") {
+	    }
+	    
+	} else if (order.name === "unfollow") {
+	    //console.log("AP call to unfollow");	    
+	    target_ship.follower = ship.follower;
+
+	    if (ship.follower !== null){
+		var following_ship = null;
+		for (var i in session.game.players) {
+		    following_ship = session.game.players[i].ships.find(function(s) {
+			return s.name === ship.follower;
+		    });
+		    if (following_ship) break;
+		}
+		if (following_ship) {
+		    following_ship.following = target_ship.name;
+		}
+		ship.follower = null;
+	    }
+	    
+	    ship.following = null;
+	    ship.orders.splice(0,1);
+	    ship.lastpathcalc = -1;
+	    if (ship.path.length > 0) {
+		ship.path.splice(0,ship.path.length -1);
+	    }
+	    
+	} else if (order.name === "follow") {
+	    console.log("AP call to follow");
+	    follow(input,ship,target_ship,session);
+	    
+	} else if (order.name === "ram") {
+	    console.log("AP call to ram");
+	    if (target_ship) {
+		
+		var step = autonav(input,ship,
+				   target_ship.box.x,
+				   target_ship.box.y,
+				   session);
+		
+		var tx = step.x; //target_ship.box.x;
+		var ty = step.y; //target_ship.box.y;
+		
 		ship.orders[0].coords = {x:tx,y:ty};
 		seekPosition(tx,ty,ship,session,input);
+		if (input.anchor) {
+		    ship.lastpathcalc = -1;
+		    if (ship.path.length > 0) {
+			ship.path.splice(0,ship.path.length -1);
+		    }
+		}
+	    } else {
+		ship.orders.shift();
+		ship.lastpathcalc = -1;
+		if (ship.path.length > 0) {
+		    ship.path.splice(0,ship.path.length -1);
+		}
+		
+	    }
+	} //ram
+    }
+}
+    
+function follow(input,ship,target_ship,session) {
+
+    if (target_ship) {
+	
+	if (target_ship.active) {
+	    
+	    // if not already in queue,
+	    // add to end of queue
+	    
+	    if (ship.following === null
+		|| ship.following === undefined) {
+		console.log("enter first follow loop; target="+target_ship.name);	
+		while (target_ship.follower) {
+		    var ship_to_follow = target_ship;
+		    for (var i in session.game.players) {
+			ship_to_follow = session.game.players[i].ships.find(function(s) {
+			    return s.name === target_ship.follower;
+			});
+			if (ship_to_follow
+			    && ship_to_follow.active) {
+			    target_ship = ship_to_follow;
+			    break;
+			}
+		    }
+		    
+		}
+		console.log("exit first follow loop; target="+target_ship.name);	
+		ship.orders[0].target = target_ship.name;
+		target_ship.follower = ship.name;
+		ship.following = target_ship.name;
+		
+		
+	    }
+	    
+	} else { // ... target ship is inactive.
+	    
+	    // leapfrog the ship up front
+	    if (target_ship.following) {
+		
+		var ship_to_follow = target_ship;
+
+		console.log("enter follow loop");
+		while (ship_to_follow &&
+		       ship_to_follow.following &&
+		       ! ship_to_follow.active) {
+		    for (var i in session.game.players) {
+			ship_to_follow = session.game.players[i].ships.find(function(s) {
+			    return s.name === target_ship.following;
+			});
+			
+			if (ship_to_follow) {
+			    target_ship = ship_to_follow;
+			    break;
+			}
+		    }
+		}
+		console.log("exit follow loop");
+		if (target_ship) {
+		    ship.following = target_ship.name;
+		    target_ship.follower = ship.name;
+		} else {
+		    ship.following = null;
+		    ship.orders.splice(0,1);
+		    ship.lastpathcalc = -1;
+		    if (ship.path.length > 0) {
+			ship.path.splice(0,ship.path.length -1);
+		    }
+		    return;		    
+		}
+		
+	    } else { // uncouple.
+		console.log("follow: uncoupling");
+		target_ship.follower = null;
+		ship.following = null;
+		ship.orders.shift();
+		ship.lastpathcalc = -1;
+		if (ship.path.length > 0) {
+		    ship.path.splice(0,ship.path.length -1);
+		}
+		return;
 	    }
 	}
+
+	console.log(" "+ship.name+": target="+target_ship.name+"; following="+ship.following+"; follower="+ship.follower);
+	
+	var step = autonav(input,ship,
+			   target_ship.box.x,
+			   target_ship.box.y,
+			   session);
+	
+	var tx = step.x; //target_ship.box.x;
+	var ty = step.y; //target_ship.box.y;
+	var tdir = target_ship.box.dir;
+	
+	
+	var x1 = tx-3*ship.box.w*Math.cos(tdir);
+	var y1 = ty-3*ship.box.w*Math.sin(tdir);
+	var dx = ship.box.x - x1;
+	var dy = ship.box.y - y1;
+	ship.orders[0].coords = {x:x1,y:y1};
+	
+	if (dx*dx + dy*dy > 5) {
+	    seekPosition(x1,y1,ship,session,input);
+	    if (input.anchor == true) {
+		ship.lastpathcalc = -1;
+		if (ship.path.length > 0)
+		    ship.path.splice(0,ship.path.length -1);
+	    }
+	} else {
+	    var dirx = ship.box.x - ship.prevX;
+	    var diry = ship.box.y - ship.prevY;
+	    var dir = ship.box.dir;
+	    if (dirx != 0 || diry != 0)
+		dir = Math.atan2(diry,dirx);
+	    var diff = dir - tdir;
+	    if (diff < -0.03) input.right = true;
+	    else if (diff > 0.03) input.left = true;
+	}
+	
+    } else { //target_ship is undefd or null
+	ship.following = null;
+	ship.orders.splice(0,1);
+	ship.lastpathcalc = -1;
+	if (ship.path.length > 0) {
+	    ship.path.splice(0,ship.path.length -1);
+	}
     }
-    
 }
 
-
-function autonav(input,ship,session) {
+function autonav(input,ship,target_x,target_y,session) {
 
     var order = ship.orders[0];
     
@@ -102,62 +285,104 @@ function autonav(input,ship,session) {
     }
     
     if (check_linear(ship.box.x,ship.box.y,
-		     order.coords.x,order.coords.y)) {
-	seekPosition(order.coords.x,order.coords.y,
-		     ship,session,input);
+		     target_x,target_y)) {
+	return {x:target_x,y:target_y};
+	/*
+	seekPosition(target_x,target_y,ship,session,input);
+	ship.lastpathcalc = -1;
+	if (ship.path.length > 0) {
+	    ship.path.splice(0,ship.path.length -1);
+	}
+	return {x:-1,y:-1};
+*/
     } else {
 
-	if ( ship.lastpathcalc === timelag  ||
+	if ( ship.lastpathcalc > timelag  ||
 	     ship.lastpathcalc < 0) {
-	    
-	    lastpathcalc = 0;
+
+	    ship.lastpathcalc = 0;
 	    
 	    var q = new Heap();
 	    
 	    var x0 = Math.round(ship.box.x);
 	    var y0 = Math.round(ship.box.y);
-	    var targetx = Math.round(order.coords.x);
-	    var targety = Math.round(order.coords.y);
+	    var targetx = Math.round(target_x);
+	    var targety = Math.round(target_y);
 	    
+	    console.log("init_heap; lastpathcalc="+ship.lastpathcalc);
 	    init_heap(q,x0,y0);
-	    
+
+	    console.log("dijkstra; lastpathcalc="+ship.lastpathcalc);
 	    ship.path = dijkstra(q,targetx,targety);
 	    
-	}
+	} else
+	    ship.lastpathcalc++;
+
 	
+	
+	// in the event that collisions knock the
+	// ship off course, find the nearest path vertex
+	/// ... seems problematic
+	/*
+	if (ship.path.length > 3) {
+	    var path = ship.path;
+	    var px = path[ship.path.length-1].x-ship.box.x;
+	    var py = path[ship.path.length-1].y-ship.box.y;
+	    var lastdelta = px*px+py*py;
+	    for (var n = ship.path.length - 2; n > 0; n--) {
+		px = path[n].x-ship.box.x;
+		py = path[n].y-ship.box.y;
+		var delta = px*px+py*py;
+		if (delta > lastdelta) break;
+		else lastdelta = delta;
+	    }
+	    if (n > 0) 
+		ship.path.splice(0,n);
+	}
+*/
+
 	for (var n = 0; n < ship.path.length; n++) {
 	    if (Math.abs(ship.box.x - ship.path[n].x)
 		+ Math.abs(ship.box.y - ship.path[n].y) < 5)
 		ship.path.splice(n,1);
 	}
+
 	
 	var tx,ty;
 	//smooth path
 	if (ship.path.length > 2) {
 	    var n = 2;
+	    var deltaxn = ship.path[n].x-ship.path[n-1].x;
+	    var deltayn = ship.path[n].y-ship.path[n-1].y;
+	    var deltaxm = ship.path[n-1].x-ship.path[n-2].x;
+	    var deltaym = ship.path[n-1].y-ship.path[n-2].y;
 	    while (n < ship.path.length-1 &&
+		   deltaxn*deltaym == deltaxm*deltayn ) {
+		deltaxm = deltaxn;
+		deltaym = deltayn;
+		n++;
+		deltaxn = ship.path[n].x-ship.path[n-1].x;
+		deltayn = ship.path[n].y-ship.path[n-1].y;
+	    }
+/*
 		   (ship.path[n].x-ship.path[n-1].x)*(ship.path[n-1].y-ship.path[n-2].y) ==
 		   (ship.path[n].y-ship.path[n-1].y)*(ship.path[n-1].x-ship.path[n-2].x)) {
 		n++;
-	    }
+	    } */
 	    
 	    tx = (ship.path[n].x+ship.path[n-1].x)*0.5;
 	    ty = (ship.path[n].y+ship.path[n-1].y)*0.5;
 	} else {
-	    tx = order.coords.x;
-	    ty = order.coords.y;
+	    tx = target_x;
+	    ty = target_y;
 	}
-	seekPosition(tx,ty,ship,session,input);
-	if (input.anchor) {
-	    ship.lastpathcalc = -1;
-	} else {
-	    ship.lastpathcalc++
-	}
+	return {x:tx,y:ty};
+	
     }	
 }
 
 function fireAt(x,y,tdir,ship,session,input) {
-
+    console.log("AP call to fireAt");
 	var c = Math.cos(tdir);
 	var s = Math.sin(tdir);
 	var t1x = x + s*15;
@@ -184,6 +409,10 @@ function fireAt(x,y,tdir,ship,session,input) {
 		
 	    } else {
 		seekPosition(t1x,t1y,ship,session,input);
+		ship.lastpathcalc = -1;
+		if (ship.path.length > 0) {
+		    ship.path.splice(0,ship.path.length -1);
+		}
 	    }
 	    
     } else {
@@ -200,8 +429,11 @@ function fireAt(x,y,tdir,ship,session,input) {
 		}
 	    } else {
 		seekPosition(t2x,t2y,ship,session,input);
+		ship.lastpathcalc = -1;
+		if (ship.path.length > 0) {
+		    ship.path.splice(0,ship.path.length -1);
+		}
 	    }
-
     }
     
 }
