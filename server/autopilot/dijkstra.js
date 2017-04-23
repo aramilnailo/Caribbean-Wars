@@ -1,5 +1,5 @@
-var debug = require("./debug.js").dijkstra;
-var log = require("./debug.js").log;
+var debug = require("../debug.js").dijkstra;
+var log = require("../debug.js").log;
 
 var Heap = require("./heap.js");
 

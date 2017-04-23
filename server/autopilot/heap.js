@@ -1,5 +1,5 @@
-var debug = require("./debug.js").heap;
-var log = require("./debug.js").log;
+var debug = require("../debug.js").heap;
+var log = require("../debug.js").log;
 
 
 // derived from http://eloquentjavascript.net/1st_edition/appendix2.html
