@@ -10,11 +10,11 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     var debug = debug.render;
 
     var CANVAS_W = 500, CANVAS_H = 500;
-    var nwaves = 25;
-    var nmin = 3;
+    var nwaves = 12;
+    var nmin = 5;
     var nmax = 20;
     var amp_min = 0.02;
-    var amp_max = 0.2;
+    var amp_max = 0.1;
     var B = 10.0;
     var C = 2.0;
     var tmax = 999999;
@@ -87,13 +87,12 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	    term1 = this.time*this.waves[n].speed + this.waves[n].phi;
 
 	    for (var x = 0; x < CANVAS_H; x++) {
-		term2 = this.waves[n].nx*x;
+		term2 = this.waves[n].nx*x + term1;
 		ind = CANVAS_W*x;
 		for (var y = 0; y < CANVAS_W; y++) {
 		    this.grid[y + ind] +=
 			( this.waves[n].amp*Math.sin( term2
-						      + this.waves[n].ny*y
-						      + term1) );
+						      + this.waves[n].ny*y ) );
 		}
 	    }
 	}

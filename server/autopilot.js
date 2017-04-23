@@ -108,11 +108,11 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    }
 	    
 	} else if (order.name === "follow") {
-	    console.log("AP call to follow");
+	    //console.log("AP call to follow");
 	    follow(input,ship,target_ship,session);
 	    
 	} else if (order.name === "ram") {
-	    console.log("AP call to ram");
+	    //console.log("AP call to ram");
 	    if (target_ship) {
 		
 		var step = autonav(input,ship,
@@ -154,7 +154,7 @@ function follow(input,ship,target_ship,session) {
 	    
 	    if (ship.following === null
 		|| ship.following === undefined) {
-		console.log("enter first follow loop; target="+target_ship.name);	
+		//console.log("enter first follow loop; target="+target_ship.name);	
 		while (target_ship.follower) {
 		    var ship_to_follow = target_ship;
 		    for (var i in session.game.players) {
@@ -169,7 +169,7 @@ function follow(input,ship,target_ship,session) {
 		    }
 		    
 		}
-		console.log("exit first follow loop; target="+target_ship.name);	
+		//console.log("exit first follow loop; target="+target_ship.name);	
 		ship.orders[0].target = target_ship.name;
 		target_ship.follower = ship.name;
 		ship.following = target_ship.name;
@@ -184,7 +184,7 @@ function follow(input,ship,target_ship,session) {
 		
 		var ship_to_follow = target_ship;
 
-		console.log("enter follow loop");
+		//console.log("enter follow loop");
 		while (ship_to_follow &&
 		       ship_to_follow.following &&
 		       ! ship_to_follow.active) {
@@ -199,7 +199,7 @@ function follow(input,ship,target_ship,session) {
 			}
 		    }
 		}
-		console.log("exit follow loop");
+		//console.log("exit follow loop");
 		if (target_ship) {
 		    ship.following = target_ship.name;
 		    target_ship.follower = ship.name;
@@ -214,7 +214,7 @@ function follow(input,ship,target_ship,session) {
 		}
 		
 	    } else { // uncouple.
-		console.log("follow: uncoupling");
+		//console.log("follow: uncoupling");
 		target_ship.follower = null;
 		ship.following = null;
 		ship.orders.shift();
@@ -226,7 +226,7 @@ function follow(input,ship,target_ship,session) {
 	    }
 	}
 
-	console.log(" "+ship.name+": target="+target_ship.name+"; following="+ship.following+"; follower="+ship.follower);
+	//console.log(" "+ship.name+": target="+target_ship.name+"; following="+ship.following+"; follower="+ship.follower);
 	
 	var step = autonav(input,ship,
 			   target_ship.box.x,
@@ -309,10 +309,10 @@ function autonav(input,ship,target_x,target_y,session) {
 	    var targetx = Math.round(target_x);
 	    var targety = Math.round(target_y);
 	    
-	    console.log("init_heap; lastpathcalc="+ship.lastpathcalc);
+	    //console.log("init_heap; lastpathcalc="+ship.lastpathcalc);
 	    init_heap(q,x0,y0);
 
-	    console.log("dijkstra; lastpathcalc="+ship.lastpathcalc);
+	    //console.log("dijkstra; lastpathcalc="+ship.lastpathcalc);
 	    ship.path = dijkstra(q,targetx,targety);
 	    
 	} else
