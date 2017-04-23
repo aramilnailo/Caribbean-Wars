@@ -343,7 +343,7 @@ function autonav(input,ship,target_x,target_y,session) {
 
 	for (var n = 0; n < ship.path.length; n++) {
 	    if (Math.abs(ship.box.x - ship.path[n].x)
-		+ Math.abs(ship.box.y - ship.path[n].y) < 5)
+		+ Math.abs(ship.box.y - ship.path[n].y) < 2)
 		ship.path.splice(n,1);
 	}
 
