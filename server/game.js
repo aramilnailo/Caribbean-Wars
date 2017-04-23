@@ -735,6 +735,7 @@ function updateBox(box) {
 		box.dy += c.vector.y * c.mass / box.mass;
 	}
 
+    /*
     var cos = Math.cos(box.dir);
     var sin = Math.sin(box.dir);
     var dot = box.dx*cos + box.dy*sin;
@@ -745,7 +746,7 @@ function updateBox(box) {
 	box.dx *= cos;
 	box.dy *= sin;
     }
-    
+    */
     
 	// Apply velocity bounds
 	if(box.dx > box.dx_max) 
