@@ -229,6 +229,8 @@ Game.prototype.update = function() {
 					    selected:s.selected,
 						docked:s.docked
 					});
+				if(s.state.dead) s.active = false;
+
 				}
 			}
 		    
@@ -712,7 +714,8 @@ function handleCollisions(box, session) {
 function handleDeath(victim, killer) {
 	victim.health = 0;
 	victim.alive = false;
-	victim.active = false;	// STATS TRACKING BUG <----
+	victim.state.dead = true;
+	//victim.active = false;	// STATS TRACKING BUG <----
 	deaths.push({
 		victim:victim.name, 
 		killer:killer
