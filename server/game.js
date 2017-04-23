@@ -730,11 +730,23 @@ function updateBox(box) {
 			dmg.mag += c.damage;
 			dmg.source = c.source;
 		}
-		// Apply impulse
+	    // Apply impulse
 		box.dx += c.vector.x * c.mass / box.mass;
 		box.dy += c.vector.y * c.mass / box.mass;
 	}
 
+    var cos = Math.cos(box.dir);
+    var sin = Math.sin(box.dir);
+    var dot = box.dx*cos + box.dy*sin;
+    if (dot < 0) {
+	box.dx *= 0.001*cos;
+	box.dy *= 0.001*sin;
+    } else {
+	box.dx *= cos;
+	box.dy *= sin;
+    }
+    
+    
 	// Apply velocity bounds
 	if(box.dx > box.dx_max) 
 		box.dx = box.dx_max;
