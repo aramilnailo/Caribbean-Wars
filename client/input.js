@@ -152,20 +152,23 @@ Input.prototype.processKeyReleased = function(event) {
 	    break;
 	case 79: // O
 	case 111: // o
-	    var ship = client.gameState.ships.find(function(s) {
-		return s.selected;
-	    });
-	    ship.state.autocontrol = true;
-	    client.input.autocontrol = true;
+	    if (client.gameState) {
+		var ship = client.gameState.ships.find(function(s) {
+		    return s.selected;
+		});
+		ship.state.autocontrol = true;
+		client.input.autocontrol = true;
+	    }
 	    break;
 	case 80: //P
 	case 112: // p
-	    var ship = client.gameState.ships.find(function(s) {
-		return s.selected;
-	    });
-	    ship.state.autocontrol = false;
-
-	    client.input.autocontrol = false;
+	    if (client.gameState) {
+		var ship = client.gameState.ships.find(function(s) {
+		    return s.selected;
+		});
+		ship.state.autocontrol = false;
+		client.input.autocontrol = false;
+	    }
 	    break;
 	case 81: // q
 	    client.input.firingLeft = false;
@@ -174,7 +177,8 @@ Input.prototype.processKeyReleased = function(event) {
 	    client.input.firingRight = false;
 	    break;
 	case 70: // f
-	    client.emit("selectShip", selectNextShip());
+	    if (client.gameState)
+		client.emit("selectShip", selectNextShip());
 	    break;
 	case 82: // r
 	    client.input.anchor = !client.input.anchor;

@@ -29,20 +29,20 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
     }
 
     if (order.name === "goto") {
+
+	if (session.mapData.height !== maph ||
+	    session.mapData.width !== mapw) {
+	    mapw = session.mapData.width;
+	    maph = session.mapData.height;
+	    graph = init_graph();
+	    landmap = init_landmap(session);
+	}
 	
 	if (check_linear(ship.box.x,ship.box.y,
 			 order.coords.x,order.coords.y)) {
 	    seekPosition(order.coords.x,order.coords.y,
 			 ship,session,input);
 	} else {
-	    
-	    if (session.mapData.height !== maph ||
-		session.mapData.width !== mapw) {
-		mapw = session.mapData.width;
-		maph = session.mapData.height;
-		graph = init_graph();
-		landmap = init_landmap(session);
-	    }
 	    
 	    var q = new Heap();
 	    
@@ -408,7 +408,7 @@ function init_landmap(session) {
     var ch, i, j, f, g;
     for (i = 0; i < maph*mapw; i++) lmap.push(true);
 
-    var buffer = 10;
+    var buffer = 20;
 
     for (j = 0; j < mapw; j++) {
 	for (i = 0; i < maph; i++) {
