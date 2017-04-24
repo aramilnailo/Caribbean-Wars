@@ -640,10 +640,10 @@ function handleCollisions(box, session) {
 			}
 		}
 	    if(v[i].hit) {
-		var norm = vect.x*vect.x + vect.y*vect.y;
-		var dot = vect.x * box.dx + vect.y*box.dy;
-		vect.x *= box.dx/norm;
-		vect.y *= box.dy/norm;
+		//var norm = vect.x*vect.x + vect.y*vect.y;
+		//var dot = vect.x * box.dx + vect.y*box.dy;
+		//vect.x *= box.dx/norm;
+		//vect.y *= box.dy/norm;
 			box.collisions.push({
 				vector:vect,
 				mass:box.mass,
@@ -685,10 +685,10 @@ function handleCollisions(box, session) {
 			if((Math.abs(v[i].x - s.box.x) < s.box.w) &&
 				(Math.abs(v[i].y - s.box.y) < s.box.h)) {
 				v[i].hit = true;
-			    var norm = vect.x*vect.x + vect.y*vect.y;
-			    var dot = vect.x * s.box.dx + vect.y*s.box.dy;
-			    vect.x *= s.box.dx/norm;
-			    vect.y *= s.box.dy/norm;
+			    //var norm = vect.x*vect.x + vect.y*vect.y;
+			    //var dot = vect.x * s.box.dx + vect.y*s.box.dy;
+			    //vect.x *= s.box.dx/norm;
+			    //vect.y *= s.box.dy/norm;
 			    // Impulse of s.box on box
 				box.collisions.push({
 					vector:vect,
@@ -698,8 +698,8 @@ function handleCollisions(box, session) {
 				});
 			    //norm = opp_vect.x*opp_vect.x + opp_vect.y*opp_vect.y;
 			    //dot = opp_vect.x * box.dx + opp_vect.y*box.dy;
-			    opp_vect.x *= box.dx/norm;
-			    opp_vect.y *= box.dy/norm;
+			    //opp_vect.x *= box.dx/norm;
+			    //opp_vect.y *= box.dy/norm;
 
 				// Impulse of box on s.box
 				s.box.collisions.push({
@@ -717,10 +717,10 @@ function handleCollisions(box, session) {
 				(Math.abs(v[i].y - r.box.y) < r.box.h)) {
 				v[i].hit = true;
 			    // Impulse of r.box on box
-			    var norm = vect.x*vect.x + vect.y*vect.y;
-			    var dot = vect.x * r.box.dx + vect.y*r.box.dy;
-			    vect.x *= r.box.dx/norm;
-			    vect.y *= r.box.dy/norm;
+			    //var norm = vect.x*vect.x + vect.y*vect.y;
+			    //var dot = vect.x * r.box.dx + vect.y*r.box.dy;
+			    //vect.x *= r.box.dx/norm;
+			    //vect.y *= r.box.dy/norm;
 
 				box.collisions.push({
 					vector:vect,
@@ -728,8 +728,8 @@ function handleCollisions(box, session) {
 					source:r.box.name,
 					damage:0
 				});
-			    opp_vect.x *= box.dx/norm;
-			    opp_vect.y *= box.dy/norm;
+			    //opp_vect.x *= box.dx/norm;
+			    //opp_vect.y *= box.dy/norm;
 				// Impulse of box on r.box
 				r.box.collisions.push({
 					vector:opp_vect,
