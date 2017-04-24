@@ -82,14 +82,6 @@ Input.prototype.processKeyPressed = function(event) {
 		case 69: // e
 	    client.input.firingRight = true;
 			break;
-	case 32: //space bar
-	    var ship = client.gameState.ships.find(function(s) {
-		return s.selected;
-	    });
-	    ship.orders.splice(0,ship.orders.length);
-			client.emit("clearShipOrders",null);
-			break;
-			
 		// Camera controls
 		case 37: // left arrow
 			client.camera.x--;
@@ -134,6 +126,16 @@ Input.prototype.processKeyReleased = function(event) {
 	case 68: // d
 	    client.input.right = false;
 	    break;
+	case 32: //space bar
+	    client.input.orders = [];
+	    /*
+	    var ship = client.gameState.ships.find(function(s) {
+		return s.selected;
+	    });
+	    //ship.orders.splice(0,ship.orders.length);
+			client.emit("clearShipOrders",null);
+	    */
+			break;
 	case 83: // s
 	    if(!client.input.oars) {
 		client.input.oars = true;
@@ -177,8 +179,7 @@ Input.prototype.processKeyReleased = function(event) {
 	    client.input.firingRight = false;
 	    break;
 	case 70: // f
-	    if (client.gameState)
-		client.emit("selectShip", selectNextShip());
+	    client.emit("selectNextShip", null);
 	    break;
 	case 82: // r
 	    client.input.anchor = !client.input.anchor;
@@ -294,6 +295,7 @@ function selectNextShip() {
     
 function select(shipName) {
     if(debug) log("Clicked ship " + shipName);
+    /*
     var ships = client.gameState.ships;
     var current = ships.find(function(s) {
 		return s.selected;
@@ -307,13 +309,14 @@ function select(shipName) {
 	current.selected = false;
 	next.selected = true;
     }
-    console.log("selectShip from input.select()");
+*/
+    //console.log("selectShip from input.select()");
     client.emit("selectShip", shipName);
 }
 
 function navigate(coords) {
-	if(debug) log("Navigating to " + coords.x + ", " + coords.y);
-        client.emit("pushShipOrder",{name:"goto", coords:coords});
+    if(debug) log("Navigating to " + coords.x + ", " + coords.y);
+    client.emit("pushShipOrder",{name:"goto", coords:coords});
 }
 
 function issueOrder(orderText) {

@@ -232,18 +232,19 @@ Render.prototype.drawGameState = function(data) {
 	    //console.log("render: myShip="+data.state.myShip);
 	    //console.log("render: s.orders.length="+s.orders.length);
 	    // Draw autopilot target positions
-	    if (i === data.state.myShip && s.orders.length > 0) {
-   		for(var j in s.orders) {
-		    if (j === 0 || s.orders[j].name === "goto") {
-			var px = (s.orders[j].coords.x - cam_x) * cell_w;
-			var py = (s.orders[j].coords.y - cam_y) * cell_h;
+	    if (i === data.state.myShip && s.state.orders.length > 0) {
+		var orders = s.state.orders;
+   		for(var j in orders) {
+		    if (orders[j].name === "goto") {
+			var px = (orders[j].coords.x - cam_x) * cell_w;
+			var py = (orders[j].coords.y - cam_y) * cell_h;
 			autotargets.push({x:px,y:py,size:5});
 			dom.canvas.fillStyle = "#ff0000"; // Red
 			dom.canvas.fillRect(px,py,5,5);
 		    } else {
 			var target_ship = null;
 			target_ship = ships.find(function(tget) {
-			    return tget.name === s.orders[j].target;
+			    return tget.name === orders[j].target;
 			});
 			if (target_ship && target_ship.active) {
 			    var px = (target_ship.box.x - cam_x) * cell_w;

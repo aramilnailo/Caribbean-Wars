@@ -66,13 +66,14 @@ Game.prototype.input = function(param) {
 		p.ships[i].state = {
 		    left:param.data.left,
 		    right:param.data.right,
-				firingLeft:param.data.firingLeft,
-				firingRight:param.data.firingRight,
-				firingCount:p.ships[i].state.firingCount,
-				sails:param.data.sails,
-				anchor:param.data.anchor,
-			    oars:param.data.oars,
-			    autocontrol:param.data.autocontrol
+		    firingLeft:param.data.firingLeft,
+		    firingRight:param.data.firingRight,
+		    firingCount:p.ships[i].state.firingCount,
+		    sails:param.data.sails,
+		    anchor:param.data.anchor,
+		    oars:param.data.oars,
+		    autocontrol:param.data.autocontrol,
+		    orders:param.data.orders,
 			};
 		}
 	}
@@ -110,7 +111,7 @@ Game.prototype.pushShipOrder = function(param) {
     if (param.data) {
 	for (var i in p.ships) {
 	    if (p.ships[i].selected)
-		p.ships[i].orders.push(param.data);
+		p.ships[i].state.orders.push(param.data);
 	}
 	
     }
@@ -121,12 +122,10 @@ Game.prototype.clearShipOrders = function(param) {
     var p = param.client.player;
 	if(!p) return;
 
-    if (param.data) {
-	for (var i in p.ships) {
-	    if (p.ships[i].selected)
-		p.ships[i].orders.splice(0,p.ships[i].orders.length);
-	}
-	
+    var arr = [];
+    for (var i in p.ships) {
+	if (p.ships[i].selected)
+	    p.ships[i].state.orders = [];
     }
 }
 
@@ -140,8 +139,41 @@ Game.prototype.selectShip = function(param) {
 		    s.selected = (s.name === shipName);
 		}
 	}
-    
 }
+
+Game.prototype.selectNextShip = function(param) {
+    var client = param.client;
+    if (client.player) {
+	
+	var ships = client.player.ships;
+	var current = ships.find(function(s) {
+	    return s.selected;
+	});
+	if (current) {
+	    var index = ships.indexOf(current);
+	    if(++index >= ships.length) index = 0;
+	    current.state = client.input;
+	    current.selected = false;
+	    ships[index].selected = true;
+	    client.input = ships[index].state;
+	    return ships[index].name;
+	} else {
+	    return "null";
+	}
+    }
+    
+    /*
+	var client = param.client;
+	var shipName = param.data;
+	if(client.player) {
+		for(var i in client.player.ships) {
+			var s = client.player.ships[i];
+		    s.selected = (s.name === shipName);
+		}
+	}
+*/
+}
+
 
 /**
 * The core game loop. Updates the ship positions
@@ -196,23 +228,24 @@ Game.prototype.update = function() {
 			updateSpawners(session);
 			// Add the ship data to the packet
 			for(var j in session.game.ships) {
-				var s = session.game.ships[j];
+			    var s = session.game.ships[j];
 			    if(s.active) {
+				/*
 				var orders = [];
-				for (var o in s.orders) {
+				for (var o in s.state.orders) {
 				    var coords = null;
 				    var target = null;
-				    if (s.orders[o].coords) {
-					coords = {x:s.orders[o].coords.x,
-						  y:s.orders[o].coords.y};
+				    if (s.state.orders[o].coords) {
+					coords = {x:s.state.orders[o].coords.x,
+						  y:s.state.orders[o].coords.y};
 				    }
-				    if (s.orders[o].target)
-					target = s.orders[o].target;
+				    if (s.state.orders[o].target)
+					target = s.state.orders[o].target;
 
-				    orders.push({name:s.orders[o].name,
+				    orders.push({name:s.state.orders[o].name,
 						 coords:coords,
 						 target:target});
-				}
+				} */
 				//console.log("game,pack: orders.len="+orders.length);
 				pack.ships.push({
 						name:s.name, 
@@ -224,7 +257,7 @@ Game.prototype.update = function() {
 						    unloaded:s.currentAmmo
 						    
 						},
-				    	orders:orders,
+				    	//orders:orders,
 
 					    selected:s.selected,
 						docked:s.docked

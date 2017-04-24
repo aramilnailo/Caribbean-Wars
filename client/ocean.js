@@ -71,11 +71,11 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     /**
      *
      */
-    Ocean.prototype.update = function() {
-
+    Ocean.prototype.update = function() {	
+	
 	for (var g = 0; g < CANVAS_W*CANVAS_H; g++)
 	    this.grid[g] = 0.0;
-
+	
 	this.time += 0.1;
 	if (this.time > tmax)
 	    this.time -= Math.floor(this.time/6.28318530718)*6.28318530718;
@@ -101,13 +101,15 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     /**
      *
      */
-    var cnt = 0;
+    //var cnt = 2;
     var first = true;
     Ocean.prototype.renderOcean = function() {
 
-	//if (cnt % 10 === 0)
-	    this.update();
 	//cnt++;
+	//if (cnt % 5 === 0) {
+	    //if (cnt % 10 === 0)
+	    this.update();
+	    //cnt++;
 
 	var id = dom.oceanCanvas.createImageData(CANVAS_W,CANVAS_H);
 	var d = id.data;
@@ -154,7 +156,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
 	}
 
 	dom.oceanCanvas.putImageData(id,0,0);
-	
+	//}
     }
 
    

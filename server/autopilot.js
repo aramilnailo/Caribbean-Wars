@@ -16,14 +16,16 @@ var landmap = [];
 var timelag = 500;
 AutoPilot.prototype.getInput = function(input, ship, session) {
     
-    if (debug) if (! ship.orders) log("server/autopilot.js: !ship.orders");
+    if (debug) if (! ship.state.orders) log("server/autopilot.js: !ship.orders");
+
+    var orders = ship.state.orders;
     
-    if (! ship.orders || ship.orders.length === 0) {
+    if (! orders || orders.length === 0) {
 	input.sails = false;
 	return;
     }
     
-    var order = ship.orders[0];
+    var order = orders[0];
 
     if (! order) {
 	return;
@@ -63,10 +65,10 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 		var ty = step.y; //target_ship.box.y;
 		var tdir = target_ship.box.dir;
 
-		ship.orders[0].coords = {x:tx,y:ty};
+		ship.state.orders[0].coords = {x:tx,y:ty};
 		fireAt(tx,ty,tdir,ship,session,input);
 		if (input.anchor == true) {
-		    ship.orders.push({name:"fire",
+		    ship.state.orders.push({name:"fire",
 				      target:target_ship.name,
 				      coords:{x:tx,y:ty}});
 		    ship.lastpathcalc = -1;
@@ -75,7 +77,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 		    }
 		}
 	    } else {
-		ship.orders.shift();
+		ship.state.orders.shift();
 		ship.lastpathcalc = -1;
 		if (ship.path.length > 0) {
 		    ship.path.splice(0,ship.path.length -1);
@@ -101,7 +103,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    }
 	    
 	    ship.following = null;
-	    ship.orders.splice(0,1);
+	    ship.state.orders.splice(0,1);
 	    ship.lastpathcalc = -1;
 	    if (ship.path.length > 0) {
 		ship.path.splice(0,ship.path.length -1);
@@ -123,7 +125,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 		var tx = step.x; //target_ship.box.x;
 		var ty = step.y; //target_ship.box.y;
 		
-		ship.orders[0].coords = {x:tx,y:ty};
+		ship.state.orders[0].coords = {x:tx,y:ty};
 		seekPosition(tx,ty,ship,session,input);
 		if (input.anchor) {
 		    ship.lastpathcalc = -1;
@@ -132,7 +134,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 		    }
 		}
 	    } else {
-		ship.orders.shift();
+		ship.state.orders.shift();
 		ship.lastpathcalc = -1;
 		if (ship.path.length > 0) {
 		    ship.path.splice(0,ship.path.length -1);
@@ -170,7 +172,7 @@ function follow(input,ship,target_ship,session) {
 		    
 		}
 		//console.log("exit first follow loop; target="+target_ship.name);	
-		ship.orders[0].target = target_ship.name;
+		ship.state.orders[0].target = target_ship.name;
 		target_ship.follower = ship.name;
 		ship.following = target_ship.name;
 		
@@ -205,7 +207,7 @@ function follow(input,ship,target_ship,session) {
 		    target_ship.follower = ship.name;
 		} else {
 		    ship.following = null;
-		    ship.orders.splice(0,1);
+		    ship.state.orders.splice(0,1);
 		    ship.lastpathcalc = -1;
 		    if (ship.path.length > 0) {
 			ship.path.splice(0,ship.path.length -1);
@@ -217,7 +219,7 @@ function follow(input,ship,target_ship,session) {
 		//console.log("follow: uncoupling");
 		target_ship.follower = null;
 		ship.following = null;
-		ship.orders.shift();
+		ship.state.orders.shift();
 		ship.lastpathcalc = -1;
 		if (ship.path.length > 0) {
 		    ship.path.splice(0,ship.path.length -1);
@@ -242,7 +244,7 @@ function follow(input,ship,target_ship,session) {
 	var y1 = ty-3*ship.box.w*Math.sin(tdir);
 	var dx = ship.box.x - x1;
 	var dy = ship.box.y - y1;
-	ship.orders[0].coords = {x:x1,y:y1};
+	ship.state.orders[0].coords = {x:x1,y:y1};
 	
 	if (dx*dx + dy*dy > 5) {
 	    seekPosition(x1,y1,ship,session,input);
@@ -264,7 +266,7 @@ function follow(input,ship,target_ship,session) {
 	
     } else { //target_ship is undefd or null
 	ship.following = null;
-	ship.orders.splice(0,1);
+	ship.state.orders.splice(0,1);
 	ship.lastpathcalc = -1;
 	if (ship.path.length > 0) {
 	    ship.path.splice(0,ship.path.length -1);
@@ -274,7 +276,7 @@ function follow(input,ship,target_ship,session) {
 
 function autonav(input,ship,target_x,target_y,session) {
 
-    var order = ship.orders[0];
+    var order = ship.state.orders[0];
     
     if (session.mapData.height !== maph ||
 	session.mapData.width !== mapw) {
@@ -445,12 +447,20 @@ function seekPosition(x,y,ship,session,input) {
 	var nx = x - x0;
 	var ny = y - y0;
 
-    input.sails = true;
-	
-	if (Math.abs(nx) + Math.abs(ny) < 1) {
-	    ship.orders.shift();
+    if (session.game.wind.x*Math.cos(ship.box.dir) +
+	session.game.wind.y*Math.sin(ship.box.dir) < 0) {
+	input.sails = false;
+	input.oars = true;
+    } else {
+    	input.sails = true;
+	input.oars = false;
+    }
+    
+	if (Math.abs(nx) + Math.abs(ny) < 2) {
+	    ship.state.orders.shift();
 	    input.anchor = true;
 	    input.sails = false;
+	    input.oars = false;
 
 	} else {
 	    // if moving, use vx,vy to steer.

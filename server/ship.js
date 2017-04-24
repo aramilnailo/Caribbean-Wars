@@ -42,14 +42,15 @@ var Ship = function(name, x, y, ruleset) {
 	    state:{
 	        left:false,
 	       	right:false,
-			firingLeft:false,
-			firingRight:false,
-			firingCount:0,
-			sails:false,
-			anchor:false,
-		    oars:false,
-		    autocontrol:false,
-			dead:false
+		firingLeft:false,
+		firingRight:false,
+		firingCount:0,
+		sails:false,
+		anchor:false,
+		oars:false,
+		autocontrol:false,
+		dead:false,
+		orders:[]
 		},
 		prevX:x,
 		prevY:y,
@@ -71,7 +72,6 @@ var Ship = function(name, x, y, ruleset) {
 		alive:true,
 		
 		selected:false,
-	        orders:[],
 	        path:[],
 	        follower:null,
 	        following:null,
