@@ -794,8 +794,8 @@ function updateBox(box) {
 		    dmg.source = c.source;
 		}
 
-	    box.dx+= c.vector.x * c.mass / box.mass;
-	    box.dy += += c.vector.y * c.mass / box.mass;
+	    box.dx += c.vector.x * c.mass / box.mass;
+	    box.dy += c.vector.y * c.mass / box.mass;
 	    /*
 	    if (c.source === "the wind"
 	       || c.source === "the sea" ) {
