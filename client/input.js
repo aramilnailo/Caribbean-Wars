@@ -404,7 +404,7 @@ function routeRightClick(rel_coords, abs_coords) {
 			    html += "<div class=\"orders\" data-name=\"follow:" + ship.name + "\">Follow</div>";
 			    html += "<div class=\"orders\" data-name=\"unfollow:" + ship.name + "\">Unfollow</div>";
 				html += "<div class=\"orders\" data-name=\"ram:" + ship.name + "\">Ram</div>";
-				html += "<div class=\"orders\" data-name=\"board:" + ship.name + "\">Board</div>";
+				//html += "<div class=\"orders\" data-name=\"board:" + ship.name + "\">Board</div>";
 				// Add new orders here
 				dom.rightClickMenu.innerHTML = html;
 			}

@@ -639,7 +639,11 @@ function handleCollisions(box, session) {
 				}
 			}
 		}
-		if(v[i].hit) {
+	    if(v[i].hit) {
+		var norm = vect.x*vect.x + vect.y*vect.y;
+		var dot = vect.x * box.dx + vect.y*box.dy;
+		vect.x *= box.dx/norm;
+		vect.y *= box.dy/norm;
 			box.collisions.push({
 				vector:vect,
 				mass:box.mass,
@@ -681,13 +685,22 @@ function handleCollisions(box, session) {
 			if((Math.abs(v[i].x - s.box.x) < s.box.w) &&
 				(Math.abs(v[i].y - s.box.y) < s.box.h)) {
 				v[i].hit = true;
-				// Impulse of s.box on box
+			    var norm = vect.x*vect.x + vect.y*vect.y;
+			    var dot = vect.x * s.box.dx + vect.y*s.box.dy;
+			    vect.x *= s.box.dx/norm;
+			    vect.y *= s.box.dy/norm;
+			    // Impulse of s.box on box
 				box.collisions.push({
 					vector:vect,
 					mass:s.box.mass,
 					source:s.box.name,
 					damage:0
 				});
+			    //norm = opp_vect.x*opp_vect.x + opp_vect.y*opp_vect.y;
+			    //dot = opp_vect.x * box.dx + opp_vect.y*box.dy;
+			    opp_vect.x *= box.dx/norm;
+			    opp_vect.y *= box.dy/norm;
+
 				// Impulse of box on s.box
 				s.box.collisions.push({
 					vector:opp_vect,
@@ -703,13 +716,20 @@ function handleCollisions(box, session) {
 			if((Math.abs(v[i].x - r.box.x) < r.box.w) &&
 				(Math.abs(v[i].y - r.box.y) < r.box.h)) {
 				v[i].hit = true;
-				// Impulse of r.box on box
+			    // Impulse of r.box on box
+			    var norm = vect.x*vect.x + vect.y*vect.y;
+			    var dot = vect.x * r.box.dx + vect.y*r.box.dy;
+			    vect.x *= r.box.dx/norm;
+			    vect.y *= r.box.dy/norm;
+
 				box.collisions.push({
 					vector:vect,
 					mass:r.box.mass,
 					source:r.box.name,
 					damage:0
 				});
+			    opp_vect.x *= box.dx/norm;
+			    opp_vect.y *= box.dy/norm;
 				// Impulse of box on r.box
 				r.box.collisions.push({
 					vector:opp_vect,
@@ -758,19 +778,39 @@ function handleDeath(victim, killer) {
 
 function updateBox(box) {
 	// For each collision
-	var dmg = {mag:0, source:""};
+    var dmg = {mag:0, source:""};
+    var dx = 0;
+    var dy = 0;
+    var dm = 0;
+    var dx0 = 0;
+    var dy0 = 0;
 	while(box.collisions.length > 0){
 		var c = box.collisions.pop();
 		// Apply damage
 		if(c.damage > 0) {
 			dmg.mag += c.damage;
-			dmg.source = c.source;
+		    dmg.source = c.source;
 		}
+	    if (c.source === "the wind"
+	       || c.source === "the sea" ) {
 	    // Apply impulse
-		box.dx += c.vector.x * c.mass / box.mass;
-		box.dy += c.vector.y * c.mass / box.mass;
+		dx0 += c.vector.x * c.mass / box.mass;
+		dy0 += c.vector.y * c.mass / box.mass;
+	    } else {
+		dx += c.mass * c.vector.x;
+		dy += c.mass * c.vector.y;
+		dm += c.mass;
+	    }
 	}
 
+    if (dm > 0) {
+	box.dx = (box.mass * box.dx + dx) / (box.mass + dm);
+	box.dy = (box.mass * box.dy + dy) / (box.mass + dm);
+    } else {
+	box.dx += dx0;
+	box.dy += dy0;
+    }
+    
     /*
     var cos = Math.cos(box.dir);
     var sin = Math.sin(box.dir);
