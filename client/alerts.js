@@ -87,12 +87,9 @@ Alerts.prototype.logToConsole = function(data) {
 Alerts.prototype.consoleWindowToggle = function(data) {
     if(dom.consoleWindow.style.display === "none") {
 		dom.consoleWindow.style.display = "block";
-		dom.consoleToggle.src = "client/imgs/console-toggle-down.png";
 		dom.chatWindow.style.display = "none";
-		dom.chatToggle.src = "client/imgs/chat-toggle-up.png";
     } else {
 		dom.consoleWindow.style.display = "none";
-		dom.consoleToggle.src = "client/imgs/console-toggle-up.png";
     }
 };
 

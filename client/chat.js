@@ -40,12 +40,9 @@ Chat.prototype.logToChat = function(data) {
 Chat.prototype.toggleChatWindow = function() {
     if(dom.chatWindow.style.display === "none") {
 		dom.chatWindow.style.display = "block";
-		dom.chatToggle.src = "client/imgs/chat-toggle-down.png";
 		dom.consoleWindow.style.display = "none";
-		dom.consoleToggle.src = "client/imgs/console-toggle-up.png";
     } else {
 		dom.chatWindow.style.display = "none";
-		dom.chatToggle.src = "client/imgs/chat-toggle-up.png";
     }
 }
 

@@ -10,7 +10,7 @@ define(["debug", "dom", "client"], function(debug, dom, client) {
     var debug = debug.render;
 
     var CANVAS_W = 500, CANVAS_H = 500;
-    var nwaves = 12;
+    var nwaves = client.settings.waveEffects;
     var nmin = 5;
     var nmax = 20;
     var amp_min = 0.02;

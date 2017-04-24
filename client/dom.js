@@ -34,8 +34,8 @@ var dom = {
 	loginButton:document.getElementById("login-btn"),
 	signupButton:document.getElementById("signup-btn"),
 
-	// Upper menu
-	upperMenu:document.getElementById("upper-menu"),
+	// Main menu
+	mainMenu:document.getElementById("main-menu"),
     usernameLabel:document.getElementById("username-label"),
    	usertypeLabel:document.getElementById("usertype-label"),
 	logoutButton:document.getElementById("logout-btn"),
@@ -43,6 +43,9 @@ var dom = {
 	savedGamesMenuButton:document.getElementById("saved-games-menu-btn"),
 	savedMapsMenuButton:document.getElementById("saved-maps-menu-btn"),
 	statsMenuButton:document.getElementById("stats-menu-btn"),
+	
+	// Settings menu
+	settingsMenu:document.getElementById("settings-menu"),
 
 	// In Game menu
 	inGameMenu:document.getElementById("in-game-menu"),
@@ -126,8 +129,13 @@ var dom = {
 	saveRuleSetButton:document.getElementById("save-rule-set-btn"),
 	loadRuleSetButton:document.getElementById("load-rule-set-btn"),
 
-	// Options menu
-	optionsMenu:document.getElementById("options-menu"),
+	// Upper container
+	upperContainer:document.getElementById("upper-container"),
+	mainMenuButton:document.getElementById("main-menu-btn"),
+	settingsMenuButton:document.getElementById("settings-menu-btn"),
+
+	// Lower container
+	lowerContainer:document.getElementById("lower-container"),
 	chatToggle:document.getElementById("chat-toggle"),
 	consoleToggle:document.getElementById("console-toggle"),
 
@@ -155,7 +163,7 @@ var dom = {
 dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
 dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }
 
-// Upper menu
+// Main menu
 dom.logoutButton.onclick = function() { router.route({name:"logoutClick", data:null}); }
 dom.deleteAccountButton.onclick = function() { router.route({name:"deleteAccountClick", data:null}); }
 dom.savedGamesMenuButton.onclick = function() { router.route({name:"savedGamesMenuToggle", data:null}); }
@@ -215,7 +223,11 @@ dom.redoButton.onclick = function() { router.route({name:"redoClick", data:null}
 dom.resizeButton.onclick = function() { router.route({name:"resizeClick", data:null}); }
 dom.clearButton.onclick = function() { router.route({name:"clearClick", data:null}); }
 
-// Options menu
+// Upper container
+dom.mainMenuButton.onclick = function() { router.route({name:"mainMenuToggle", data:null}); }
+dom.settingsMenuButton.onclick = function() { router.route({name:"settingsMenuToggle", data:null}); }
+
+// Lower container
 dom.chatToggle.onclick = function() { router.route({name:"chatWindowToggle", data:null}); }
 dom.consoleToggle.onclick = function() { router.route({name:"consoleWindowToggle", data:null}); }
 

@@ -368,6 +368,11 @@ function routeLeftClick(rel_coords, abs_coords) {
 	else if(elem.className === "rule-set-option") ruleSetOptionClick(elem);
 	else if(elem.className === "port-option") portOptionClick(elem);
 	else if(elem.className === "user-option") userOptionClick(elem);
+	else if(elem.className === "add-user") {
+		alerts.showPrompt("Invite which user?", function(resp) {
+			if(resp) client.emit("inviteUser", resp);
+		});
+	}
 	
 	// Click off right click menu if needed
 	if(elem !== dom.rightClickMenu && elem.className !== "user") {
@@ -490,12 +495,7 @@ function portOptionClick(element) {
 function userOptionClick(element) {
 	var optionName = element.getAttribute("data-name");
 	var parsedOption = optionName.split("-");
-	if(parsedOption[0] === "invite") {
-		alerts.showPrompt("Invite which user?", function(resp) {
-			if(resp) client.emit("inviteUser", resp);
-		});
-	}
-	else if(parsedOption[0] === "kick") client.emit("kickUser", parsedOption[1]);
+	if(parsedOption[0] === "kick") client.emit("kickUser", parsedOption[1]);
 	else if(parsedOption[0] === "promote") client.emit("setHost", parsedOption[1]);
 }
 

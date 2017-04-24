@@ -183,6 +183,33 @@ th, td {
 	width:510px;
 }
 
+#upper-container, 
+#lower-container {
+	width:50%;
+	margin:auto;
+}
+
+#upper-container::after, 
+#lower-container::after {
+	content:"";
+	clear:both;
+	display:table;
+}
+
+#upper-container img, 
+#lower-container img {
+	width:50px;
+	height:25px;
+}
+
+#main-menu-btn, #settings-menu-btn {
+	float:right;
+}
+
+#chat-toggle, #console-toggle {
+	float:left;
+}
+
 #lobby-screen {
 	margin:auto;
 	padding:10px;
@@ -243,6 +270,11 @@ th, td {
 	float:right;
 	width:70%;
 	border:1px solid black;
+}
+
+#session-prep .container .select:hover {
+	color:white;
+	background-color:green;
 }
 
 #map-preview {

@@ -28,6 +28,11 @@ Client.prototype.input = {
     autocontrol:false,
     orders:[]
 };
+
+Client.prototype.settings = {
+	waveEffects:4
+};
+
 Client.prototype.loading = false;
 Client.prototype.drawing = false;
 Client.prototype.inGame = false;

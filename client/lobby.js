@@ -136,7 +136,7 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 		for(var i in data) {
 			html += "<li data-name=\"" + data[i] + "\" class=\"user\">" + data[i] + "</li>";
 		}
-		html += "<li data-name=\"+\" class=\"user\"> + </li>";
+		html += "<li data-name=\"+\" class=\"add-user\"> + </li>";
 		html += "</ul>";
 		dom.lobbyPlayerList.innerHTML = html;
 	}

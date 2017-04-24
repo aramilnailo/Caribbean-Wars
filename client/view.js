@@ -32,6 +32,9 @@ View.prototype.listen = function(router) {
 	router.listen("gameUpdate", this.setGameState);
 	router.listen("portMenu", this.portMenu);
 	router.listen("hidePortMenu", this.hidePortMenu);
+	
+	router.listen("mainMenuToggle", this.mainMenuToggle);
+	router.listen("settingsMenuToggle", this.settingsMenuToggle);
 }
 
 
@@ -72,12 +75,13 @@ View.prototype.loginScreen = function(data) {
 
 View.prototype.sessionBrowser = function(data) {
 	hideAll();
-        show(["sessionBrowser", "sessionMenu", "upperMenu", "optionsMenu"]);
+	show(["sessionBrowser", "sessionMenu", 
+	"upperContainer", "lowerContainer"]);
 }
 
 View.prototype.lobbyScreen = function(data) {
 	hideAll();
-	show(["lobbyScreen", "upperMenu", "optionsMenu"]);
+	show(["lobbyScreen", "upperContainer", "lowerContainer"]);
 	if(data.isHost) {
 		hide(["lobbyButtons"]);
 		show(["hostLobbyButtons"]);
@@ -91,28 +95,28 @@ View.prototype.lobbyScreen = function(data) {
 
 View.prototype.gameScreen = function(data) {
 	hideAll();
-	show(["gameScreen", "upperMenu", "inGameMenu", 
-	"optionsMenu"]);
+	show(["gameScreen", "upperContainer", "inGameMenu", 
+	"lowerContainer"]);
 	client.inGame = true;
 }
 
 View.prototype.mapEditorScreen = function(data) {
 	hideAll();
 	client.emit("loadEditMap", "default");
-	show(["upperMenu", "mapEditorMenu", 
-	"mapEditorScreen", "optionsMenu"]);
+	show(["upperContainer", "mapEditorMenu", 
+	"mapEditorScreen", "lowerContainer"]);
 }
 
 View.prototype.rulesEditorScreen = function(data) {
 	hideAll();
 	client.emit("getRuleSet", null);
 	client.emit("getRuleSetList", null);
-	show(["rulesEditor", "upperMenu", "optionsMenu"]);
+	show(["rulesEditor", "upperContainer", "lowerContainer"]);
 }
 
 View.prototype.adminScreen = function(data) {
 	hideAll();
-	show(["adminScreen", "upperMenu", "optionsMenu"]);
+	show(["adminScreen", "upperContainer", "lowerContainer"]);
 }
 
 View.prototype.portMenu = function(data) {
@@ -131,6 +135,22 @@ View.prototype.portMenu = function(data) {
 
 View.prototype.hidePortMenu = function(data) {
 	hide(["portMenu"]);
+}
+
+View.prototype.mainMenuToggle = function(data) {
+	if(dom.mainMenu.style.display === "none") {
+		dom.mainMenu.style.display = "block";
+	} else {
+		dom.mainMenu.style.display = "none";
+	}
+}
+
+View.prototype.settingsMenuToggle = function(data) {
+	if(dom.settingsMenu.style.display === "none") {
+		dom.settingsMenu.style.display = "block";
+	} else {
+		dom.settingsMenu.style.display = "none";
+	}
 }
 
 function hide(data) {
@@ -170,12 +190,14 @@ function expand(data) {
 function hideAll() {
 	
 	collapse(["statsMenu", "savedGamesMenu", "userMenu", 
-	"sessionMenu", "savedMapsMenu", "chatWindow", "consoleWindow"]);
+	"sessionMenu", "savedMapsMenu", 
+	"mainMenu", "settingsMenu",
+	"chatWindow", "consoleWindow"]);
 	
 	hide(["loginScreen", "gameScreen", "adminScreen", 
 	"lobbyScreen", "sessionBrowser", "mapEditorScreen",
-	"upperMenu", "inGameMenu", "mapEditorMenu",
-	"optionsMenu", "rulesEditor"]);
+	"upperContainer", "inGameMenu", "mapEditorMenu",
+	"lowerContainer", "rulesEditor"]);
 	
 	client.inGame = false;
 }
@@ -183,7 +205,7 @@ function hideAll() {
 function renderPreview() {
 	console.log("rendering preview");
 	var canvas = dom.mapPreview.getContext("2d");
-	canvas.clearRect(0, 0, canvas.width, canvas.height);
+	canvas.clearRect(0, 0, 275, 275);
 	if(!client.map) return;
 	var map = client.map.data;
 	var cell_w = 275 / client.map.width;
