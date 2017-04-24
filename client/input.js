@@ -491,6 +491,10 @@ function portOptionClick(element) {
 			name:"health",
 			ship:parsedOption[1]
 		};
+	} else if(parsedOption[0] === "ship") {
+		input = {
+			name:"ship"
+		};
 	}
 	if(input) client.emit("portInput", input);
 }

@@ -87,18 +87,36 @@ Game.prototype.parsePortInput = function(param) {
 	if(!player) return;
 	var session = GAME_SESSIONS[id];
 	var input = param.data;
-	var ship = player.ships.find(function(s) {
+	var myship = player.ships.find(function(s) {
 		return s.name === input.ship;
 	});
 	if(input.name === "ammo") {
-		ship.currentAmmo += session.ruleset.portAmmo;
-		if(ship.currentAmmo > ship.maxAmmo) ship.currentAmmo = ship.maxAmmo;
+		myship.currentAmmo += session.ruleset.portAmmo;
+		if(myship.currentAmmo > myship.maxAmmo) myship.currentAmmo = myship.maxAmmo;
 		server.emit(param.client.socket, "alert", "Refilled ammo");
 	}
 	else if(input.name === "health") {
-		ship.health += session.ruleset.portRepair;
-		if(ship.health > ship.maxHealth) ship.health = ship.maxHealth;
+		myship.health += session.ruleset.portRepair;
+		if(myship.health > myship.maxHealth) myship.health = myship.maxHealth;
 		server.emit(param.client.socket, "alert", "Repaired ship");
+	}
+	else if(input.name === "ship") {
+		if(player.ships.length < 5) {
+			var spawn = session.game.shipSpawns.find(function(s) {
+				return !s.blocked;
+			});
+			if(spawn) {
+				var sh = new ship(player.name + "-" + player.ships.length, 
+					spawn.x, spawn.y, session.ruleset);	
+				player.ships.push(sh);
+				session.game.ships.push(sh);
+				server.emit(param.client.socket, "alert", "New ship constructed");
+			} else {
+				server.emit(param.client.socket, "alert", "No spawns available");
+			}
+		} else {
+			server.emit(param.client.socket, "alert", "Fleet at full capacity");
+		}
 	}
 	server.emit(param.client.socket, "hidePortMenu", null);
 }
@@ -230,23 +248,6 @@ Game.prototype.update = function() {
 			for(var j in session.game.ships) {
 			    var s = session.game.ships[j];
 			    if(s.active) {
-				/*
-				var orders = [];
-				for (var o in s.state.orders) {
-				    var coords = null;
-				    var target = null;
-				    if (s.state.orders[o].coords) {
-					coords = {x:s.state.orders[o].coords.x,
-						  y:s.state.orders[o].coords.y};
-				    }
-				    if (s.state.orders[o].target)
-					target = s.state.orders[o].target;
-
-				    orders.push({name:s.state.orders[o].name,
-						 coords:coords,
-						 target:target});
-				} */
-				//console.log("game,pack: orders.len="+orders.length);
 				pack.ships.push({
 						name:s.name, 
 						box:s.box, 
@@ -255,10 +256,7 @@ Game.prototype.update = function() {
 						ammo:{
 							loaded:s.projectiles.length,
 						    unloaded:s.currentAmmo
-						    
 						},
-				    	//orders:orders,
-
 					    selected:s.selected,
 						docked:s.docked
 					});
@@ -563,22 +561,18 @@ function updateSpawners(session) {
 	}
 	for(var i in session.game.shipSpawns) {
 		var s = session.game.shipSpawns[i];
-		s.counter++;
-		if(s.counter > 1000) {
-			s.counter = 0;
-			if(!s.blocked) {
-				// Only first player for now -- TO DO
-				var p = session.game.players[0];
-				if(p.ships.length < 5) {
-					var sh = new ship(p.name + "-" + p.ships.length, 
-						s.x, s.y, session.ruleset);
-					p.ships.push(sh);
-					session.game.ships.push(sh);
+		s.blocked = false;
+		for(var j in session.game.ships) {
+			var shi = session.game.ships[j];
+			if(shi.active) {
+				var max = Math.max(shi.box.w, shi.box.h);
+				if(s.x > shi.box.x - max && s.x < shi.box.x + max &&
+				s.y > shi.box.y - max && s.y < shi.box.y + max) {
+					s.blocked = true;
+					break;
 				}
 			}
 		}
-		s.blocked = false;
-		
 	}
 }
 

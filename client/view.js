@@ -130,7 +130,9 @@ View.prototype.portMenu = function(data) {
 	"<div data-name=\"ammo:" + data.ship + "\" class=\"port-option\">" + 
 	"Refill Ammo</div>" +
 	"<div data-name=\"repair:" + data.ship + "\" class=\"port-option\">" + 
-	"Repair Ship</div>";
+	"Repair Ship</div>" +
+	"<div data-name=\"ship:" + data.ship + "\" class=\"port-option\">" +
+	"Build New Ship</div>";
 }
 
 View.prototype.hidePortMenu = function(data) {
