@@ -56,16 +56,18 @@ Users.prototype.displayUserList = function(data) {
 Users.prototype.addUserClick = function(data) {
 	if(debug.users) log("[Users] addUserClick");
 	alerts.showPrompt("[Add user] Username?", function(uname) {
-		if(uname) alerts.showPrompt("[Add user] Password?", function(pword) {
-			if(pword) { 
-				client.emit("signup", 
-				{	
-					username:uname, 
-					password:pword, 
-					usertype:"player"
-				});
-			}
-		});
+		if(uname !== null) {
+			alerts.showPrompt("[Add user] Password?", function(pword) {
+				if(pword !== null) { 
+					client.emit("signup", 
+					{	
+						username:uname, 
+						password:pword, 
+						usertype:"player"
+					});
+				}
+			});
+		}
 	});
 		
 }
@@ -74,10 +76,12 @@ Users.prototype.addUserClick = function(data) {
 Users.prototype.deleteUserClick = function(data) {
 	if(debug.users) log("[Users] deleteUserClick");
 	alerts.showPrompt("[Delete user] Username?", function(uname) {
-		if(uname) {
-			if(uname === "admin") alerts.pushAlert("Cannot delete admin.");
-		} else {
-			client.emit("deleteAccount", uname);
+		if(uname !== null) {
+			if(uname === "admin") {
+				alerts.pushAlert("Cannot delete admin.");
+			} else {
+				client.emit("deleteAccount", uname);
+			}
 		}
 	});
 }
@@ -86,13 +90,15 @@ Users.prototype.deleteUserClick = function(data) {
 Users.prototype.userTypeClick = function(data) {
 	if(debug.users) log("[Users] userTypeClick");
 	alerts.showPrompt("Username?", function(uname) {
-		if(uname) alerts.showPrompt("New type?", function(type) {
-			if(type === "admin" || type === "player" || type === "editor") {
-				client.emit("changeUserType", {username:uname, type:type});
-			} else {
-				alerts.pushAlert("Invalid type.");
-			}	
-		});
+		if(uname !== null) {
+			alerts.showPrompt("New type?", function(type) {
+				if(type === "admin" || type === "player" || type === "editor") {
+					client.emit("changeUserType", {username:uname, type:type});
+				} else {
+					alerts.pushAlert("Invalid type.");
+				}
+			});
+		}
 	});
 }
 

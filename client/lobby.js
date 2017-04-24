@@ -5,7 +5,6 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 	Lobby.prototype.listen = function(router) {
 		router.listen("joinSessionClick", this.joinSessionClick);
 		router.listen("newSessionClick", this.newSessionClick);
-		router.listen("sessionMenuToggle", this.toggleSessionMenu);
 		router.listen("sessionListResponse", this.displaySessionList);
 		
 		router.listen("invitation", this.inviteResponse);
@@ -34,20 +33,6 @@ define(["debug", "dom", "client", "alerts"], function(debug, dom, client, alerts
 	Lobby.prototype.newSessionClick = function(data) {
 		debug.log("[Lobby] newSessionClick");
 		client.emit("newGameSession", null);
-	}
-	
-	Lobby.prototype.toggleSessionMenu = function() {
-	    if (debug.lobby) debug.log("client/lobby.js: toggleSessionMenu");
-	    if(dom.sessionMenu.style.display === "none") {
-		    if(debug.lobby) debug.log("toggleSessionMenu(): Show sessions");
-	        client.emit("sessionListRequest", null);
-			dom.sessionMenuButton.innerHTML = "Hide sessions";
-			dom.sessionMenu.style.display = "block";
-	    } else {
-	        if(debug.lobby) debug.log("toggleSessionMenu(): Hide sessions");
-	        dom.sessionMenu.style.display = "none";	
-			dom.sessionMenuButton.innerHTML = "Show sessions";
-	    }
 	}
 
 	Lobby.prototype.displaySessionList = function(data) {

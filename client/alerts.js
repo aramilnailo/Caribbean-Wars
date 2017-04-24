@@ -42,7 +42,6 @@ Alerts.prototype.showPrompt = function(data, cb) {
 Alerts.prototype.confirm = function(data, cb) {
 	dom.confirmText.innerHTML = data;
 	dom.confirmBox.style.display = "block";
-	dom.comfirmBox.style.top = pageYOffset + "px";
 	dom.confirmYesButton.onclick = function() {
 		cb(true);
 		dom.confirmBox.style.display = "none";

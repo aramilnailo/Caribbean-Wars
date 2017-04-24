@@ -26,6 +26,7 @@ footer, header, hgroup, menu, nav, section {
 }
 body {
 	line-height: 1;
+	margin-bottom:2em;
 }
 ol, ul {
 	list-style: none;
@@ -410,15 +411,12 @@ th, td {
 	background-color:white;
 }
 
-#options-menu {
-	margin-bottom:3em;
+#chat-window, #console-window {
+	width:50%;
+	margin:auto;
 }
 
-#chat-window {
-	width:100%;
-}
-
-#chat-log {
+#chat-log, #console-log {
 	border:2px solid white;
 	width:100%;
 	height:100px;
@@ -427,26 +425,7 @@ th, td {
 	color:white;
 }
 
-#chat-input {
-	width:100%;
-	background-color:black;
-	color:white;
-}
-
-#console-window {
-	width:100%;
-}
-
-#console-log {
-	border:2px solid white;
-	width:100%;
-	height:100px;
-	overflow-y:scroll;
-	background-color:black;
-	color:white;
-}
-
-#console-input {
+#chat-input, #console-input {
 	width:100%;
 	background-color:black;
 	color:white;

@@ -88,10 +88,6 @@ var dom = {
 	
 	// Session browser
 	sessionBrowser:document.getElementById("session-browser"),
-	sessionMenuButton:document.getElementById("session-menu-btn"),
-	
-	// Session menu
-	sessionMenu:document.getElementById("session-menu"),
 	sessionList:document.getElementById("session-list"),
 	joinSessionButton:document.getElementById("join-session-btn"),
 	newSessionButton:document.getElementById("new-session-btn"),
@@ -175,9 +171,6 @@ dom.deleteUserButton.onclick = function() { router.route({name:"deleteUserClick"
 dom.userTypeButton.onclick = function() { router.route({name:"userTypeClick", data:null}); }
 
 // Session browser
-dom.sessionMenuButton.onclick = function() { router.route({name:"sessionMenuToggle", data:null}); }
-
-// Session menu
 dom.joinSessionButton.onclick = function() { router.route({name:"joinSessionClick", data:null}); }
 dom.newSessionButton.onclick = function() { router.route({name:"newSessionClick", data:null}); }
 

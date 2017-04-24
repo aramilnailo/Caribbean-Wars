@@ -128,7 +128,7 @@ Session.prototype.enterGameSession = function(param) {
 	log("[Session] enterGameSession");
 	var client = param.client;
 	var id = param.data;
-	if(id >= GAME_SESSIONS.length) {
+	if(!GAME_SESSIONS[id]) {
 		server.emit(client.socket, "alert", "No such game session");
 		return;
 	}

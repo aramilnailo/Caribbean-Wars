@@ -70,12 +70,13 @@ View.prototype.loginScreen = function(data) {
 	show(["loginScreen"]);
     client.username = "";
     client.usertype = "";
+	client.map = null;
 }
 
 View.prototype.sessionBrowser = function(data) {
 	hideAll();
-	show(["sessionBrowser", "sessionMenu", 
-	"upperContainer", "lowerContainer"]);
+	client.emit("sessionListRequest", null);
+	show(["sessionBrowser", "upperContainer", "lowerContainer"]);
 }
 
 View.prototype.lobbyScreen = function(data) {
@@ -192,8 +193,7 @@ function expand(data) {
 function hideAll() {
 	
 	collapse(["statsMenu", "savedGamesMenu", "userMenu", 
-	"sessionMenu", "savedMapsMenu", 
-	"mainMenu", "settingsMenu",
+	"savedMapsMenu", "mainMenu", "settingsMenu",
 	"chatWindow", "consoleWindow"]);
 	
 	hide(["loginScreen", "gameScreen", "adminScreen", 

@@ -69,12 +69,12 @@ MapEditor.prototype.setEditMap = function(data) {
 };
 
 MapEditor.prototype.drawEditScreen = function(event) {
+	if(!client.map) return;
 	if(client.camera.moved)	{
 		setCameraActive();
 		client.camera.moved = false;
 	}
 	if(!activeArea) return;
-	if(!client.map) return;
 	var map = client.map.data;
 	// camera position in cells
 	var cam_x = client.camera.x;
