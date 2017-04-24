@@ -33,7 +33,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 
     if (order.name === "goto") {
 
-	var ch = session.mapData.data[Math.floor(order.coords.y)].charAt(Math.floor(order.coords.x));
+	var ch = session.mapData.data[Math.floor(order.coords.x)].charAt(Math.floor(order.coords.y));
 	if ( !ch || ch === "1" || ch === "2" || ch === "3") {
 	    ship.state.orders.splice(0,1);
 	    ship.lastpathcalc = -1;
@@ -65,28 +65,29 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	}
 
 	if (order.name === "fire") {
-	    if (target_ship) {
-		
-		var step = autonav(input,ship,
-				   target_ship.box.x,
-				   target_ship.box.y,
-				   session);
-		
-		var tx = step.x; //target_ship.box.x;
-		var ty = step.y; //target_ship.box.y;
-		var tdir = target_ship.box.dir;
+	    if (target_ship && target_ship.alive) {
 
-		ship.state.orders[0].coords = {x:tx,y:ty};
-		fireAt(tx,ty,tdir,ship,session,input);
-		if (input.anchor == true) {
-		    ship.state.orders.push({name:"fire",
-				      target:target_ship.name,
-				      coords:{x:tx,y:ty}});
-		    ship.lastpathcalc = -1;
-		    if (ship.path.length > 0) {
-			ship.path.splice(0,ship.path.length -1);
+		    var step = autonav(input,ship,
+				       target_ship.box.x,
+				       target_ship.box.y,
+				       session);
+		    
+		    var tx = step.x; //target_ship.box.x;
+		    var ty = step.y; //target_ship.box.y;
+		    var tdir = target_ship.box.dir;
+		    
+		    ship.state.orders[0].coords = {x:tx,y:ty};
+		    fireAt(tx,ty,tdir,ship,session,input);
+		    if (input.anchor == true) {
+			ship.state.orders.push({name:"fire",
+						target:target_ship.name,
+						coords:{x:tx,y:ty}});
+			ship.lastpathcalc = -1;
+			if (ship.path.length > 0) {
+			    ship.path.splice(0,ship.path.length -1);
+			}
 		    }
-		}
+		
 	    } else {
 		ship.state.orders.shift();
 		ship.lastpathcalc = -1;
@@ -96,23 +97,27 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    }
 	    
 	} else if (order.name === "unfollow") {
-	    //console.log("AP call to unfollow");	    
-	    target_ship.follower = ship.follower;
-
-	    if (ship.follower !== null){
-		var following_ship = null;
+	    
+	    var following_ship = null;
+	    if (ship.follower !== null) {
 		for (var i in session.game.players) {
 		    following_ship = session.game.players[i].ships.find(function(s) {
 			return s.name === ship.follower;
 		    });
 		    if (following_ship) break;
 		}
-		if (following_ship) {
-		    following_ship.following = target_ship.name;
-		}
-		ship.follower = null;
 	    }
-	    
+	    //console.log("AP call to unfollow");
+	    if (target_ship && target_ship.alive
+		&& ship.following
+		&& ship.following === target_ship.name) {
+		
+		target_ship.follower = ship.follower;
+		if (following_ship)
+		    following_ship.following = target_ship.name;
+		
+	    }
+	    ship.follower = null;
 	    ship.following = null;
 	    ship.state.orders.splice(0,1);
 	    ship.lastpathcalc = -1;
@@ -126,7 +131,7 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
 	    
 	} else if (order.name === "ram") {
 	    //console.log("AP call to ram");
-	    if (target_ship) {
+	    if (target_ship && target_ship.alive) {
 		
 		var step = autonav(input,ship,
 				   target_ship.box.x,
@@ -158,9 +163,9 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
     
 function follow(input,ship,target_ship,session) {
 
-    if (target_ship) {
+    if (ship.alive && target_ship) {
 	
-	if (target_ship.active) {
+	if (target_ship.alive) {
 	    
 	    // if not already in queue,
 	    // add to end of queue
@@ -190,7 +195,7 @@ function follow(input,ship,target_ship,session) {
 		
 	    }
 	    
-	} else { // ... target ship is inactive.
+	} else { // ... target ship is dead.
 	    
 	    // leapfrog the ship up front
 	    if (target_ship.following) {
@@ -200,7 +205,7 @@ function follow(input,ship,target_ship,session) {
 		//console.log("enter follow loop");
 		while (ship_to_follow &&
 		       ship_to_follow.following &&
-		       ! ship_to_follow.active) {
+		       ! ship_to_follow.alive) {
 		    for (var i in session.game.players) {
 			ship_to_follow = session.game.players[i].ships.find(function(s) {
 			    return s.name === target_ship.following;
@@ -213,7 +218,7 @@ function follow(input,ship,target_ship,session) {
 		    }
 		}
 		//console.log("exit follow loop");
-		if (target_ship) {
+		if (target_ship && target_ship.alive) {
 		    ship.following = target_ship.name;
 		    target_ship.follower = ship.name;
 		} else {
@@ -241,39 +246,39 @@ function follow(input,ship,target_ship,session) {
 
 	//console.log(" "+ship.name+": target="+target_ship.name+"; following="+ship.following+"; follower="+ship.follower);
 	
-	var step = autonav(input,ship,
-			   target_ship.box.x,
-			   target_ship.box.y,
-			   session);
-	
-	var tx = step.x; //target_ship.box.x;
-	var ty = step.y; //target_ship.box.y;
-	var tdir = target_ship.box.dir;
-	
-	
-	var x1 = tx-3*ship.box.w*Math.cos(tdir);
-	var y1 = ty-3*ship.box.w*Math.sin(tdir);
-	var dx = ship.box.x - x1;
-	var dy = ship.box.y - y1;
-	ship.state.orders[0].coords = {x:x1,y:y1};
-	
-	if (dx*dx + dy*dy > 5) {
-	    seekPosition(x1,y1,ship,session,input);
-	    if (input.anchor == true) {
-		ship.lastpathcalc = -1;
-		if (ship.path.length > 0)
-		    ship.path.splice(0,ship.path.length -1);
+	    var step = autonav(input,ship,
+			       target_ship.box.x,
+			       target_ship.box.y,
+			       session);
+	    
+	    var tx = step.x; //target_ship.box.x;
+	    var ty = step.y; //target_ship.box.y;
+	    var tdir = target_ship.box.dir;
+	    
+	    
+	    var x1 = tx-3*ship.box.w*Math.cos(tdir);
+	    var y1 = ty-3*ship.box.w*Math.sin(tdir);
+	    var dx = ship.box.x - x1;
+	    var dy = ship.box.y - y1;
+	    ship.state.orders[0].coords = {x:x1,y:y1};
+	    
+	    if (dx*dx + dy*dy > 5) {
+		seekPosition(x1,y1,ship,session,input);
+		if (input.anchor == true) {
+		    ship.lastpathcalc = -1;
+		    if (ship.path.length > 0)
+			ship.path.splice(0,ship.path.length -1);
+		}
+	    } else {
+		var dirx = ship.box.x - ship.prevX;
+		var diry = ship.box.y - ship.prevY;
+		var dir = ship.box.dir;
+		if (dirx != 0 || diry != 0)
+		    dir = Math.atan2(diry,dirx);
+		var diff = dir - tdir;
+		if (diff < -0.03) input.right = true;
+		else if (diff > 0.03) input.left = true;
 	    }
-	} else {
-	    var dirx = ship.box.x - ship.prevX;
-	    var diry = ship.box.y - ship.prevY;
-	    var dir = ship.box.dir;
-	    if (dirx != 0 || diry != 0)
-		dir = Math.atan2(diry,dirx);
-	    var diff = dir - tdir;
-	    if (diff < -0.03) input.right = true;
-	    else if (diff > 0.03) input.left = true;
-	}
 	
     } else { //target_ship is undefd or null
 	ship.following = null;
