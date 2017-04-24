@@ -779,11 +779,13 @@ function handleDeath(victim, killer) {
 function updateBox(box) {
 	// For each collision
     var dmg = {mag:0, source:""};
+    /*
     var dx = 0;
     var dy = 0;
     var dm = 0;
     var dx0 = 0;
     var dy0 = 0;
+*/
 	while(box.collisions.length > 0){
 		var c = box.collisions.pop();
 		// Apply damage
@@ -791,9 +793,14 @@ function updateBox(box) {
 			dmg.mag += c.damage;
 		    dmg.source = c.source;
 		}
+
+	    box.dx+= c.vector.x * c.mass / box.mass;
+	    box.dy += += c.vector.y * c.mass / box.mass;
+	    /*
 	    if (c.source === "the wind"
 	       || c.source === "the sea" ) {
 	    // Apply impulse
+		
 		dx0 += c.vector.x * c.mass / box.mass;
 		dy0 += c.vector.y * c.mass / box.mass;
 	    } else {
@@ -801,8 +808,10 @@ function updateBox(box) {
 		dy += c.mass * c.vector.y;
 		dm += c.mass;
 	    }
+	    */
 	}
 
+    /*
     if (dm > 0) {
 	box.dx = (box.mass * box.dx + dx) / (box.mass + dm);
 	box.dy = (box.mass * box.dy + dy) / (box.mass + dm);
@@ -810,6 +819,7 @@ function updateBox(box) {
 	box.dx += dx0;
 	box.dy += dy0;
     }
+    */
     
     /*
     var cos = Math.cos(box.dir);
