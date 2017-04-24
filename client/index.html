@@ -33,24 +33,8 @@
 	<!--RIGHT CLICK MENU-->
 	<div id="right-click-menu" style="display:none;"></div>
 	
-	<!--MAIN MENU-->
-	<div id="main-menu" style="display:none;">
-  	  	<span id="username-label"></span>
-  	  	<span id="usertype-label"></span>
-		<div id="upper-menu-btns" style="display:inline-block;">
-	    	<button id="logout-btn">Log out</button>
-	    	<button id="delete-account-btn">Delete Account</button>
-	    	<button id="saved-games-menu-btn">Show saved games</button>
-			<button id="saved-maps-menu-btn">Show saved maps</button>
-	    	<button id="stats-menu-btn">Show stats</button>
-		</div>
-	</div>
-	
-	<!--SETTINGS MENU-->
-	<div id="settings-menu" style="display:none;"></div>
-	
 	<!--SAVED GAMES MENU-->
-    <div id="saved-games-menu" class="white-menu" style="display:none;">
+    <div id="saved-games-menu" class="abs-menu" style="display:none;">
 	  <span class="menu-title">Saved Games</span>
 	  <div id="saved-games-list" style="display:table;"></div>
 	  <div id="saved-games-menu-btns">
@@ -61,7 +45,7 @@
     </div>
 
 	<!--SAVED MAPS MENU-->
-	<div id="saved-maps-menu" class="white-menu" style="display:none;">
+	<div id="saved-maps-menu" class="abs-menu" style="display:none;">
 		<span class="menu-title">Saved Maps</span>
 		<div id="saved-maps-list" style="display:table;"></div>
 		<div id="saved-maps-menu-btns">
@@ -72,7 +56,7 @@
 	</div>
 
 	<!--STATS MENU-->
-    <div id="stats-menu" class="white-menu" style="display:none;">
+    <div id="stats-menu" class="abs-menu" style="display:none;">
 	  <span class="menu-title">Stats</span>
 	  <div id="stats-list" style="display:table;"></div>
 	  <div id="stats-menu-btns">
@@ -90,25 +74,15 @@
 	  </div>
 	</div>
 	
-	<div id="upper-game-screen">
-		<!--IN-GAME MENU-->
-		<div id="in-game-menu" style="display:none;">
-		  <div id="in-game-menu-btns">
-			<button id="leave-game-btn">Leave game</button>
-			<button id="stop-game-btn" class="host">End game</button>
-		  </div>
-	    </div>
-		
-		<!--MAP EDITOR MENU-->
-		<div id="map-editor-menu" style="display:none;">
-			<div id="map-editor-menu-btns">
-				<button id="undo-btn">Undo</button>
-				<button id="redo-btn">Redo</button>
-				<button id="clear-btn">Clear</button>
-				<button id="resize-btn">Resize</button>
-			</div>
-	  	</div>
-	</div>
+	<!--MAP EDITOR MENU-->
+	<div id="map-editor-menu" style="display:none;">
+		<div id="map-editor-menu-btns">
+			<button id="undo-btn">Undo</button>
+			<button id="redo-btn">Redo</button>
+			<button id="clear-btn">Clear</button>
+			<button id="resize-btn">Resize</button>
+		</div>
+  	</div>
 
 	<!--LOGIN SCREEN-->
 	<div id="login-screen" class="clear-menu">
@@ -130,6 +104,27 @@
 	
 	<!--UPPER CONTAINER-->
 	<div id="upper-container" style="display:none;">
+		
+		<!--MAIN MENU-->
+		<div id="main-menu" style="display:none;">
+			<div id="main-menu-btns">
+		    	<div class="main-menu-option" data-func="logoutClick">Log out</div>
+		    	<div class="main-menu-option" data-func="deleteAccountClick">Delete Account</div>
+				<br>
+		    	<div class="main-menu-option" data-func="savedGamesMenuToggle">Show saved games</div>
+				<div class="main-menu-option" data-func="savedMapsMenuToggle">Show saved maps</div>
+		    	<div class="main-menu-option" data-func="statsMenuToggle">Show stats</div>
+			</div>
+			<div id="in-game-menu" style="display:none;">
+				<br>
+		    	<div class="main-menu-option" data-func="stopGameClick">End game</div>
+		    	<div class="main-menu-option" data-func="leaveGameClick">Leave</div>
+		    </div>
+		</div>
+		
+		<!--SETTINGS MENU-->
+		<div id="settings-menu" style="display:none;"></div>
+		
 		<img id="main-menu-btn" src="client/imgs/main-menu.png">
 		<img id="settings-menu-btn" src="client/imgs/settings.png">
 	</div>

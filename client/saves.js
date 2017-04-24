@@ -34,10 +34,20 @@ Saves.prototype.toggleSavedGamesMenu = function(data) {
     if(dom.savedGamesMenu.style.display === "none") {
 		client.emit("savedGamesListRequest", null);
 		dom.savedGamesMenu.style.display = "block";
-		dom.savedGamesMenuButton.innerHTML = "Hide saved games";
+		
+		if(dom.savedMapsMenu.style.display !== "none") {
+			dom.savedMapsMenu.style.display = "none";
+		}
+		if(dom.statsMenu.style.display !== "none") {
+			dom.statsMenu.style.display = "none";
+		}
+		
+		var rect = dom.mainMenu.getBoundingClientRect();
+		var rect2 = dom.savedGamesMenu.getBoundingClientRect();
+		dom.savedGamesMenu.style.left = (rect.left - rect2.width) + "px";
+		dom.savedGamesMenu.style.top = rect.top + "px";
     } else {
 		dom.savedGamesMenu.style.display = "none";
-		dom.savedGamesMenuButton.innerHTML = "Show saved games";
     }
 }
 

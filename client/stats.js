@@ -32,10 +32,20 @@ Stats.prototype.toggleStatsMenu = function() {
     if(dom.statsMenu.style.display === "none") {
 		client.emit("statsMenuRequest", null);
 		dom.statsMenu.style.display = "block";
-		dom.statsMenuButton.innerHTML = "Hide stats";
+		
+		if(dom.savedMapsMenu.style.display !== "none") {
+			dom.savedMapsMenu.style.display = "none";
+		}
+		if(dom.savedGamesMenu.style.display !== "none") {
+			dom.savedGamesMenu.style.display = "none";
+		}
+		
+		var rect = dom.mainMenu.getBoundingClientRect();
+		var rect2 = dom.statsMenu.getBoundingClientRect();
+		dom.statsMenu.style.left = (rect.left - rect2.width) + "px";
+		dom.statsMenu.style.top = rect.top + "px";
     } else {
 		dom.statsMenu.style.display = "none";
-		dom.statsMenuButton.innerHTML = "Show stats";
     }
 }
 

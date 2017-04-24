@@ -41,7 +41,6 @@ View.prototype.listen = function(router) {
 View.prototype.setClientInfo = function(data) {
 	client.username = data.username;
 	client.usertype = data.usertype;
-	dom.usernameLabel.innerHTML = data.username;
 }
 
 View.prototype.setMap = function(data) {
@@ -140,14 +139,17 @@ View.prototype.hidePortMenu = function(data) {
 View.prototype.mainMenuToggle = function(data) {
 	if(dom.mainMenu.style.display === "none") {
 		dom.mainMenu.style.display = "block";
+		placeMenu(dom.mainMenu);
 	} else {
 		dom.mainMenu.style.display = "none";
+		collapse(["statsMenu", "savedGamesMenu", "savedMapsMenu"]);
 	}
 }
 
 View.prototype.settingsMenuToggle = function(data) {
 	if(dom.settingsMenu.style.display === "none") {
 		dom.settingsMenu.style.display = "block";
+		placeMenu(dom.settingsMenu);
 	} else {
 		dom.settingsMenu.style.display = "none";
 	}
@@ -241,7 +243,12 @@ function renderPreview() {
 			}
 		}
 	}
-	
+}
+
+function placeMenu(elem) {
+	var rect = dom.upperContainer.getBoundingClientRect();
+	elem.style.left = rect.right + "px";
+	elem.style.top = rect.bottom + "px";
 }
 
 return new View();

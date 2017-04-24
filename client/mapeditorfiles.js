@@ -27,10 +27,20 @@ MapEditorFiles.prototype.toggleSavedMapsMenu = function(data) {
     if(dom.savedMapsMenu.style.display === "none") {
 		client.emit("savedMapsListRequest", null);
 		dom.savedMapsMenu.style.display = "block";
-		dom.savedMapsMenuButton.innerHTML = "Hide saved maps";
+		
+		if(dom.savedGamesMenu.style.display !== "none") {
+			dom.savedGamesMenu.style.display = "none";
+		}
+		if(dom.statsMenu.style.display !== "none") {
+			dom.statsMenu.style.display = "none";
+		}
+		
+		var rect = dom.mainMenu.getBoundingClientRect();
+		var rect2 = dom.savedMapsMenu.getBoundingClientRect();
+		dom.savedMapsMenu.style.left = (rect.left - rect2.width) + "px";
+		dom.savedMapsMenu.style.top = rect.top + "px";
     } else {
 		dom.savedMapsMenu.style.display = "none";
-		dom.savedMapsMenuButton.innerHTML = "Show saved maps";
     }
 };
 

@@ -69,6 +69,17 @@ th, td {
 	font-size:1.5em;
 }
 
+.abs-menu {
+	background-color:black;
+	color:white;
+	position:absolute;
+	border:1px solid white;
+}
+
+.abs-menu th, td {
+	border:1px solid white;
+}
+
 #site-header {
 	text-align:center;
 	font-size:3em;
@@ -177,10 +188,22 @@ th, td {
 	color:lightblue;
 }
 
-#upper-menu {
-	margin:auto;
-	margin-top:1em;
-	width:510px;
+#main-menu {
+	position:absolute;
+	z-index:1;
+	left:0px;
+	top:0px;
+	font-family:Courier;
+	color:white;
+	background-color:black;
+	border:1px solid white;
+	padding:5px;
+	width:200px;
+	height:300px;
+}
+
+.user-option:hover, .main-menu-option:hover {
+	color:green;
 }
 
 #upper-container, 
@@ -330,11 +353,6 @@ th, td {
 #host-menu {
 	float:left;
 	width:75%;
-}
-
-#in-game-menu {
-	float:right;
-	width:25%;
 }
 
 #map-editor-menu {

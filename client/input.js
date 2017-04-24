@@ -373,6 +373,9 @@ function routeLeftClick(rel_coords, abs_coords) {
 			if(resp) client.emit("inviteUser", resp);
 		});
 	}
+	else if(elem.className === "main-menu-option") {
+		router.route({name:elem.getAttribute("data-func"), data:null});
+	}
 	
 	// Click off right click menu if needed
 	if(elem !== dom.rightClickMenu && elem.className !== "user") {

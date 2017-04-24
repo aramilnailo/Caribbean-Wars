@@ -28,30 +28,20 @@ var dom = {
 	// Login page
 	loginScreen:document.getElementById("login-screen"),
     loginUsername:document.getElementById("login-username"),
+	loginUsertype:{},
 	loginPassword:document.getElementById("login-password"),
-    loginUsertype:{},
     loginUsertypeForm:document.getElementById("login-usertype-radiobox"),
 	loginButton:document.getElementById("login-btn"),
 	signupButton:document.getElementById("signup-btn"),
 
 	// Main menu
 	mainMenu:document.getElementById("main-menu"),
-    usernameLabel:document.getElementById("username-label"),
-   	usertypeLabel:document.getElementById("usertype-label"),
-	logoutButton:document.getElementById("logout-btn"),
-	deleteAccountButton:document.getElementById("delete-account-btn"),
-	savedGamesMenuButton:document.getElementById("saved-games-menu-btn"),
-	savedMapsMenuButton:document.getElementById("saved-maps-menu-btn"),
-	statsMenuButton:document.getElementById("stats-menu-btn"),
+	mainMenuButtons:document.getElementById("main-menu-btns"),
+	inGameMenu:document.getElementById("in-game-menu"),
 	
 	// Settings menu
 	settingsMenu:document.getElementById("settings-menu"),
 
-	// In Game menu
-	inGameMenu:document.getElementById("in-game-menu"),
-	stopGameButton:document.getElementById("stop-game-btn"),
-	leaveGameButton:document.getElementById("leave-game-btn"),
-	
 	// Map editor menu
 	mapEditorMenu:document.getElementById("map-editor-menu"),
 	undoButton:document.getElementById("undo-btn"),
@@ -163,23 +153,12 @@ var dom = {
 dom.loginButton.onclick = function() { router.route({name:"loginClick", data:null}); }
 dom.signupButton.onclick = function() { router.route({name:"signupClick", data:null}); }
 
-// Main menu
-dom.logoutButton.onclick = function() { router.route({name:"logoutClick", data:null}); }
-dom.deleteAccountButton.onclick = function() { router.route({name:"deleteAccountClick", data:null}); }
-dom.savedGamesMenuButton.onclick = function() { router.route({name:"savedGamesMenuToggle", data:null}); }
-dom.statsMenuButton.onclick = function() { router.route({name:"statsMenuToggle", data:null}); }
-
-// In game menu
-dom.stopGameButton.onclick = function() { router.route({name:"stopGameClick", data:null}); }
-dom.leaveGameButton.onclick = function() { router.route({name:"leaveGameClick", data:null}); }
-
 // Saved games menu
 dom.saveGameButton.onclick = function() { router.route({name:"saveGameClick", data:null}); }
 dom.loadGameButton.onclick = function() { router.route({name:"loadGameClick", data:null}); }
 dom.deleteGameButton.onclick = function() { router.route({name:"deleteGameClick", data:null}); }
 
 // Saved maps menu
-dom.savedMapsMenuButton.onclick = function() { router.route({name:"savedMapsMenuToggle", data:null}); }
 dom.saveMapButton.onclick = function() { router.route({name:"saveMapClick", data:null}); }
 dom.loadMapButton.onclick = function() { router.route({name:"loadMapClick", data:null}); }
 dom.deleteMapButton.onclick = function() { router.route({name:"deleteMapClick", data:null}); }
