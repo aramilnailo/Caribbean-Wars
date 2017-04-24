@@ -63,26 +63,6 @@
         <button id="clear-stats-btn">Clear stats</button>
 	  </div>
     </div>
-	
-  	<!--USER MENU-->
-	<div id="user-menu" style="display:none;">
-	  <div id="user-list" style="display:table;"></div>
-	  <div id="user-menu-btns">
-		<button id="add-user-btn" class="admin">Add User</button>
-		<button id="delete-user-btn" class="admin">Delete User</button>
-		<button id="user-type-btn" class="admin">Change User Type</button>
-	  </div>
-	</div>
-	
-	<!--MAP EDITOR MENU-->
-	<div id="map-editor-menu" style="display:none;">
-		<div id="map-editor-menu-btns">
-			<button id="undo-btn">Undo</button>
-			<button id="redo-btn">Redo</button>
-			<button id="clear-btn">Clear</button>
-			<button id="resize-btn">Resize</button>
-		</div>
-  	</div>
 
 	<!--LOGIN SCREEN-->
 	<div id="login-screen" class="clear-menu">
@@ -104,7 +84,15 @@
 	
 	<!--UPPER CONTAINER-->
 	<div id="upper-container" style="display:none;">
-		
+		<!--MAP EDITOR MENU-->
+		<div id="map-editor-menu" style="display:none;">
+			<div id="map-editor-menu-btns">
+				<img id="undo-btn" src="client/imgs/undo.png">
+				<img id="redo-btn" src="client/imgs/redo.png">
+				<img id="clear-btn" src="client/imgs/clear.png">
+				<img id="resize-btn" src="client/imgs/resize.png">
+			</div>
+	  	</div>
 		<!--MAIN MENU-->
 		<div id="main-menu" style="display:none;">
 			<div id="main-menu-btns">
@@ -121,7 +109,6 @@
 		    	<div class="main-menu-option" data-func="leaveGameClick">Leave</div>
 		    </div>
 		</div>
-		
 		<!--SETTINGS MENU-->
 		<div id="settings-menu" style="display:none;"></div>
 		
@@ -140,10 +127,19 @@
 		
 	<!--ADMIN SCREEN-->
 	<div id="admin-screen" class="white-menu" style="display:none;">
-	  <span>Admin Screen</span>
-	  <div id="admin-screen-btns">
-	    <button id="user-menu-btn">Show Users</button>
-  	  </div>
+		<span>Admin Screen</span>
+		<div id="admin-screen-btns">
+			<button id="user-menu-btn">Show Users</button>
+		</div>
+		<!--USER MENU-->
+		<div id="user-menu" style="display:none;">
+			<div id="user-list" style="display:table;"></div>
+			<div id="user-menu-btns">
+				<button id="add-user-btn" class="admin">Add User</button>
+				<button id="delete-user-btn" class="admin">Delete User</button>
+				<button id="user-type-btn" class="admin">Change User Type</button>
+			</div>
+		</div>
 	</div>
 	
 	<!--SESSION BROWSER-->
@@ -171,14 +167,32 @@
 			<div id="lobby-left-side">
 				<div id="lobby-player-list"></div>
 				<div id="host-lobby-btns">
-					<div id="new-game-btn"><img src="client/imgs/play.png">New game</div>
-					<div id="resume-game-btn"><img src="client/imgs/load.png">Start game from save</div>
-					<div id="rules-editor-btn"><img src="client/imgs/rules.png">Edit rule set</div>
-					<div id="end-session-btn"><img src="client/imgs/x.png">End Session</div>
+					<div id="new-game-btn">
+						<img src="client/imgs/play.png">
+						<span>Start game</span>
+					</div>
+					<div id="resume-game-btn">
+						<img src="client/imgs/load.png">
+						<span>Start game from save</span>
+					</div>
+					<div id="rules-editor-btn">
+						<img src="client/imgs/rules.png">
+						<span>Edit rule set</span>
+					</div>
+					<div id="end-session-btn">
+						<img src="client/imgs/x.png">
+						<span>End Session</span>
+					</div>
 				</div>
 				<div id="lobby-btns">
-					<div id="leave-session-btn"><img src="client/imgs/x.png">Leave</div>
-					<div id="join-in-progress-btn"><img src="client/imgs/play.png">Join in progress</div>
+					<div id="join-in-progress-btn">
+						<img src="client/imgs/play.png">
+						<span>Join in progress</span>
+					</div>
+					<div id="leave-session-btn">
+						<img src="client/imgs/x.png">
+						<span>Leave</span>
+					</div>
 				</div>
 			</div>
 			<div id="lobby-right-side">

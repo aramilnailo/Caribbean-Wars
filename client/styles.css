@@ -74,6 +74,7 @@ th, td {
 	color:white;
 	position:absolute;
 	border:1px solid white;
+	z-index:1;
 }
 
 .abs-menu th, td {
@@ -86,6 +87,7 @@ th, td {
 	color:white;
 	margin:auto;
 	margin-top:1em;
+	margin-bottom:1em;
 	width:70%;
 }
 
@@ -225,6 +227,11 @@ th, td {
 	height:25px;
 }
 
+#map-editor-menu {
+	float:left;
+	width:60%;
+}
+
 #main-menu-btn, #settings-menu-btn {
 	float:right;
 }
@@ -266,11 +273,21 @@ th, td {
 	color:green;
 	border:1px solid black;
 	padding:2px;
+	margin:1px;
 }
 
 #lobby-player-list li:hover {
 	color:white;
 	background-color:green;
+}
+
+#lobby-left-side span {
+	height:50px;
+	font-family:Courier;
+}
+
+#lobby-left-side span:hover {
+	color:green;
 }
 
 #session-prep .container {
@@ -350,15 +367,6 @@ th, td {
 	display: table;
 }
 
-#host-menu {
-	float:left;
-	width:75%;
-}
-
-#map-editor-menu {
-	width:100%;
-}
-
 #session-list {
 	margin-top:1em;
 	margin-bottom:1em;
@@ -389,7 +397,6 @@ th, td {
     content: "";
     clear: both;
     display: table;
-	margin-bottom:3em;
 }
 
 #map-editor-brush-panel {

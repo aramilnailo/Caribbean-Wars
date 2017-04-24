@@ -12,21 +12,36 @@ var debug = debug.render;
 var Render = function() {};
 
 // loading images to be displayed
-var arrow = new Image(), ball = new Image(), 
-ship = new Image(), barrel = new Image(), 
+var arrow = new Image(), 
+anchor = new Image(),
+oars = new Image(),
+autopilot = new Image(),
+
+ball = new Image(), 
+ship = new Image(), 
+barrel = new Image(), 
+
 sand = new Image(), 
-grass = new Image(), port = new Image(), 
-defaultCell = new Image(), deadShip = new Image();
-//, ocean = new Image(), 
+grass = new Image(), 
+port = new Image(), 
+defaultCell = new Image(), 
+
+deadShip = new Image();
     
 arrow.src = "client/imgs/arrow.png";
+anchor.src = "client/imgs/anchor.png";
+oars.src = "client/imgs/oars.png";
+autopilot.src = "client/imgs/autopilot.png";
+
 ball.src = "client/imgs/ball.png";
 ship.src = "client/imgs/shipcannon.png";
 barrel.src = "client/imgs/barrel.png";
+
 sand.src = "client/imgs/sand.png";
 grass.src = "client/imgs/grass.png";
 port.src = "client/imgs/dock.png";
 defaultCell.src = "client/imgs/default.png";
+
 deadShip.src = "client/imgs/shipdeath.png";
 
 var render_next = [];
@@ -112,6 +127,11 @@ Render.prototype.drawGameState = function(data) {
 	var projectiles = data.state.projectiles;
 	var resources = data.state.resources;
 	var wind = data.state.wind;
+	
+	var draw_anchor = false;
+	var draw_oars = false;
+	var draw_auto = false;
+	
 	// camera position in cells
 	var cam_x = client.camera.x;
 	var cam_y = client.camera.y;
@@ -198,6 +218,9 @@ Render.prototype.drawGameState = function(data) {
 				": " + s.health.toFixed(1) + 
 				", " + s.ammo.loaded + 
 				" / " + s.ammo.unloaded;
+				if(s.state.anchor) draw_anchor = true;
+				if(s.state.oars) draw_oars = true;
+				if(s.state.autocontrol) draw_auto = true;
 			}
 			dom.canvas.fillStyle = "#00a524"; // Green
 		} else {
@@ -261,11 +284,12 @@ Render.prototype.drawGameState = function(data) {
 	
 	// === MINI MAP AND MENU ===
 	// Clear the menu and minimap
-	dom.canvas.clearRect(
+	dom.canvas.fillStyle = "#ffffff"; // White
+	dom.canvas.fillRect(
 		MENU_X, MENU_Y, 
 		MENU_W, MENU_H
 	);
-	dom.canvas.clearRect(
+	dom.canvas.fillRect(
 		MINI_X, MINI_Y, 
 		MINI_W, MINI_H
 	);
@@ -320,16 +344,38 @@ Render.prototype.drawGameState = function(data) {
 		var dir = Math.atan2(wind.y, wind.x).toFixed(2);
 		dom.canvas.save();
 		dom.canvas.translate(
-			MENU_X + 20, 
-			MENU_Y + 20
+			MENU_X + MENU_W/2, 
+			MENU_Y + MENU_W/2
 		);
 		dom.canvas.rotate(dir);
 		dom.canvas.drawImage(
 			arrow, 
-			-10, -5, 
-			20, 10
+			-20, -10, 
+			40, 20
 		);
 		dom.canvas.restore();
+	}
+	// Draw additional info
+	if(draw_anchor) {
+		dom.canvas.drawImage(
+			anchor, 
+			MENU_X + MENU_W / 2, 
+			MENU_Y + 200
+		);
+	}
+	if(draw_oars) {
+		dom.canvas.drawImage(
+			oars, 
+			MENU_X + MENU_W / 2, 
+			MENU_Y + 300
+		);
+	}
+	if(draw_auto) {
+		dom.canvas.drawImage(
+			autopilot, 
+			MENU_X + MENU_W / 2, 
+			MENU_Y + 400
+		);
 	}
 	// Finishing
 	client.drawing = false;

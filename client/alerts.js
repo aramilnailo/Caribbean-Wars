@@ -17,6 +17,7 @@ Alerts.prototype.pushAlert = function(data) {
 
 Alerts.prototype.showPrompt = function(data, cb) {
 	dom.promptBox.style.display = "block";
+	dom.promptBox.style.top = pageYOffset + "px";
 	dom.promptText.innerHTML = data;
 	dom.promptInput.value = "";
 	dom.promptInput.focus();
@@ -41,6 +42,7 @@ Alerts.prototype.showPrompt = function(data, cb) {
 Alerts.prototype.confirm = function(data, cb) {
 	dom.confirmText.innerHTML = data;
 	dom.confirmBox.style.display = "block";
+	dom.comfirmBox.style.top = pageYOffset + "px";
 	dom.confirmYesButton.onclick = function() {
 		cb(true);
 		dom.confirmBox.style.display = "none";
@@ -58,7 +60,7 @@ Alerts.prototype.displayMessages = function(data) {
 	} else {
 		var newQ = [];
 		while(messages.length > 0) {
-			var m = messages.pop();
+			var m = messages.shift();
 			if(--m.count > 0) {
 				newQ.push(m);	// Leaking memory
 			}
@@ -70,6 +72,7 @@ Alerts.prototype.displayMessages = function(data) {
 		}
 		dom.alertText.innerHTML = html;
 		dom.alertText.style.display = "block";
+		dom.alertBox.style.top = pageYOffset + "px";
 	}
 };
 
