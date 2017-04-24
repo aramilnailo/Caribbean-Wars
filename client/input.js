@@ -393,7 +393,8 @@ function routeRightClick(rel_coords, abs_coords) {
 				// Display order options
 				var html = "";
 				html += "<div class=\"orders\" data-name=\"fire:" + ship.name + "\">Fire</div>";
-				html += "<div class=\"orders\" data-name=\"follow:" + ship.name + "\">Follow</div>";
+			    html += "<div class=\"orders\" data-name=\"follow:" + ship.name + "\">Follow</div>";
+			    html += "<div class=\"orders\" data-name=\"unfollow:" + ship.name + "\">Unfollow</div>";
 				html += "<div class=\"orders\" data-name=\"ram:" + ship.name + "\">Ram</div>";
 				html += "<div class=\"orders\" data-name=\"board:" + ship.name + "\">Board</div>";
 				// Add new orders here

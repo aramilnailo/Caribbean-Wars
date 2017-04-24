@@ -32,6 +32,17 @@ AutoPilot.prototype.getInput = function(input, ship, session) {
     }
 
     if (order.name === "goto") {
+
+	var ch = session.mapData.data[Math.floor(order.coords.y)].charAt(Math.floor(order.coords.x));
+	if ( !ch || ch === "1" || ch === "2" || ch === "3") {
+	    ship.state.orders.splice(0,1);
+	    ship.lastpathcalc = -1;
+	    if (ship.path.length > 0) {
+		ship.path.splice(0,ship.path.length -1);
+	    }
+	    
+	}
+	
 	var step = autonav(input,ship,
 			   order.coords.x,
 			   order.coords.y,
